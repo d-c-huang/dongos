@@ -2,6 +2,10 @@
 
 [spec.md](spec.md) 定义 Dong v0.1 的 L0 契约。当前 `dongc` 已接通 L1 编译器的语言与 ABI 功能，并在 P1 内核中运行；六个基础标准库由 DeepSeek 实现，均已复验；2026-10-17 的 L1 本地总验收通过 353 项宿主测试和 5 次 QEMU 启动。
 
+## 用户文档
+
+面向使用者的[文档目录](docs/README.md)：[入门教程](docs/tutorial.md)、[语言指南](docs/guide.md)、[速查表](docs/cheatsheet.md)、[工具链手册](docs/toolchain.md)、[诊断参考](docs/diagnostics.md)和由源码注释生成的[标准库参考](docs/std/index.md)。配套工具 `tools/dongdoc.py`（API 文档生成）、`tools/dong_explain.py`（错误码解释）和 `tools/dong_doctest.py`（编译文档示例）见工具链手册。
+
 ## 可运行命令
 
 在仓库根目录执行，Python 3.10+，编译器本身只使用标准库：
