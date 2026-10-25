@@ -1,0 +1,125 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_device_policy",
+    "module:tests.test_device_memory_diag",
+    "module:tests.test_boot_progress",
+    "module:tests.test_framebuffer_gate",
+    "module:tests.test_runtime_qemu_result"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T16:07:05+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T16:12:11+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T16:07:05+00:00",
+  "delivery": "codex-works/deliveries/P8TIMER1.md",
+  "depends_on": [
+    "codex:P8IOAPIC1"
+  ],
+  "description": "新真机照片S01/error03030002 CPU8，slot9 HPET FED00000/type11/pages1/attrs8000000000000001。此前逐设备Runtime放行边界过窄；按真实UEFI类型与所有权统一可信ACPI平台寄存器：本私有planner只接收MADT LAPIC/IOAPIC、校验HPET和SystemMemory PM timer(0..10槽)，type11含Runtime允许；全部非11 inclReserved/runtimecode/data/RAM仍拒。Runtime位仅SetVA映射元数据，当前EBS后无EFI RuntimeServices/SetVA，无宽WB/HHDM映射，allocator只type7非Runtime；原rawmap attrs不改，资源/重复/几何/诊断/失败原子性/WRITE|UC supervisorNX/PCI-DMA独立Runtime拒绝不变，不改deadline。native两模式实际planner/prepare覆盖11槽12mask、所有同时Runtime、HPET+PM retained冲突/重复、全部非11两属性态拒绝及0sideeffect，真实旧slot>8/slot>9/slot!=0/全Runtime拒绝及误放RAM/Reserved坏体oracle正常拒绝。独立五模块7项0skip/source稳定。root正常runtime7 USB-only完整两boot原HID/FS/CPU强gate；8CPU私有EFI实际LAPIC+IOAPIC+HPET type11 Runtime原map完整字节快照和最终对照、IRQ线程129ticks65switches/真实PTE UCsuperNX/三HHDM无alias/完整磁盘SHA，私有cmp1→2 S03取证不发布不冒称8CPU全SMP桌面。用户已确认原SanDisk H插回，核身份旧SHA备份flushfsync全readback/readonlyFAT后正常成品写盘，不format/partition/internaldisk。沿用用户代码推送授权，完成后代码与去claim_token公开任务记录推GitHub。",
+  "document": "codex-works/tasks/P8TIMER1-board.md",
+  "historical": false,
+  "id": "codex:P8TIMER1",
+  "integration_note": "7文件已真实集成主code/与coordination交付目录，正式独立job ad7de22e89c24f2084a0488569b5783c指纹一致；7项0skip/source稳定及root实际正常双boot完整HID/FS/CPU强gate、8CPU三Runtime LAPIC+IOAPIC+HPET真实IRQ线程/原map完整快照与字节重建/PTE/无三HHDM别名已完成，详见accept；所有VM停/正常对象及内盘不变。原SanDisk H: disk2序列4C530000010320109015 USB7798784000B/非BootSystem/单FAT32 offset131072核对前后不变、四旧SHA一致。备份code/build/hardware/usb-platform-mmio-20261026-r1/usb-publish/before；正常非私有guard成品及说明已flush/fsync写入并全SHA读回。EFI485ace1e4bd4f8d8a8862377845ceb48f41e394fafa2941392eed2cf5a73e43d；IMG94093d918d7c38de4ec3b88fb653df49c907afce5db3f04bcc211e30bf423dbb；SERVICES754a1a0a57d2a5f593d5dea00fdd9f584f7520ae93b4dc1fdb3c9039ab56b441；receipt绑定manifest/正常两boot/三设备runtimeproof/四readback。原卷native readonly rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，不修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk修改。SystemMemory PM只有native覆盖，实际Intel继续启动/桌面/键鼠仍待用户复测，不冒称实机已过。继续沿用户既有授权将本次源码测试文档及去claim_token公开任务快照提交推送GitHub。",
+  "legacy_hash": "1384c331c07cdfaffd11816b5d58d53468974649a4e4f609a561f590cf1a2a71",
+  "number": "P8TIMER1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已审查7授权文件/所有ACPI入口及UEFI原定义，私有add只接受plan_core中已发现校验的0..10平台寄存器。生产只去掉Runtime按slot>8拒绝，所有已描述页仍必须type11；没有改PCI/DMA独立Runtime拒绝/allocator/EFI服务/deadline。rawattrs只读、全部非11/retained/重复/几何/Plan184 Views88 Conflict88/原子性/诊断/UCsuperNX不变。原生policy实际1041+566检查、12mask全11槽/全11同时Runtime/全部非11两态/全槽retained及HPETPM重复几何，8真实旧规则/误放坏体正常oracle拒绝。prepare两模式各519场景/144成功/flags9/query全先map/输入只读ctx零/失败副作用及14坏体正常rc1无panic；预检旧输出说明已纠正，正式版本独立复验job ad7de22e89c24f2084a0488569b5783c 五模块7测试0skip/source稳定/进程全退出，7指纹一致。root正常USB-only runtime7冻结build、live-full原完整两boot HID/GUI/F12pwd/文件write append rm cat syncFLUSH/全部CPU健康/代码池页表等强gate PASS；两boot phase14 failed0 error0 view0 ctx88零，整USB SHA均060b3b8884599ffdfd07f39a0b7567ee3ebff45a989e3528249c1614dd3404ab。root8CPU runtime-proof三Runtime LAPIC IOAPIC HPET PASS：真实postEBS原map完整快照与最终逐字节重建仅三指定type/attrs/必要append变化，所有其它字段/padding保留；真实CR3/root/View/pool一致，三实际设备PTE exact supervisorRW/UC/NX且三宽HHDM无alias。原runtime串口+真实BSS reports/engine/guard/stack/controller/codebytes全核，129ticks65switches两workers各64完成真实IRQ线程。私有cmp1→2仅后runtime一字节guard在S03/error1/cpu8取证，不发布不冒称8CPU完整SMP/desktop；SystemMemory PM只由native覆盖，q35实际为SystemIO，不冒称PM MMIO实机。三个VM全停、normal objects/受控USB/三可写内盘全SHA均不变。静态EFI初次自组命令漏正常COFF relocation选项而失败保留，改用原build完整实际命令后-Wall -Werror汇编通过且无源修改；真实VM最终成功。原SanDisk H再次身份与旧四SHA核对正确，可发布正常成品并readback/FAT审计，物理Intel后续启动/HID仍待反馈。",
+  "status": "integrated",
+  "title": "统一ACPI平台Runtime MMIO并修复真机HPET拒绝",
+  "updated_at": "2026-10-25T16:19:46+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 23.359,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_policy",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 52.781,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_memory_diag",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 17.235,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_boot_progress",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 17.438,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_gate",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.406,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_qemu_result",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8TIMER1.md": "d6ce19147c0f586578bc274b4f8605992e6c747124782048b83dcec28de2bd26",
+      "docs/hardware-runtime-platform-mmio.md": "7b10dd2e096d962f267ceca7f542b91830ce686ec3b6fbc75ed2bee3f7772795",
+      "kernel/boot/device_policy.dg": "924256e36e9f6b1fe1e6cb5258a78af5b193485960668abddb3dcc10d0ebb24e",
+      "tests/device_memory_diag_probe.c": "ab3071f5049a78c113d6dab2e5eeb598f2e6031968f2a04212eff2c051aacffe",
+      "tests/device_policy_probe.c": "1102f7f799db7eb84b99cc77f18395e1140dc5e7361296e41c8679d6dc8f60ac",
+      "tests/test_device_memory_diag.py": "8d37fb9c0fcdf6d645d9c342786168b0e06c385adb7899da602c37d3ee559bbd",
+      "tests/test_device_policy.py": "f97badb492e5f350e07a1d785b29dc084a56d2759f195f16a6c6e4fe0a21edd3"
+    },
+    "finished_at": "2026-10-25T16:14:16+00:00",
+    "job": "ad7de22e89c24f2084a0488569b5783c",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/boot/device_policy.dg",
+    "tests/device_policy_probe.c",
+    "tests/test_device_policy.py",
+    "tests/device_memory_diag_probe.c",
+    "tests/test_device_memory_diag.py",
+    "docs/hardware-runtime-platform-mmio.md",
+    "codex-works/deliveries/P8TIMER1.md"
+  ]
+}

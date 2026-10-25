@@ -80,7 +80,7 @@ class DeviceMemoryDiagnosticTests(unittest.TestCase):
         tracked.update((ROOT / 'lang/dongc').glob('*.py'))
         before = {p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in tracked}
         results = []
-        for variant in ('normal', 'swallowed-policy-error', 'reject-runtime-apic', 'reject-runtime-ioapic', 'allow-all-runtime'):
+        for variant in ('normal', 'swallowed-policy-error', 'reject-runtime-apic', 'reject-runtime-ioapic', 'reject-runtime-timers', 'reject-runtime-pm', 'allow-reserved', 'allow-ram'):
             for mode in ('debug', 'release'):
                 where = out / variant / mode; where.mkdir(parents=True)
                 stage = where / 'source'; (stage / 'boot').mkdir(parents=True)
@@ -97,17 +97,19 @@ class DeviceMemoryDiagnosticTests(unittest.TestCase):
                     actual = re.sub(pattern, lambda m: b'match policy.plan_diagnostic(' + m[1] + b') {ok=>{},err(code)=>{}}', actual, count=1)
                 (stage / 'boot/device_memory.dg').write_bytes(actual + FIXTURE_EXPORTS.encode())
                 actual_policy = original['kernel/boot/device_policy.dg']
-                runtime = b'((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot > 8)'
-                if variant == 'reject-runtime-apic':
-                    self.assertEqual(1, actual_policy.count(runtime))
-                    actual_policy = actual_policy.replace(runtime, runtime.replace(b' && slot > 8', b''), 1)
-                elif variant == 'reject-runtime-ioapic':
-                    self.assertEqual(1, actual_policy.count(runtime))
-                    actual_policy = actual_policy.replace(runtime, runtime.replace(b' && slot > 8', b' && slot != 0'), 1)
-                elif variant == 'allow-all-runtime':
-                    guard = b'kind != 11 || ' + runtime
+                guard = b'if kind != 11 {'
+                runtime = b'(u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0'
+                mutation = {
+                    'reject-runtime-apic': b'if kind != 11 || ' + runtime + b' {',
+                    'reject-runtime-ioapic': b'if kind != 11 || (' + runtime + b' && slot != 0) {',
+                    'reject-runtime-timers': b'if kind != 11 || (' + runtime + b' && slot > 8) {',
+                    'reject-runtime-pm': b'if kind != 11 || (' + runtime + b' && slot > 9) {',
+                    'allow-reserved': b'if kind != 11 && kind != 0 {',
+                    'allow-ram': b'if kind != 11 && kind != 7 {',
+                }.get(variant)
+                if mutation is not None:
                     self.assertEqual(1, actual_policy.count(guard))
-                    actual_policy = actual_policy.replace(guard, b'kind != 11', 1)
+                    actual_policy = actual_policy.replace(guard, mutation, 1)
                 (stage / 'boot/device_policy.dg').write_bytes(actual_policy)
                 if variant == 'normal':
                     self.assertEqual(original['kernel/boot/device_memory.dg'], (stage / 'boot/device_memory.dg').read_bytes()[:-len(FIXTURE_EXPORTS.encode())])
@@ -151,14 +153,13 @@ class DeviceMemoryDiagnosticTests(unittest.TestCase):
                     self.assertIn('DEVICE_MEMORY_DIAG_NATIVE_OK', execution.stdout)
                 else:
                     self.assertEqual(1, execution.returncode, execution.stdout + execution.stderr)
-                    if variant in ('reject-runtime-apic', 'reject-runtime-ioapic'):
-                        expected_slots = '0x001' if variant == 'reject-runtime-apic' else '0x002'
-                        self.assertIn('DM_RUNTIME_APIC status=0x03030002 attributes=0x8000000000000000 legacy=0 slots='+expected_slots, execution.stdout)
+                    if variant.startswith('reject-runtime-'):
+                        expected_slots = {'reject-runtime-apic':'0x001', 'reject-runtime-ioapic':'0x002',
+                                          'reject-runtime-timers':'0x200', 'reject-runtime-pm':'0x400'}[variant]
+                        self.assertIn('DM_RUNTIME_PLATFORM status=0x03030002 attributes=0x8000000000000000 legacy=0 slots='+expected_slots, execution.stdout)
                         self.assertIn('status==0', execution.stderr)
                     else:
                         self.assertIn('DM_OBS conflict_status=0x00000000', execution.stdout)
-                        if variant == 'allow-all-runtime':
-                            self.assertIn('slot=9 descriptor=1', execution.stdout)
                         self.assertIn('status==RAM_CONFLICT', execution.stderr)
                     self.assertIn('DM_NATIVE_ASSERT', execution.stderr)
                     self.assertNotRegex(execution.stderr.lower(), r'panic|segmentation|access violation')

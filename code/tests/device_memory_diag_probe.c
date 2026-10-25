@@ -127,16 +127,16 @@ static void conflict_case(unsigned slot,unsigned kind,U attributes,unsigned inde
 static void no_conflict_failure(U expected,const State *input,Views *out,Conflict *conflict) {
     U result=dm_prepare_diag(input,out,conflict);REQUIRE(result==expected);no_effect();plan_empty();REQUIRE(dm_state()==1);checks++;
 }
-static void runtime_apic_success(unsigned slots,U capabilities,unsigned legacy) {
+static void runtime_platform_success(unsigned slots,U capabilities,unsigned legacy) {
     fixture();U attributes=(UINT64_C(1)<<63)|capabilities;
     unsigned count=1;
-    for(unsigned slot=0;slot<=8;slot++)if(slots&(1u<<slot))descriptor(count++,11,physical(slot),1,attributes);
+    for(unsigned slot=0;slot<11;slot++)if(slots&(1u<<slot))descriptor(count++,11,physical(slot),1,attributes);
     raw_length(count);
     ViewGuard output,old;ConflictGuard context,old_context;guards_init(&output,&context);old=output;old_context=context;
     State saved_state=state;uint8_t saved_inventory[sizeof inventory],saved_raw[sizeof raw],saved_view[sizeof view],saved_space[sizeof space];Resource saved_kept[21];
     memcpy(saved_inventory,inventory,sizeof inventory);memcpy(saved_raw,raw,sizeof raw);memcpy(saved_view,view,sizeof view);memcpy(saved_space,space,sizeof space);memcpy(saved_kept,kept,sizeof kept);
     U status=legacy?dm_prepare(&state,&output.value):dm_prepare_diag(&state,&output.value,&context.value);
-    printf("DM_RUNTIME_APIC status=0x%08llx attributes=0x%016llx legacy=%u slots=0x%03x\n",(unsigned long long)status,(unsigned long long)attributes,legacy,slots);fflush(stdout);
+    printf("DM_RUNTIME_PLATFORM status=0x%08llx attributes=0x%016llx legacy=%u slots=0x%03x\n",(unsigned long long)status,(unsigned long long)attributes,legacy,slots);fflush(stdout);
     REQUIRE(status==0);Plan expected=expected_plan();Conflict zero={0};
     REQUIRE(dm_state()==3 && dm_plan()==dm_storage());
     REQUIRE(!memcmp(dm_storage(),&expected,sizeof expected)&&!memcmp(&output.value,&expected.views,sizeof expected.views));
@@ -162,12 +162,11 @@ int main(void) {
         if(kind!=11)conflict_case(slot,kind,(U)kind<<8,1+(slot%3));
     for(unsigned slot=0;slot<11;slot++)for(unsigned kind=0;kind<16;kind++)
         if(kind!=11)conflict_case(slot,kind,(UINT64_C(1)<<63)|0x100d,1+(slot%3));
-    conflict_case(9,11,UINT64_C(1)<<63,1);conflict_case(10,11,(UINT64_C(1)<<63)|8,2);
     const U capabilities[]={0,1,4,8,13,0x1000,0x1004,0x100d,0x1f,0x70000,0x100000,0x3ff0};
     for(unsigned i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
-        const unsigned slot_masks[]={1,2,1u<<8,0x1ff};
+        const unsigned slot_masks[]={1,2,1u<<8,1u<<9,1u<<10,0x7ff};
         for(unsigned j=0;j<sizeof slot_masks/sizeof slot_masks[0];j++) {
-            runtime_apic_success(slot_masks[j],capabilities[i],0);runtime_apic_success(slot_masks[j],capabilities[i],1);
+            runtime_platform_success(slot_masks[j],capabilities[i],0);runtime_platform_success(slot_masks[j],capabilities[i],1);
         }
     }
     ViewGuard output,old;ConflictGuard context;Conflict zero={0};Plan expected=expected_plan();
@@ -212,7 +211,7 @@ int main(void) {
     no_conflict_failure(RESOURCE_CONFLICT,&state,&output.value,&context.value);
     REQUIRE(!memcmp(&context.value,&zero,sizeof zero)&&!memcmp(&output,&old,sizeof old));
     REQUIRE(!memcmp(retained_raw,raw,sizeof raw)&&!memcmp(retained_kept,kept,sizeof kept));
-    for(unsigned slot=1;slot<=8;slot+=7)for(unsigned legacy=0;legacy<2;legacy++) {
+    for(unsigned slot=1;slot<11;slot++)for(unsigned legacy=0;legacy<2;legacy++) {
         fixture();guards_init(&output,&context);old=output;ConflictGuard saved_context=context;
         descriptor(1,11,physical(slot),1,(UINT64_C(1)<<63)|1);raw_length(2);
         kept[0].base=physical(slot);kept[0].length=128;
@@ -224,6 +223,17 @@ int main(void) {
         else REQUIRE(!memcmp(&context.value,&zero,sizeof zero));
         REQUIRE(!memcmp(retained_raw,raw,sizeof raw)&&!memcmp(retained_kept,kept,sizeof kept));checks++;
     }
+    /* Runtime HPET/PM still cannot share a page or cross a register window. */
+    fixture();guards_init(&output,&context);old=output;
+    put64(inventory+INV_PM_TIMER_GAS+32,physical(9)+16);
+    descriptor(1,11,physical(9),1,UINT64_C(0x8000000000000001));raw_length(2);
+    no_conflict_failure(DUPLICATE,&state,&output.value,&context.value);
+    REQUIRE(!memcmp(&context.value,&zero,sizeof zero)&&!memcmp(&output,&old,sizeof old));
+    fixture();guards_init(&output,&context);old=output;
+    put64(inventory+INV_HPET_GAS+32,physical(9)+4096-512);
+    descriptor(1,11,physical(9),1,UINT64_C(0x8000000000000001));raw_length(2);
+    no_conflict_failure(UNSUPPORTED,&state,&output.value,&context.value);
+    REQUIRE(!memcmp(&context.value,&zero,sizeof zero)&&!memcmp(&output,&old,sizeof old));
     fixture();guards_init(&output,&context);old=output;
     REQUIRE(dm_prepare_diag(&state,&output.value,(Conflict*)(void*)&output.value)==INVALID_INPUT);
     REQUIRE(!memcmp(&output,&old,sizeof old)&&dm_state()==0);no_effect();plan_empty();checks++;
@@ -246,6 +256,6 @@ int main(void) {
     REQUIRE(!memcmp(&output,&old,sizeof old)&&!memcmp(&context.value,&zero,sizeof zero)&&dm_plan()==NULL);
     REQUIRE(dm_prepare(&state,&output.value)==ATTEMPTED && queries==11 && maps==3 && invalidates==2);checks++;
     REQUIRE(get64(view+VIEW_ROOT_PHYSICAL)==state.cr3);
-    printf("DEVICE_MEMORY_DIAG_NATIVE_OK checks=%u actual_prepare_policy; runtime_LAPIC_IOAPIC_first_last_all_12caps_both_apis; runtime_HPET_PM_reject; non11_runtime_reject; IOAPIC_retained_reject; UC_supervisor_NX_flags9; conflict=0query/0map/0invalidate/0touch; all_queries_before_maps; sticky; legacy-null; alias; atomic\n",checks);
+    printf("DEVICE_MEMORY_DIAG_NATIVE_OK checks=%u actual_prepare_policy; runtime_all_ACPI_slots_12caps_both_apis; HPET_PM_runtime_accept; non11_runtime_reject; platform_retained_duplicate_geometry_reject; UC_supervisor_NX_flags9; conflict=0query/0map/0invalidate/0touch; all_queries_before_maps; sticky; legacy-null; alias; atomic\n",checks);
     return 0;
 }

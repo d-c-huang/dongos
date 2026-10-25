@@ -86,15 +86,16 @@ unsafe fn add(candidate: *Plan, slot: usize, address: u64, bytes: u64,
             i += 1;
         }
         // Firmware may omit device holes. Described pages must be MMIO.
-        // Only MADT-discovered interrupt controllers (slots 0..8) may also
-        // serve EFI runtime; their supervisor UC aliases never grant RAM/PCI.
+        // All callers are validated ACPI platform register slots (0..10).
+        // Runtime is firmware mapping metadata, not a RAM type. These aliases
+        // remain supervisor UC/NX; no EFI runtime services or PCI access follows.
         var offset: usize = 0;
         while offset < raw.len {
             let start = u64_at(raw.ptr,offset + 8);
             let end = start + u64_at(raw.ptr,offset + 24) * 4096;
             if page < end && start < page + 4096 {
                 let kind = read_unaligned((raw.ptr + offset) as *const u32);
-                if kind != 11 || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot > 8) {
+                if kind != 11 {
                     if conflict!=null{
                         *conflict=Conflict{version:1,valid:0,error_code:0x0303_0002,slot:slot as u64,address:address,page:page,
                             descriptor_index:(offset/stride) as u64,kind:kind as u64,base:start,

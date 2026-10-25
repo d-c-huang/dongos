@@ -1,0 +1,5 @@
+
+
+## AI交付 2026-10-25T16:12:11+00:00 · codex-mcp-14619bbd432c41a6
+
+生产与7授权文件冻结。kind!=11是本私有ACPI设备planner唯一内存类型拒绝条件；由plan_core提供已校验MADT/HPET/SystemMemory PM槽0..10，统一允许Runtime type11。没有任意PCI Runtime授权或地址/属性硬编码。全部非11、原地图只读、retained/重复/几何/输出原子性/诊断、UCsuperNX映射、无宽别名、EFI服务/allocator/deadline不变。新图精确slot9 HPET FED00000 type11 pages1 attr8000000000000001，仍规划阶段拒绝而非IRQ已初始化。实际policy预检1项24.881s PASS/0skip/source稳定，两模式ELF COFF×C O0/O2均1041原检查+566诊断，11槽12mask/全11同时Runtime/全部非11两态/所有retained及HPETPM重复几何；8真实坏体正常编译链接oracle拒绝（旧全拒/slot!=0/slot>8/slot>9/误放RAM Reserved/valid/attr截断）。build/test/device-policy/run-58b2c4c74a2e/summary.json。prepare预检1项61.278s PASS，两模式各519场景、144Runtime成功两API/12mask/0,1,8,9,10,全11，flags9/query全先map/raw输入只读/全零ctx、retained全部槽两API/HPETPM几何重复原子性；14坏体正常rc1/无panic，source稳定。build/test/device-memory-diag/run-58ca95475512/validation-summary.json；该预检结束后只修正C输出说明的旧HPETPM拒绝文案，断言/生产未变，最终版本须由独立复验验证。完整normalruntime7 USB-only build已完成source稳定，root live-full两boot实际正在执行；root8CPU三Runtime LAPIC IOAPIC HPET实际IRQ线程/PTE/原map逐字节/三HHDM无alias回归尚未运行；原H备份发布/读回/FAT与Git尚待执行，因此不在此声明这些通过。新文档hardware-runtime-platform-mmio.md解释Runtime语义/完整边界及SystemMemory PM仅原生测试覆盖、真机桌面仍待复测。

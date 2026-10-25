@@ -30,6 +30,9 @@ static void fixture(void) {
     resource=(Resource){8,0x100000,0x30000};
     descriptor(0,7,0x100000,16,0);
 }
+static uint64_t discovered_address(unsigned slot) {
+    return slot==0?inventory[8]:slot<=8?inventory[108+3*(slot-1)]:slot==9?inventory[42]:inventory[32];
+}
 static uint64_t call(size_t length,size_t stride,size_t count,Guard *g) {
     return device_plan(inventory,raw,length,stride,&resource,count,&g->value);
 }
@@ -91,51 +94,50 @@ static void diagnostic_cases(void) {
         diagnostic(80,40,1,kind==11?0:0x03030002,kind==11?NULL:&expected);
     }
     for(unsigned slot=0;slot<11;slot++) {
-        fixture(); inventory[11]=8;
+        fixture(); inventory[11]=8; inventory[32]=0xfed01010;
         for(unsigned i=0;i<8;i++) inventory[108+3*i]=UINT64_C(0xfec00000)+i*4096;
         inventory[32]=0xfed01010;
         uint64_t address=slot==0?inventory[8]:slot==9?inventory[42]:slot==10?inventory[32]:inventory[108+3*(slot-1)];
         uint64_t page=address&~UINT64_C(4095),attr=UINT64_C(0x8123456789abcdef);
         descriptor_stride(0,48,7,0x100000,16,0); descriptor_stride(1,48,11,page,1,attr);
-        Conflict expected={1,1,0x03030002,slot,address,page,1,11,page,1,attr};
-        diagnostic(96,48,1,slot>8?0x03030002:0,slot>8?&expected:NULL);
+        diagnostic(96,48,1,0,NULL);
     }
-    /* Every discovered MADT controller admits Runtime MMIO; HPET/PM do not.
+    /* Every discovered ACPI platform register admits Runtime type11 MMIO.
        Capability bits remain immutable metadata, not an admission gate. */
     const uint64_t capabilities[]={0,0x1004,0x100d,1,2,4,8,0xf,0x1f,0x100,0x200,0x400};
-    for(unsigned slot=0;slot<=8;slot++)for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
-        fixture(); inventory[11]=8;
+    for(unsigned slot=0;slot<11;slot++)for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
+        fixture(); inventory[11]=8; inventory[32]=0xfed01010;
         for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
-        const uint64_t address=slot?inventory[108+3*(slot-1)]:inventory[8];
-        descriptor(1,11,address,1,(UINT64_C(1)<<63)|capabilities[i]);
+        const uint64_t address=discovered_address(slot),page=address&~UINT64_C(4095);
+        descriptor(1,11,page,1,(UINT64_C(1)<<63)|capabilities[i]);
         diagnostic(80,40,1,0,NULL);
     }
-    /* Simultaneous LAPIC + all eight IOAPIC descriptors, each raw record and
+    /* Simultaneous LAPIC + eight IOAPIC + HPET + memory PM descriptors, each raw record and
        the complete independent Plan checked through both API entry points. */
     for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
-        fixture(); inventory[11]=8; descriptor_stride(0,48,7,0x100000,16,0);
-        for(unsigned slot=0;slot<=8;slot++) {
-            uint64_t address=slot?UINT64_C(0xfec00000)+(slot-1)*4096:inventory[8];
-            if(slot)inventory[108+3*(slot-1)]=address;
-            descriptor_stride(slot+1,48,11,address,1,(UINT64_C(1)<<63)|capabilities[i]);
+        fixture(); inventory[11]=8; inventory[32]=0xfed01010; descriptor_stride(0,48,7,0x100000,16,0);
+        for(unsigned slot=0;slot<11;slot++) {
+            uint64_t address=slot==0?inventory[8]:slot<=8?UINT64_C(0xfec00000)+(slot-1)*4096:slot==9?inventory[42]:inventory[32];
+            if(slot>=1&&slot<=8)inventory[108+3*(slot-1)]=address;
+            descriptor_stride(slot+1,48,11,address&~UINT64_C(4095),1,(UINT64_C(1)<<63)|capabilities[i]);
         }
-        diagnostic(480,48,1,0,NULL);
+        diagnostic(576,48,1,0,NULL);
     }
-    for(unsigned slot=0;slot<=8;slot++)for(unsigned runtime=0;runtime<2;runtime++)for(unsigned kind=0;kind<16;kind++) {
-        fixture(); inventory[11]=8;
+    for(unsigned slot=0;slot<11;slot++)for(unsigned runtime=0;runtime<2;runtime++)for(unsigned kind=0;kind<16;kind++) {
+        fixture(); inventory[11]=8; inventory[32]=0xfed01010;
         for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
-        const uint64_t address=slot?inventory[108+3*(slot-1)]:inventory[8];
-        const uint64_t attr=(runtime?(UINT64_C(1)<<63):0)|0x100d; descriptor(1,kind,address,1,attr);
-        Conflict expected={1,1,0x03030002,slot,address,address,1,kind,address,1,attr};
+        const uint64_t address=discovered_address(slot),page=address&~UINT64_C(4095);
+        const uint64_t attr=(runtime?(UINT64_C(1)<<63):0)|0x100d; descriptor(1,kind,page,1,attr);
+        Conflict expected={1,1,0x03030002,slot,address,page,1,kind,page,1,attr};
         diagnostic(80,40,1,kind==11?0:0x03030002,kind==11?NULL:&expected);
     }
     /* Runtime does not bypass retained-resource ownership, even after earlier
        controllers have been planned; failure preserves all output bytes. */
-    for(unsigned slot=1;slot<=8;slot++) {
-        fixture(); inventory[11]=8;
+    for(unsigned slot=0;slot<11;slot++) {
+        fixture(); inventory[11]=8; inventory[32]=0xfed01010;
         for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
-        uint64_t address=inventory[108+3*(slot-1)];
-        descriptor(1,11,address,1,UINT64_C(0x8000000000000001));
+        uint64_t address=discovered_address(slot);
+        descriptor(1,11,address&~UINT64_C(4095),1,UINT64_C(0x8000000000000001));
         resource.base=address+128; resource.length=128;
         diagnostic(80,40,1,0x03030003,NULL);
     }
@@ -147,6 +149,13 @@ static void diagnostic_cases(void) {
     fixture(); descriptor(1,11,inventory[8],1,UINT64_C(0x8000000000000000)); inventory[108]=inventory[8];
     diagnostic(80,40,1,0x03030004,NULL);
     fixture(); descriptor(1,11,inventory[8],1,UINT64_C(0x800000000000100d)); inventory[8]++;
+    diagnostic(80,40,1,0x03030005,NULL);
+    /* HPET and memory PM retain duplicate-page and register-window guards. */
+    fixture(); inventory[32]=inventory[42]+16;
+    descriptor(1,11,inventory[42],1,UINT64_C(0x8000000000000001));
+    diagnostic(80,40,1,0x03030004,NULL);
+    fixture(); inventory[42]+=4096-512;
+    descriptor(1,11,inventory[42]&~UINT64_C(4095),1,UINT64_C(0x8000000000000001));
     diagnostic(80,40,1,0x03030005,NULL);
     /* Descriptor stride, multi-page coverage, and 64-bit page/attribute values. */
     fixture(); descriptor_stride(0,48,7,0x100000,16,0); descriptor_stride(1,48,11,0x200000,1,0);
@@ -228,7 +237,7 @@ int main(void) {
     fixture(); descriptor(1,11,0x108000,1,0); failure(80,40,1,0x03030001);
     fixture(); resource.base=UINT64_MAX-10; resource.length=20; failure(40,40,1,0x03030001);
     // Independent randomized exclusions: one page overlapping one discovered
-    // register page is permitted only for actual non-runtime MMIO. Other
+    // register page is permitted only for actual type11 MMIO. Other
     // nonoverlapping pages never affect the expected original full Plan.
     uint32_t rng=0x4b1d4e39;
     for(unsigned i=0;i<1000;i++) {
