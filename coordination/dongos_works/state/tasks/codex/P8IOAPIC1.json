@@ -1,0 +1,125 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_device_policy",
+    "module:tests.test_device_memory_diag",
+    "module:tests.test_boot_progress",
+    "module:tests.test_framebuffer_gate",
+    "module:tests.test_runtime_qemu_result"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T15:45:45+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T15:49:08+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T15:45:38+00:00",
+  "delivery": "codex-works/deliveries/P8IOAPIC1.md",
+  "depends_on": [
+    "codex:P8LAPIC1"
+  ],
+  "description": "用户照片S01 IRQ PREPARE CPU8 error03030002，slot1/address/baseFEC00000/type11/pages1/attrs8000000000000001。LAPIC planner已越过，但实际IRQ尚未初始化；当前Runtime&&slot!=0直接拒绝首IOAPIC。用户从暂不更改改为若时间不长修复并写原SanDisk H，且要求全部代码提交GitHub。扩展既有定向Runtime-MMIO兼容至可信MADT IOAPIC槽1..8，仅实际发现设备；保留LAPIC slot0，HPET/PM其他Runtime仍拒，所有非11/retained/duplicates/geometry/atomicity不放宽，rawmap只读、supervisor WRITE|UC/NX、无HHDM/WB别名、EFI runtime服务与allocator不变、不改deadline。native debug/release真实planner+prepare覆盖RuntimeLAPIC+首尾IOAPIC与其它Runtime拒绝、旧只LAPIC/误放全部Runtime/非11坏体应正常oracle拒绝。独立0skip/source稳定。root正常runtime7 USB-only完整两boot原HID/FS/CPU强gate，8CPU私有EFI同时Runtime LAPIC+IOAPIC真实IRQ/线程回归、原rawdesc/PTE/无alias/129ticks等契约；私有guard取证不发布不冒充正常8CPU桌面。原SanDisk确认已回H，核身份/旧SHA/备份/flushfsync全读回/native只读FAT，不format/partition/internaldisk。验收集成后正常产物写盘，源码任务记录去claim_token公开副本提交推送GitHub，不改本机权威元数据；不抢占其它任务。",
+  "document": "codex-works/tasks/P8IOAPIC1-board.md",
+  "historical": false,
+  "id": "codex:P8IOAPIC1",
+  "integration_note": "7授权文件已真实集成主code/与coordination交付目录，指纹与正式独立job d3070fccf6e846e087e4a721e64f476e一致；已完成源码/契约审查、7项0skip、正常完整桌面两boot及8CPU双Runtime LAPIC/IOAPIC实际IRQ线程/PTE/全rawmap回归，详见accept真实审查。原SanDisk H: disk2序列4C530000010320109015已核7798784000B USB/非systemboot/单FAT32 offset131072，四旧SHA一致；备份在code/build/hardware/usb-ioapic-20261025-r1/usb-publish/before。正常成品3文件与说明已flush/fsync写入并全SHA读回：EFI c33a74ba202d39e1e46585c70e3491a958d632e7affe32c5b415de6821445779；IMG a08cd1bc274ad1f5ea3f9b5d8cf2d00fd90f2b997abb2b5623f8374f88e19d1e；SERVICES e2b7bf8c25b7ed62317207ec6af1f68b47aa3bacdc9de31b3be1bb7367f8a027。非私有guard候选，receipt绑定manifest/normal两boot/runtime双控制器proof/前后身份与四readback。实际原卷native rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，未修复。无format/partition/rawdisk/internaldisk操作。真实Intel是否越过S01及桌面键鼠仍待用户启动反馈，不把8CPU BSP IRQ线程取证冒称全SMP8CPU桌面通过。现有完整代码checkpoint107946e已推GitHub main，本次新修复与任务记录继续提交推送。",
+  "legacy_hash": "85f345be297bdb3bb6d4cc9f91efcf7b8fe7f18a8ca1b284f75e1c18025e5aaf",
+  "number": "P8IOAPIC1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已审查7文件与全部契约。实际生产差异仅注释及Runtime&&slot!=0→slot>8，可信MADT0..8(LAPIC/IOAPIC)才允许type11Runtime；HPET9/PM10 Runtime、全部非11、retained/重复/几何/rawattrs只读/原子性/Plan184 Views88 Conflict88/UCsupervisorNX/allocator/EFI服务/deadline保持。native policy两模式COFF ELF×C O0/O2均1041+473检查及7真实坏体oracle正常拒绝；prepare两模式各455场景/96 APIC成功、输入不变、query全部先map与flags9、首尾IOretained及其它Runtime失败零sideeffect、8坏体无panic。独立job d3070fccf6e846e087e4a721e64f476e五模块7项全部PASS/0skip/source稳定/进程全退出，7文件指纹相符。root正常runtime7 USB-only build冻结，live-full原完整两boot HID/鼠标/键盘/F12pwd/文件write append rm cat syncFLUSH/全部CPU健康/代码池页表检查通过；两boot phase14 failed0 error0 view0 ctx88零，USB整SHA均ca93051171b93120af4a28ac87c165712f3587b2e43ec7e8cfcb3c3d31221a9d。root runtime-proof 8CPU双Runtime fixture PASS：真实postEBS原map完整快照与最终逐字节重建，仅LAPIC idx129 type11 attrs800000000000100D及IOAPIC idx130 type11 attrs8000000000000001追加/指定typeattrs变化，原其他descriptor/padding完全一致。实际CR3=root/view/pool=0x400000，设备3slot PTE exact supervisorRW/UC/NX，两目标宽HHDM无映射，ctx88全零；实际IRQ/线程reports/BSS/engine/guards/stack/controller/codebytes全核原oracle，ticks129 switches65 两workers各64。仅私有postruntime cmp1→2一字节guard在S03/error1/cpu8终态取证，terminal分隔投影明确记载，不冒称正常8CPU全SMP或桌面通过。3VM均停、正常对象不变、受控USB和3可写内盘全SHA不变。H已再次核原SanDisk序列/4旧SHA正确，准许发布正常成品；实际Intel能否越过S01、桌面键鼠仍待用户复测。",
+  "status": "integrated",
+  "title": "真机MADT IOAPIC Runtime-MMIO定向兼容及USB发布",
+  "updated_at": "2026-10-25T16:01:39+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 21.766,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_policy",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 31.468,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_memory_diag",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 16.234,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_boot_progress",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 18.281,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_gate",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.406,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_qemu_result",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8IOAPIC1.md": "c100907edf949b0237ddb0a0ba0d9b196c8ed8a3fe3326b5462df6c8b9e35244",
+      "docs/hardware-runtime-ioapic.md": "efc4d1ee06f925a6c28e2f50654e5d5882fd65aced6e6f6f8fdda1bb5953265e",
+      "kernel/boot/device_policy.dg": "88a89a66e330e7eadcdc1a790009c2dd3e694bb54c4956a2adbbbf4d672bc8e6",
+      "tests/device_memory_diag_probe.c": "ac920fb238574ae6eafc6f694fd5e6810a689b24f5be4b48b06d81aaa10a4bfc",
+      "tests/device_policy_probe.c": "3daa03113851a83b6132cd202373c4e0504402cf3b3865d02d5c39cadfec102d",
+      "tests/test_device_memory_diag.py": "f53e9a7962d99819fd9b5940b8e3c43c3143952ed2cf24d076f3db469f99e349",
+      "tests/test_device_policy.py": "30672a44d454da50ff5956bdf21442e314b3f87cec35e0dd04abb22319ad133c"
+    },
+    "finished_at": "2026-10-25T15:50:48+00:00",
+    "job": "d3070fccf6e846e087e4a721e64f476e",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/boot/device_policy.dg",
+    "tests/device_policy_probe.c",
+    "tests/test_device_policy.py",
+    "tests/device_memory_diag_probe.c",
+    "tests/test_device_memory_diag.py",
+    "docs/hardware-runtime-ioapic.md",
+    "codex-works/deliveries/P8IOAPIC1.md"
+  ]
+}

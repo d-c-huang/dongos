@@ -1,0 +1,5 @@
+
+
+## AI交付 2026-10-25T15:49:08+00:00 · codex-mcp-14619bbd432c41a6
+
+P8IOAPIC1生产与测试/契约已完成冻结。生产仅把Runtime拒绝从slot!=0改slot>8及相应注释，可信MADT LAPIC+IOAPIC0..8允许type11 Runtime；HPET9/PM10与全部非11、资源/重复/几何/Plan184/Views88/Conflict88/rawattrs只读/UCsupervisorNX/EFI调用/allocator/deadline保持。已实际读源码及前次所有权契约。新真机图精确slot1 FEC00000 type11 pages1 attrs8000000000000001，对应规划器直接RamConflict03030002，LAPIC仅规划通过不宣称IRQ完成。原生policy测试1项21.473秒0skip/source稳定，debug/release×C O0/O2均1041原检查+473诊断，12mask全部MADT槽及全9同时Runtime、非11两attrs组合、retained8IO等独立Plan守卫；7坏体实际编译链接执行正常rc1拒绝。证据build/test/device-policy/run-56cb12b9aec6/summary.json。prepare测试1项36.385秒0skip，两模式各455场景/96Runtime APIC成功、两API/12mask/LAPIC首尾IO全9、ctx0/raw与输入不变/flags9/query全先map及失败零副作用；HPETPM/全部非11Runtime拒绝、IOretained冲突；8真实坏体正常rc1拒绝、无panic，138source/compiler稳定。证据build/test/device-memory-diag/run-4a2957f4e1d0/validation-summary.json。doc hardware-runtime-ioapic.md已写解释范围/UEFI主来源/物理待验。当前完整normalruntime7 build正在构建；独立五模块及root正常双boot/8CPU双Runtime LAPIC+IOAPIC真实IRQ线程/PTE无别名回归、原H身份旧SHA备份fsync/读回/FAT检查与Git推送尚未执行完，故本提交不作已通过声明，待独立和root实际证据后再验收集成。

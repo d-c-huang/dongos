@@ -110,22 +110,24 @@ class DevicePolicyTests(unittest.TestCase):
                     label = mode + opt
                     result = link_run(snapshot, obj, label, opt)
                     self.assertRegex(result.stdout, r"device policy native checks=10[0-9]{2} complete Plan and input guards verified")
-                    self.assertRegex(result.stdout, r"device diagnostic native checks=[5-9][0-9] complete 88-byte context, zero-stale, aliases and input guards verified")
+                    self.assertRegex(result.stdout, r"device diagnostic native checks=[4-9][0-9]{2} complete 88-byte context, zero-stale, aliases and input guards verified")
                     results.append({"label": label, "stdout": result.stdout})
             policy = snapshot / "kernel/boot/device_policy.dg"
             original = policy.read_text(encoding="utf-8")
-            runtime_guard = "if kind != 11 || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot != 0) {"
+            runtime_guard = "if kind != 11 || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot > 8) {"
             mutants = (
                 ("missing-valid-publication", "compiler_fence();(*conflict).valid=1;", "compiler_fence();"),
                 ("truncate-attributes", "attributes:u64_at(raw.ptr,offset+32)",
                  "attributes:(u64_at(raw.ptr,offset+32) as u32) as u64"),
-                ("old-reject-runtime-lapic", runtime_guard,
+                ("old-reject-runtime-ioapic", runtime_guard,
+                 "if kind != 11 || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot != 0) {"),
+                ("old-reject-all-runtime", runtime_guard,
                  "if kind != 11 || (u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 {"),
                 ("allow-runtime-all-slots", runtime_guard, "if kind != 11 {"),
                 ("allow-reserved", runtime_guard,
-                 "if (kind != 11 && kind != 0) || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot != 0) {"),
+                 "if (kind != 11 && kind != 0) || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot > 8) {"),
                 ("allow-ram", runtime_guard,
-                 "if (kind != 11 && kind != 7) || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot != 0) {"),
+                 "if (kind != 11 && kind != 7) || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot > 8) {"),
             )
             for name, needle, replacement in mutants:
                 self.assertEqual(1, original.count(needle), name + " must alter a unique actual body")

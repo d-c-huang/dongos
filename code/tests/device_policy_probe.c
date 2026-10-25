@@ -16,7 +16,7 @@ extern ABI size_t device_plan_size(void);
 extern ABI size_t device_conflict_size(void);
 ABI void __dong_panic(uint64_t code) { fprintf(stderr,"unexpected panic %llu\n",(unsigned long long)code); exit(99); }
 static uint64_t inventory[307];
-static uint8_t raw[256];
+static uint8_t raw[640];
 static Resource resource;
 static unsigned checks;
 static void put64(uint8_t *p,uint64_t value) { memcpy(p,&value,8); }
@@ -52,7 +52,18 @@ static void diagnostic(size_t length,size_t stride,size_t count,uint64_t code,co
     memset(&g,0xa5,sizeof g); before=g; old=g; memset(&c,0x9b,sizeof c); cbefore=c;
     REQUIRE(device_plan_diagnostic(inventory,raw,length,stride,&resource,count,&g.value,&c.value)==code);
     if(code) REQUIRE(!memcmp(&g,&before,sizeof g));
-    else { REQUIRE(device_plan(inventory,raw,length,stride,&resource,count,&old.value)==0); REQUIRE(!memcmp(&g,&old,sizeof g)); }
+    else {
+        REQUIRE(device_plan(inventory,raw,length,stride,&resource,count,&old.value)==0); REQUIRE(!memcmp(&g,&old,sizeof g));
+        Plan full={0}; const uint64_t base=UINT64_C(0xffffc00000000000);
+        full.views[0]=base; full.physical[0]=inventory[8]; full.count=1;
+        for(size_t i=0;i<inventory[11];i++) {
+            uint64_t address=inventory[108+3*i];
+            full.views[i+1]=base+(i+1)*4096+(address&4095); full.physical[i+1]=address&~UINT64_C(4095); full.count++;
+        }
+        if(inventory[4]) { full.views[9]=base+9*4096+(inventory[42]&4095); full.physical[9]=inventory[42]&~UINT64_C(4095); full.count++; }
+        if(inventory[32] && !inventory[28]) { full.views[10]=base+10*4096+(inventory[32]&4095); full.physical[10]=inventory[32]&~UINT64_C(4095); full.count++; }
+        REQUIRE(!memcmp(&g.value,&full,sizeof full));
+    }
     REQUIRE(!memcmp(&c.value,expected?expected:&zero,sizeof zero));
     REQUIRE(!memcmp(c.low,cbefore.low,sizeof c.low)); REQUIRE(!memcmp(c.high,cbefore.high,sizeof c.high));
     REQUIRE(!memcmp(input,inventory,sizeof input)); REQUIRE(!memcmp(map,raw,sizeof map)); REQUIRE(!memcmp(&kept,&resource,sizeof kept));
@@ -87,19 +98,46 @@ static void diagnostic_cases(void) {
         uint64_t page=address&~UINT64_C(4095),attr=UINT64_C(0x8123456789abcdef);
         descriptor_stride(0,48,7,0x100000,16,0); descriptor_stride(1,48,11,page,1,attr);
         Conflict expected={1,1,0x03030002,slot,address,page,1,11,page,1,attr};
-        diagnostic(96,48,1,slot?0x03030002:0,slot?&expected:NULL);
+        diagnostic(96,48,1,slot>8?0x03030002:0,slot>8?&expected:NULL);
     }
-    /* Only MADT slot 0 gains the runtime-MMIO exception. Cache capability
-       bits are retained input metadata, not an extra admission gate. */
+    /* Every discovered MADT controller admits Runtime MMIO; HPET/PM do not.
+       Capability bits remain immutable metadata, not an admission gate. */
     const uint64_t capabilities[]={0,0x1004,0x100d,1,2,4,8,0xf,0x1f,0x100,0x200,0x400};
-    for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
-        fixture(); descriptor(1,11,inventory[8],1,(UINT64_C(1)<<63)|capabilities[i]);
+    for(unsigned slot=0;slot<=8;slot++)for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
+        fixture(); inventory[11]=8;
+        for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
+        const uint64_t address=slot?inventory[108+3*(slot-1)]:inventory[8];
+        descriptor(1,11,address,1,(UINT64_C(1)<<63)|capabilities[i]);
         diagnostic(80,40,1,0,NULL);
     }
-    for(unsigned kind=0;kind<16;kind++) {
-        fixture(); const uint64_t attr=(UINT64_C(1)<<63)|0x100d; descriptor(1,kind,inventory[8],1,attr);
-        Conflict expected={1,1,0x03030002,0,inventory[8],inventory[8],1,kind,inventory[8],1,attr};
+    /* Simultaneous LAPIC + all eight IOAPIC descriptors, each raw record and
+       the complete independent Plan checked through both API entry points. */
+    for(size_t i=0;i<sizeof capabilities/sizeof capabilities[0];i++) {
+        fixture(); inventory[11]=8; descriptor_stride(0,48,7,0x100000,16,0);
+        for(unsigned slot=0;slot<=8;slot++) {
+            uint64_t address=slot?UINT64_C(0xfec00000)+(slot-1)*4096:inventory[8];
+            if(slot)inventory[108+3*(slot-1)]=address;
+            descriptor_stride(slot+1,48,11,address,1,(UINT64_C(1)<<63)|capabilities[i]);
+        }
+        diagnostic(480,48,1,0,NULL);
+    }
+    for(unsigned slot=0;slot<=8;slot++)for(unsigned runtime=0;runtime<2;runtime++)for(unsigned kind=0;kind<16;kind++) {
+        fixture(); inventory[11]=8;
+        for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
+        const uint64_t address=slot?inventory[108+3*(slot-1)]:inventory[8];
+        const uint64_t attr=(runtime?(UINT64_C(1)<<63):0)|0x100d; descriptor(1,kind,address,1,attr);
+        Conflict expected={1,1,0x03030002,slot,address,address,1,kind,address,1,attr};
         diagnostic(80,40,1,kind==11?0:0x03030002,kind==11?NULL:&expected);
+    }
+    /* Runtime does not bypass retained-resource ownership, even after earlier
+       controllers have been planned; failure preserves all output bytes. */
+    for(unsigned slot=1;slot<=8;slot++) {
+        fixture(); inventory[11]=8;
+        for(unsigned j=0;j<8;j++)inventory[108+3*j]=UINT64_C(0xfec00000)+j*4096;
+        uint64_t address=inventory[108+3*(slot-1)];
+        descriptor(1,11,address,1,UINT64_C(0x8000000000000001));
+        resource.base=address+128; resource.length=128;
+        diagnostic(80,40,1,0x03030003,NULL);
     }
     fixture(); descriptor_stride(0,48,7,0x100000,16,0);
     descriptor_stride(1,48,11,inventory[8]-4096,3,UINT64_C(0x800000000000100d));
