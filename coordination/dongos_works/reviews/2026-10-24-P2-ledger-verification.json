@@ -1,0 +1,103 @@
+{
+  "task": "codex:P2LEDGER44",
+  "verified_rev": 7,
+  "verification": {
+    "passed": true,
+    "checks": [
+      {
+        "spec": "module:tests.test_framebuffer_ledger",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 173.078
+      },
+      {
+        "spec": "module:tests.test_runtime_roots",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 40.328
+      },
+      {
+        "spec": "module:tests.test_paging",
+        "passed": true,
+        "tests": 2,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 7.984
+      },
+      {
+        "spec": "module:tests.test_service_launch",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 39.875
+      },
+      {
+        "spec": "module:tests.test_desktop_recreate",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 12.969
+      },
+      {
+        "spec": "module:tests.test_gui_font_portal",
+        "passed": true,
+        "tests": 3,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 192.735
+      }
+    ],
+    "process_stopped": true,
+    "execution_exited": true,
+    "source_stable": true,
+    "fingerprint": {
+      "kernel/user/memory.dg": "6a38eb28ad56d0f2eda40735c129ad0a53b14b60bf3c7a6870681625bf21da45",
+      "tests/framebuffer_ledger_probe.dg": "6fe72e5ce07683de5b707734bf5440bf9aa30de133c3368b326262750e1aa1d0",
+      "tests/framebuffer_ledger_probe.c": "5d97b90df85e6904e5fdf5ecbb48965e483b6db60a254f66043242951a05189d",
+      "tests/test_framebuffer_ledger.py": "9af821856ef7f2c55faf9a67697ccf5e90db967ea611ca0099a328971160c8e4",
+      "docs/p2-framebuffer-ledger.md": "1f6aa2f8bf797bc63d2c1d63387b32e4a78a054b71f65d950c2971d490d78e0e",
+      "codex-works/deliveries/P2LEDGER44.md": "fd3d8cdd8a336579637f6bec3162fbfbcbbc7e6842ddb461c6aff31da2c7989c"
+    },
+    "summary": "定向复验通过，等待源码/契约审查",
+    "finished_at": "2026-10-24T09:23:36+00:00",
+    "job": "85481e0d327745dab512a9a646576cf5"
+  },
+  "tests": 9,
+  "total_seconds": 466.969,
+  "source_review": "raw BootInfo authority, independent arena journal, held partial failures, retire-after-flush/unbind, canonical complete forest compare, phase-independent recheck, root baseline and HHDM bound reviewed; C raw walker and five true mutants checked",
+  "scope": "Host ledger component only; C/D actual consumer and warm-PCID/physical WC remain pending",
+  "task_status": "integrated",
+  "integrated_rev": 9,
+  "main_fingerprint_matches": true,
+  "integration_timestamp": "2026-10-24T17:25:08+08:00"
+}

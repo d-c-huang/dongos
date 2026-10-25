@@ -1,0 +1,76 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_service_launch",
+    "module:tests.test_desktop_recreate"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T09:05:43+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T09:07:37+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T09:05:36+00:00",
+  "delivery": "codex-works/deliveries/P2REG45.md",
+  "depends_on": [],
+  "description": "P2LEDGER44运行声明的回归发现两项旧夹具编译失败：test_service_launch抽取的生产服务函数已调用large_request但夹具未提供；test_desktop_recreate的独立memory stub缺map_framebuffer。两测试不执行本轮ledger生产实现，保持原原生正负判定、拒绝放宽检查或skip，仅补齐新已集成接口的明确模拟边界，暴露并断言必要调用。不得修改生产源码/其它测试，不声称替代ledger实际页表测试。通过独立正式两测试后集成。",
+  "document": "codex-works/tasks/P2REG45-board.md",
+  "historical": false,
+  "id": "codex:P2REG45",
+  "integration_note": "真实两测试及交付已在主目录；逐文件SHA256与正式冻结fingerprint相同，未从候选冒充集成。独立2tests/0skip通过且源稳定，登记本地主线工作树集成；不提交推送。",
+  "legacy_hash": "fa8d3f4543ed63287b2b99c77eace74e0e84cc05d30b89cd956bac1cf7d482cb",
+  "number": "P2REG45",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "逐项审查两夹具补充：large_request明确mock且核memory.ACTIVE==16/未失败；map_framebuffer复用原C精确id/VA/PA/rounding检查，无放松/skip。正式cdcce3a19ad74b0a9ddaf7f7e3a9f6b9两测试零skip通过，原真实错误源码仍由C拒绝，source_stable/进程停止退出均true。此门仅服务/桌面兼容回归，不冒真实ledger/WC。",
+  "status": "integrated",
+  "title": "P2既有服务启动与桌面重建回归夹具接续",
+  "updated_at": "2026-10-24T09:09:37+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 33.5,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_service_launch",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 10.157,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_desktop_recreate",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P2REG45.md": "e4fc5da9bbfa948e3cf5e9c42f96f5d1a69a0d703cff51244ce95d99d0c356cf",
+      "tests/test_desktop_recreate.py": "77e9ef425f5e5b9c8723dd7f2733b8ac72d92ddfee44128f1af5197572dfca8e",
+      "tests/test_service_launch.py": "bc72e45ad2956eaffaade7a83b1d1517ee9dbee157c795dee7bb867206a614fc"
+    },
+    "finished_at": "2026-10-24T09:08:36+00:00",
+    "job": "cdcce3a19ad74b0a9ddaf7f7e3a9f6b9",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/test_service_launch.py",
+    "tests/test_desktop_recreate.py",
+    "codex-works/deliveries/P2REG45.md"
+  ]
+}

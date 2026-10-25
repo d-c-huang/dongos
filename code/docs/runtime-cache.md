@@ -127,3 +127,12 @@ tool fingerprints, raw outputs, object/executable hashes and failure receipts
 are retained under `build/test/runtime-cache/run-*`. No tests, compiler, OS or VM
 were run during implementation. Only independent zero-skip, source-stable
 coordinator verification can establish host acceptance.
+
+
+## P2CDTYPE1: source-bound effective-type admission
+
+GOP pages are validated by the existing cache_type_plan.effective_type table for both PAT4/WC and PAT3/UC. Requiring raw MTRR WB was unnecessarily restrictive: Intel SDM 325462-089 table 13-7 defines PAT WC with MTRR UC as WC. Both transition targets must have their exact effective types for every page. Full MTRR encoding, overlap conflict, PAT slots, raw per-CPU state equality, maintenance, deadlines and lease rules remain enforced. No MSR is written by this change.
+
+Reference: https://cdrdv2-public.intel.com/868137/325462-089-sdm-vol-1-2abcd-3abcd-4.pdf
+
+New raw model cases admit UC/WC/WT/WP/WB while rejecting invalid encodings, conflicting ranges and later state changes. Real wrong-source controls restore WB-only admission or ignore a conflict; neither may pass. These tests use explicit mocked hardware boundaries and do not replace P2CD1's guest gate.

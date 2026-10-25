@@ -68,6 +68,7 @@ class Tests(unittest.TestCase):
   prefix=old.PREFIX.replace('import user.device_host as device_host;','import user.device_host as device_host;import user.devices as devices;import ipc.handles as handles;import lib.device_abi as dev;')
   prefix=prefix.replace('struct State{waiting:u64,started:u64}','struct State{table:handles.Table,waiting:u64,started:u64}').replace('State{waiting:0,started:0}','State{table:handles.EMPTY_TABLE,waiting:0,started:0}').replace('var LAUNCH_FAILED:bool=false;','var LAUNCH_FAILED:bool=false;var GRAPHICS:bool=true;').replace('try retire_one(id,state,status);','').replace('try retire_one(CURRENT,proc.EXITED,73);','')
   entry=(ROOT/'tests/user_current_entry_probe.dg').read_text()+prefix+actual+TAIL
+  entry+=old.dormant_wiring(source)
   memory=old.MEMORY+'''unsafe extern "sysv64" fn pf_output(slot:u64,va:u64,size:u64,write:u64)u64;
 pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{if pf_output(slot as u64,va,size as u64,write as u64)!=1{return error.Invalid;}}return;}pub error Invalid=0x1111;'''
   devices='''module user.devices;pub const CONFIGURATION_OBJECT:u64=0x1234;pub unsafe fn configuration_read_stable(physical:u64)bool{return true;}'''
@@ -87,6 +88,8 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
    'MSI-preview-ACKs':('host','ok=>{return true;},err(e)=>{return e==0x0512_0006;},}}','ok=>{let bad=msi.acknowledge(&MSI,token,owner,snapshot.sequence);return true;},err(e)=>{return e==0x0512_0006;},}}',None),
   }
   out=ROOT/'build/test/p6-poll-fast-native'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True);evidence={};nasm,cc=tool('nasm','NASM'),tool('gcc','CC')
+  memory+=old.dormant_memory()
+  c+=old.DORMANT_C
   candidate={}
   files=[BASE/'kernel/user/services.dg',BASE/'kernel/user/device_host.dg',Path(__file__),ROOT/'tests/user_current_entry_probe.c',ROOT/'tests/user_current_entry_probe.dg'];before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in files}
   for mode in ('debug','release'):
@@ -96,7 +99,7 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
      kind,a,b,scope=controls[variant]
      if kind=='policy':sub=block(s,scope);self.assertEqual(1,sub.count(a));s=s.replace(sub,sub.replace(a,b))
      else:self.assertGreaterEqual(h.count(a),1);h=h.replace(a,b)
-    copy_graph(stage,['user_current_entry_probe'],{**candidate,'user_current_entry_probe':s,'user.memory':memory,'user.devices':devices,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':h})
+    copy_graph(stage,['user_current_entry_probe'],{**candidate,'boot.service_memory':old.dormant_resources(),'user_current_entry_probe':s,'user.memory':memory,'user.devices':devices,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':h})
     compiled=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(compiled.assembly);(d/'probe.c').write_text(c)
     def run(args,label):
      r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60);(d/(label+'.json')).write_text(json.dumps(dict(command=list(map(str,args)),returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r

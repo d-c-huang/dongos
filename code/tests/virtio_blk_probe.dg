@@ -22,3 +22,6 @@ export("vb_info") fn info(state:*const blk.State,out:*blk.Info)u64 { unsafe { ma
 export("vb_callback_read") fn callback_read(context:u64,lba:u64,count:usize,out:*u8)u64 { unsafe { return blk.read_callback(context,lba,count,out); } }
 export("vb_callback_write") fn callback_write(context:u64,lba:u64,count:usize,input:*const u8)u64 { unsafe { return blk.write_callback(context,lba,count,input); } }
 export("vb_callback_flush") fn callback_flush(context:u64)u64 { unsafe { return blk.flush_callback(context); } }
+export("vb_timed_read") fn timed_read(state:*blk.State,lba:u64,count:usize,out:*u8,now:blk.Now)u64 { unsafe {match blk.read_sectors_timed(state,lba,count,out,now){ok=>{return 0;},err(e)=>{return e;},}} }
+export("vb_timed_write") fn timed_write(state:*blk.State,lba:u64,count:usize,input:*const u8,now:blk.Now)u64 { unsafe {match blk.write_sectors_timed(state,lba,count,input,now){ok=>{return 0;},err(e)=>{return e;},}} }
+export("vb_timed_flush") fn timed_flush(state:*blk.State,now:blk.Now)u64 { unsafe {match blk.flush_timed(state,now){ok=>{return 0;},err(e)=>{return e;},}} }

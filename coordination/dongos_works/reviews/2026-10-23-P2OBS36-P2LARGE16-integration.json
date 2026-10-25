@@ -1,0 +1,25 @@
+{
+  "records": [
+    {
+      "project": "dongos",
+      "task_id": "codex:P2OBS36",
+      "status": "integrated",
+      "rev": 37,
+      "updated_at": "2026-10-23T13:42:12+00:00",
+      "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
+      "verification_job": "0553d178506e4026bec83d2adc021e7c"
+    },
+    {
+      "project": "dongos",
+      "task_id": "codex:P2LARGE16",
+      "status": "integrated",
+      "rev": 68,
+      "updated_at": "2026-10-23T13:42:54+00:00",
+      "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
+      "verification_job": "4363ad07fc1145dbba775a2d817710b6"
+    }
+  ],
+  "evidence": "2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json",
+  "evidence_sha256": "3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83",
+  "git_commit_or_push_performed": false
+}

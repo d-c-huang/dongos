@@ -1,0 +1,539 @@
+--- a/code/kernel/user/services.dg
++++ b/code/kernel/user/services.dg
+@@ -35,6 +35,12 @@
+ import lib.shared_abi as shared_abi;
+ import lib.cap_notify_abi as capabi;
+ import mm.runtime_large as runtime_large;
++import mm.runtime_exec as runtime_exec;
++import sched.runtime_exec_entry as runtime_exec_entry;
++import mm.runtime_cache as runtime_cache;
++import mm.runtime_roots as forest;
++import mm.phys_buddy as buddy;
++import boot.abi as boot_abi;
+ import boot.memory_startup as memory_startup;
+ import smp.large_memory as old_large;
+ import sched.user_entry_plan as smp_entry;
+@@ -84,6 +90,19 @@
+ unsafe extern "sysv64" fn runtime_large_load(virtual:u64,out:*runtime_large.Sample)void;
+ unsafe extern "sysv64" fn runtime_large_window(active:u64)void;
+ unsafe extern "sysv64" fn runtime_large_digest(virtual:u64,bytes:u64)u64;
++// C/D owner storage is arena owned; only these pointers live in BSS. The mux
++// pointers are published after bind, the storage pointers before any bind.
++align(64) struct ExecStorage{context:runtime_exec.Context,ticket:LargeTicket,physical:u64,trace:resources.Block}
++align(64) struct CacheStorage{context:runtime_cache.Context,work:runtime_cache.Work,config:runtime_cache.Config,
++ ticket:LargeTicket,framebuffer:memory.FramebufferSnapshot,pages:resources.Block}
++pub var RUNTIME_EXEC:*runtime_exec.Context=null;
++pub var RUNTIME_CACHE:*runtime_cache.Context=null;
++var EXEC_STORAGE:*ExecStorage=null;var CACHE_STORAGE:*CacheStorage=null;var CACHE_ATTEMPTED:bool=false;
++const EXEC_GENERATION:u64=1;
++unsafe extern "sysv64" fn runtime_exec_hardware(out:*runtime_exec.Environment)void;
++unsafe extern "sysv64" fn runtime_exec_action(command:u64,virtual:u64,value:u64,ticket:*runtime_exec.FaultTicket,out:*runtime_exec.Sample)void;
++unsafe extern "sysv64" fn runtime_cache_hardware(action:u64,request:u64,barrier:u64,out:*runtime_cache.Reading)u64;
++unsafe extern "sysv64" fn kernel_framebuffer_gate_get()*runtime_cache.Gate;
+ // Trusted role mask for the explicit ordinary busy-workload XSAVE bad build.
+ // GUI clients may reuse the same physical slots and must never be selected.
+ var SMP_TEST_SLOTS:u64=0;
+@@ -1310,13 +1329,27 @@
+     var held=resources.Block{physical:0,virtual:0,pages:0};
+     try resources.allocate((sizeof(LargeStorage)+4095)/4096,1,&held);
+     LARGE_STORAGE=held.virtual as *LargeStorage;RUNTIME_LARGE=&(*LARGE_STORAGE).context;
+-    try smp_domain.register_poll(d,large_poll);
++    try smp_domain.register_poll(d,runtime_poll);
+     CURRENT=NONE;SMP_ENABLED=true;
+ }return;}
++// The single trusted B/C/D multiplexer. An owner is reached only after its
++// complete binding published the pointer; the first failure is returned as is.
++// Domain.poll keeps the legacy check first and owns every flush ACK.
++unsafe fn runtime_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
++ let large=large_poll(d,cpu);if large!=0{return large;}
++ let exec=exec_poll(d,cpu);if exec!=0{return exec;}
++ return cache_poll(d,cpu);
++}}
+ unsafe fn large_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
+  if RUNTIME_LARGE==null||(*RUNTIME_LARGE).ready==0{return 0;}
+  return runtime_large.poll(RUNTIME_LARGE,d,cpu);
+ }}
++unsafe fn exec_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
++ if RUNTIME_EXEC==null{return 0;}return runtime_exec.poll(RUNTIME_EXEC,d,cpu);
++}}
++unsafe fn cache_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
++ if RUNTIME_CACHE==null{return 0;}return runtime_cache.poll(RUNTIME_CACHE,d,cpu);
++}}
+ // Bind distinct generation namespaces. Catalog restart generation, owner
+ // incarnation, memory-root generation and queue generation are never equated.
+ unsafe fn large_identity(ticket:*const LargeTicket,frozen:bool)!void{unsafe{
+@@ -1396,6 +1429,112 @@
+   runtime_large_environment,runtime_large_load,runtime_large_window,runtime_large_digest,(*header).deadline_ticks);
+  try runtime_large.run(RUNTIME_LARGE);
+ }return;}
++// C/D post-scheduler owners follow a completed B, one owner per projection, so
++// no single BKL hold spans two transactions. Each owner gets a fresh ticket and
++// RootSnapshot; B's frozen arrays are never reused. Any error is fail-stop.
++unsafe fn owner_ticket(ticket:*LargeTicket)!void{unsafe{
++ let b=smp_bridge.pointer();if b==null||(*b).failed!=0||CATALOG==null{return error.Protocol;}let d=(*b).domain;
++ try memory.snapshot_roots(&(*ticket).snapshot);
++ var slot:usize=0;while slot<16{
++  let cfg=(*CATALOG).configuration[slot];(*ticket).configuration[slot]=cfg;
++  (*ticket).incarnation[slot]=(*CATALOG).incarnation[slot];(*ticket).config_generation[slot]=0;(*ticket).owner[slot]=0;
++  if cfg!=procs.NONE{
++   if cfg>=(*CATALOG).count as u64{return error.Protocol;}
++   (*ticket).config_generation[slot]=(*CATALOG).states[cfg as usize].generation;
++   (*ticket).owner[slot]=(*CATALOG).states[cfg as usize].process;
++  }
++  (*ticket).queue_token[slot]=(*((*d).processes+slot)).token;
++  (*ticket).frame[slot]=(&(*process(slot)).frame) as u64;(*ticket).root[slot]=(*process(slot)).root;slot+=1;
++ }
++ try large_identity(ticket,true);
++}return;}
++// Independent recheck: live Catalog/Domain/memory identities against the
++// frozen ticket, then the owner's own root copy against that snapshot.
++unsafe fn owner_roots(ticket:*const LargeTicket,roots:*const forest.Root,count:u64)u64{unsafe{
++ match large_identity(ticket,true){ok=>{},err(code)=>{return code;},}
++ if count!=(*ticket).snapshot.count as u64{return 1;}
++ var i:usize=0;while i<(*ticket).snapshot.count{
++  let a=*(roots+i);let e=(*ticket).snapshot.roots[i];
++  if a.space!=e.space||a.identity!=e.identity||a.generation!=e.generation{return 1;}i+=1;
++ }return 0;
++}}
++unsafe fn exec_check(cookie:u64)u64{unsafe{
++ let s=EXEC_STORAGE;if s==null||cookie!=(&(*s).ticket) as u64{return 1;}
++ return owner_roots(&(*s).ticket,(&(*s).context.roots[0]) as *const forest.Root,(*s).context.report.root_count);
++}}
++unsafe fn cache_check(cookie:u64,roots:*const forest.Root,count:usize,ledger:*const forest.Alias,aliases:usize)u64{unsafe{
++ let s=CACHE_STORAGE;if s==null||cookie!=(&(*s).ticket) as u64{return 1;}
++ if roots as u64!=(&(*s).ticket.snapshot.roots[0]) as u64||ledger as u64!=(&(*s).framebuffer.aliases[0]) as u64
++  ||aliases!=(*s).framebuffer.count{return 1;}
++ let status=owner_roots(&(*s).ticket,roots,count as u64);if status!=0{return status;}
++ // Re-enumerate the published ledger, its epoch and its recorded root forest.
++ match memory.recheck_framebuffer(&(*s).framebuffer){ok=>{},err(code)=>{return code;},}
++ return 0;
++}}
++// C: one dynamic EXEC lifecycle on a fresh real order0 buddy lease. The lease
++// stays held afterwards (no transfer/free API). The PF adapter is registered
++// once with caller-owned trace records before the pointer reaches the mux.
++unsafe fn exec_try()!void{unsafe{
++ if EXEC_STORAGE!=null{return;}
++ let b=smp_bridge.pointer();let d=(*b).domain;
++ var held=resources.Block{physical:0,virtual:0,pages:0};
++ try resources.allocate((sizeof(ExecStorage)+4095)/4096,1,&held);
++ let s=held.virtual as *ExecStorage;EXEC_STORAGE=s;
++ try resources.allocate((runtime_exec_entry.TRACE_SLOTS*sizeof(runtime_exec_entry.RawTrace)+4095)/4096,1,&(*s).trace);
++ let ticket=&(*s).ticket;try owner_ticket(ticket);
++ (*s).physical=try buddy.alloc(memory_startup.allocator_pointer(),0);
++ let header=*((*b).headers) as *smp_entry.Cpu;let c=&(*s).context;
++ try runtime_exec.bind(c,d,memory_startup.space_pointer(),memory_startup.allocator_pointer(),
++  (*ticket).snapshot.roots[..(*ticket).snapshot.count],(*s).physical,ticket as u64,exec_check,
++  runtime_exec_hardware,runtime_exec_action,(*header).deadline_ticks);
++ let headers=slice_from_raw_parts((*b).headers as **runtime_exec_entry.Header,16);
++ try runtime_exec_entry.bind_trace(c,slice_from_raw_parts((*s).trace.virtual as *runtime_exec_entry.RawTrace,runtime_exec_entry.TRACE_SLOTS),
++  (*s).trace.virtual,(*s).trace.pages as u64*4096,headers);
++ try runtime_exec_entry.bind(c,d,headers,EXEC_GENERATION,runtime_exec_entry.dispatch);
++ compiler_fence();RUNTIME_EXEC=c;
++ try runtime_exec.run(c);
++}return;}
++// D: one GOP WC->UC->WC lifecycle, desktop only, once the published ledger
++// holds a private alias. Page receipts are sized from the actual ledger.
++unsafe fn cache_freeze(s:*CacheStorage,linear:*u64)!void{unsafe{
++ try owner_ticket(&(*s).ticket);try memory.snapshot_framebuffer(&(*s).framebuffer,&(*s).ticket.snapshot);
++ var pages:u64=0;var i:usize=0;while i<(*s).framebuffer.count{pages+=(*s).framebuffer.aliases[i].bytes/4096;i+=1;}
++ *linear=pages;
++}return;}
++unsafe fn cache_try()!void{unsafe{
++ if CACHE_ATTEMPTED||!GRAPHICS{return;}
++ let b=smp_bridge.pointer();let d=(*b).domain;
++ if CACHE_STORAGE==null{
++  var held=resources.Block{physical:0,virtual:0,pages:0};
++  try resources.allocate((sizeof(CacheStorage)+4095)/4096,1,&held);CACHE_STORAGE=held.virtual as *CacheStorage;
++ }
++ let s=CACHE_STORAGE;var linear:u64=0;try cache_freeze(s,&linear);
++ if (*s).framebuffer.count<2{return;}
++ if linear==0||linear>runtime_cache.MAX_LINEAR as u64{return error.Protocol;}
++ CACHE_ATTEMPTED=true;
++ try resources.allocate(((linear*sizeof(runtime_cache.Page) as u64+4095)/4096) as usize,1,&(*s).pages);
++ // The receipt allocation mapped kernel pages: freeze again after it.
++ var again:u64=0;try cache_freeze(s,&again);if again!=linear{return error.Protocol;}
++ let epoch=memory.framebuffer_epoch_pointer();let view=memory_startup.runtime_pointer();
++ if epoch==null||view==null||(*view).boot_info==0{return error.Protocol;}
++ let header=*((*b).headers) as *smp_entry.Cpu;let cfg=&(*s).config;
++ (*cfg).domain=d;(*cfg).kernel=memory_startup.space_pointer();(*cfg).info=(*view).boot_info as *const boot_abi.BootInfo;
++ (*cfg).roots=(*s).ticket.snapshot.roots[..(*s).ticket.snapshot.count];
++ (*cfg).ledger=(*s).framebuffer.aliases[..(*s).framebuffer.count];
++ (*cfg).pages=slice_from_raw_parts((*s).pages.virtual as *runtime_cache.Page,linear as usize);
++ (*cfg).work=&(*s).work;(*cfg).gate=kernel_framebuffer_gate_get();(*cfg).ledger_epoch=epoch;
++ (*cfg).check=cache_check;(*cfg).hardware=runtime_cache_hardware;
++ (*cfg).cookie=(&(*s).ticket) as u64;(*cfg).ticks=(*header).deadline_ticks;
++ let c=&(*s).context;try runtime_cache.bind(c,cfg);
++ compiler_fence();RUNTIME_CACHE=c;
++ try runtime_cache.run(c);
++}return;}
++unsafe fn owner_try()!void{unsafe{
++ if RUNTIME_LARGE==null||(*RUNTIME_LARGE).report.complete!=1{return;}
++ if EXEC_STORAGE==null{try exec_try();return;}
++ if RUNTIME_EXEC==null||(*RUNTIME_EXEC).report.complete!=1{return error.Protocol;}
++ try cache_try();
++}return;}
+ unsafe fn runtime_pcid_metric(index:u64)u64{unsafe{
+     if SMP_ENABLED{return services_smp_pcid_metric(index);}return services_pcid_metric(index);
+ }}
+@@ -1428,7 +1567,10 @@
+         }else if (*p).token!=0{return 0x060b_0011;}
+         slot+=1;
+     }
++    // C/D are considered only in a later projection than the one completing B.
++    let settled=RUNTIME_LARGE!=null&&(*RUNTIME_LARGE).report.complete==1;
+     let large=large_try();match large{ok=>{},err(e)=>{(*b).failed=1;atomic_store(&(*d).failed,1);return e;},}
++    if settled{let owners=owner_try();match owners{ok=>{},err(e)=>{(*b).failed=1;atomic_store(&(*d).failed,1);return e;},}}
+     INFO.frames=memory.frame_count() as u64;INFO.process_count=(*(*d).engine).count;return 0;
+ }}
+ // This hint is calculated only by BSP from the authoritative saved Frame and
+--- a/code/kernel/user/memory.dg
++++ b/code/kernel/user/memory.dg
+@@ -47,7 +47,10 @@
+ const EMPTY_RAM: Frame = Frame { physical: 0, virtual: 0, writable: 0 };
+ const EMPTY_PROCESS: Process = Process { ready: 0, root: 0, frame: abi.EMPTY_FRAME, plan: elf.EMPTY_PLAN };
+ const EMPTY_TABLE: paging.Table = paging.Table { entries: [0;512] };
+-var TABLES: [STATIC_LIMIT][POOL_PAGES]paging.Table = [[EMPTY_TABLE;POOL_PAGES];STATIC_LIMIT];
++// The profile sizes this array; with zero static pools it is a one-page
++// placeholder that uses_static_tables() never selects.
++var TABLES: [storage_profile.STATIC_TABLE_SLOTS][storage_profile.STATIC_TABLE_PAGES]paging.Table
++    = [[EMPTY_TABLE;storage_profile.STATIC_TABLE_PAGES];storage_profile.STATIC_TABLE_SLOTS];
+ var DYNAMIC_TABLES:[LIMIT]*paging.Table=[null;LIMIT];
+ var DYNAMIC_PHYSICAL:[LIMIT]u64=[0;LIMIT];
+ var POOL_LIMITS:[LIMIT]usize=[POOL_PAGES;LIMIT];
+@@ -115,7 +118,8 @@
+ pub unsafe extern "sysv64" fn user_pcid_invalidate_root(root:u64)void;
+ unsafe extern "sysv64" fn user_current_root()u64;
+ pub fn pool_pages(id:usize)usize {unsafe{if id>=LIMIT{return 0;}return POOL_LIMITS[id];}}
+-fn uses_static_tables(id:usize)bool {unsafe{return id<STATIC_LIMIT&&POOL_LIMITS[id]==POOL_PAGES;}}
++fn uses_static_tables(id:usize)bool {unsafe{return id<STATIC_LIMIT&&id<storage_profile.STATIC_TABLE_SLOTS
++    &&storage_profile.STATIC_TABLE_PAGES==POOL_PAGES&&POOL_LIMITS[id]==POOL_PAGES;}}
+ unsafe fn table_at(id:usize,index:usize)*paging.Table {
+     unsafe { if uses_static_tables(id) { return &TABLES[id][index]; }return DYNAMIC_TABLES[id]+index; }
+ }
+--- a/code/kernel/build/storage_profile.dg
++++ b/code/kernel/build/storage_profile.dg
+@@ -2,3 +2,6 @@
+ // The normal service build declares an explicit generated override input.
+ module build.storage_profile;
+ pub const STATIC_USER_POOLS:usize=3;
++// Static table array shape; a zero-pool profile keeps one unused page.
++pub const STATIC_TABLE_SLOTS:usize=3;
++pub const STATIC_TABLE_PAGES:usize=32;
+--- a/code/tools/build.py
++++ b/code/tools/build.py
+@@ -319,8 +319,11 @@
+             kernel_objects.append(assemble(ROOT / "kernel/user/shared_barrier.asm", output,
+                                            fmt="elf64", test=test, stage=stage, defines=defines))
+         if runtime_level >= 5:
++            # user.services imports the B/C/D owners for every runtime>=5
++            # graph, so each privileged reader is linked exactly once here.
+             for source in ("parallel", "parallel_probe", "parallel_live", "user_entry", "user_arch",
+-                           "user_bridge_arch", "user_legacy", "user_boot", "runtime_large_reader"):
++                           "user_bridge_arch", "user_legacy", "user_boot", "runtime_large_reader",
++                           "runtime_exec_reader", "runtime_cache_reader"):
+                 kernel_objects.append(assemble(ROOT / ("kernel/sched/" + source + ".asm"), output,
+                                                fmt="elf64", test=test, stage=stage, defines=defines))
+         if memory_case == "cache-unmap":
+--- a/code/tools/kernel_storage_profile.py
++++ b/code/tools/kernel_storage_profile.py
+@@ -8,14 +8,25 @@
+ def static_user_pools(runtime_level):
+     if type(runtime_level)is not int or not 0<=runtime_level<=7:
+         raise ValueError("kernel storage profile requires an integer runtime level 0..7")
+-    return 1 if runtime_level == 7 else 2 if runtime_level >= 5 else 3
++    # runtime7 moves its last static pool to the existing arena path so the
++    # post-scheduler C/D owners fit the unchanged 2 MiB kernel window.
++    return 0 if runtime_level == 7 else 2 if runtime_level >= 5 else 3
++
++
++def static_table_shape(count):
++    """Static pool array rows/pages. Dong has no zero-length arrays, so zero
++    pools keep one unused page; uses_static_tables() then never selects it."""
++    return (count, 32) if count else (1, 1)
+ 
+ 
+ def module_bytes(runtime_level):
+     count = static_user_pools(runtime_level)
++    slots, pages = static_table_shape(count)
+     return ("// Generated kernel build input; see build-inputs.json.\n"
+             "module build.storage_profile;\n"
+-            f"pub const STATIC_USER_POOLS:usize={count};\n").encode()
++            f"pub const STATIC_USER_POOLS:usize={count};\n"
++            f"pub const STATIC_TABLE_SLOTS:usize={slots};\n"
++            f"pub const STATIC_TABLE_PAGES:usize={pages};\n").encode()
+ 
+ 
+ def verify_definition(manifest, source, *, expected_runtime=None, source_root=None):
+--- a/code/tests/test_user_smp_services.py
++++ b/code/tests/test_user_smp_services.py
+@@ -98,7 +98,8 @@
+  if which==2{return LARGE_TRIES;}if which==3{return LARGE_REQUESTED as u64;}
+  if RUNTIME_LARGE==null{return 0xffff_ffff_ffff_ffff;}
+  if which==4{return (*RUNTIME_LARGE).ready;}if which==5{return (*RUNTIME_LARGE).report.attempted;}
+- if which==6{return (*RUNTIME_LARGE).report.complete;}return 0xffff_ffff_ffff_ffff;
++ if which==6{return (*RUNTIME_LARGE).report.complete;}
++ if which==7{return OWNER_TRIES;}if which==8{return EXEC_POLLS;}if which==9{return CACHE_POLLS;}return 0xffff_ffff_ffff_ffff;
+ }}
+ export("us_get") fn get(which:u64)u64{unsafe{
+  if which==0{return CURRENT as u64;}if which==1{return (*(memory.processes()+7)).frame.rax;}if which==2{return INFO.syscalls;}
+@@ -124,6 +125,12 @@
+   ||LARGE_REQUESTED||(*RUNTIME_LARGE).ready!=0||(*RUNTIME_LARGE).report.attempted!=0
+   ||(*RUNTIME_LARGE).report.complete!=0{return error.Protocol;}
+ }return;}
++// C/D stay dormant while B is unarmed: their mux slots are counted, and the
++// post-B owner selector must never be reached by an ordinary projection.
++var OWNER_TRIES:u64=0;var EXEC_POLLS:u64=0;var CACHE_POLLS:u64=0;
++unsafe fn owner_try()!void{unsafe{OWNER_TRIES+=1;}return error.Protocol;}
++unsafe fn exec_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{EXEC_POLLS+=1;}return 0;}
++unsafe fn cache_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{CACHE_POLLS+=1;}return 0;}
+ '''
+ RESOURCES='''module boot.service_memory;
+ pub error InvalidState=0x0507_0001;
+@@ -172,7 +179,7 @@
+ }
+ U ABI smp_service_fixture_irq(U vector){return smp_service_fixture_event(3,0,vector);}
+ int main(int argc,char**argv){C(argc==2);U gui=!strcmp(argv[1],"gui");setup();cpu=0;C(!ue_lock(0));C(!us_setup(gui?14:9)&&us_get(0)==16);large_boundary();
+- C(us_large_registered()==0x06090002);C(!ue_poll(0)&&!d->failed);
++ C(us_large_registered()==0x06090002);C(!ue_poll(0)&&!d->failed);C(us_large_state(8)>=1&&us_large_state(9)==us_large_state(8));
+  C(us_large_guard(1)==0x050b0002&&us_large_guard(2)==0x050b0002&&us_large_guard(3)==0x050b0002);large_boundary();C(us_large_state(2)==3);
+  C(!us_project()&&!us_project()&&us_get(6)==7&&d->processes[7].token&&us_get(8)==(gui?0:128));C(us_large_state(2)==5);C(!us_select());
+  U saved=us_get(1);C(us_guard(1)==0x060b0011&&us_get(1)==saved);C(us_guard(2)==0x060b0011&&us_get(1)==saved);C(us_guard(3)==0x060b0011&&us_get(1)==saved);
+@@ -180,7 +187,7 @@
+  C(!us_irq(0x51)&&!us_irq(0x5c)&&!us_irq(0x60)&&interrupts==3&&us_get(4)==3&&us_get(0)==16);
+  if(!strcmp(argv[1],"exit")||gui){C(!us_op(0xff)&&us_get(0)==16&&performed==3&&withdrawn==1&&!us_get(5));}
+  else{C(!strcmp(argv[1],"fault"));C(!us_fault()&&us_get(0)==16&&us_get(3)==1&&withdrawn==1&&!us_get(5));}
+- C(us_get(7)==UINT64_MAX&&!d->processes[7].token&&!us_get(8)&&!ue_audit());large_boundary();C(!ue_unlock(0));
++ C(us_get(7)==UINT64_MAX&&!d->processes[7].token&&!us_get(8)&&!ue_audit());large_boundary();C(!us_large_state(7));C(!ue_unlock(0));
+  printf("actual services SMP callback checks=%u scenario=%s real-Catalog scope generation frame-authority retire-before-withdraw IRQ-BSP dormant-LARGE owned-zero-RAM pages=%u storage-bytes=%u runtime_large_executed=false actual_qemu_executed=false\n",(unsigned)checks,argv[1],(unsigned)large_pages,(unsigned)us_large_size());return 0;}
+ '''
+ MUTATION_POLICY="\nU ABI user_bridge_service_policy(U slot,U event,U frame){(void)slot;(void)event;(void)frame;return 0;}\n"
+@@ -197,6 +204,8 @@
+    'foreign-Frame-pointer':('||pointer!=(&(*process(slot)).frame) as u64',''),
+    'AP-owner-runs-perform':('if (*d).owner!=0||(*d).lock!=1||(*cpu).mode','if (*d).lock!=1||(*cpu).mode'),
+    'duplicate-admission':('if (*p).token==0{\n                let cfg','if true{\n                let cfg'),
++   'mux-skips-exec-owner':('let exec=exec_poll(d,cpu);if exec!=0{return exec;}',''),
++   'owner-before-settled-large':('if settled{let owners=owner_try();','if true{let owners=owner_try();'),
+   }
+   out=ROOT/'build/test/p6-cpl3-service-native'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True)
+   before=source_hashes();tool_paths={'python':str(Path(sys.executable).resolve()),'nasm':None,'cc':None}
+@@ -232,7 +241,7 @@
+     help_result=run([nasm,'-h','-w'],out,'nasm-warning-help');self.assertEqual(0,help_result.returncode,help_result.stderr);help_text+='\n'+help_result.stdout
+    flags=['-Wall','-Werror']+['-w-'+name for name in ('reloc-rel-dword','reloc-abs-qword') if re.search(r'(?m)^\s*'+re.escape(name)+r'\s',help_text)]
+    text=(BASE/'kernel/user/services.dg').read_text(encoding='utf-8')
+-   needles=('unsafe fn process(', 'unsafe fn managed(', 'unsafe fn retire_one(', 'pub unsafe fn enable_smp(', 'unsafe fn large_poll(', 'export("dong_user_smp_project")', 'export("dong_user_smp_service")', 'export("dong_user_smp_interrupt")')
++   needles=('unsafe fn process(', 'unsafe fn managed(', 'unsafe fn retire_one(', 'pub unsafe fn enable_smp(', 'unsafe fn runtime_poll(', 'unsafe fn large_poll(', 'export("dong_user_smp_project")', 'export("dong_user_smp_service")', 'export("dong_user_smp_interrupt")')
+    for needle in (*needles,'struct LargeTicket{','align(64) struct LargeStorage{'):self.assertEqual(1,text.count(needle),needle)
+    actual='\n'.join(block(text,n) for n in needles)
+    declarations='\n'.join(block(text,n) for n in ('struct LargeTicket{','align(64) struct LargeStorage{'))
+@@ -276,7 +285,7 @@
+       evidence.append(case);self.assertEqual(0 if variant=='normal'else 1,r.returncode,r.stdout+r.stderr)
+       if variant!='normal':self.assertIn('user CPL3 current-source oracle line',r.stderr);self.assertNotIn('actual services SMP callback checks=',r.stdout)
+       else:self.assertIn('dormant-LARGE owned-zero-RAM',r.stdout);self.assertIn('runtime_large_executed=false actual_qemu_executed=false',r.stdout)
+-   self.assertEqual(26,len(evidence));self.assertEqual(6,sum(e['variant']=='normal' for e in evidence))
++   self.assertEqual(30,len(evidence));self.assertEqual(6,sum(e['variant']=='normal' for e in evidence))
+    self.assertEqual(before,source_hashes());self.assertEqual(tools_before,tool_hashes());passed=True
+   except BaseException as exc:
+    failure=dict(type=type(exc).__name__,message=str(exc),active=active);raise
+@@ -286,7 +295,7 @@
+    (out/'validation-summary.json').write_text(json.dumps(dict(passed=passed and before==after and tools_before==tools_after,failure=failure,
+      contract='current-service-dormant-large-v2',current_source=True,historical_replay=False,actual_services_fragments=True,real_catalog_domain_queue=True,
+      source_before=before,source_after=after,sources_unchanged=before==after,tools_before=tools_before,tools_after=tools_after,tools_unchanged=tools_before==tools_after,
+-     artifact_sha256=artifacts,commands=commands,compilations=compilations,evidence=evidence,skipped=[],normal_expected=6,mutant_expected=20,
++     artifact_sha256=artifacts,commands=commands,compilations=compilations,evidence=evidence,skipped=[],normal_expected=6,mutant_expected=24,
+      synthetic_RAM_boundary=True,memory_hardware_and_perform_boundary_mocked=True,large_context_type='mm.runtime_large.Context',actual_large_poll_source=True,
+      actual_large_poll_registration=passed and sum(e['variant']=='normal' for e in evidence)==6,
+      runtime_large_executed=False,actual_ap_cpl3_executed=False,actual_qemu_executed=False,os_build_executed=False),indent=2)+'\n',encoding='utf-8')
+--- a/code/tests/test_kernel_storage_profile.py
++++ b/code/tests/test_kernel_storage_profile.py
+@@ -3,7 +3,7 @@
+ import copy,hashlib,json,os,struct,subprocess,tempfile,unittest,uuid
+ from lang.dongc import compile_file
+ from lang.tests.test_dongc import tool,nasm_flags
+-from tools.kernel_storage_profile import generate, module_bytes, static_user_pools, verify_profile, verify_definition
++from tools.kernel_storage_profile import generate, module_bytes, static_user_pools, static_table_shape, verify_profile, verify_definition
+ ROOT=Path(__file__).resolve().parents[1]
+ 
+ def bss_symbol_span(path,name):
+@@ -50,7 +50,7 @@
+         state=ROOT/'build/test/kernel-storage-profile'/('run-'+uuid.uuid4().hex[:12]);state.mkdir(parents=True)
+         watched=[Path(__file__),ROOT/'tools/kernel_storage_profile.py',ROOT/'kernel/build/storage_profile.dg',ROOT/'kernel/user/memory.dg']
+         hashes=lambda:{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in watched};before=hashes();records=[];abis=[]
+-        for level,count in [(4,3),(5,2),(6,2),(7,1)]:
++        for level,count in [(4,3),(5,2),(6,2),(7,0)]:
+             out=state/str(level);root,profile=generate(out,level)
+             self.assertEqual(profile['static_user_pools'],count)
+             for rel,digest in profile['kernel_sources'].items():self.assertEqual(hashlib.sha256((root/rel).read_bytes()).hexdigest(),digest)
+@@ -62,14 +62,14 @@
+                 obj=out/(fmt+'.o');cmd=[nasm,'-f',fmt,*nasm_flags(nasm),asm,'-o',obj]
+                 run=subprocess.run(list(map(str,cmd)),capture_output=True,text=True,timeout=90);self.assertEqual(run.returncode,0,run.stdout+run.stderr);commands.append(dict(command=list(map(str,cmd)),returncode=run.returncode,stdout=run.stdout,stderr=run.stderr))
+             name='__dg_m'+b'user.memory'.hex()+'_g'+b'TABLES'.hex()
+-            measured=bss_symbol_span(out/'elf64.o',name);self.assertEqual(measured,count*32*4096)
+-            coff_measured=coff_bss_symbol_span(out/'win64.o',name);self.assertEqual(coff_measured,count*32*4096)
++            slots,pages=static_table_shape(count);measured=bss_symbol_span(out/'elf64.o',name);self.assertEqual(measured,slots*pages*4096)
++            coff_measured=coff_bss_symbol_span(out/'win64.o',name);self.assertEqual(coff_measured,slots*pages*4096)
+             types={t['full_name']:t for t in result.layout_manifest['types']};shape={n:types[n] for n in ('user.memory.Process','user.memory.Frame','mm.paging.Space','mm.phys_buddy.Allocator')};abis.append(shape)
+             self.assertEqual(types['mm.paging.Space']['size'],64)
+             records.append(dict(level=level,profile=profile,measured_static_bytes=measured,coff_static_bytes=coff_measured,commands=commands,layout=shape))
+             self.assertEqual(hashes(),before)
+         for shape in abis[1:]:self.assertEqual(abis[0],shape)
+-        self.assertEqual([r['measured_static_bytes'] for r in records],[393216,262144,262144,131072])
++        self.assertEqual([r['measured_static_bytes'] for r in records],[393216,262144,262144,4096])
+         (state/'result.json').write_text(json.dumps(dict(passed=True,records=records,source_before=before,source_after=hashes()),indent=2)+'\n');print('actual kernel storage object evidence',state)
+     def test_invalid_or_conflicting_profile_preserves_existing_output(self):
+         import tempfile
+@@ -88,7 +88,7 @@
+             (kernel/'sample.dg').write_text('module sample;pub const X:u64=7;\n')
+             (kernel/'build').mkdir();(kernel/'build/storage_profile.dg').write_text('module build.storage_profile;pub const STATIC_USER_POOLS:usize=3;\n')
+             source_hashes={'kernel/'+p.relative_to(kernel).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in kernel.rglob('*.dg')}
+-            for level,count in [(4,3),(5,2),(6,2),(7,1)]:
++            for level,count in [(4,3),(5,2),(6,2),(7,0)]:
+                 out=Path(temp)/str(level);_,profile=generate(out,level,kernel)
+                 manifest=dict(runtime_level=level,source_unchanged=True,source_sha256=source_hashes,kernel_storage_profile=profile if level>=5 else None)
+                 before={str(p):p.read_bytes() for p in Path(temp).rglob('*') if p.is_file()}
+@@ -104,7 +104,7 @@
+                 sample=out/'kernel-profile-src/sample.dg';sample_original=sample.read_bytes()
+                 try:
+                     if kind=='old-rehashed':
+-                        raw=module_bytes(7).replace(b'POOLS:usize=1;',b'POOLS:usize=2;');path.write_bytes(raw)
++                        raw=module_bytes(7).replace(b'POOLS:usize=0;',b'POOLS:usize=2;');path.write_bytes(raw)
+                         bad['kernel_storage_profile'].update(static_user_pools=2,sha256=hashlib.sha256(raw).hexdigest())
+                     elif kind=='boolean-count':bad['kernel_storage_profile']['static_user_pools']=True
+                     elif kind=='missing-profile':del bad['kernel_storage_profile']
+--- /dev/null
++++ b/code/docs/p2-cd-wiring.md
+@@ -0,0 +1,135 @@
++# P2 C/D 实际接线（B/C/D poll mux、C 生产 bind、构建接线）
++
++本项把已集成的 C（`mm.runtime_exec` + `sched.runtime_exec_entry`）和 D
++（`mm.runtime_cache`）组件接到 `user.services` 的正常调度后路径。组件本身未改；
++B（`mm.runtime_large`）的 `large_try`/`large_identity`/`large_check` 逐字保留。
++未启动 VM，客体正负证据、warm-PCID 实际复用和物理 WC 性能不由本项证明。
++
++## 一次性 B/C/D mux
++
++`enable_smp` 仍在 AP 用户准入前分配 B 存储，但现在一次性注册
++`runtime_poll` 而非 `large_poll`。`user_domain.poll` 保持 legacy 检查在前、
++flush ACK 由 Domain 独占。mux 依次调用 B、C、D：
++
++- B：`large_poll`，与原注册行为相同（未 ready 返回 0）。
++- C：`exec_poll`，`RUNTIME_EXEC` 为空时跳过，否则调用 `runtime_exec.poll`。
++- D：`cache_poll`，`RUNTIME_CACHE` 为空时跳过，否则调用 `runtime_cache.poll`。
++
++第一个非零返回值原样返回，Domain 随即 fail；mux 不递归调用 `Domain.poll`、
++不代替组件 ACK、不重试。`RUNTIME_EXEC`/`RUNTIME_CACHE` 只在对应组件 bind（C 还
++包括 trace 与 PF entry 注册）全部成功后，经 `compiler_fence` 发布。
++
++## 触发顺序与 BKL 占用
++
++C/D 复用 B 的生产触发：slot0 shell 已提交的五个普通应用启动使 B 运行。
++`dong_user_smp_project` 在调用 `large_try` 前记录 B 是否已经 `complete==1`；
++只有在比完成 B 更晚的一次 projection 中才进入 `owner_try`。`owner_try` 每次
++projection 至多推进一个 owner：先 C，C 完成后的下一次 projection 再 D。因此
++没有一次 BKL 持有跨越两个事务。任何 bind/run 错误与 B 相同：置 bridge/Domain
++failed 并返回，不恢复用户、不选择 legacy 回退。未请求 B 的启动不进入 C/D。
++
++每个 owner 使用独立的新 `LargeTicket`（`owner_ticket` 重新 `snapshot_roots`
++并冻结 Catalog/Domain/root 身份，再经 `large_identity(frozen)` 核对），不复用
++B 的历史冻结数组。各 owner 存储由 `boot.service_memory` arena 分配，BSS 只保存
++指针。
++
++## C 生产 bind
++
++`exec_try` 依次：
++
++1. 分配 `ExecStorage`（Context、ticket、order0 PA、trace Block）并发布存储指针；
++   另行分配 4 页（32×512 B）独立 trace Block，保存其 Block 收据。
++2. `owner_ticket` 冻结新 ticket。
++3. `buddy.alloc(startup allocator, 0)` 取得真实 order0 buddy 租约；组件没有
++   transfer/free API，租约在完成后保持 held。
++4. `runtime_exec.bind`：真实内核 Space/allocator、ticket 的完整 root 快照、
++   `exec_check`、`runtime_exec_hardware`/`runtime_exec_action` reader、CPU0
++   Header 的 `deadline_ticks`。
++5. `runtime_exec_entry.bind_trace` 绑定上述独立 Block，headers 为 `user_boot`
++   发布的真实 16 项 Header 指针表（离线项为 0）。
++6. `runtime_exec_entry.bind`（生产 API，内部读取真实 GS/CR0/CR3/CR4/RFLAGS
++   快照；不使用 host `bind_snapshot`），generation 固定为 1，callback 为
++   `runtime_exec_entry.dispatch`。
++7. 发布 `RUNTIME_EXEC` 后 `runtime_exec.run`。
++
++`exec_check(cookie)` 只接受本 ticket 地址，重新执行 `large_identity(frozen)`
++（含 `memory.recheck_roots` 完整 16 槽重枚举、Catalog/Domain/队列核对），再核对
++Context 内 root 副本与 ticket 快照逐项一致。
++
++## D 生产 bind
++
++`cache_try` 仅在 `GRAPHICS` 下运行；每个 Domain 只尝试一次：
++
++1. 首次分配 `CacheStorage`（Context、Work、Config、ticket、FramebufferSnapshot、
++   Page Block）。
++2. `cache_freeze`：新 ticket + `memory.snapshot_framebuffer`（真实 forest 审计与
++   独立账本相等）。账本少于 2 项（尚无私有 compositor alias）时本次跳过，不分配
++   收据、不报错。
++3. 按账本实际页数（全部 alias 的 bytes/4096 之和，≤`MAX_LINEAR`）分配 `Page[]`
++   收据区。分配会建立新的内核映射，因此再冻结一次，并要求页数不变。
++4. Config：真实内核 Space、`runtime_boot_info` 的 BootInfo、ticket 根集合、账本
++   快照、收据区、Work、`kernel_framebuffer_gate_get()` 的永久 Gate、
++   `memory.framebuffer_epoch_pointer()`、`cache_check`、`runtime_cache_hardware`
++   和 CPU0 `deadline_ticks`。
++5. `runtime_cache.bind` 成功后发布 `RUNTIME_CACHE`，再 `runtime_cache.run`。
++
++`cache_check` 只接受本 ticket、本 ticket 的 root 数组与本快照的 ledger 数组，
++重新执行 `large_identity(frozen)` 与 root 副本比较，再调用
++`memory.recheck_framebuffer` 重核已发布授权、epoch 及账本记录的 root 集合（该
++recheck 不要求事务中 PTE 仍为 WC）。
++
++## 构建接线
++
++`user.services` 在 runtime≥5 的全部图中导入 B/C/D，因此 `tools/build.py` 在同一
++runtime≥5 分支各链接一次 `kernel/sched/runtime_exec_reader.asm` 与
++`kernel/sched/runtime_cache_reader.asm`。`runtime_exec_entry` 的 `user_smp_exec_*`
++来自已链接的 `user_entry.asm`；Gate getter 来自 `entry.asm`。Dong 侧没有重复
++声明这些共享 ASM extern。
++
++## 2 MiB 预算
++
++C/D 新增约 131.6 KB 代码（runtime_cache 54 KB、runtime_exec_entry 31 KB、
++runtime_exec 31 KB、services 接线 9.7 KB、memory 已有但此前被 GC 的账本函数
++4.7 KB），编译器已是 release+O1+函数分节+链接 GC；runtime7 原余 118,384 B，首次
++完整构建超出窗口 20,880 B。经用户决定，沿用 P2SIZE10 先例：runtime7 的
++`STATIC_USER_POOLS` 由 1 改为 0，最后一个 32 页静态用户页表池改走已有 arena
++动态池路径（与 pid≥1 相同的 `prepare_tables` 分配、零初始化与物理归属）。
++
++Dong 不允许零长度数组，因此 profile 另外显式给出 `STATIC_TABLE_SLOTS` 与
++`STATIC_TABLE_PAGES`：有静态池时为 (count,32)，与原布局相同；零池时为 (1,1) 的一页
++占位。`uses_static_tables()` 额外要求 id 小于槽数且每槽页数等于 `POOL_PAGES`，零池
++时永不选中占位页。默认源 profile 与 runtime0..6 的静态池数和对象大小不变。
++
++完整 release runtime7（339 输入，source_unchanged=true）：kernel.bin=1,991,056 B，
++2 MiB 窗口余 106,096 B。runtime5/6 在未改动的主线上本已超窗（runtime5 基线超
++8,592 B），本项不处理。
++
++## 宿主夹具
++
++`tests.test_user_smp_services` 现抽取真实 `runtime_poll`，C/D slot 与
++`owner_try` 为计数桩：B 未武装时 mux 必须到达 C/D slot、`owner_try` 不得被调用。
++新增两个坏体：mux 跳过 C slot、在 B 未完成时进入 owner。两种模式下 6 个正常与
++24 个坏体执行。
++
++`tests.test_kernel_storage_profile` 改为 runtime7 零池：实际 ELF64/COFF 对象中
++`TABLES` 分别为 393216/262144/262144/4096 B，Process/Frame/Space/Allocator 布局
++不变。`tests.test_framebuffer_ledger` 使用 runtime7 profile 编译真实 user.memory，
++零池下通过。
++
++## 需同步的客体工具
++
++以下源码绑定的客体 runner/oracle 仍硬编码 runtime7 恰有 1 个静态池，未在本项修改
++（需要随新镜像客体复验一起更新）：`tests/p2_pcid_oracle.py`
++（`pool_identity`、`decode_snapshot`）、`tests/run_p2_pcid_qemu.py`、
++`tests/run_p2_runtime_large_qemu.py`（`validate_pool_provenance` 要求 >0）、
++`tests/p2_bulk_capture.py`（binding `static_pools=1`）、`tests/test_p2_runtime_large.py`
++（构建断言 1）及 `tests/test_p2_pcid.py`、`tests/test_p2_historical_capture.py`
++中的合成数据。`test_user_smp_poll_fast/poll_wakes/readonly/fault_isolation`
++在本项之前就因 `unknown type 'LargeStorage'` 无法编译，未修改。
++
++## 尚未证明
++
++- 新镜像的实际客体运行（C 的 PF 恢复、D 的 GOP WC→UC→WC）及其正负证据。
++- B 既有客体 runner 在 C/D 接续后的期望（B 完成后的 projection 现在会继续执行
++  C/D；任何失败将 fail-stop）。
++- warm-PCID 实际复用、物理 WC 性能和真机门。

@@ -113,7 +113,10 @@ unsafe fn hardware_valid(c:*const Config,r:*const Reading,physical:u64,bytes:u64
  }
  // GOP below 1 MiB is outside this component's fixed-MTRR support envelope.
  var page:u64=0;while page<bytes{var memory:u64=0;
-  if plan.mtrr_type(ranges[..count],(*r).default_type&255,physical+page,&memory)!=plan.OK||memory!=plan.WB{return error.HardwareState;}
+  if plan.mtrr_type(ranges[..count],(*r).default_type&255,physical+page,&memory)!=plan.OK{return error.HardwareState;}
+  var effective:u64=0;
+  if plan.effective_type(memory,plan.WC,&effective)!=plan.OK||effective!=plan.WC{return error.HardwareState;}
+  if plan.effective_type(memory,plan.UC,&effective)!=plan.OK||effective!=plan.UC{return error.HardwareState;}
   page+=4096;
  }
 }return;}

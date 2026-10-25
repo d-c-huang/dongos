@@ -505,3 +505,13 @@ CPU/accel/拓扑/错误组合断言全保留。新增三个host方法覆盖唯�
 ## AI交付 2026-10-23T05:46:45+00:00 · codex-mcp-daece153b59c4bd5
 
 OBS36 R7四路径完成冻结，保留R6必要APCS33缓存早拒及全部102旧控，新增3真实WHPX argv/verify/replay控制现OBS105。仅WHPX实际唯一可写OVMF_VARS.fd pflash无cache时追加cache=writethrough，已有正确值幂等；严格四-drive/CODEreadonly无cache覆盖/VARSwritable且保留逗号转义file/Data writable writeback/ESP原样，坏/重复cache/改data/CODE/缺驱动/全局snapshot等不洗白；verify先要求实际cache存在，重新hash坏argv仍拒。TCG/KVM原路径，原pause/QMP/guest时钟期限/生产代码/ACK/初始read+SHA/最终flush/fulloracle均未改，无运行中HMP预flush。诊断5 5384bbfd...只证明该次真实cache/STOP<15.625ms，未恢复或完成capture，不计actualpass或耗时保证。正式/actual门待root。root独立修后OBS105+BHost40=145 tests/11.580s/0skip/rc0，build/test/p2-historical36-review/obs36-r7-b-r11-host-precheck-r2.log SHA1e3524eab12d977fe06edaa201319a54e20bfcfb010e9e64f82e64b2539742b6。首次同组145/12.762s/errors5/rc1为新增replay fixture漏after的五subcase，日志原件r1保留，原负责人补after.boot_info_ref=4096后真实重跑通过，不覆盖失败。独立静态合审obs36-r7-large16-r11-independent-review.md SHA1e757fc409d7004780e440c8d624a51c916530eaa52ecfd125a614814ec00d2c，七路径freshSHA一致且无剩余阻断，作者均未编译测试VM/状态/Git。尚未正式独立全矩阵或新源双boot实际通过；所有旧actual失败/terminal诊断保持false，P2partial/P5未实施/未push关机。
+
+
+## AI交付 2026-10-23T07:19:04+00:00 · codex-mcp-daece153b59c4bd5
+
+R8：原作者执行因模型容量失败，root在既定四路径范围完成实现与审查。PcidGuest仅WHPX首次DESKTOP_READY分成实际P1_START和DESKTOP_READY两次原base wait，各默认90s；标志尝试前消费，异常原样抛出，constructor原close链不变。新增host_startup_wait仅诊断阶段起止/完成/error；其它marker、后续wait、TCG/KVM、guest1s/2s和PCID90s及四drive cache门不变。保留全部旧105方法，新增5个真实base循环/fakeclock/UART测试，含71+20秒及原90秒失败对照、两阶段缺失、路由与异常identity、constructor accel绑定，禁止Popen。root本机预检四模块+ B HostOracleTests共150项/10.049s/0skip/rc0通过，日志code/build/test/p2-historical36-review/obs36-r8-precheck.log；diff-check无新空白错误。新源尚未正式复验或VM执行；旧normal双boot及strict replay仅历史证据，全部负控失败保留。待独立协调器完整110与B56正式检查、新镜像normal/omit实际和strict replay/raw audit后再验收。用户已取消关机。
+
+
+## AI交付 2026-10-23T11:52:11+00:00 · codex-mcp-839d838dd7b04cc5
+
+R9仅修改原queued反控：stop/sealed/queued可同tick导致原篡改无变化，50次独立采样复现5次；改为sealed_ns-1确保严格越界，生产代码和期限不变。docs同步。root本机四模块110 tests/5.623s/0skip通过，日志code/build/test/p2-historical36-review/obs-r9-precheck.log。原157兼容预检1failure+1error完整保留（另B字符串int错误由B作者返修）。R9尚未正式复验或实际VM，不宣称验收/集成。

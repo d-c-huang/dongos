@@ -10,6 +10,7 @@ import lib.device_abi as device_abi;
 import input.console as console;
 import input.sources as sources;
 import input.usb_rpc as usb_rpc;
+import lib.hardware_profile as hardware_profile;
 pub var TABLET:bool=false;
 pub var INTERRUPTS:bool=false;
 pub var PS2_ACTIVE:bool=true;
@@ -190,10 +191,15 @@ unsafe fn run()!void {
         if modern {try console.initialize(characters);}
         *queue=events.EMPTY_QUEUE;
         let epoch=sys.incarnation((*boot).endpoint);try usb_rpc.initialize(&USB_RPC,epoch);
-        let started=start((*boot).console);match started{ok=>{},err(original)=>{
-            if !(try usb_ready(boot)){return started;}PS2_ACTIVE=false;
-        },}TABLET=try tablet.setup();
-        if PS2_ACTIVE{try prepare_irq(boot);}
+        if hardware_profile.USB_ONLY {
+            PS2_ACTIVE=false;TABLET=false;INTERRUPTS=false;
+            if !(try usb_ready(boot)){return error.Transport;}
+        }else {
+            let started=start((*boot).console);match started{ok=>{},err(original)=>{
+                if !(try usb_ready(boot)){return started;}PS2_ACTIVE=false;
+            },}TABLET=try tablet.setup();
+            if PS2_ACTIVE{try prepare_irq(boot);}
+        }
         if TABLET { let ready=sys.log("DONGOS_INPUT_VIRTIO_TABLET_READY\r\n"); }
         var marker="DONGOS_INPUT_PS2_READY\r\n";if !PS2_ACTIVE{marker="DONGOS_INPUT_USB_READY\r\n";}
         let log=sys.log(marker);

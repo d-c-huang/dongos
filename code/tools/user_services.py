@@ -6,10 +6,14 @@ from tools.build import ROOT, assemble, execute, find_tool
 from lang.dongc import compile_file
 
 
-def build_service(source: Path, output: Path, *, mode='release') -> Path:
+def build_service(source: Path, output: Path, *, mode='release', services_root=None) -> Path:
     output = Path(output)
     output.mkdir(parents=True,exist_ok=True)
-    result = compile_file(Path(source), roots=[ROOT/'services',ROOT/'lang/std'],mode=mode)
+    root = Path(services_root).resolve() if services_root is not None else ROOT/'services'
+    source = Path(source)
+    if services_root is not None and not source.resolve().is_relative_to(root):
+        raise ValueError('profile service entry is outside its explicit source snapshot')
+    result = compile_file(source, roots=[root,ROOT/'lang/std'],mode=mode)
     generated = output/'program.asm'
     generated.write_text(result.assembly,encoding='utf-8')
     obj = assemble(generated,output,fmt='elf64',test=False,stage='p1')

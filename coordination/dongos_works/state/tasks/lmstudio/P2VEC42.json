@@ -1,0 +1,81 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-10-24T08:54:24+00:00",
+      "from_owner": "lmstudio",
+      "note": "用户明确改派给DeepSeek Harness。LM实现作业c618694b7753410aa624ddac20c9317e已通过正式cancel接口停止并登记cancelled，未产生可验收交付。任务ID/写路径及独立测试保持；DeepSeek Harness读取本任务完整契约与最新rev领取，完成12条页包络向量及交付。不得把取消或旧失败标通过。",
+      "previous_claimed_by": "cli:lmstudio",
+      "to_owner": "deepseek"
+    },
+    {
+      "at": "2026-10-24T10:09:19+00:00",
+      "from_owner": "deepseek",
+      "note": "用户明确要求Codex接手DeepSeek未完成的两项任务。原领取已由operator确认停止，paused/confirmed且无pause_requested。保留稳定ID、范围、依赖、历史及独立测试；Codex完成12条JSON与真实交付，独立复验后实际集成。",
+      "previous_claimed_by": "deepseek-mcp-3c146c1eac3b47a0",
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:lmstudio-works/tests:test_p2_rounding_vectors.py"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T10:09:29+00:00",
+  "claimed_by": "codex-mcp-5f95564a50c4415d",
+  "completed_at": "2026-10-24T10:10:26+00:00",
+  "complexity": "simple",
+  "created_at": "2026-10-24T08:46:32+00:00",
+  "delivery": "lmstudio-works/deliveries/P2VEC42.md",
+  "depends_on": [
+    "codex:P2LMTEST41"
+  ],
+  "description": "仅生成JSON及交付，不改测试或生产源码。fixture严格为{schema:1,cases:[...]}，每行id,base,size,valid,physical,bytes。base/size/有效physical/bytes用0x十六进制字符串；无效physical/bytes均null；valid是bool。有效规则：0x100000<=base<2^48，0<size<=0x1000000，base+size<=2^48。physical向下取4096整页，end向上取4096整页，bytes=end-physical。原size16MiB但base有偏移时rounded允许多一页。固定12行顺序(id,base,size)：aligned-byte,0x100000,0x1；aligned-page,0x100000,0x1000；edge-exact,0x100001,0xfff；cross-page,0x100fff,0x2；unaligned-two-pages,0x12345001,0x2000；maximum-aligned,0x100000,0x1000000；maximum-unaligned,0x100001,0x1000000；physical-limit-exact,0xffffffffff00,0x100；physical-limit-overflow,0xffffffffff00,0x101；zero-size,0x100000,0x0；size-too-large,0x100000,0x1000001；below-one-mib,0xfffff,0x1。自行计算输出，交付写未运行测试。只作P2未来ledger独立测试数据，不宣称实际授权或物理WC通过。",
+  "document": "lmstudio-works/tasks/P2VEC42-board.md",
+  "historical": false,
+  "id": "lmstudio:P2VEC42",
+  "integration_note": "两声明文件已从独立snapshot实际移交到项目works_root，逐文件复算SHA与正式作业94b5d018570144e08c2d8eb8bd279120指纹一致：JSON878689d1…、交付ed370204…；独立验收后登记本地集成。未修改测试或生产源码，未提交推送。",
+  "last_run_note": "执行失败、缺少交付或修改超出归属；请查看日志",
+  "legacy_hash": "7fb2063fbc893bc00a0e1b14316518632dc011864053daab229928a5d10d743a",
+  "number": "P2VEC42",
+  "owner": "codex",
+  "pause_note": "用户要求将P2VEC42重新分配给DeepSeek Harness。现有DeepSeek领取先暂停：原执行者须停止编辑及外部进程并acknowledge_pause，随后协调器重新指派deepseek清除旧领取，保留原任务ID、写路径、测试和历史。不得继续旧轮实现或自行标记通过。",
+  "rev": 15,
+  "review_note": "已实际逐行审查JSON和任务书：固定12行/顺序/字段、bool与十六进制字符串严格符合；8有效/4无效，跨页=0x2000、未对齐两页=0x3000、16MiB偏移包络=0x1001000、2^48精确终点=0x1000，四无效均false/null。独立审查测试使用固定输入和独立整除包络，已运行4项契约/错误负控全部通过。正式94b5d018570144e08c2d8eb8bd279120 1项/0skip、source_stable/process_stopped/execution_exited。旧错误交付追加纠正且历史保留，仅两声明文件真实移交；本次仅验收数据，不宣称实际授权或物理WC。",
+  "status": "integrated",
+  "title": "P2简单数据：12条GOP页包络边界向量",
+  "updated_at": "2026-10-24T10:11:18+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.203,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:lmstudio-works/tests:test_p2_rounding_vectors.py",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "lmstudio-works/deliveries/P2VEC42.md": "ed3702040cb3f6e5702f13dde227953984dbc5cfab74f24a1615c822281a146e",
+      "lmstudio-works/fixtures/p2-gop-rounding.json": "878689d1a7ae14886e575c37b8c43e0b4f73ab848d0eec52144ec5ef8ed0d10b"
+    },
+    "finished_at": "2026-10-24T10:10:52+00:00",
+    "job": "94b5d018570144e08c2d8eb8bd279120",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "lmstudio-works/fixtures/p2-gop-rounding.json",
+    "lmstudio-works/deliveries/P2VEC42.md"
+  ]
+}

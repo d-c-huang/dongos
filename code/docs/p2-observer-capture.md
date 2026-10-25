@@ -440,3 +440,29 @@ CPU/accel/拓扑/错误组合断言全保留。新增三个host方法覆盖唯�
 后OBS静态105（bulk29+PCID33+GUI15+history28）；这是源码计数，实施方没有运行
 测试、编译或VM。最终正式/新source fresh构建、正常与omit各双boot及strict replay/
 全raw独审仍由root执行；P2尚未完成，不能预报实际通过。
+
+## R8：WHPX 宿主启动分阶段等待
+
+R7 的可写 VARS writethrough 配置下，只读启动诊断实测 P1_START 71.719s、
+DESKTOP_READY 91.235s。原单次 90s 宿主启动等待会在系统正常启动途中超时。
+终止采集的 Domain/Bridge failed=0、全部 ACK 闭合，不能据此认定 guest 死锁。
+诊断曾用 180s 取得时间证据，结果始终 acceptance=false；该诊断配置不用于验收。
+
+R8 仅 PcidGuest 的 WHPX 首次 DESKTOP_READY 等待先调用原 base wait 等待真实
+DONGOS_P1_START，再调用原 base wait 等待真实 DESKTOP_READY，各自默认 90s。
+一次性标志在首次尝试前消费，失败不会重置；其它标记、后续等待、TCG/KVM 保持
+原路径。host_startup_wait 仅记录各阶段宿主起止时间、完成或原异常，不参与 PASS。
+guest 1s/2s 期限、PCID 90s 采样、R7 四 drive 和缓存校验均未变。
+
+新增 5 个测试方法使用原 base wait 循环、0.25s 受控时钟和 bytearray 串口输入，
+覆盖 71s 固件加 20s 系统启动（原路径 90.25s 失败，新路径 91s 完成）、各阶段
+缺失限时拒绝、其它路径不变、原异常身份及构造时 accel 绑定。禁止实际 Popen。
+旧 105 个方法保留。历史 R7 正常双 boot 成功和原 runner replay 通过仅是历史证据；
+负控启动超时及 GUI 捕获 1032ms 触发原期限的失败记录保留。新源需重新正式复验、
+fresh normal/omit 镜像实际运行和严格回放，尚未宣告 P2 完成。用户已取消关机。
+
+## R9：queued 反控避免相同时间戳（2026-10-23）
+
+B R13兼容预检发现原有queued反控偶发未拒：将queued_ns改为stop.confirmed_ns时，Windows离散时钟可能使stop、sealed、queued三值相同，实际没有篡改样本。独立50次采样复现5次。反控现改为sealed_ns减1，保证严格早于合法排队边界；生产验证仍允许合法同tick事件，不修改采集或guest期限。
+
+修后本机四模块110项、5.623秒、零跳过通过，日志build/test/p2-historical36-review/obs-r9-precheck.log。先前R8正式110项通过保留历史；R9待重新正式复验，不提前验收或集成。

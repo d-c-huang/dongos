@@ -93,8 +93,8 @@ def verify_production(output, record):
     trees = ('kernel', 'services', 'boot', 'include', 'lang/dongc', 'lang/std', 'lang/examples', 'tools', 'assets/fonts')
     expected_source = {n: h for n, h in record['staged_sha256'].items()
                        if any(n.startswith(tree + '/') for tree in trees)}
-    check(verify_profile(target, production, expected_runtime=7, source_root=stage) == 1,
-          'current runtime7 requires exactly one static pool')
+    check(verify_profile(target, production, expected_runtime=7, source_root=stage) == 0,
+          'current runtime7 requires source-bound zero static pools')
     profile = production['kernel_storage_profile']
     expected = dict(desktop_scale=100, runtime_level=7, kernel_mode='release', test=True,
                     graphics_case=None, smp_case=None, compiler_job=False, kernel_function_sections=True,

@@ -52,6 +52,11 @@ class VirtioBlkTests(unittest.TestCase):
                 with self.subTest(mode=mode,scenario=scenario):
                     value=self.command([str(exe),str(scenario)],directory,"scenario-"+str(scenario));self.assertEqual(0,value.returncode,value.stdout+value.stderr)
                     self.assertIn("passed",value.stdout) if scenario in (0,8,10,11,12) else self.assertIn("safely retained DMA",value.stdout)
+            for scenario in range(13,24):
+                with self.subTest(mode=mode,timed_scenario=scenario):
+                    value=self.command([str(exe),str(scenario)],directory,"timed-"+str(scenario))
+                    self.assertEqual(0,value.returncode,value.stdout+value.stderr)
+                    self.assertIn("deadline and retained DMA passed",value.stdout)
 
     def test_layout_stack_and_elf_coff(self):
         nasm=tool("nasm","NASM")
@@ -79,6 +84,25 @@ class VirtioBlkTests(unittest.TestCase):
             asm=directory/"probe.asm";asm.write_text(compiled.assembly)
             for fmt in ("elf64","win64"):
                 value=self.command([nasm,"-f",fmt,*nasm_flags(nasm),"-o",str(directory/(fmt+".o")),str(asm)],directory,fmt);self.assertEqual(0,value.returncode,value.stderr)
+
+    def test_deadline_and_old_poll_limit_bad_bodies_are_rejected(self):
+        original=(ROOT/"services/drivers/virtio_blk.dg").read_text()
+        bodies={
+            "deadline_bypass":(original.replace("if value-start>=5000{return error.Timeout;}","if value-start>=5000{negative_hit(3);return value;}"),15,3,"code==ERROR"),
+            "old_poll_limit":(original.replace("while timed || loops < 100000", "while loops < 100000").replace("if !timed { loops += 1; }", "loops += 1;").replace("    }\n    return error.Timeout;\n}\nunsafe fn operation", "    }\n    unsafe {negative_hit(4);}return error.Timeout;\n}\nunsafe fn operation"),13,4,"code==0"),
+            "completion_deadline_bypass":(original.replace("if timed { let completed_at=try check_time(state,now,start,&last); }", "if timed { negative_hit(5); }"),23,5,"code==ERROR"),
+        }
+        for kind,(source,scenario,marker,assertion) in bodies.items():
+            self.assertNotEqual(original,source)
+            services=self.directory/"controls"/kind/"services";shutil.copytree(ROOT/"services",services)
+            source=source.replace("module drivers.virtio_blk;",'module drivers.virtio_blk;\nunsafe extern "sysv64" ("vb_negative_hit") fn negative_hit(kind:u64) void;',1)
+            (services/"drivers/virtio_blk.dg").write_text(source)
+            for mode in ("debug","release"):
+                directory=services.parent/mode;exe=self.native(mode,directory,services)
+                value=self.command([str(exe),str(scenario)],directory,"negative")
+                self.assertNotEqual(0,value.returncode)
+                self.assertIn("VBLK_NEGATIVE_HIT "+str(marker),value.stderr)
+                self.assertIn(assertion,value.stderr)
 
     def test_wrong_completion_and_premature_dma_release_are_rejected(self):
         original=(ROOT/"services/drivers/virtio_blk.dg").read_text()

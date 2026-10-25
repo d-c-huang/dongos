@@ -3,7 +3,7 @@ from pathlib import Path
 import copy,hashlib,json,os,struct,subprocess,tempfile,unittest,uuid
 from lang.dongc import compile_file
 from lang.tests.test_dongc import tool,nasm_flags
-from tools.kernel_storage_profile import generate, module_bytes, static_user_pools, verify_profile, verify_definition
+from tools.kernel_storage_profile import generate, module_bytes, static_user_pools, static_table_shape, verify_profile, verify_definition
 ROOT=Path(__file__).resolve().parents[1]
 
 def bss_symbol_span(path,name):
@@ -50,7 +50,7 @@ class KernelStorageProfileTests(unittest.TestCase):
         state=ROOT/'build/test/kernel-storage-profile'/('run-'+uuid.uuid4().hex[:12]);state.mkdir(parents=True)
         watched=[Path(__file__),ROOT/'tools/kernel_storage_profile.py',ROOT/'kernel/build/storage_profile.dg',ROOT/'kernel/user/memory.dg']
         hashes=lambda:{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in watched};before=hashes();records=[];abis=[]
-        for level,count in [(4,3),(5,2),(6,2),(7,1)]:
+        for level,count in [(4,3),(5,0),(6,0),(7,0)]:
             out=state/str(level);root,profile=generate(out,level)
             self.assertEqual(profile['static_user_pools'],count)
             for rel,digest in profile['kernel_sources'].items():self.assertEqual(hashlib.sha256((root/rel).read_bytes()).hexdigest(),digest)
@@ -62,14 +62,14 @@ class KernelStorageProfileTests(unittest.TestCase):
                 obj=out/(fmt+'.o');cmd=[nasm,'-f',fmt,*nasm_flags(nasm),asm,'-o',obj]
                 run=subprocess.run(list(map(str,cmd)),capture_output=True,text=True,timeout=90);self.assertEqual(run.returncode,0,run.stdout+run.stderr);commands.append(dict(command=list(map(str,cmd)),returncode=run.returncode,stdout=run.stdout,stderr=run.stderr))
             name='__dg_m'+b'user.memory'.hex()+'_g'+b'TABLES'.hex()
-            measured=bss_symbol_span(out/'elf64.o',name);self.assertEqual(measured,count*32*4096)
-            coff_measured=coff_bss_symbol_span(out/'win64.o',name);self.assertEqual(coff_measured,count*32*4096)
+            slots,pages=static_table_shape(count);measured=bss_symbol_span(out/'elf64.o',name);self.assertEqual(measured,slots*pages*4096)
+            coff_measured=coff_bss_symbol_span(out/'win64.o',name);self.assertEqual(coff_measured,slots*pages*4096)
             types={t['full_name']:t for t in result.layout_manifest['types']};shape={n:types[n] for n in ('user.memory.Process','user.memory.Frame','mm.paging.Space','mm.phys_buddy.Allocator')};abis.append(shape)
             self.assertEqual(types['mm.paging.Space']['size'],64)
             records.append(dict(level=level,profile=profile,measured_static_bytes=measured,coff_static_bytes=coff_measured,commands=commands,layout=shape))
             self.assertEqual(hashes(),before)
         for shape in abis[1:]:self.assertEqual(abis[0],shape)
-        self.assertEqual([r['measured_static_bytes'] for r in records],[393216,262144,262144,131072])
+        self.assertEqual([r['measured_static_bytes'] for r in records],[393216,4096,4096,4096])
         (state/'result.json').write_text(json.dumps(dict(passed=True,records=records,source_before=before,source_after=hashes()),indent=2)+'\n');print('actual kernel storage object evidence',state)
     def test_invalid_or_conflicting_profile_preserves_existing_output(self):
         import tempfile
@@ -88,7 +88,7 @@ class KernelStorageProfileTests(unittest.TestCase):
             (kernel/'sample.dg').write_text('module sample;pub const X:u64=7;\n')
             (kernel/'build').mkdir();(kernel/'build/storage_profile.dg').write_text('module build.storage_profile;pub const STATIC_USER_POOLS:usize=3;\n')
             source_hashes={'kernel/'+p.relative_to(kernel).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in kernel.rglob('*.dg')}
-            for level,count in [(4,3),(5,2),(6,2),(7,1)]:
+            for level,count in [(4,3),(5,0),(6,0),(7,0)]:
                 out=Path(temp)/str(level);_,profile=generate(out,level,kernel)
                 manifest=dict(runtime_level=level,source_unchanged=True,source_sha256=source_hashes,kernel_storage_profile=profile if level>=5 else None)
                 before={str(p):p.read_bytes() for p in Path(temp).rglob('*') if p.is_file()}
@@ -104,7 +104,7 @@ class KernelStorageProfileTests(unittest.TestCase):
                 sample=out/'kernel-profile-src/sample.dg';sample_original=sample.read_bytes()
                 try:
                     if kind=='old-rehashed':
-                        raw=module_bytes(7).replace(b'POOLS:usize=1;',b'POOLS:usize=2;');path.write_bytes(raw)
+                        raw=module_bytes(7).replace(b'POOLS:usize=0;',b'POOLS:usize=2;');path.write_bytes(raw)
                         bad['kernel_storage_profile'].update(static_user_pools=2,sha256=hashlib.sha256(raw).hexdigest())
                     elif kind=='boolean-count':bad['kernel_storage_profile']['static_user_pools']=True
                     elif kind=='missing-profile':del bad['kernel_storage_profile']

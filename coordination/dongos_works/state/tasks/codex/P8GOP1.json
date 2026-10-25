@@ -1,0 +1,114 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_display_mode",
+    "module:tests.test_loader_graphics",
+    "module:tests.test_loader_console",
+    "module:tests.test_loader_handoff"
+  ],
+  "claim_from_status": "rework",
+  "claimed_at": "2026-10-25T12:59:45+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T13:05:51+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T12:36:37+00:00",
+  "delivery": "codex-works/deliveries/P8GOP1.md",
+  "depends_on": [
+    "codex:P8USBONLY1"
+  ],
+  "description": "用户真机图证S01加载器低跳板和镜像校验成功，S04报E10；原runtime3通过，runtime7独有display_mode强制1920x1080，实际桌面契约已支持800..1920x600..1080、width<=stride<=2048、RGB/BGR。修复为有界枚举<=256模式，优先最大有效像素面积（仍优先1080p），失败候选按次优重试，必要使用完整验证后的当前模式；每次Query buffer释放一次，FreePool失败停止；SetMode后检查实际Mode/Info/格式/范围/低4GB framebuffer和容量，不截断/不支持BLT-only或bitmask。800x600等fallback必须通过真实native回调与缺Free/坏排序/漏actual验证的实际坏体。efi新增GOP分支原因及完整64位数值诊断，失败仍在EBS前；不打印未验证buffer字段，不越界查Mode/Info。root实际VM验证1080p原模式与只暴露fallback的模式，独立定向测试0skip源稳定后验收/集成。保持USB-only profile、P8低跳板/EBS契约和kernel/services不变；H不在则仅准备待插回，不写其它盘、不格式化、不Git提交推送。",
+  "document": "codex-works/tasks/P8GOP1-board.md",
+  "historical": false,
+  "id": "codex:P8GOP1",
+  "integration_note": "声明8文件已真实落在主源码/交付目录，独立7项与r2完整build指纹匹配、最终typed对齐已检查，actual1080两boot+Cirrus800x600全过后完成发布。原SanDisk H serial4C530000010320109015/disk2/USB非系统/单MBR FAT32几何前后不变；旧4文件已在build/hardware/usb-gop-20261025-r2/usb-publish/before完整备份。只替换BOOTX64.EFI(29696B SHA ef523ac810db866f1df95983c4e5bdaf3ead54b3ed5cde6cc94c3265e1940874)、配套SERVICES.BIN(33333248B SHA0402983df59e488e04b0dd18e11dd619902890dc7234306cb1a3c737af134c88)和DONGTEST.TXT，原DONGOS.IMG保留b263...cef0；全部flush/fsync并从H完整读回SHA一致。最终原卷native只读全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，已正常退出；回执usb-publish/receipt.json含全SHA及native结果。没有格式化/分区/原始磁盘写入/内盘写入/Git。所有实际VM已停。首轮UEFI对齐回归和publisher UTF8预检失败均保留且未发布首轮候选；最终R4已可交用户实机再测，物理桌面/HID尚待反馈。",
+  "legacy_hash": "26b9c140ba6e5ec2b61e2d7ff02aa52b805ea2b2911a23a19c7e3260d20cb246",
+  "number": "P8GOP1",
+  "owner": "codex",
+  "rev": 10,
+  "review_note": "实际审查8声明文件的GOP契约/Win64ABI/所有权/失败回退/Info守卫/完整低4G地址和容量约束、UEFI类型对齐、原低跳板及最终EBS边界。native实际坏体缺Free/漏actual/坏ranking/漏low4G/删typed对齐均由执行或COFF符号oracle拒绝。返修独立job bc6de4297c56409abf5c67ebdd47f900 四模块7项全部PASS/0skip/source稳定/进程已退出；r1失败及UEFI ASSERT现场完整保留且未发布。r2完整build源稳定，仅2boot ASM变化，最终14类型符号map对齐PASS，kernel旧版字节一致、17服务actual ASM/PHDR/全部ALLOC同值。root实际r2 live-full-1080/result.json passed=true，两WHPX启动全HID字符/按钮/F12pwd消费、mkdir/write/append/rm/cat/sync及CBW/CSW/FLUSH、17ELF及kernel代码和各CPU健康检查全过，second整USB SHA与first同51107ec8d2b80d86712ce60512b4e57e2cd86d5752ab27d9dc914257fd98ce45。cirrus fallback/result.json passed=true，固件仅3模式且实际800x600 BGR桌面，真实截图/UC像素/ELF/池/CPU/USB视图/同步强审计通过；此fallback不另声明实际HID，HID在1080两boot完成。三VM全停止、observer源稳定、三个可写内盘整SHA始终未变。现在可发布原H；真实Intel桌面/HID仍待用户复测，不代替物理PCID/WC验收。",
+  "status": "integrated",
+  "title": "真机E10的GOP分辨率回退与分支诊断",
+  "updated_at": "2026-10-25T13:14:59+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 3.062,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_display_mode",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 5.266,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_graphics",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 6.89,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_console",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 8.516,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_handoff",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "boot/display_mode.asm": "86abf55fe16165d4d3b2c1217b439a64f09063501ab842703ce6d4095e107dac",
+      "boot/efi_main.asm": "1e35d3db680edc670a387cfc7e00c7f7d1e0740f74567a834143e287a97f5bf2",
+      "codex-works/deliveries/P8GOP1.md": "e7f66e74a2dc4d38138fe5ac99f20e8913744ce507b3d05f6120330cace78886",
+      "docs/loader-gop-fallback.md": "d5e97ec3e8d9f4b7037df39f1b3d4daf6bad029479fdb1b293b018957192b966",
+      "tests/display_mode_probe.c": "eacb67219af02edfb05d38d3ac19cc50704a48300f2a18c83f3f9d7a3745294d",
+      "tests/loader_graphics_probe.c": "c4bdb8f71ad3c01c87dbc5d370af44e9b972f0a179f670906984de2bf27327c4",
+      "tests/test_display_mode.py": "d523289fc09c656115104bff8ca4e11d183043f88e3b8483da77519d48424a87",
+      "tests/test_loader_graphics.py": "47929991842420b3e8bc5bfb3ee5b2a0e3bb4cdad3bde8bf5d51c3a2b21b9453"
+    },
+    "finished_at": "2026-10-25T13:06:32+00:00",
+    "job": "bc6de4297c56409abf5c67ebdd47f900",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "boot/display_mode.asm",
+    "boot/efi_main.asm",
+    "tests/test_display_mode.py",
+    "tests/display_mode_probe.c",
+    "tests/test_loader_graphics.py",
+    "tests/loader_graphics_probe.c",
+    "docs/loader-gop-fallback.md",
+    "codex-works/deliveries/P8GOP1.md"
+  ]
+}

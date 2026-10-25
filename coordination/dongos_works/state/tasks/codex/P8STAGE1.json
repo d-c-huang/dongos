@@ -1,0 +1,105 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_boot_progress",
+    "module:tests.test_framebuffer_gate",
+    "module:tests.test_runtime_qemu_result"
+  ],
+  "claim_from_status": "rework",
+  "claimed_at": "2026-10-25T13:49:12+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T13:57:01+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T13:23:56+00:00",
+  "delivery": "codex-works/deliveries/P8STAGE1.md",
+  "depends_on": [
+    "codex:P8GOP1"
+  ],
+  "description": "用户确认R4已越过GOP且60秒停P3 ACPI READY，原runtime3物理THREADS PASS，当前正常USB-only runtime7没有后续屏幕检查点，不能据此判定ACPI/USB故障。补runtime7专属BSP同步阶段及失败原始64位码显示：IRQ准备/线程完成、可选AVX、SMP/AP/large/TLB/parallel边界、service ELF准备及首次CPL3前；只在既有Framebuffer Gate与原geometry验证内绘制，保持两个外层writer，使用已arm的RuntimeView，未arm/closed gate不访问MMIO；禁固件/驱动探测/guest写入注入，不改变runtime0/3/4/5/6预处理行为、算法校验、超时和USB-only权限。所有hook保留输入/返回寄存器和flags、SysV对齐，不在已arm计时器到sched_start或发布SMP deadline的临界区插入渲染，不在首次CPL3后写framebuffer。native执行实际helper/renderer验证阶段、失败码、guard/canary、Gate拒绝和真实坏体；原Gate与runtime观察器回归及独立0skip/source稳定；root完整重建runtime7 USB-only并实际VM验证主桌面/HID/FS原强契约，必要实际失败体证明阶段定位且不假PASS。原SanDisk已插回H，更新前核身份与R4成品SHA，备份flush/fsync/readback；不格式化/分区/内盘/Git。真机结果待用户复测，只交诊断不猜根因。",
+  "document": "codex-works/tasks/P8STAGE1-board.md",
+  "historical": false,
+  "id": "codex:P8STAGE1",
+  "integration_note": "10声明源码/测试/文档/交付文件已真实集成主目录且与返修独立指纹一致。独立5项/0skip/source稳定及r2实际正常两boot+受控S03失败体全部通过且全停，P8SYMBOL1补充已integrated；完整build当前源图稳定，原算法/超时/USB-only策略不放宽。H原SanDisk serial4C530000010320109015/disk2/USB非系统/单MBR FAT32起始131072大小7798652928均前后不变；r2/usb-publish/before完整备份原4文件。已刷写正常source/esp的BOOTX64.EFI(29696B cb4df70207f2a5335e7dc58a688b40696d59b0ab673c05706c94d39992583c61)、DONGOS.IMG(2003058B 2a2d0c55cf444c24ccb51ebe9bcbb94d576f53b9ed95f7a61f2cb5b704559dc3)、SERVICES.BIN(33333248B a7f463b897eef1c092a137f765e06a15d1cfb43933346cc6555d4808012061bf)及说明；每个flush/fsync+H全SHA读回一致。发布前后原卷native只读全FAT审计均PASS ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，进程正常退出，receipt.json已绑定两日志。没有格式化/分区/原始磁盘/内盘写入/Git。首轮观察器/private-include失败保留；H仅发布正常诊断版，controlled坏体独立存放。用户下次仍DIAGR4入口，内核新S01-S14/CPUCOUNT/FIRSTERROR，等待真实最后屏定位阻塞，不声明Intel桌面/HID/PCID/WC物理通过。",
+  "legacy_hash": "70620ba5dd37142d0635ca1519d9e25fc708c972d39885f9bdcb54cd0cacbec2",
+  "number": "P8STAGE1",
+  "owner": "codex",
+  "rev": 10,
+  "review_note": "已实际审查10文件：仅runtime7阶段宏，首draw成功后arm；helper全15GPR/flags/DF保留且不触XMM，唯一TU first64biterror避免macro局部符号重复；全部glyph/hex仍原2外writer内、Gate4qwords及geometry保持，未arm/closed/disable拒写；timerarm→sched→stop/AP deadline内部无hook，首次SMP/legacyCPL3前S14后立即disable。native真实宏/renderer独立像素oracle84cases1101checks O0/O2、截断/漏disable实际坏体、whole entry+2TU reader正常/旧重复回归体有效；非7profile20组ALLOC与R4一致。返修独立job1a08020b52474ddc9b48aaab3b5117b6 三模块5项PASS/0skip/source稳定/进程全退出；P8SYMBOL1另已独立integrated，generic构建工具未改。root r2完整normal build source稳定，现有reader解析实际kernel29681symbols；live-full/result.json passed true，两WHPX完整boot的真实HID/F12pwd/GUI/原代码池页表/写追加删读sync与FLUSH/CPU健康全部通过；两次实际新状态均phase14 failed0 error0 view0 cpus4，second整USB SHA与first均c672453f8b97ed16d8baa847b95846257080795522a014d80ddd457f1b70e84c。bad-stage3实际private cmp1→2坏guard重链配套EFI，materialized code仅一字节不同，真实线程先完成再显示S03 BOOT FAILED firsterror1/failed1，源码/normalobjects未变、截图逐像素/代码核对、无SMP/services后续marker。三VM全停，normal observer源稳定，USB失败体及所有可写内盘整SHA未变。H发布前只读原卷审计ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flush0 bad_io0 canaries1。可发布诊断版；实际Intel阻塞根因仍待用户下一屏，不声明物理桌面/HID/PCID/WC通过。",
+  "status": "integrated",
+  "title": "真机ACPI画面后停滞的有界屏幕启动阶段诊断",
+  "updated_at": "2026-10-25T14:06:42+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 11.594,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_boot_progress",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 19.718,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_gate",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.407,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_qemu_result",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8STAGE1.md": "021e01da8e9c045882a5127648cb9c7c58fa2785dbe6d0fc03fbc47e4d325756",
+      "docs/hardware-boot-progress.md": "00d66e16c1c3f11584d28e0feb7aeb54f813256cb1acd3d8323b4ec60b3628f8",
+      "include/boot_progress.inc": "fb51ad17da64c4604a2e8f0ac6c281cd4383df3a374416a82d15db4333c8021a",
+      "kernel/boot_progress.asm": "90299f230a9fbf6c23ba9c41965d50d80cb51c2b9566b58ea0cfa1d1a707aad9",
+      "kernel/entry.asm": "ab2efce6280f7b3413f0d62918a7b1697f0f48845de230063bfc7cae509bce72",
+      "kernel/runtime.asm": "607932f009350cb9038e70dfb1c69ff5455d2056bbbe8a48bf4ed70078cc098a",
+      "kernel/services_run.asm": "78d27db14e96e1e100966696bbbd339b1f00cf75fd411e1820e0803282cb14c1",
+      "kernel/smp_runtime.asm": "e9a82fbad873f4449096816c14ce198046864df57daa431a0ecd0c68d495545b",
+      "tests/boot_progress_probe.c": "341f2f013d68f4d05eb886f34a4c5cbd2ba8561b923ef461102b9a70e44ccea3",
+      "tests/test_boot_progress.py": "848103da3075efd97015f1038683984c66ecffa82c29e5eca9596e4850a3cc44"
+    },
+    "finished_at": "2026-10-25T13:58:15+00:00",
+    "job": "1a08020b52474ddc9b48aaab3b5117b6",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/entry.asm",
+    "kernel/boot_progress.asm",
+    "include/boot_progress.inc",
+    "kernel/runtime.asm",
+    "kernel/smp_runtime.asm",
+    "kernel/services_run.asm",
+    "tests/test_boot_progress.py",
+    "tests/boot_progress_probe.c",
+    "docs/hardware-boot-progress.md",
+    "codex-works/deliveries/P8STAGE1.md"
+  ]
+}

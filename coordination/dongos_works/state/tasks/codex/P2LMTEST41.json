@@ -1,0 +1,71 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:lmstudio-works/tests:test_p2_fixture_contract.py"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T08:44:01+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T08:45:02+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T08:43:59+00:00",
+  "delivery": "codex-works/deliveries/P2LMTEST41.md",
+  "depends_on": [
+    "codex:P2CACHE20",
+    "codex:P2OBS36",
+    "codex:P2LARGE16"
+  ],
+  "description": "用户继续P2并授权本地LM Studio完成简单任务。Codex编写独立fixture验证器，分别检查GOP页包络已知向量和runtime_cache真实错误常量映射；自测要求正常数据通过、错rounding/overflow/字段/重复ID/错错误码拒绝，LM不可修改验证器。同步P2实际剩余为ledger、C/D实际接线、独立warm-PCID，物理WC真机待验保留；不重复已integrated组件。本项不关闭P2。",
+  "document": "codex-works/tasks/P2LMTEST41-board.md",
+  "historical": false,
+  "id": "codex:P2LMTEST41",
+  "integration_note": "5声明文件已真实落入主目录且SHA匹配accepted，登记测试门集成。不代表P2或实际GOP授权通过。",
+  "legacy_hash": "5f34eefa55f091243e788d656ee7edc0ac7baddaa980089a31cc5c8dc72bf6ca",
+  "number": "P2LMTEST41",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查边界规则、独立手算答案及反控；正式1cbbfce655d34c37be29e227fe53fce7 4项零skip通过，源码稳定且进程退出。码表验证实际读取生产DG常量，模型不能修改测试。5文件主目录SHA与正式一致。",
+  "status": "integrated",
+  "title": "P2本地模型小任务独立夹具校验与接续状态校准",
+  "updated_at": "2026-10-24T08:46:32+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.218,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:lmstudio-works/tests:test_p2_fixture_contract.py",
+        "tests": 4,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P2LMTEST41.md": "9ee07e2f6dbfb1abd7419ad67ad3e32fa7fb8ef1bd730e1a464e6dfb84222c84",
+      "lmstudio-works/tests/p2_fixture_contract.py": "1f8f62628817c8d6e263fa67b63a047e8fe92fba68743ebf5a8e8639d48755d6",
+      "lmstudio-works/tests/test_p2_cache_errors.py": "c638245ddf199dee36ab1d9b48269ab1e6410135a7f14952608ebd7bbe0a6d8a",
+      "lmstudio-works/tests/test_p2_fixture_contract.py": "7c4ff948cb1a23f4c87fd88e90b91fab4c376e014692260e5da98bc63e3d9992",
+      "lmstudio-works/tests/test_p2_rounding_vectors.py": "bc6b7779c1c1a486d1ea588c7f950c6ec079b96c06c5035583b93c6a139ac4ad"
+    },
+    "finished_at": "2026-10-24T08:45:14+00:00",
+    "job": "1cbbfce655d34c37be29e227fe53fce7",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "lmstudio-works/tests/p2_fixture_contract.py",
+    "lmstudio-works/tests/test_p2_fixture_contract.py",
+    "lmstudio-works/tests/test_p2_rounding_vectors.py",
+    "lmstudio-works/tests/test_p2_cache_errors.py",
+    "codex-works/deliveries/P2LMTEST41.md"
+  ]
+}

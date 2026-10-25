@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "module": "mm.runtime_cache",
+  "errors": [
+    {
+      "name": "Invalid",
+      "code": "0x06150001",
+      "meaning": "参数或事务状态无效"
+    },
+    {
+      "name": "Authority",
+      "code": "0x06150002",
+      "meaning": "可信CPU、根或权限前提不满足"
+    },
+    {
+      "name": "Forest",
+      "code": "0x06150003",
+      "meaning": "页表森林与授权别名闭包不符"
+    },
+    {
+      "name": "HardwareState",
+      "code": "0x06150004",
+      "meaning": "PAT、MTRR等硬件状态不符"
+    },
+    {
+      "name": "Held",
+      "code": "0x06150005",
+      "meaning": "事务资源须保持持有"
+    },
+    {
+      "name": "Deadline",
+      "code": "0x06150006",
+      "meaning": "达到截止期限或期限无效"
+    },
+    {
+      "name": "Capacity",
+      "code": "0x06150007",
+      "meaning": "容量不足"
+    },
+    {
+      "name": "Storage",
+      "code": "0x06150008",
+      "meaning": "调用方存储范围或别名不合法"
+    }
+  ]
+}

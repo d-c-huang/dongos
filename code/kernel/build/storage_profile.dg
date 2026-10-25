@@ -2,3 +2,6 @@
 // The normal service build declares an explicit generated override input.
 module build.storage_profile;
 pub const STATIC_USER_POOLS:usize=3;
+// Static table array shape; a zero-pool profile keeps one unused page.
+pub const STATIC_TABLE_SLOTS:usize=3;
+pub const STATIC_TABLE_PAGES:usize=32;

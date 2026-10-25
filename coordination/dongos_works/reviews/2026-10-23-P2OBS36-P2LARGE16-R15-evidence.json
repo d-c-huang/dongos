@@ -1,0 +1,463 @@
+{
+  "schema": 1,
+  "cases": {
+    "normal": {
+      "archive": "coordination\\dongos_works\\.local\\runs\\4363ad07fc1145dbba775a2d817710b6\\workspace\\build\\test\\p2-runtime-large\\qemu\\normal-r15-wire2",
+      "result_sha256": "f684f9e8ea96dd87834c738bb9125570fefa4fa5b6e68921ffc3369e658d6a4b",
+      "wire_sha256": "88b1e243206a64aa9b6e1d539c693c80a8f0594fa4d435f4cc359c43d092347b",
+      "strict_replay_sha256": "3ccfb1d82c1b85c8053ca5cc6c259e842606875dc225e5cbe5e9c7c08f92f6b6",
+      "strict_replay": {
+        "passed": true,
+        "boots": [
+          {
+            "passed": true,
+            "actual_cpu_loads": true,
+            "actual_kernel_cr3_consumer": true,
+            "cpl3_high_half_consumer": false,
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "kernel_forest": {
+              "tables": 75,
+              "held_aliases": 1,
+              "kernel_scans": 1
+            },
+            "negative": false,
+            "pcid_required": true,
+            "normal_observation_profile": "current-kernel-v2",
+            "observation_controls": {
+              "owner_post_completed": true,
+              "current_barrier_pending": true,
+              "current_barrier_complete": false,
+              "completed_sequence": 42681,
+              "current_sequence": 42682
+            },
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "pcid_observation_profile": "current-owner-v2"
+          },
+          {
+            "passed": true,
+            "actual_cpu_loads": true,
+            "actual_kernel_cr3_consumer": true,
+            "cpl3_high_half_consumer": false,
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "kernel_forest": {
+              "tables": 75,
+              "held_aliases": 1,
+              "kernel_scans": 1
+            },
+            "negative": false,
+            "pcid_required": true,
+            "normal_observation_profile": "current-kernel-v2",
+            "observation_controls": {
+              "owner_post_completed": true,
+              "current_barrier_pending": true,
+              "current_barrier_complete": false,
+              "completed_sequence": 32579,
+              "current_sequence": 32580
+            },
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "pcid_observation_profile": "current-owner-v2"
+          }
+        ],
+        "hardware_guest_evidence": true,
+        "historical_replay": false,
+        "fault_contract": "p2-runtime-large-fault-v1",
+        "normal_observation_profile": "current-kernel-v2",
+        "pcid_observation_profile": "current-owner-v2"
+      },
+      "raw_audits": [
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-normal-boot1-raw.json",
+          "sha256": "6bb13261475733500531e2b13241ee1c342622d0530f004d877549dbc33dbb72",
+          "counts": {
+            "bulks": 120,
+            "slices": 1730,
+            "register_sources": 80,
+            "aliases": 80,
+            "unique_files": 1930
+          },
+          "omit_scoped_proof": []
+        },
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-normal-boot2-raw.json",
+          "sha256": "7714a6c9a41519ea1eb4b11cf951c7d44869d888e12a60d9c6af34d20955bc56",
+          "counts": {
+            "bulks": 138,
+            "slices": 1664,
+            "register_sources": 92,
+            "aliases": 92,
+            "unique_files": 1894
+          },
+          "omit_scoped_proof": []
+        }
+      ],
+      "owned_processes": [
+        {
+          "pid": 31728,
+          "returncode": 0,
+          "process_alive": false
+        },
+        {
+          "pid": 32436,
+          "returncode": 0,
+          "process_alive": false
+        }
+      ]
+    },
+    "omit-ap-flush": {
+      "archive": "coordination\\dongos_works\\.local\\runs\\4363ad07fc1145dbba775a2d817710b6\\workspace\\build\\test\\p2-runtime-large\\qemu\\omit-r15-wire1",
+      "result_sha256": "b021868d2ebbf6e21771c926c05940554c1935a875f98baeda531101506780a4",
+      "wire_sha256": "1a58414da29a01a1043f473b2afe7ac7a37b4a59566ea9f0b723a62605a5ed65",
+      "strict_replay_sha256": "dd92cdd6af87008edd6a72d95c40772f0a36c456c793d00d6aa02bb821ead62b",
+      "strict_replay": {
+        "passed": true,
+        "boots": [
+          {
+            "passed": true,
+            "actual_cpu_loads": true,
+            "actual_kernel_cr3_consumer": true,
+            "cpl3_high_half_consumer": false,
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "kernel_forest": {
+              "tables": 76,
+              "held_aliases": 513,
+              "kernel_scans": 1
+            },
+            "negative": true,
+            "pcid_required": true,
+            "normal_observation_profile": "legacy-idle-v1",
+            "observation_controls": null,
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "pcid_observation_profile": "lock-free-v1"
+          },
+          {
+            "passed": true,
+            "actual_cpu_loads": true,
+            "actual_kernel_cr3_consumer": true,
+            "cpl3_high_half_consumer": false,
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "kernel_forest": {
+              "tables": 76,
+              "held_aliases": 513,
+              "kernel_scans": 1
+            },
+            "negative": true,
+            "pcid_required": true,
+            "normal_observation_profile": "legacy-idle-v1",
+            "observation_controls": null,
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "pcid_observation_profile": "lock-free-v1"
+          }
+        ],
+        "hardware_guest_evidence": true,
+        "historical_replay": false,
+        "fault_contract": "p2-runtime-large-fault-v1",
+        "normal_observation_profile": "legacy-idle-v1",
+        "pcid_observation_profile": "lock-free-v1"
+      },
+      "raw_audits": [
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-omit-boot1-raw.json",
+          "sha256": "12c79add2a1b9bbb6c3b21371403338a5cf1f1b5b2df0f905d439250963c2d37",
+          "counts": {
+            "bulks": 108,
+            "slices": 799,
+            "register_sources": 72,
+            "aliases": 72,
+            "unique_files": 979
+          },
+          "omit_scoped_proof": [
+            {
+              "dynamic_omit_hit": true,
+              "raw_ap1_stale_A": true,
+              "mapped_B_value": true,
+              "reader_ack_missing": true,
+              "old_2MiB_unchanged": true,
+              "full_acceptance": false
+            }
+          ]
+        },
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-omit-boot2-raw.json",
+          "sha256": "98bfcb9529df516558aa57ed529a8f7e948517ae378d82f0287353eab94c57f8",
+          "counts": {
+            "bulks": 114,
+            "slices": 897,
+            "register_sources": 76,
+            "aliases": 76,
+            "unique_files": 1087
+          },
+          "omit_scoped_proof": [
+            {
+              "dynamic_omit_hit": true,
+              "raw_ap1_stale_A": true,
+              "mapped_B_value": true,
+              "reader_ack_missing": true,
+              "old_2MiB_unchanged": true,
+              "full_acceptance": false
+            }
+          ]
+        }
+      ],
+      "owned_processes": [
+        {
+          "pid": 30016,
+          "returncode": 0,
+          "process_alive": false
+        },
+        {
+          "pid": 11004,
+          "returncode": 0,
+          "process_alive": false
+        }
+      ]
+    },
+    "flush-return-error": {
+      "archive": "coordination\\dongos_works\\.local\\runs\\4363ad07fc1145dbba775a2d817710b6\\workspace\\build\\test\\p2-runtime-large\\qemu\\flush-error-r15-wire3",
+      "result_sha256": "ba676ba92cfc2f01de1a47ea6367dfba366f17147d56a35adbb14d7f27e707ed",
+      "wire_sha256": "959c1903912eee55facdc7c98af82c8a6ed960b58dfbdf40995bc4a16b421ba6",
+      "strict_replay_sha256": "106de0a8038cafbd8608fbd1578a48135aca9aa5a001974f321e283fe74104e6",
+      "strict_replay": {
+        "passed": true,
+        "boots": [
+          {
+            "passed": true,
+            "negative": "flush-return-error",
+            "stale_load_evidence": false,
+            "actual_flush_return_error": true,
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "fault_receipt": {
+              "hit": true,
+              "case": "flush-return-error",
+              "sequence": 32434,
+              "real_result": 0,
+              "returned_result": 1
+            },
+            "kernel_forest": {
+              "tables": 76,
+              "held_aliases": 513,
+              "kernel_scans": 1
+            },
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "pcid_required": true,
+            "pcid_observation_profile": "lock-free-v1"
+          },
+          {
+            "passed": true,
+            "negative": "flush-return-error",
+            "stale_load_evidence": false,
+            "actual_flush_return_error": true,
+            "fault_contract": "p2-runtime-large-fault-v1",
+            "fault_receipt": {
+              "hit": true,
+              "case": "flush-return-error",
+              "sequence": 32560,
+              "real_result": 0,
+              "returned_result": 1
+            },
+            "kernel_forest": {
+              "tables": 76,
+              "held_aliases": 513,
+              "kernel_scans": 1
+            },
+            "old_held_bytes": 2097152,
+            "old_held_sha256": "c076a886bcdaa7c84c2749ae044ab44456bf6ceb71a1085a99f25fb9ab47bd4d",
+            "pcid_required": true,
+            "pcid_observation_profile": "lock-free-v1"
+          }
+        ],
+        "hardware_guest_evidence": true,
+        "historical_replay": false,
+        "fault_contract": "p2-runtime-large-fault-v1",
+        "normal_observation_profile": "legacy-idle-v1",
+        "pcid_observation_profile": "lock-free-v1"
+      },
+      "raw_audits": [
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-error-boot1-raw.json",
+          "sha256": "f5fa0a8f7b115196206ba346d19957bbddaf16082b03cf51fffa74189f0e2236",
+          "counts": {
+            "bulks": 108,
+            "slices": 801,
+            "register_sources": 72,
+            "aliases": 72,
+            "unique_files": 981
+          },
+          "omit_scoped_proof": []
+        },
+        {
+          "path": "build\\test\\p2-historical36-review\\b-r15-error-boot2-raw.json",
+          "sha256": "a3779b0a076acce97c1d6d819b17cbaba47667356a102d922d0c080e1e0cf8b7",
+          "counts": {
+            "bulks": 108,
+            "slices": 800,
+            "register_sources": 72,
+            "aliases": 72,
+            "unique_files": 980
+          },
+          "omit_scoped_proof": []
+        }
+      ],
+      "owned_processes": [
+        {
+          "pid": 7012,
+          "returncode": 0,
+          "process_alive": false
+        },
+        {
+          "pid": 19316,
+          "returncode": 0,
+          "process_alive": false
+        }
+      ]
+    }
+  },
+  "formal": {
+    "P2LARGE16": {
+      "rev": 66,
+      "status": "submitted",
+      "job": "4363ad07fc1145dbba775a2d817710b6",
+      "tests": 65,
+      "skips": 0,
+      "main_files_match": true,
+      "files": [
+        {
+          "path": "code\\kernel\\mm\\runtime_large.dg",
+          "sha256": "2f45344d8a4e3a70c475a9c2d0a248817fce40c4f40f8be88d04885bfb123018"
+        },
+        {
+          "path": "code\\kernel\\user\\memory.dg",
+          "sha256": "ca72b4a695f8b87179befcb68359f81d4fdea5df3041510966a66b69cf0b5ca6"
+        },
+        {
+          "path": "code\\kernel\\user\\services.dg",
+          "sha256": "5d3e5ba6d5e0a1af7a52b2d25e0d5f48392e9cc8e9fe94aaa72d9fdb966bfe4f"
+        },
+        {
+          "path": "code\\kernel\\sched\\user_domain.dg",
+          "sha256": "2e639577b66094c122eedf64179556a6e60fe3702b4a3341b80b1d38f49e0797"
+        },
+        {
+          "path": "code\\kernel\\sched\\runtime_large_reader.asm",
+          "sha256": "c212c45c323b06efed092ae85482735d6ce1dd0937671a23cf52bf27717dd1a1"
+        },
+        {
+          "path": "code\\kernel\\smp\\large_memory.dg",
+          "sha256": "b62416f74dccffc4eaecca230d14b6e7f64cf8b189f6f72f16309f9c7adecb49"
+        },
+        {
+          "path": "code\\kernel\\mm\\phys_buddy.dg",
+          "sha256": "af2de720d420e939496322025a17685f14bb2ecc77fac106b8e8509789e6f737"
+        },
+        {
+          "path": "code\\tools\\build.py",
+          "sha256": "1e383c08eb1ab8caa0df817a56889e2f8019edd89dd06914732a1b59eb73c456"
+        },
+        {
+          "path": "code\\tests\\runtime_large_probe.dg",
+          "sha256": "9b03062430c710306acc2bdd074233d9b79d0865a7de4f2b2197452cdf8760bf"
+        },
+        {
+          "path": "code\\tests\\runtime_large_probe.c",
+          "sha256": "0d0dc5458f2cee9a1be48f174d5e8d1bb3635839fb48414771124a0128be6cb3"
+        },
+        {
+          "path": "code\\tests\\test_runtime_large.py",
+          "sha256": "c0d1fd62b8747d220439a73008d4e618bcb88e8b33cce62f725ec5c0111d0ae4"
+        },
+        {
+          "path": "code\\tests\\p2_runtime_large_build.py",
+          "sha256": "a1bd719663ec8920cd081d48486e0d21378f6325fae251b86eb1484f861ec97c"
+        },
+        {
+          "path": "code\\tests\\run_p2_runtime_large_qemu.py",
+          "sha256": "10213b82261cb887846dfadd763c9893934f8ded4881d14ede0462875a2bad95"
+        },
+        {
+          "path": "code\\tests\\test_p2_runtime_large.py",
+          "sha256": "67562e91fc975b449a3c75f6ec3f538f1214461fad66b1080d1c98d8f59fd5bd"
+        },
+        {
+          "path": "code\\tests\\test_user_domain.py",
+          "sha256": "ddfe3e1100ea3cf486ab3a7980a7cade6917090d918190ecccc36d9152863ada"
+        },
+        {
+          "path": "code\\tests\\test_buddy.py",
+          "sha256": "a59aa88cd2ebb3baae7427e709f55cf79b7e6a1e0a5fc8f493831e80115250dc"
+        },
+        {
+          "path": "code\\docs\\runtime-large.md",
+          "sha256": "20ae47b779871f3c16dbdc8d93fa2ccda48f7541d4d839beaa03655f460a0d3f"
+        },
+        {
+          "path": "coordination\\dongos_works\\codex-works\\deliveries\\P2LARGE16.md",
+          "sha256": "54e4f0396f3ed77e1e82bf45caecb825a781bf0f5beb2dd220c9e683f020be5d"
+        }
+      ]
+    },
+    "P2OBS36": {
+      "rev": 35,
+      "status": "submitted",
+      "job": "0553d178506e4026bec83d2adc021e7c",
+      "tests": 110,
+      "skips": 0,
+      "main_files_match": true,
+      "files": [
+        {
+          "path": "code\\tests\\run_desktop_settings_qemu.py",
+          "sha256": "7c35a4cb2ac99fe3dc362cbf40d7ee9ad063aaf646e1a02453bb0f03bb8ce661"
+        },
+        {
+          "path": "code\\tests\\run_process_lifecycle_qemu.py",
+          "sha256": "b1ff4a101f8295c5643919da0daeb204a7f679a66d6c2685c3c24ec354dcea84"
+        },
+        {
+          "path": "code\\tests\\run_current_user_smp_qemu.py",
+          "sha256": "ed319c5a60841caaa240d81e7b19593d20e4f407712f0c53b964cb426ff6323f"
+        },
+        {
+          "path": "code\\tests\\run_p2_pcid_qemu.py",
+          "sha256": "e21a1ac5a6948414d00a7a20f5cb204dbd3293b8fc3fcb1a3331ee243633ac6e"
+        },
+        {
+          "path": "code\\tests\\p2_bulk_capture.py",
+          "sha256": "4bf720a0e30d555365ec41b5c4139f00057672e8f4ca09ef1bc80466ee19797a"
+        },
+        {
+          "path": "code\\tests\\p2_pcid_oracle.py",
+          "sha256": "d7c4443dadde048e0499fa499f63d8c92d550270bd6420534bf5d6fd50c4f418"
+        },
+        {
+          "path": "code\\tests\\test_p2_bulk_capture.py",
+          "sha256": "8460a6af5677380b91c7b345feee2e7bd54462b29f3672f7edbd356401ffd4ef"
+        },
+        {
+          "path": "code\\tests\\test_p2_pcid.py",
+          "sha256": "c9ba4071569c696acbd452521744861347ed64dda4868f47ccf510d93c9135ee"
+        },
+        {
+          "path": "code\\tests\\test_user_smp_gui_control.py",
+          "sha256": "11ab7e36493c6cf38e77f18f22e1952d248a4dfa4398ce370c4db1929e9959b3"
+        },
+        {
+          "path": "code\\tests\\test_p2_historical_capture.py",
+          "sha256": "18f357e72699d61dd3f3c94b3128430da39e5bab6a92bd0129dffbaf7424b8eb"
+        },
+        {
+          "path": "code\\docs\\p2-observer-capture.md",
+          "sha256": "794b880a969d4ae9aea44dad088769b194dc78fc677240f705baa4e752227910"
+        },
+        {
+          "path": "coordination\\dongos_works\\codex-works\\deliveries\\P2OBS36.md",
+          "sha256": "43911efd13ebb0ea03e3799587159d7daa1ee43026520788ea7352faf6ff500f"
+        }
+      ]
+    }
+  },
+  "scope": "P2OBS36 and P2LARGE16 software/local guest gates only; not all P2/P5 or physical WC",
+  "history": "Earlier startup/oracle failures remain unchanged; diagnostic runs are excluded."
+}

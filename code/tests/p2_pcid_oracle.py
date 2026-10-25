@@ -322,7 +322,7 @@ def catalog(raw):
 def pool_identity(memory_raw, space, slot, *, static_pools, static_base, static_virtual, metadata_virtual,
                   limits, dynamics, pointers, generations, kernel_image, arena, next_page):
     """Source-bound memory identity, including live roots not admitted to Domain."""
-    check(type(static_pools) is int and static_pools==1 and 0<=slot<16,'current runtime7 static pool policy differs')
+    check(type(static_pools) is int and static_pools==0 and 0<=slot<16,'current runtime7 static pool policy differs')
     root=struct.unpack_from('<Q',memory_raw,slot*1288+8)[0]
     count=limits[slot]
     check(count==(128 if slot==3 else 32),'private pool capacity/role differs')
@@ -422,7 +422,7 @@ def decode_snapshot(record, archive, *, info_symbol, syscall_entry, memory_proce
         check(type(record.get('serial_offset')) is int
               and record['serial_offset'] == archive.snapshot_serial_offset,
               'snapshot serial boundary differs from sealed source epoch')
-    check(type(static_pools) is int and static_pools == 1, 'current runtime7 requires exactly one source-bound static pool')
+    check(type(static_pools) is int and static_pools == 0, 'current runtime7 requires source-bound zero static pools')
     check(isinstance(record.get('registers'), list) and len(record['registers']) == 4,
           'exactly four raw register dumps required')
     pool = record['kernel_pool']

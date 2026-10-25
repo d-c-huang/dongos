@@ -1,5 +1,12 @@
 # L2 / L3 实施与验收记录
 
+2026-10-24 L3完成：L3ELFMATRIX1 已独立验收并集成本地主线 main 工作树（integrated rev6）。正式作业 ed37c79515f94c87a488e538ea6ba20d：51项/27组全部通过、零skip，963.657秒，source_stable及进程停止/退出均确认。148份目标ELF、166次实际观察运行和六类错误源码通过独立产物审计；157主目录源码与复验一致，G6的456源仍逐字绑定已验收的2,062,984字节编译器。因此L3/L3A剩余纯ELF矩阵门关闭，整体状态更新为complete。
+
+详见[最终完成回执](l3-pure-elf-matrix.md)。下面各日期记录保留其历史范围。
+
+2026-10-24 最新：L3ENC1、G6ENC1 均 integrated rev6。编码扩展正式4项零skip（486.25秒），G6正式15项零skip（0.813秒），源码稳定且进程退出。XMM/movdqu、32/64位原子和后端受限asm编码已实现；1017条字节对照及两模式真实纯ELF执行通过。新编译器2,062,984字节、源码494,247字节，fresh固定点与实际同盘两启通过；独立965+965原始转储、FAT/退休页审计通过，主目录456源与运行冻结输入一致。L3仍partial：剩完整语言矩阵通过纯ELF路径的覆盖验证，不再将上述编码缺口或新版G6列为待开发。证据见 coordination/dongos_works/codex-works/reviews/2026-10-24-G6-encoding.md/json；下方旧状态保留为历史。
+
+
 2026-10-23 G5 收尾：**G5FULL1 integrated rev16、G5CLOSURE1 integrated rev21，
 G5INT1 integrated rev24**。七个生产模块已真实写入本地主线工作树并独立复验；
 正式作业 `0856b466a4d44a13be901c02f8acff46` 的 51 项完整语言矩阵、1 项闭包和
@@ -9,12 +16,7 @@ G5INT1 integrated rev24**。七个生产模块已真实写入本地主线工作�
 预算保持。详细原始证据、失败历史及实际状态见 [完成回执](../../coordination/dongos_works/codex-works/reviews/2026-10-22-G5-completion.md)，
 永久入口见 [G5 门禁](g5-differential.md)。
 
-G5 完成范围为语言/ABI 的 frontend → lower → NASM 执行及宿主有界自编译
-闭包；内建汇编器仍有明确指令范围，Win64 XMM、原子及受限 asm 的完整
-NASM 覆盖不等于任意程序均可由它生成 ELF。扩大后的编译器须另做新 G6
-客体自编译、持久化和同盘双启；历史 G6 仍只绑定原 head / 49 模块 profile。
-因此 L3 整体及更广纯 ELF 后端继续保留各自余项，P2/P5/P6/P7/P8、KVM/
-真机和 P9 门禁不因本次完成而关闭。本轮未运行 OS/VM，未提交或推送。
+G5 完成范围为语言/ABI 的 frontend → lower → NASM 执行及宿主有界自编译闭包。2026-10-24 已补齐此前确认的 XMM、原子和受限 asm 编码，并完成扩大编译器的新 G6；完整语言矩阵现已通过内建汇编器的纯 ELF 独立复验（L3ELFMATRIX1 rev6），L3/L3A已完成。P2/P5/P6/P7/P8、真机和P9保持各自状态。
 
 以下保留各自日期和源码范围的历史记录；旧 164 项数量、旧 G5 缺口和
 “当前/待完成”不再代表最新状态。实时任务数量见协调器及协作区整体任务图。
@@ -36,8 +38,8 @@ NASM 覆盖不等于任意程序均可由它生成 ELF。扩大后的编译器�
 | G2 原生前端入口 | 源码目录由 Dong 连续执行 modules.load → names.collect → binding.check → analyze_program；有界调用方内存，成功图可供后端使用，诊断准确定位源码/行列 | 主线宿主 frontend/diagnostics/CLI 已接通；PR8 已有 GUEST1/2、CR45/46、CX6 的客体输入、目录、诊断与真实 H_READ 适配，并保存独审和正式复验。实现已随PR#8合入并同步本机；异机任务记录仍单独保留，不自动导入当前调度库 |
 | G3 通用源码到后端 | 同一成功语义图由 Dong 降为类型化 IR 并产生 NASM | G5FULL1 的 51 项/27 组完整语言与 ABI 门禁已通过并集成；内建 native_assembler 只承诺已实现的指令范围，选定原生 ELF 与完整自编译闭包另有真实验证 |
 | G4 宿主编译器固定点 | 同源、同选项、规范路径的实际编译器 stage1/stage2 产物逐字节一致 | G5CLOSURE1/G5INT1 本轮 debug/release 四份完整 ELF 均 2,046,376 字节、SHA256 2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa，49 模块及预算独审通过；旧 CX15 已 integrated rev8，历史 1,892,648 字节版本独立保留 |
-| G5 完整语言覆盖 | 对活动编译器语言、ABI、诊断和检查模式逐项真实差分执行 | 已完成宿主范围；G5FULL1 integrated rev16，G5CLOSURE1 rev21，主线正式 51+1+18 共70项零skip/source stable及原始产物独审通过；全矩阵 scope_complete=true |
-| G6 DongOS 自编译 | 从 FAT32 读源码、客体生成并 FLUSH ELF、运行下一阶段并同盘重启核对 | 历史 runtime5/compiler_job 49模块 profile/19e1a19 检查点仍已通过，产物 1,892,648 字节；本轮扩大编译器的 2,046,376 字节产物没有新客体证据，须另做 G6 回归，不以宿主固定点替代 |
+| G5 完整语言覆盖 | 对活动编译器语言、ABI、诊断和检查模式逐项真实差分执行 | 已完成宿主NASM及完整纯ELF矩阵（51项/27组，L3ELFMATRIX1 rev6）；G5FULL1 integrated rev16，G5CLOSURE1 rev21，主线正式 51+1+18 共70项零skip/source stable及原始产物独审通过；全矩阵 scope_complete=true |
+| G6 DongOS 自编译 | 从 FAT32 读源码、客体生成并 FLUSH ELF、运行下一阶段并同盘重启核对 | 历史 runtime5/compiler_job 49模块 profile/19e1a19 检查点仍已通过，产物 1,892,648 字节；2026-10-24 当前 2,062,984 字节编译器 fresh 固定点与实际同盘双启已通过，965+965 raw 独审通过，G6ENC1 integrated rev6 |
 
 G4 的固定点是同一 Dong 编译器不同代之间的规定产物一致，不要求两个结构不同的 Python/Dong 后端未经规范就输出相同汇编文本。Python seed 与 Dong 后端的语言行为一致仍须单独差分验证。客体 NASM 文本一致是有用的中间证据，不能代替 G6 的 ELF、执行、FLUSH 和重启门禁。
 

@@ -5,6 +5,7 @@ module fs.fat32;
 import fs.errors as errors;
 import fs.path as path;
 import fs.lfn as lfn;
+import lib.hardware_profile as hardware_profile;
 pub type Read = unsafe fn(context:u64,lba:u64,count:usize,out:*u8) u64;
 pub type Write = unsafe fn(context:u64,lba:u64,count:usize,input:*const u8) u64;
 pub type Flush = unsafe fn(context:u64) u64;
@@ -14,14 +15,14 @@ pub struct Volume {
     pub total:u64,pub spc:u64,pub reserved:u64,pub fat_sectors:u64,pub data_start:u64,pub clusters:u64,pub root:u64,pub fsinfo:u64,pub backup:u64,
 }
 pub struct AuditFrame { pub directory:u64,pub parent:u64,pub raw:u64,pub limit:u64 }
-pub struct Scratch { pub sector:[512]u8,pub fat:[512]u8,pub entry:[32]u8,pub name:[11]u8,pub seen:[32768]u8,pub frames:[128]AuditFrame,pub group:lfn.Group,pub decoded:lfn.Name }
+pub struct Scratch { pub sector:[512]u8,pub fat:[512]u8,pub entry:[32]u8,pub name:[11]u8,pub seen:[hardware_profile.FAT_AUDIT_BYTES]u8,pub frames:[128]AuditFrame,pub group:lfn.Group,pub decoded:lfn.Name }
 pub struct PathEntry { pub entry:DirEntry,pub name_length:usize,pub has_lfn:u64,pub raw_index:u64,pub first_index:u64,pub group_count:u64,pub name:[1020]u8 }
 pub struct Workspace { pub candidate:PathEntry,pub selected:PathEntry,pub parents:[128]DirEntry,pub canonical:path.Path }
 pub const EMPTY_PATH_ENTRY:PathEntry=PathEntry{entry:EMPTY_ENTRY,name_length:0,has_lfn:0,raw_index:0,first_index:0,group_count:0,name:[0;1020]};
 pub const EMPTY_WORKSPACE:Workspace=Workspace{candidate:EMPTY_PATH_ENTRY,selected:EMPTY_PATH_ENTRY,parents:[EMPTY_ENTRY;128],canonical:path.EMPTY};
 pub struct DirEntry { pub name:[11]u8,pub attributes:u8,pub cluster:u64,pub size:u64,pub sector:u64,pub offset:u64 }
 pub const EMPTY_VOLUME:Volume=Volume{device:null,ready:0,busy:0,failed:0,read_only:0,dirty:0,total:0,spc:0,reserved:0,fat_sectors:0,data_start:0,clusters:0,root:0,fsinfo:0,backup:0};
-pub const EMPTY_SCRATCH:Scratch=Scratch{sector:[0;512],fat:[0;512],entry:[0;32],name:[0;11],seen:[0;32768],frames:[AuditFrame{directory:0,parent:0,raw:0,limit:0};128],group:lfn.EMPTY_GROUP,decoded:lfn.EMPTY_NAME};
+pub const EMPTY_SCRATCH:Scratch=Scratch{sector:[0;512],fat:[0;512],entry:[0;32],name:[0;11],seen:[0;hardware_profile.FAT_AUDIT_BYTES],frames:[AuditFrame{directory:0,parent:0,raw:0,limit:0};128],group:lfn.EMPTY_GROUP,decoded:lfn.EMPTY_NAME};
 pub const EMPTY_ENTRY:DirEntry=DirEntry{name:[0;11],attributes:0,cluster:0,size:0,sector:0,offset:0};
 unsafe fn u16(p:*const u8,n:usize)u64{unsafe{return (*(p+n) as u64)|((*(p+n+1) as u64)<<8);}}
 unsafe fn u32(p:*const u8,n:usize)u64{unsafe{return u16(p,n)|(u16(p,n+2)<<16);}}
@@ -85,17 +86,36 @@ unsafe fn mount_inner(v:*Volume,d:*const Device,w:*Scratch)!void{unsafe{
     if c.data_start>=c.total{return error.errors.InvalidBpb;}
     c.clusters=(c.total-c.data_start)/c.spc;
     if c.clusters<65525||(c.clusters+2)*4>c.fat_sectors*512||c.root<2||c.root>=c.clusters+2{return error.errors.InvalidBpb;}
-    if c.clusters+2>262144{return error.errors.Unsupported;}
+    if c.clusters+2>(hardware_profile.FAT_AUDIT_BYTES as u64)*8{return error.errors.Unsupported;}
     if fsinfo==0||fsinfo>=c.reserved||backup==0||backup>=c.reserved||backup+fsinfo>=c.reserved{return error.errors.InvalidBpb;}
     try read_sector(&c,backup,&(*w).fat[0]);var i:usize=0;while i<512{if (*w).sector[i]!=(*w).fat[i]{return error.errors.Corrupt;}i+=1;}
     try read_sector(&c,fsinfo,&(*w).sector[0]);
     if u32(b,0)!=0x4161_5252||u32(b,484)!=0x6141_7272||u32(b,508)!=0xaa55_0000{return error.errors.Corrupt;}
+    if hardware_profile.USB_ONLY {
+        i=4;while i<484 {if (*w).sector[i]!=0 {return error.errors.Corrupt;}i+=1;}
+        i=496;while i<508 {if (*w).sector[i]!=0 {return error.errors.Corrupt;}i+=1;}
+    }
     let free_hint=u32(b,488);let next_hint=u32(b,492);
     if (free_hint!=0xffff_ffff&&free_hint>c.clusters)||(next_hint!=0xffff_ffff&&(next_hint<2||next_hint>=c.clusters+2)){return error.errors.Corrupt;}
-    try read_sector(&c,backup+fsinfo,&(*w).fat[0]);i=0;while i<512{if (*w).sector[i]!=(*w).fat[i]{return error.errors.Corrupt;}i+=1;}
+    try read_sector(&c,backup+fsinfo,&(*w).fat[0]);
+    if hardware_profile.USB_ONLY {
+        // Microsoft FAT32 v1.03 BPB_FSInfo: the backup's advisory counters
+        // need not be current. They never authorize allocation or replace FAT.
+        let backup_free=u32(&(*w).fat[0],488);let backup_next=u32(&(*w).fat[0],492);
+        if (backup_free!=0xffff_ffff&&backup_free>c.clusters)
+            ||(backup_next!=0xffff_ffff&&(backup_next<2||backup_next>=c.clusters+2)) {return error.errors.Corrupt;}
+    }
+    i=0;while i<512{
+        if (*w).sector[i]!=(*w).fat[i]{
+            if !hardware_profile.USB_ONLY||i<488||i>=496 {return error.errors.Corrupt;}
+        }i+=1;
+    }
     var sector:u64=0;while sector<c.fat_sectors{
         try read_sector(&c,c.reserved+sector,&(*w).sector[0]);try read_sector(&c,c.reserved+c.fat_sectors+sector,&(*w).fat[0]);
-        i=0;while i<512{if (*w).sector[i]!=(*w).fat[i]{return error.errors.Corrupt;}i+=1;}sector+=1;
+        i=0;while i<512{
+            if read_unaligned((&(*w).sector[0]+i) as *const u64)!=read_unaligned((&(*w).fat[0]+i) as *const u64){return error.errors.Corrupt;}
+            i+=8;
+        }sector+=1;
     }
     if (try fat_get(&c,w,0))!=0x0fff_fff8{return error.errors.Corrupt;}
     let status=try fat_get(&c,w,1);if (status&0x03ff_ffff)!=0x03ff_ffff{return error.errors.Corrupt;}
@@ -132,12 +152,24 @@ unsafe fn decode(w:*Scratch,lba:u64,off:usize,out:*DirEntry)void{unsafe{
     item.size=u32(&(*w).sector[0],off+28);item.sector=lba;item.offset=off as u64;*out=item;
 }}
 unsafe fn mark_chain(v:*const Volume,w:*Scratch,start:u64)!u64{unsafe{
-    if start==0{return 0;}let count=try chain_length(v,w,start);var cluster=start;var n:u64=0;
-    while n<count{let at=(cluster/8) as usize;let bit=(1<<(cluster%8)) as u8;if ((*w).seen[at]&bit)!=0{return error.errors.Corrupt;}(*w).seen[at]|=bit;
-        cluster=try next(v,w,cluster);n+=1;}return count;
+    if start==0{return 0;}var count=(*v).clusters;
+    // The serialized mount bitmap detects every repeated cluster, including
+    // cycles in the same chain. USB needs no separate Floyd traversal here.
+    // The default profile retains its original preflight and read ordering.
+    if !hardware_profile.USB_ONLY {count=try chain_length(v,w,start);}
+    var cluster=start;var n:u64=0;
+    while n<count{
+        if cluster<2||cluster>=(*v).clusters+2{return error.errors.Corrupt;}
+        let at=(cluster/8) as usize;let bit=(1<<(cluster%8)) as u8;if ((*w).seen[at]&bit)!=0{return error.errors.Corrupt;}(*w).seen[at]|=bit;
+        cluster=try next(v,w,cluster);n+=1;
+        if hardware_profile.USB_ONLY&&cluster==0{return n;}
+    }
+    if hardware_profile.USB_ONLY{return error.errors.Corrupt;}return count;
 }}
 unsafe fn allocation_audit(v:*Volume,w:*Scratch,root_count:u64)!void{unsafe{
-    var i:usize=0;while i<32768{(*w).seen[i]=0;i+=1;}
+    var i:usize=0;
+    while i+8<=hardware_profile.FAT_AUDIT_BYTES{write_unaligned((&(*w).seen[0]+i) as *u64,0);i+=8;}
+    while i<hardware_profile.FAT_AUDIT_BYTES{(*w).seen[i]=0;i+=1;}
     let marked=try mark_chain(v,w,(*v).root);
     if root_count*(*v).spc*16>4096{return error.errors.Unsupported;}
     (*w).frames[0]=AuditFrame{directory:(*v).root,parent:0,raw:0,limit:root_count*(*v).spc*16};

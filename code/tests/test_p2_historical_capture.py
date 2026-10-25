@@ -185,7 +185,7 @@ class HistoricalCaptureTests(unittest.TestCase):
         (g.esp.parent / 'dong_layout.json').write_text(json.dumps(dict(types=[
             dict(full_name=name, **definition) for name, definition in f.types.items()])), encoding='utf-8')
         g.symbols = copy.deepcopy(f.symbols)
-        g.contract = dict(static_pools=1)
+        g.contract = dict(static_pools=0)
         g.snapshot_number = 0
         return f,g
 

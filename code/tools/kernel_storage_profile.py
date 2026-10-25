@@ -8,14 +8,25 @@ PROFILE_SOURCE = "kernel-profile-src/build/storage_profile.dg"
 def static_user_pools(runtime_level):
     if type(runtime_level)is not int or not 0<=runtime_level<=7:
         raise ValueError("kernel storage profile requires an integer runtime level 0..7")
-    return 1 if runtime_level == 7 else 2 if runtime_level >= 5 else 3
+    # All service kernels use the existing arena pool path: C/D are linked at
+    # runtime>=5. Keep the unchanged 2 MiB window for P5/P6 as well as P7.
+    return 0 if runtime_level >= 5 else 3
+
+
+def static_table_shape(count):
+    """Static pool array rows/pages. Dong has no zero-length arrays, so zero
+    pools keep one unused page; uses_static_tables() then never selects it."""
+    return (count, 32) if count else (1, 1)
 
 
 def module_bytes(runtime_level):
     count = static_user_pools(runtime_level)
+    slots, pages = static_table_shape(count)
     return ("// Generated kernel build input; see build-inputs.json.\n"
             "module build.storage_profile;\n"
-            f"pub const STATIC_USER_POOLS:usize={count};\n").encode()
+            f"pub const STATIC_USER_POOLS:usize={count};\n"
+            f"pub const STATIC_TABLE_SLOTS:usize={slots};\n"
+            f"pub const STATIC_TABLE_PAGES:usize={pages};\n").encode()
 
 
 def verify_definition(manifest, source, *, expected_runtime=None, source_root=None):

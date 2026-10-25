@@ -86,6 +86,13 @@ class RuntimeCacheTests(unittest.TestCase):
                 'try closure(c,target,true);(*c).report.phase=6;let opened=runtime_cache_gate_open(cfg.gate,(*c).report.gate_token);',
                 'all', 'early-open-gate'),
         }
+        mutants['WB-only-admission'] = (
+            'if plan.effective_type(memory,plan.WC,&effective)!=plan.OK||effective!=plan.WC',
+            'if memory!=plan.WB', 'mtrr-UC', 'valid-effective-types-rejected')
+        mutants['ignore-conflicting-MTRR'] = (
+            'if plan.mtrr_type(ranges[..count],(*r).default_type&255,physical+page,&memory)!=plan.OK{return error.HardwareState;}',
+            'let ignored=plan.mtrr_type(ranges[..count],(*r).default_type&255,physical+page,&memory);',
+            'conflicting-MTRR', 'preflight exact error code')
         expected = 2 * (1 + len(mutants))
         commands, cases = [], []
 
@@ -156,7 +163,7 @@ class RuntimeCacheTests(unittest.TestCase):
                             'omitted-alias', 'wrong-identity', 'PGE', 'tagged-kernel', 'capacity', 'source-overlap',
                             'memory-generation', 'domain-incarnation',
                             'returning', 'active-barrier',
-                            'hidden-USER', 'non-WB-MTRR',
+                            'hidden-USER', 'invalid-MTRR', 'conflicting-MTRR', 'mtrr-UC', 'mtrr-WC', 'mtrr-WT', 'mtrr-WP', 'mtrr-WB',
                             'missing-ack', 'bad-maintenance', 'mtrr-changed']
                         for scenario in scenarios:
                             result = run([executable, scenario], directory, 'execute-' + scenario, 1 if mutant else 0)

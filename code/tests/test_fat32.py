@@ -6,7 +6,7 @@ from lang.dongc import compile_file
 from lang.tests.test_dongc import nasm_flags,tool
 from tools.make_fat32_disk import create,geometry,SEED
 ROOT=Path(__file__).resolve().parents[1]
-SOURCES=[ROOT/p for p in ("services/fs/fat32.dg","services/fs/errors.dg","services/fs/path.dg","services/fs/lfn.dg","tests/fat32_probe.dg","tests/fat32_probe.c","tests/test_fat32.py","tools/make_fat32_disk.py")]
+SOURCES=[ROOT/p for p in ("services/fs/fat32.dg","services/fs/errors.dg","services/fs/path.dg","services/fs/lfn.dg","services/lib/hardware_profile.dg","tests/fat32_probe.dg","tests/fat32_probe.c","tests/test_fat32.py","tools/make_fat32_disk.py")]
 def reference_file(path,name):
     with path.open("rb") as disk:
         boot=disk.read(512);total=struct.unpack_from("<I",boot,32)[0];reserved=struct.unpack_from("<H",boot,14)[0];fat_sectors=struct.unpack_from("<I",boot,36)[0];spc=boot[13]
@@ -63,6 +63,8 @@ class Fat32Tests(unittest.TestCase):
         if negative:
             services=d/"services";(services/"fs").mkdir(parents=True)
             for name in ("errors.dg","fat32.dg","path.dg","lfn.dg"):(services/"fs"/name).write_bytes((ROOT/"services/fs"/name).read_bytes())
+            (services/"lib").mkdir()
+            (services/"lib/hardware_profile.dg").write_bytes((ROOT/"services/lib/hardware_profile.dg").read_bytes())
             target=services/"fs/fat32.dg";text=target.read_text();needle="var copy:u64=0;while copy<2{";self.assertEqual(2,text.count(needle))
             target.write_text(text.replace(needle,"var copy:u64=0;while copy<1{",1))
             (d/"mutation.json").write_text(json.dumps(dict(kind="missing-second-FAT-update",expected="actual persisted mirrored bytes differ; remount rejects"),indent=2)+"\n")

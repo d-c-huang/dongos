@@ -14,6 +14,8 @@ pub error DeviceError = 0x0503_0009;
 pub error ReadOnly = 0x0503_000a;
 pub error CleanupRequired = 0x0503_000b;
 pub error DeviceReset = 0x0503_000c;
+pub error ClockFailure = 0x0503_000d;
+pub type Now = unsafe fn(context: u64, out: *u64) u64;
 pub const SECTOR_BYTES: u64 = 512;
 pub const MAX_SECTORS: u64 = 128;
 pub const DMA_BYTES: usize = 69632;
@@ -153,9 +155,19 @@ pub unsafe fn initialize(state: *State, transport: *const vp.Transport, ops: *co
     }
 }
 fn overlap(a: u64, size: u64, b: u64, bytes: u64) bool { return a < b + bytes && b < a + size; }
-unsafe fn submit(state: *State, kind: u64, lba: u64, count: usize, input: *const u8, output: *u8) !void {
+unsafe fn legacy_clock(context:u64,out:*u64)u64 { unsafe { *out=0; } return 0; }
+unsafe fn tick(state:*State,now:Now)!u64 { unsafe {
+    var value:u64=0;if now((*state).context,&value)!=0{return error.ClockFailure;}return value;
+} }
+unsafe fn check_time(state:*State,now:Now,start:u64,last:*u64)!u64 { unsafe {
+    let value=try tick(state,now);if value<*last{return error.ClockFailure;}
+    if value-start>=5000{return error.Timeout;}*last=value;return value;
+} }
+unsafe fn submit(state: *State, kind: u64, lba: u64, count: usize, input: *const u8, output: *u8, now:Now, timed:bool) !void {
     unsafe {
         try capacity(state,false);
+        var start:u64=0;if timed{start=try tick(state,now);}
+        var last:u64=start;var stalled:usize=0;
         let raw = (*state).lease.pointer; let physical = (*state).lease.physical; let bytes = count as u64 * 512;
         if kind != 4 {
             var i: usize = 0;
@@ -180,8 +192,13 @@ unsafe fn submit(state: *State, kind: u64, lba: u64, count: usize, input: *const
         try barrier(state,3);
         try vp.write((*(*state).ops).write,(*state).context,&(*state).transport.notify,(*state).notify_offset,2,0);
         var loops: usize = 0;
-        while loops < 100000 {
+        while timed || loops < 100000 {
             let status = try read(state,20,1); if status != 15 { return error.DeviceReset; }
+            if timed {
+                let previous=last;let value=try check_time(state,now,start,&last);
+                if value==previous{stalled+=1;}else{stalled=0;}
+                if stalled>=100000{return error.ClockFailure;}
+            }
             let used = volatile_load((raw + USED + 2) as *const u16) as u64;
             if used != (*state).info.used_index {
                 if used != (((*state).info.used_index + 1) & 65535) { return error.BadCompletion; }
@@ -192,17 +209,18 @@ unsafe fn submit(state: *State, kind: u64, lba: u64, count: usize, input: *const
                 let result = volatile_load((raw + STATUS) as *const u8);
                 var expected: u64 = 1; if kind == 0 { expected += bytes; }
                 if id != 0 || length != expected || result > 2 { return error.BadCompletion; }
+                if timed { let completed_at=try check_time(state,now,start,&last); }
                 (*state).info.used_index = used; (*state).published = 0; (*state).info.completed += 1;
                 if result == 1 { return error.DeviceError; } if result == 2 { return error.Unsupported; }
                 if kind == 0 { var i: usize = 0; while i < bytes as usize { *(output + i) = *(raw + DATA + i); i += 1; } }
                 return;
             }
-            loops += 1;
+            if !timed { loops += 1; }
         }
     }
     return error.Timeout;
 }
-unsafe fn operation(state: *State, kind: u64, lba: u64, count: usize, input: *const u8, output: *u8) !void {
+unsafe fn operation(state: *State, kind: u64, lba: u64, count: usize, input: *const u8, output: *u8, now:Now, timed:bool) !void {
     unsafe {
         if state == null { return error.InvalidInput; }
         if (*state).busy != 0 { return error.Busy; }
@@ -217,7 +235,7 @@ unsafe fn operation(state: *State, kind: u64, lba: u64, count: usize, input: *co
                 || overlap(pointer,bytes,state as u64,sizeof(State) as u64) || overlap(pointer,bytes,(*state).ops as u64,sizeof(Ops) as u64) { return error.InvalidInput; }
         }
         (*state).busy = 1;
-        let result = submit(state,kind,lba,count,input,output);
+        let result = submit(state,kind,lba,count,input,output,now,timed);
         match result {
             ok => { (*state).busy = 0; return; },
             err(code) => {
@@ -228,9 +246,12 @@ unsafe fn operation(state: *State, kind: u64, lba: u64, count: usize, input: *co
         return result;
     }
 }
-pub unsafe fn read_sectors(state: *State, lba: u64, count: usize, output: *u8) !void { unsafe { try operation(state,0,lba,count,null,output); } return; }
-pub unsafe fn write_sectors(state: *State, lba: u64, count: usize, input: *const u8) !void { unsafe { try operation(state,1,lba,count,input,null); } return; }
-pub unsafe fn flush(state: *State) !void { unsafe { try operation(state,4,0,0,null,null); } return; }
+pub unsafe fn read_sectors(state: *State, lba: u64, count: usize, output: *u8) !void { unsafe { try operation(state,0,lba,count,null,output,legacy_clock,false); } return; }
+pub unsafe fn write_sectors(state: *State, lba: u64, count: usize, input: *const u8) !void { unsafe { try operation(state,1,lba,count,input,null,legacy_clock,false); } return; }
+pub unsafe fn flush(state: *State) !void { unsafe { try operation(state,4,0,0,null,null,legacy_clock,false); } return; }
+pub unsafe fn read_sectors_timed(state:*State,lba:u64,count:usize,output:*u8,now:Now)!void { unsafe {try operation(state,0,lba,count,null,output,now,true);}return; }
+pub unsafe fn write_sectors_timed(state:*State,lba:u64,count:usize,input:*const u8,now:Now)!void { unsafe {try operation(state,1,lba,count,input,null,now,true);}return; }
+pub unsafe fn flush_timed(state:*State,now:Now)!void { unsafe {try operation(state,4,0,0,null,null,now,true);}return; }
 // FAT Device ABI: context is a borrowed CPU State address, never a DMA PA.
 pub unsafe fn read_callback(context: u64, lba: u64, count: usize, output: *u8) u64 {
     unsafe { match read_sectors(context as *State,lba,count,output) { ok => { return 0; }, err(code) => { return code; }, } }

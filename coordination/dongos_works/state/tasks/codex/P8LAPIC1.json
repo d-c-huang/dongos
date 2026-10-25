@@ -1,0 +1,125 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_device_policy",
+    "module:tests.test_device_memory_diag",
+    "module:tests.test_boot_progress",
+    "module:tests.test_framebuffer_gate",
+    "module:tests.test_runtime_qemu_result"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T15:17:26+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T15:28:56+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T15:17:25+00:00",
+  "delivery": "codex-works/deliveries/P8LAPIC1.md",
+  "depends_on": [
+    "codex:P8MMIO1"
+  ],
+  "description": "用户新图精确证据：S01/error03030002/CPU8，DEVICE_SLOT0，MADT LAPIC address/page/base FEE00000，descriptor pages1/typeB=11，attributes最高RUNTIME位设置。当前policy把runtime type11也当RamConflict，而该bit是UEFI虚拟运行时映射要求并非RAM类型；内核EBS后无EFI runtime调用/SetVirtualAddressMap，旧root/宽HHDM已退休，新root显式白名单，allocator仅非runtime type7，device映射为supervisor WRITE|UC/NX且platform读前核MSR地址。最小修复仅允许slot0可信MADT LAPIC的type11带RUNTIME，其他slot runtime type11继续拒绝，所有非11(含Reserved/runtimecode/data/RAM)、retained/duplicate/几何/原子性/UC flags保持，rawmap attrs不改、不硬编码FEE或整串attr、不改user.devices或allocator/EFI服务/预算。原生debug/release/O0O2实际planner+prepare新增runtimeLAPIC成功/ctx全零/PTE权限与query→map顺序，其他runtime设备仍fail且0sideeffects；真实旧拒绝/误放所有runtime/误放RAM坏体应正常oracle拒绝。独立0skip/source稳定。root正常USB-only runtime7两boot原GUI/HID/FS/CPU强gate，以及8CPU私有EFI type11+runtime LAPIC descriptor结合真实IRQ线程完成的regression VM，核原描述符不变/UC supervisor NX PTE与无WB/HHDM别名、129ticks等原IRQ契约；必要私有guard1→2停在S03取证不能冒充正常成品。原SanDisk已插H，验证后核身份/旧SHA、备份flushfsync全readback及readonlyFAT审计，不format/partition/internal/Git。物理是否继续到desktop待用户复测。",
+  "document": "codex-works/tasks/P8LAPIC1-board.md",
+  "historical": false,
+  "id": "codex:P8LAPIC1",
+  "integration_note": "7授权文件已真实集成主code/及coordination交付目录，指纹与独立复验25499c6bb1484f4a9b961f03af7a54b5一致；源码契约审查、5模块7测试0skip/source稳定、正常runtime7两次完整桌面/HID/F12pwd/USB文件操作与CPU强观察器、8CPU Runtime LAPIC真实IRQ线程129ticks/65switches/UCsupervisorNX PTE和无HHDM别名证据均已通过，三VM已停。已核原SanDisk disk2序列4C530000010320109015/USB/7798784000B/单FAT32 H:/offset131072及旧四文件SHA，完整备份在code/build/hardware/usb-lapic-20261025-r1/usb-publish/before；正常修复EFI/IMG/SERVICES与说明已flush/fsync写入并全SHA读回一致，非私有guard候选。EFI 8e5a903d98cf8cf5dbaffcf75aa8c1cfcda580e65c0632dea9e74d521944f17b，IMG a2995517b6b6d79e7d1448aee352e669e54a9b49e21b3a20904c603c83c593c9，SERVICES b1525883415712c210e5bd0e228ecc80c6be230e3b7137949059246815faedc3；receipt.json记录身份前后及manifest和两VM报告hash。实际卷原生readonly-volume审计正常返回：mount_error0 ready1 readonly0 dirty0 clusters=BPB=1899872 reads53263 writes0 flushes0 bad_io0 canaries1，rb未修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk/Git改动；真机是否越过S01及桌面/键鼠仍待用户启动反馈，不将VM取证等同于物理验收。",
+  "legacy_hash": "da07250dc8378e855d7809a476c4ef73786e12aae5bd7d8b0f66ceed99588e61",
+  "number": "P8LAPIC1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已审查7文件及UEFI原定义/当前根缓存所有权：生产仅kind!=11 || (runtime && slot!=0)，只MADT LAPIC type11 Runtime兼容；没有地址/attr串硬编码和UCcap位猜测，其它Runtime槽/全部非11/retained/duplicates/geometry/原子性/Plan184/Views88/Conflict88保持，rawattrs只读。无EFI runtime调用/SetVirtualAddressMap，旧root/PGE/PCID宽alias已退休，新root显式白名单/allocator仅非runtime type7，device安装supervisor WRITE|UC/NX，platform先核APIC_BASE。native policy1041+85及prepare各222真实场景/多capmask12×两API、strictUCflags/query→map和原子性，旧拒/误放Runtime/ReservedRAM/吞错/截断发布等实际坏体由oracle正常拒绝。独立job25499c6bb1484f4a9b961f03af7a54b5五模块7项PASS/0skip/source稳定/进程退出。完整USB-only runtime7 source build稳定。root live-full正常两WHPX boot完整HID/F12pwd/GUI/写追加删读syncFLUSH/代码池页表及全部CPU健康通过，state14 failed0 error0 view0 ctx88全0；两boot整USB SHA均66e1225edb0cc26ad949c616167b415661dc03b843db5571041f99cf7520369e。runtime-proof8CPU私有EFI原LAPIC descriptor type11 attrs800000000000100D与真实rawmap完全一致，只有kernel guard cmp1→2在真实runtime_begin后取证，materialized kernel一字节差；真实平台/调度BSS与串口原oracle/engine/guards/控制器验证129ticks65switches两worker64ticks失败0，slot0 Runtime MMIO已实际读写并产生IRQ，ctx0，真实CR3==retained root==View root，设备PTE exactRW/UC/NX/super且HHDM LAPIC不存在。受控终态S03/error1/cpu8记录，不冒称完整SMP或desktop8通过；原oracle只投影已证一字节guard的terminaldelimiter，真实metrics/报告/寄存器未改。三VM全停，normal objects/observer源图不变，受控USB与3可写内盘整SHA不变。可发布正常修复版原H，实际Intel是否越过S01到desktop仍待用户复测。",
+  "status": "integrated",
+  "title": "真机LAPIC Runtime-MMIO的定向UC映射兼容",
+  "updated_at": "2026-10-25T15:39:50+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 19.86,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_policy",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 26.734,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_device_memory_diag",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 18.656,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_boot_progress",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 17.547,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_gate",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.406,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_qemu_result",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8LAPIC1.md": "52654b16e69b15726360bf622f004d64ff23af373f76636a540b8c896accd974",
+      "docs/hardware-runtime-lapic.md": "73b441c10342bb0f21e28e4d291b101caa46bc5bcc35447d63eacc4205f5f280",
+      "kernel/boot/device_policy.dg": "7b16b401b05b57073190a49ebefb6ad5bad2929bbdf51080eebecd9dc881043a",
+      "tests/device_memory_diag_probe.c": "edb70e0d37ad6e03013de1e0cc3c872ff90c612f115726af2a0b6bfebe802bb7",
+      "tests/device_policy_probe.c": "7ffebdfd1c425b8349cf9b6bb773b3661d5b319601fb82837e050de8a58f92de",
+      "tests/test_device_memory_diag.py": "4254d6dd25dfa6e274d0b12e26a4a96e50b5cd5de5ec16bb979b86a342d12314",
+      "tests/test_device_policy.py": "b8745110c24a8588bd90bdb9299b61c2e080a6bb253aefd3eab4752f2e30952a"
+    },
+    "finished_at": "2026-10-25T15:30:51+00:00",
+    "job": "25499c6bb1484f4a9b961f03af7a54b5",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/boot/device_policy.dg",
+    "tests/device_policy_probe.c",
+    "tests/test_device_policy.py",
+    "tests/device_memory_diag_probe.c",
+    "tests/test_device_memory_diag.py",
+    "docs/hardware-runtime-lapic.md",
+    "codex-works/deliveries/P8LAPIC1.md"
+  ]
+}

@@ -51,24 +51,39 @@ efi_main:
         mov     rdx,[system_table]       ; SysV sampler clobbers RDX/RCX.
 %endif
         mov     r12, [rdx + EFI_SYSTEM_TABLE.BootServices]
+        mov     rcx, rdx
+        call    loader_console_initialize
+        lea     rcx, [msg_diag_entry]
+        call    loader_console_write     ; Visible before any direct UART I/O.
         call    serial_init
         lea     rcx, [msg_start]
-        call    serial_write
+        call    diagnostic_write
 
-        ; A self-map limited to 4 GiB must also cover the loader itself.
+        ; Firmware may load the PE high; only the copied transition must be low.
         mov     rcx, [image_handle]
         lea     rdx, [loaded_image_guid]
         lea     r8, [loaded_image]
         call    [r12 + EFI_BOOT_SERVICES.HandleProtocol]
         test    rax, rax
-        jnz     fail_loaded
+        jnz     fail_loaded_protocol
         mov     rbx, [loaded_image]
-        mov     rax, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageBase]
-        add     rax, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageSize]
-        jc      fail_loaded
-        dec     rax
-        shr     rax, 32
-        jnz     fail_loaded
+        test    rbx, rbx
+        jz      fail_loaded
+        lea     rcx, [msg_loaded_base]
+        mov     rdx, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageBase]
+        call    diagnostic_hex
+        lea     rcx, [msg_loaded_size]
+        mov     rdx, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageSize]
+        call    diagnostic_hex
+        mov     rcx, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageBase]
+        mov     rdx, [rbx + EFI_LOADED_IMAGE_PROTOCOL.ImageSize]
+        lea     r8, [rel efi_main]
+        call    loader_image_range
+        test    eax, eax
+        jz      fail_loaded
+
+        lea     rcx, [msg_diag_low]
+        call    diagnostic_write
 
         xor     ecx, ecx
         xor     edx, edx
@@ -79,6 +94,8 @@ efi_main:
         jnz     fail_watchdog
 
         ; Open the filesystem on this EFI image's own device handle.
+        lea     rcx, [msg_diag_read]
+        call    diagnostic_write
         mov     rcx, [rbx + EFI_LOADED_IMAGE_PROTOCOL.DeviceHandle]
         lea     rdx, [filesystem_guid]
         lea     r8, [filesystem]
@@ -147,6 +164,8 @@ efi_main:
         test    rax, rax
         jnz     fail_read
 
+        lea     rcx, [msg_diag_verify]
+        call    diagnostic_write
         mov     rcx, [image_buffer]
         mov     edx, IMAGE_FILE_SIZE
         call    image_verify
@@ -173,7 +192,7 @@ efi_main:
         test    eax, eax
         jnz     fail_unpack
         lea     rcx, [msg_image]
-        call    serial_write
+        call    diagnostic_write
 
         mov     ecx, 1
         mov     edx, EfiLoaderData
@@ -213,16 +232,38 @@ efi_main:
         jz      fail_allocate
         mov     [r13 + BootInfo.pml4_physical], rax
 
+        ; Reserve before the final map/EBS. Type LoaderCode cannot enter the
+        ; Conventional-memory allocator, even after private roots replace it.
+        mov     ecx, 1
+        mov     edx, EfiLoaderCode
+        call    allocate_low
+        test    rax, rax
+        jz      fail_allocate
+        mov     [handoff_physical], rax
+        mov     rcx, rax
+        mov     edx, 4096
+        mov     r8, KERNEL_BASE + IMAGE_ENTRY_OFFSET
+        call    loader_handoff_prepare
+        test    eax, eax
+        jnz     fail_allocate
+        lea     rcx, [msg_handoff_base]
+        mov     rdx, [handoff_physical]
+        call    diagnostic_hex
+
+        lea     rcx, [msg_diag_gop]
+        call    diagnostic_write
         call    collect_graphics
         test    eax, eax
         jnz     fail_gop
         call    draw_boot_logo
+        lea     rcx, [msg_diag_acpi]
+        call    diagnostic_write
         call    collect_rsdp
         test    eax, eax
         jnz     fail_acpi
         call    prepare_page_tables
         lea     rcx, [msg_ready]
-        call    serial_write
+        call    diagnostic_write
 
 %if SERVICE_BUNDLE
         ; Independent EfiLoaderData page enters the final UEFI map. Never
@@ -245,6 +286,9 @@ efi_main:
         mov     qword [trace_loader_page],0
 .trace_allocated:
 %endif
+        lea     rcx, [msg_diag_exit]
+        call    diagnostic_write
+        call    loader_console_seal     ; Permanent BEFORE the first map/EBS attempt.
         ; From here on the only firmware calls are GetMemoryMap and EBS.
         ; A failed EBS may partially shut down services: retry with a new key
         ; using the already allocated map, never allocate or call protocols.
@@ -297,52 +341,20 @@ efi_main:
         mov     qword [r13 + BootInfo.flags], 1
         lea     rcx, [msg_ebs]
         call    serial_write
-        ; Own GDT and an empty IDT remove dependencies on firmware storage.
-        lgdt    [gdt_pointer]
-        lidt    [empty_idt]
-        mov     ax, 0x10
-        mov     ds, ax
-        mov     es, ax
-        mov     ss, ax
-        xor     eax, eax
-        mov     fs, ax
-        mov     gs, ax
-        mov     rsp, [r13 + BootInfo.stack_physical]
-        add     rsp, STACK_BYTES
-        ; Flush inherited global translations as well as ordinary TLB entries.
-        mov     rdx, cr4
-        and     rdx, ~0x80               ; CR4.PGE cleared; P2 may enable it again.
-        mov     cr4, rdx
-        mov     rax, [r13 + BootInfo.pml4_physical]
-        mov     cr3, rax
-        ; Reload CS via a far return while still on the identity mapping.
-        push    qword 0x08
-        lea     rax, [.own_cs]
-        push    rax
-        retfq
-.own_cs:
-        xor     ebp, ebp
-        cld
-        mov     rdi, r13
+        ; Load original PE globals before leaving the firmware mappings.
+        ; Only the low copy will switch stack/GDT/CR3/CS and enter the kernel.
+        xor     esi, esi
+        xor     edx, edx
+        xor     ecx, ecx
 %if SERVICE_BUNDLE
-        ; SysV second argument. Kernel must save RSI to owned BSS before calls.
         mov     rsi, [service_handoff_pointer]
-%endif
-        mov     rax, KERNEL_BASE + IMAGE_ENTRY_OFFSET
-        ; SysV function entry alignment, plus a defined fatal return address.
-        lea     rdx, [kernel_returned]
-        push    rdx
-%if SERVICE_BUNDLE
-        ; Explicit new entry ABI: RDX PA / RCX signature. RDI160 and RSI96
-        ; retain their original contracts. Absent trace cannot pass timing.
         mov     rdx,[trace_loader_page]
-        xor     ecx,ecx
         test    rdx,rdx
         jz      .trace_handed_off
         mov     rcx,BOOT_TRACE_MAGIC
 .trace_handed_off:
 %endif
-        jmp     rax
+        jmp     qword [handoff_physical]
 
 ; rcx pages, edx UEFI memory type -> rax physical base or zero.
 ; Preserves nonvolatile registers. Always reserves pages below 4 GiB.
@@ -368,46 +380,68 @@ allocate_low:
 ; Preserves nonvolatile registers except r13 BootInfo is written.
 collect_graphics:
         sub     rsp, 40
+        mov     dword [graphics_reason], 1
+        mov     qword [graphics_status], 0
+        mov     qword [graphics], 0
         lea     rcx, [graphics_guid]
         xor     edx, edx
         lea     r8, [graphics]
         call    [r12 + EFI_BOOT_SERVICES.LocateProtocol]
+        mov     [graphics_status], rax
         test    rax, rax
         jnz     .failed
+        cmp     qword [graphics], 0
+        je      .failed
+        lea     rcx, [msg_gop_before]
+        call    diagnostic_write
+        call    graphics_diagnostic
 %ifdef DESKTOP_MODE
+        mov     dword [graphics_reason], 2
         mov     rcx, [graphics]
         mov     rdx, r12
         call    desktop_graphics_mode
-        test    eax,eax
+        mov     [graphics_status], rax
+        lea     rcx, [msg_gop_after]
+        call    diagnostic_write
+        call    graphics_diagnostic
+        cmp     qword [graphics_status], 0
         jnz     .failed
 %endif
+        mov     dword [graphics_reason], 3
         mov     rax, [graphics]
         mov     rax, [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL.Mode]
         test    rax, rax
         jz      .failed
+        mov     dword [graphics_reason], 4
         cmp     qword [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.SizeOfInfo], EFI_GRAPHICS_OUTPUT_MODE_INFORMATION_size
         jb      .failed
+        mov     dword [graphics_reason], 5
         mov     rdx, [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.Info]
         test    rdx, rdx
         jz      .failed
+        mov     dword [graphics_reason], 6
         cmp     dword [rdx + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.Version], 0
         jne     .failed
+        mov     dword [graphics_reason], 7
         mov     ecx, [rdx + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.PixelFormat]
         cmp     ecx, 1                   ; 0=RGB, 1=BGR; no BLT-only or bitmask.
         ja      .failed
         mov     [r13 + BootInfo.pixel_format], rcx
+        mov     dword [graphics_reason], 8
         mov     ecx, [rdx + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.HorizontalResolution]
         test    ecx, ecx
         jz      .failed
         cmp     ecx, 8192
         ja      .failed
         mov     [r13 + BootInfo.width], rcx
+        mov     dword [graphics_reason], 9
         mov     r8d, [rdx + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.PixelsPerScanLine]
         cmp     r8, rcx
         jb      .failed
         cmp     r8, 16384
         ja      .failed
         mov     [r13 + BootInfo.stride], r8
+        mov     dword [graphics_reason], 10
         mov     ecx, [rdx + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.VerticalResolution]
         test    ecx, ecx
         jz      .failed
@@ -420,25 +454,84 @@ collect_graphics:
         cmp     r8, r10
         ja      .failed
         shl     r8, 2
+        mov     dword [graphics_reason], 11
         mov     rcx, [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.FrameBufferSize]
         cmp     rcx, r8
         jb      .failed
         mov     [r13 + BootInfo.framebuffer_size], rcx
+        mov     dword [graphics_reason], 12
         mov     rdx, [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.FrameBufferBase]
         test    rdx, rdx
         jz      .failed
         mov     [r13 + BootInfo.framebuffer_base], rdx
+        mov     dword [graphics_reason], 13
         add     rcx, rdx
         jc      .failed
         dec     rcx
         shr     rcx, 32
         jnz     .failed                  ; Explicit P1 limit, never truncates MMIO.
+        mov     dword [graphics_reason], 0
         xor     eax, eax
         add     rsp, 40
         ret
 .failed:
+        lea     rcx, [msg_gop_reason]
+        mov     edx, [graphics_reason]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_status]
+        mov     rdx, [graphics_status]
+        call    diagnostic_hex
         mov     eax, 1
         add     rsp, 40
+        ret
+
+; Read-only numeric telemetry. Never read Info until pointer, size and version
+; are valid, and never dereference FrameBufferBase. No firmware allocations.
+graphics_diagnostic:
+        push    rbx
+        push    rsi
+        sub     rsp, 40
+        mov     rax, [graphics]
+        test    rax, rax
+        jz      .done
+        mov     rbx, [rax + EFI_GRAPHICS_OUTPUT_PROTOCOL.Mode]
+        test    rbx, rbx
+        jz      .done
+        lea     rcx, [msg_gop_max]
+        mov     edx, [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.MaxMode]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_mode]
+        mov     edx, [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.Mode]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_base]
+        mov     rdx, [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.FrameBufferBase]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_bytes]
+        mov     rdx, [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.FrameBufferSize]
+        call    diagnostic_hex
+        cmp     qword [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.SizeOfInfo], EFI_GRAPHICS_OUTPUT_MODE_INFORMATION_size
+        jb      .done
+        mov     rsi, [rbx + EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE.Info]
+        test    rsi, rsi
+        jz      .done
+        cmp     dword [rsi + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.Version], 0
+        jne     .done
+        lea     rcx, [msg_gop_width]
+        mov     edx, [rsi + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.HorizontalResolution]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_height]
+        mov     edx, [rsi + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.VerticalResolution]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_stride]
+        mov     edx, [rsi + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.PixelsPerScanLine]
+        call    diagnostic_hex
+        lea     rcx, [msg_gop_format]
+        mov     edx, [rsi + EFI_GRAPHICS_OUTPUT_MODE_INFORMATION.PixelFormat]
+        call    diagnostic_hex
+.done:
+        add     rsp, 40
+        pop     rsi
+        pop     rbx
         ret
 
 ; Draw the original DongOS D mark directly into the validated GOP buffer.
@@ -625,8 +718,6 @@ prepare_page_tables:
         inc     r8
         cmp     r8, r9
         jbe     .uncached
-        lea     rax, [gdt]
-        mov     [gdt_pointer + 2], rax
         ret
 
 %macro FAILURE 2
@@ -635,6 +726,11 @@ prepare_page_tables:
         jmp     fatal
 %endmacro
 FAILURE fail_loaded, msg_fail_loaded
+fail_loaded_protocol:
+        mov     rdx, rax
+        lea     rcx, [msg_loaded_status]
+        call    diagnostic_hex
+        jmp     fail_loaded
 FAILURE fail_watchdog, msg_fail_watchdog
 FAILURE fail_filesystem, msg_fail_fs
 FAILURE fail_open, msg_fail_open
@@ -652,9 +748,10 @@ FAILURE kernel_returned, msg_fail_return
 FAILURE fail_service_bundle, msg_fail_service_bundle
 %endif
 
-; rcx diagnostic string; callable before/after EBS, uses direct I/O only.
+; RCX diagnostic string; firmware output is sealed before the map/EBS loop.
+; The same fatal path remains safe during EBS retry and after EBS success.
 fatal:
-        call    serial_write
+        call    diagnostic_write
 %if P1_TEST
         mov     eax, 0x11
         out     0xf4, eax
@@ -663,6 +760,37 @@ fatal:
         cli
         hlt
         jmp     .halt
+
+; RCX ASCII message, mirrored to firmware only while it is safe to do so.
+; Keep the original argument across OutputString's volatile-register clobbers.
+diagnostic_write:
+        push    rcx
+        sub     rsp, 192                ; 32 shadow + separate bounded ASCII buffer
+        ; ConOut may also mirror to COM1. A distinct screen prefix preserves
+        ; the original exactly-once serial stage/error protocol on such PCs.
+        lea     rdx, [rsp + 32]
+        mov     rax, 0x203a4e4545524353  ; "SCREEN: "
+        mov     [rdx], rax
+        xor     r8d, r8d
+.copy:
+        cmp     r8d, 119
+        jae     .terminated
+        mov     r9b, [rcx + r8]
+        test    r9b, r9b
+        jz      .terminated
+        mov     [rdx + r8 + 8], r9b
+        inc     r8d
+        jmp     .copy
+.terminated:
+        mov     byte [rdx + r8 + 8], 0
+        mov     rcx, rdx
+        call    loader_console_write
+        mov     rcx, [rsp + 192]
+        call    serial_write
+        add     rsp, 192
+        pop     rcx
+        ret
+
 
 ; Direct 16550 COM1 setup. Only volatile rax/rdx destroyed.
 serial_init:
@@ -728,7 +856,68 @@ serial_write:
 .done:
         ret
 
+; RCX label(max63), RDX full64-bit value. No truncation of physical addresses.
+diagnostic_hex:
+        push    rbx
+        sub     rsp, 128                ; 32 shadow + at most83 ASCII bytes
+        mov     rbx, rdx
+        lea     rdx, [rsp + 32]
+        xor     r8d, r8d
+.label:
+        cmp     r8d, 63
+        jae     .digits
+        mov     al, [rcx + r8]
+        test    al, al
+        jz      .digits
+        mov     [rdx + r8], al
+        inc     r8d
+        jmp     .label
+.digits:
+        lea     r10, [rel hex_digits]
+        mov     r9d, 16
+.digit:
+        rol     rbx, 4
+        mov     rax, rbx
+        and     eax, 15
+        mov     al, [r10 + rax]
+        mov     [rdx + r8], al
+        inc     r8d
+        dec     r9d
+        jnz     .digit
+        mov     word [rdx + r8], 0x0a0d
+        mov     byte [rdx + r8 + 2], 0
+        lea     rcx, [rsp + 32]
+        call    diagnostic_write
+        add     rsp, 128
+        pop     rbx
+        ret
+
         section .rdata
+msg_diag_entry: db "DongOS USB DIAG R4 S00 EFI entry",13,10,0
+msg_diag_low: db "S01 Loader range OK (low handoff)",13,10,0
+msg_loaded_base: db "LOADER_BASE=0x",0
+msg_loaded_size: db "LOADER_SIZE=0x",0
+msg_loaded_status: db "LOADER_PROTOCOL_STATUS=0x",0
+msg_handoff_base: db "HANDOFF_BASE=0x",0
+hex_digits: db "0123456789abcdef"
+msg_diag_read: db "S02 Reading USB image",13,10,0
+msg_diag_verify: db "S03 Checking image and unpacking",13,10,0
+msg_diag_gop: db "S04 Checking framebuffer (requires below 4 GiB)",13,10,0
+msg_gop_before: db "GOP current before selection",13,10,0
+msg_gop_after: db "GOP mode after selection",13,10,0
+msg_gop_reason: db "GOP_FAIL_REASON=0x",0
+msg_gop_status: db "GOP_FIRMWARE_STATUS=0x",0
+msg_gop_max: db "GOP_MAX_MODES=0x",0
+msg_gop_mode: db "GOP_MODE=0x",0
+msg_gop_base: db "GOP_FB_BASE=0x",0
+msg_gop_bytes: db "GOP_FB_BYTES=0x",0
+msg_gop_width: db "GOP_WIDTH=0x",0
+msg_gop_height: db "GOP_HEIGHT=0x",0
+msg_gop_stride: db "GOP_STRIDE=0x",0
+msg_gop_format: db "GOP_FORMAT=0x",0
+msg_diag_acpi: db "S05 Checking ACPI tables",13,10,0
+msg_diag_exit: db "S90 Leaving UEFI; waiting for kernel diagnostic screen",13,10,0
+        align 8                     ; Firmware receives naturally aligned GUIDs.
 loaded_image_guid: dd 0x5b1b31a1
                    dw 0x9562, 0x11d2
                    db 0x8e,0x3f,0x00,0xa0,0xc9,0x69,0x72,0x3b
@@ -744,6 +933,7 @@ graphics_guid:     dd 0x9042a9de
 acpi2_guid:        dd 0x8868e871
                    dw 0xe4f1, 0x11d3
                    db 0xbc,0x22,0x00,0x80,0xc7,0x3c,0x88,0x81
+        align 2                     ; UEFI CHAR16 paths require even addresses.
 image_path:        dw __utf16__("\DONGOS.IMG"), 0
 logo_bits:         db 0x00,0x7c,0x66,0x63,0x63,0x66,0x7c,0x00
 msg_start:         db "DONGOS_P1_START",13,10,0
@@ -779,6 +969,7 @@ root_file:         dq 0
 image_file:        dq 0
 image_buffer:      dq 0
 kernel_physical:   dq 0
+handoff_physical:  dq 0
 %if SERVICE_BUNDLE
 service_handoff_pointer: dq 0
 trace_loader_page: dq 0
@@ -786,15 +977,15 @@ trace_loader_entry: times 3 dq 0
 trace_loader_exit: times 3 dq 0
 %endif
 graphics:          dq 0
+graphics_status:   dq 0
+graphics_reason:   dd 0
+        align 8
 file_info_size:    dq 0
 read_size:         dq 0
 map_key:           dq 0
         align 8
-gdt:               dq 0, 0x00af9a000000ffff, 0x00cf92000000ffff
-gdt_end:
-gdt_pointer:       dw gdt_end - gdt - 1
-                   dq 0
-empty_idt:         dw 0
-                   dq 0
         align 8
 file_info:         times 512 db 0
+
+%include "boot/loader_console.asm"
+%include "boot/loader_handoff.asm"

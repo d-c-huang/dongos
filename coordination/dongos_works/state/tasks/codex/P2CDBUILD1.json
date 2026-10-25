@@ -1,0 +1,61 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p2_pcid_build"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T13:36:38+00:00",
+  "claimed_by": "codex-mcp-5f95564a50c4415d",
+  "completed_at": "2026-10-24T13:45:29+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T13:36:28+00:00",
+  "delivery": "codex-works/deliveries/P2CDBUILD1.md",
+  "depends_on": [],
+  "description": "P2CD1最终范围审计发现原登记遗漏tests/p2_pcid_build.py，零静态池完整构建身份验证必须由1改为0；本项只补齐该必要适配，不改构建绑定、编译工具或失败条件。父任务隔离副本已保留修改，补登记后纳入移交；独立复验tests.test_p2_pcid_build及父项实际新构建/正负guest，源码稳定零skip后验收。与父项其他已声明profile/oracle适配共同复验，不能单独宣称P2CD1完成。无提交推送，不手改协调器索引。",
+  "document": "codex-works/tasks/P2CDBUILD1-board.md",
+  "historical": false,
+  "id": "codex:P2CDBUILD1",
+  "integration_note": "已真实复制必要builder adapter至code/tests/p2_pcid_build.py，交付至coordination/dongos_works/codex-works/deliveries/P2CDBUILD1.md；移交前基线预检和原文件备份完整，父目录transplant-manifest.json记录before/after。最终2文件主目录fingerprint与独立验收实物完全一致，完整1121源码输入与最终客体图一致。登记本地文件集成；无commit/push。",
+  "legacy_hash": "48e9a77758f615cc186a9b5491e4da289295dee9c9e18c5b8fb6caf16c3f81ef",
+  "number": "P2CDBUILD1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已审查唯一builder生产适配：verify_profile对runtime7完整manifest预期由1改0，与父项零静态池一致；工具角色、command、完整source/overlay/profile/artifact绑定及失败关闭均保留。正式独立ebf434eb7c83402fa6ddf6e51632b4df为10tests/0skip通过，source_stable/process_stopped/execution_exited均true。父项实际三类最终guest及独立离线回放488/478/491raw通过，1121输入冻结图与主目录一致。最终2份文件逐一主目录hash与正式fingerprint一致，审查依据包含父项隔离副本保留源码和完整失败历史。仅接受该必要adapter，不外推warm-PCID或真机门。",
+  "status": "integrated",
+  "title": "P2CD1 零静态池构建身份适配补登记",
+  "updated_at": "2026-10-24T14:32:40+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 4.281,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p2_pcid_build",
+        "tests": 10,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P2CDBUILD1.md": "d96a7f541e44a05f49cf6d34f284ae11182b1621b30c7f85b8b4766763b61d71",
+      "tests/p2_pcid_build.py": "4c3af75bded8787c36ecd3e220685179766f6c267d21eedeec2b2eef2327f353"
+    },
+    "finished_at": "2026-10-24T14:30:17+00:00",
+    "job": "ebf434eb7c83402fa6ddf6e51632b4df",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/p2_pcid_build.py",
+    "codex-works/deliveries/P2CDBUILD1.md"
+  ]
+}

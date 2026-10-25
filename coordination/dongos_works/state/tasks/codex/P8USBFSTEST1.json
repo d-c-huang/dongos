@@ -1,0 +1,91 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_fat32",
+    "module:tests.test_fat32_paths",
+    "module:tests.test_fat32_allocation"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T10:33:56+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T10:50:24+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T10:33:55+00:00",
+  "delivery": "codex-works/deliveries/P8USBFSTEST1.md",
+  "depends_on": [],
+  "description": "P8USBONLY1使fs.fat32显式import lib.hardware_profile，旧FAT三个测试的私有源复制与指纹固定清单缺该默认模块。仅将真实默认模块纳入各source SHA与隔离roots，原坏体算法、错误断言、容量/布局/持久化门一律保持；不改生产源码或物理介质。独立正式复验后本地集成。",
+  "document": "codex-works/tasks/P8USBFSTEST1-board.md",
+  "historical": false,
+  "id": "codex:P8USBFSTEST1",
+  "integration_note": "三fixture和交付文档已实际保存在项目主源码/正确works目录，独立复验和指纹核验通过后登记集成，无Git提交推送。",
+  "legacy_hash": "26556b59f61a947209d0305d215abe3bd3426c0423038f6986707f1edb2c06ed",
+  "number": "P8USBFSTEST1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查三个旧FAT测试Git diff与坏体fixture，均只增加真实默认hardware_profile依赖到SOURCES和私有源树；原mirror写缺失/LFN checksum/entry scan/cursor坏体、边界与性能预算均保留。独立job1fa1f75d554341799beea23a340e4f03三模块12tests0skip，真实native正常/坏体正常退出，source_stable=true、scope SHA匹配。",
+  "status": "integrated",
+  "title": "USB容量策略引入后的原FAT坏体夹具适配",
+  "updated_at": "2026-10-25T10:54:13+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 45.953,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_fat32",
+        "tests": 4,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 59.672,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_fat32_paths",
+        "tests": 6,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 37.531,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_fat32_allocation",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8USBFSTEST1.md": "4e8ebbcbac86d25a093638360806094ed89fab7027c0a2c692201e220c6e1c8f",
+      "tests/test_fat32.py": "3243d3e02195111614529511ffdf2f06ec403a9fc84b18eadb03010f38843ad2",
+      "tests/test_fat32_allocation.py": "11e837eb29614246d03688ae14c344786d421fdf92ce983d61dce47b9280d5d7",
+      "tests/test_fat32_paths.py": "a07985c849614b70066c1a80525cb64e38568e4f56e3f7752eab62d25fac1b3f"
+    },
+    "finished_at": "2026-10-25T10:52:59+00:00",
+    "job": "1fa1f75d554341799beea23a340e4f03",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/test_fat32.py",
+    "tests/test_fat32_paths.py",
+    "tests/test_fat32_allocation.py",
+    "codex-works/deliveries/P8USBFSTEST1.md"
+  ]
+}

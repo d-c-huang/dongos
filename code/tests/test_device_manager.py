@@ -6,7 +6,7 @@ from lang.dongc import compile_file
 from lang.tests.test_dongc import nasm_flags,tool
 ROOT=Path(__file__).resolve().parents[1]
 NAMES=('kernel/user/device_manager.dg','services/lib/device_abi.dg','services/lib/device.dg',
- 'services/drivers/device_policy.dg','services/drivers/device_manager.dg','services/lib/process_abi.dg',
+ 'services/drivers/device_policy.dg','services/lib/hardware_profile.dg','services/drivers/device_manager.dg','services/lib/process_abi.dg',
  'services/lib/process.dg','services/lib/sys.dg','services/lib/abi.dg',
  'tests/device_manager_probe.dg','tests/device_manager_probe.c','tests/test_device_manager.py')
 class DeviceManagerTests(unittest.TestCase):

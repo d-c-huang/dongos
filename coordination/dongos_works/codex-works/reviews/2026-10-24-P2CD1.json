@@ -1,0 +1,96 @@
+{
+  "schema": 2,
+  "task": "codex:P2CD1",
+  "stage": "source_reviewed_and_actual_guest_gates_passed",
+  "formal_status": "coordinator authoritative; pending independent queued verification",
+  "source_workspace": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\manual\\P2CD1-codex-20261024\\workspace",
+  "claude_original_preserved": true,
+  "source_frozen_files": 1121,
+  "changes": [
+    "B/C/D mux and arena/buddy/PF-entry/ledger production wiring",
+    "runtime5/6/7 zero static pools without expanding 2MiB",
+    "source-bound zero-pool oracles and focused service fixtures",
+    "continuous authenticated UART control; historical read-only capture",
+    "strict local versus AP-first negative failure chain with real ACK mask"
+  ],
+  "unchanged": [
+    "B large_try/large_identity/large_check",
+    "Domain and Bridge deadlines",
+    "ACK and observer pause budget",
+    "2MiB image limit"
+  ],
+  "supplements": {
+    "P2CDTYPE1": "integrated rev6; formal 82cf626668fe437c803de857b41405c0",
+    "P2CDBUILD1": "separate required builder identity adapter; independent verification pending"
+  },
+  "build_bytes": {
+    "runtime5": 1986960,
+    "runtime6": 1991056,
+    "runtime7": 1995152
+  },
+  "host": {
+    "original_oracles": 95,
+    "original_components_ledger_service": 9,
+    "focused_fast_wakes": 2,
+    "focused_readonly_fault": 3,
+    "runtime_large": 58,
+    "wiring_controls": 5,
+    "builder_controls": 10,
+    "skips": 0
+  },
+  "actual_guest": {
+    "normal": {
+      "path": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\manual\\P2CD1-codex-20261024\\workspace\\build\\test\\p2cd\\final-normal-r1\\result.json",
+      "sha256": "3b2ab4e80494ccac57f7d02777052207058cd4342b16c97f680c27c9d47ac171",
+      "seal": {
+        "passed": true,
+        "raw_files": 488,
+        "raw_manifest_sha256": "8f0d2b8b0b6b906d9facb2fe05258e6f6a10d8125c78c8ee078805c797783366",
+        "case": null
+      },
+      "accel": "whpx",
+      "cpu": "host,-vmx,-mpx,-sgx,-sgxlc",
+      "cleanup_completed": true,
+      "process_alive": false
+    },
+    "omit-exec": {
+      "path": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\manual\\P2CD1-codex-20261024\\workspace\\build\\test\\p2cd\\final-omit-exec-r1\\result.json",
+      "sha256": "0d061c22051c28e9ac130b740015ebb1e66b89eb320d358b84a400bc81c1c095",
+      "seal": {
+        "passed": true,
+        "raw_files": 478,
+        "raw_manifest_sha256": "2f26d2d67afe5f41ac5daa4b09857c5ad6986656e1f0b614c4ed05bda6ecea5c",
+        "case": "omit-exec-poll"
+      },
+      "accel": "whpx",
+      "cpu": "host,-vmx,-mpx,-sgx,-sgxlc",
+      "cleanup_completed": true,
+      "process_alive": false
+    },
+    "omit-cache": {
+      "path": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\manual\\P2CD1-codex-20261024\\workspace\\build\\test\\p2cd\\final-omit-cache-r1\\result.json",
+      "sha256": "cd1444c4c37156b0b7c38050f05ce1b003d07f8a72164961de935ffacf0edb71",
+      "seal": {
+        "passed": true,
+        "raw_files": 491,
+        "raw_manifest_sha256": "535ee854f591e658cd981f7eac6169af2f85b159669916acde474877af7d4db1",
+        "case": "omit-cache-poll"
+      },
+      "accel": "whpx",
+      "cpu": "host,-vmx,-mpx,-sgx,-sgxlc",
+      "cleanup_completed": true,
+      "process_alive": false
+    }
+  },
+  "historical_failures_retained": [
+    "TCG pre-C Domain/AP failures",
+    "WHPX firmware and initial CPU model failures",
+    "paused-shell observer harness failure",
+    "old negative oracle incorrectly required only local timeout",
+    "source-unstable intermediate builds"
+  ],
+  "limitations": [
+    "warm-PCID reuse not accepted",
+    "physical WC performance/hardware acceptance not claimed"
+  ]
+}

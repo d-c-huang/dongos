@@ -14,8 +14,10 @@ import sys
 from tests import p2_pcid_build as base
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = 'p2-runtime-large-current-v1'
-CASES = (None, 'omit-ap-flush')
+CONTRACT = 'p2-runtime-large-current-fault-v2'
+FAULT_CONTRACT = 'p2-runtime-large-fault-v1'
+CASES = (None, 'omit-ap-flush', 'flush-return-error')
+FAULT_MAGIC = {'omit-ap-flush': 0x524c465200010001, 'flush-return-error': 0x524c465200010002}
 check, sha, write, inputs, file_at, verify_files = base.check, base.sha, base.write, base.inputs, base.file_at, base.verify_files
 
 
@@ -28,15 +30,80 @@ def overlays(source_root, case):
         ('module apps.' + app + ';').encode()) for app in base.APPS}
     changes['services/lib/syscalls.asm'] = file_at(source_root, 'services/lib/syscalls.asm').read_bytes() + b'\n; P2 explicit synthetic workload body\n' + assembly
     if case:
-        check(case == 'omit-ap-flush', 'unknown runtime-large negative')
+        check(case in FAULT_MAGIC, 'unknown runtime-large negative')
         name = 'kernel/sched/runtime_large_reader.asm'
         raw = file_at(source_root, name).read_bytes()
-        old = b'    xor eax,eax\n    ret\n%ifidn __OUTPUT_FORMAT__,elf64' if b'    xor eax,eax\n    ret\n%ifidn __OUTPUT_FORMAT__,elf64' in raw else b'    xor eax,eax\r\n    ret\r\n%ifidn __OUTPUT_FORMAT__,elf64'
-        check(raw.count(old) == 1, 'one actual negative gate anchor required')
-        nl = b'\r\n' if b'\r\n' in old else b'\n'
-        new = nl.join([b'    xor eax,eax', b'    cmp rdi,1', b'    jne .done',
-            b'    cmp qword [rel runtime_large_window_active],1', b'    sete al', b'.done:', b'    ret', b'%ifidn __OUTPUT_FORMAT__,elf64'])
-        changes[name] = raw.replace(old, new)
+        text = raw.decode().replace('\r\n', '\n')
+        start, end = text.index('runtime_large_test_omit:\n'), text.index('runtime_large_test_publish:\n')
+        gate = '''runtime_large_test_omit:
+    xor eax,eax
+    cmp rdi,1
+    jne .done
+    cmp rdi,[gs:UserSmpCpu.logical_id]
+    jne .done
+    cmp qword [rel runtime_large_window_active],1
+    jne .done
+    mov r8,[gs:UserSmpCpu.domain]
+    test r8,r8
+    jz .done
+    mov r9,[r8+88]                 ; layout-verified Domain.cpus
+    add r9,120                    ; layout-verified Cpu stride, AP1
+    mov r10,[r8+40]                ; Domain.sequence
+    cmp r10,[r8+48]                ; Domain.barrier
+    jne .done
+    cmp r10,[r9+56]                ; Cpu.requested
+    jne .done
+    mov r11,[r8+64]                ; Domain.completed
+    cmp r11,[r9+64]                ; Cpu.acknowledged before return
+    jne .done
+    inc r11
+    cmp r10,r11
+    sete al
+.done:
+    ret
+runtime_large_test_omit_end:
+runtime_large_test_record:
+    ; rdi=argument CPU, rsi=real result, rdx=returned result. IF is sampled
+    ; here; arithmetic flags are not claimed to be the flush-entry flags.
+    sub rsp,136
+    mov [rsp+16],rdi
+    mov [rsp+112],rsi
+    mov [rsp+120],rdx
+    mov rax,MAGIC
+    mov [rsp],rax
+    mov qword [rsp+8],0
+    mov rax,[gs:UserSmpCpu.logical_id]
+    mov [rsp+24],rax
+    mov r8,[gs:UserSmpCpu.domain]
+    mov [rsp+32],r8
+    mov rax,[rel runtime_large_window_active]
+    mov [rsp+40],rax
+    mov rax,[r8+40]
+    mov [rsp+48],rax
+    mov rax,[r8+48]
+    mov [rsp+56],rax
+    mov rax,[r8+64]
+    mov [rsp+64],rax
+    mov r9,[r8+88]
+    add r9,120
+    mov rax,[r9+56]
+    mov [rsp+72],rax
+    mov rax,[r9+64]
+    mov [rsp+80],rax
+    mov rax,cr3
+    mov [rsp+88],rax
+    mov rax,cr4
+    mov [rsp+96],rax
+    pushfq
+    pop rax
+    mov [rsp+104],rax
+    mov rdi,rsp
+    call runtime_large_test_publish
+    add rsp,136
+    ret
+runtime_large_test_record_end:
+'''.replace('MAGIC', hex(FAULT_MAGIC[case]))
+        changes[name] = (text[:start] + gate + text[end:]).encode()
         name = 'kernel/sched/user_arch.asm'
         raw = file_at(source_root, name).read_bytes()
         old = b'user_smp_arch_flush:\n' if b'user_smp_arch_flush:\n' in raw else b'user_smp_arch_flush:\r\n'
@@ -44,9 +111,19 @@ def overlays(source_root, case):
         nl = b'\r\n' if old.endswith(b'\r\n') else b'\n'
         # Preserve rdi and SysV call alignment. No startup or unrelated user
         # switch is changed. AP logical1 only, and only the new window flag.
-        insertion = nl.join([b'extern runtime_large_test_omit', b'user_smp_arch_flush:', b'    push rdi',
+        prefix = [b'extern runtime_large_test_omit,runtime_large_test_record', b'user_smp_arch_flush:', b'    push rdi',
             b'    call runtime_large_test_omit', b'    pop rdi', b'    test rax,rax', b'    jz .actual_flush',
-            b'    xor eax,eax', b'    ret', b'.actual_flush:', b''])
+        ]
+        if case == 'omit-ap-flush':
+            prefix += [b'    push rdi', b'    mov rsi,-1', b'    xor edx,edx',
+                       b'    call runtime_large_test_record', b'    pop rdi', b'    xor eax,eax', b'    ret']
+        else:
+            # Execute the complete unchanged routine with normal SysV entry
+            # alignment. A real failure is returned unchanged, never forced.
+            prefix += [b'    push rdi', b'    call .actual_flush', b'    pop rdi', b'    test rax,rax',
+                       b'    jnz .real_error', b'    push rdi', b'    mov rsi,rax', b'    mov edx,1',
+                       b'    call runtime_large_test_record', b'    pop rdi', b'    mov eax,1', b'.real_error:', b'    ret']
+        insertion = nl.join(prefix + [b'.actual_flush:', b''])
         changes[name] = raw.replace(old, insertion)
     return changes
 
@@ -67,7 +144,7 @@ def prepare(output, *, source_root=ROOT, case=None):
     changes = overlays(source_root, case)
     for name, raw in changes.items():
         file_at(stage, name).write_bytes(raw)
-    record = dict(schema=1, contract=CONTRACT, source_root=str(source_root), output=str(output), case=case,
+    record = dict(schema=1, contract=CONTRACT, fault_contract=FAULT_CONTRACT, source_root=str(source_root), output=str(output), case=case,
         source_sha256=before, staged_sha256=inputs(stage), overlay_paths=sorted(changes),
         synthetic_workload=True, built=False, os_link_executed=False, actual_guest_executed=False)
     write(output / 'runtime-large-source.json', record)
@@ -77,7 +154,8 @@ def prepare(output, *, source_root=ROOT, case=None):
 def verify_prepared(output, *, source_root=ROOT):
     output, source_root = Path(output).resolve(), Path(source_root).resolve()
     record = json.loads((output / 'runtime-large-source.json').read_text(encoding='utf-8'))
-    check(record['schema'] == 1 and record['contract'] == CONTRACT and record['case'] in CASES, 'wrong build contract')
+    check(record['schema'] == 1 and record['contract'] == CONTRACT and record.get('fault_contract') == FAULT_CONTRACT
+          and record['case'] in CASES, 'wrong build contract')
     check(record.get('synthetic_workload') is True and record.get('actual_guest_executed') is False, 'build receipt cannot claim guest execution')
     check(record['source_root'] == str(source_root) and record['output'] == str(output), 'source/output redirection')
     check(inputs(source_root) == record['source_sha256'], 'current source graph changed')
@@ -145,7 +223,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--build', action='store_true')
-    parser.add_argument('--case', choices=['omit-ap-flush'])
+    parser.add_argument('--case', choices=list(FAULT_MAGIC))
     args = parser.parse_args(argv)
     result = build(args.output, case=args.case) if args.build else prepare(args.output, case=args.case)
     print(json.dumps(dict(output=result['output'], built=result['built'], guest_executed=False)))

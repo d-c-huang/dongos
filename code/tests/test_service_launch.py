@@ -11,6 +11,7 @@ class Tests(unittest.TestCase):
                'tests/service_launch_fixture.dg','tests/service_launch_memory.dg','tests/service_launch_resources.dg',
                'tests/service_launch_probe.c','tests/test_service_launch.py','tests/service_launch_trace.dg')
         names+=('kernel/ipc/cap_notify.dg','kernel/ipc/shared_core.dg','kernel/user/memory.dg','tests/service_lifecycle_shared.dg')
+        names+=('services/lib/hardware_profile.dg',)
         before={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in names}
         source=(ROOT/names[0]).read_text();parts=[block(source,s) for s in (
           'unsafe fn authority(','unsafe fn manager(','unsafe fn close_table(','unsafe fn abort_launch(','unsafe fn launch(')]
@@ -18,6 +19,9 @@ class Tests(unittest.TestCase):
         fatal=block(source,'if LAUNCH_FAILED||memory.STAGE_FAILED')
         fragment='\n'.join(parts)+'\nunsafe fn process_call(frame:*abi.Frame)!usize{unsafe{let code=(*frame).rax;'+spawn+'}return error.InvalidCall;}\n'
         fixture=(ROOT/names[4]).read_text().replace('// PRODUCTION_FUNCTIONS',fragment).replace('// PRODUCTION_FATAL',fatal)
+        # Runtime-large scheduling is outside this launch transaction probe.
+        # Still reject a request before the mocked memory stage has committed.
+        fixture+='\nunsafe fn large_request()!void{unsafe{if memory.ACTIVE!=16||memory.STAGE_FAILED{return error.Protocol;}}return;}\n'
         trace='''
 import service_launch_trace as trace;
 pub unsafe fn start(c:*Catalog,id:usize,slot:usize,argument:u64,out:*abi.Snapshot)!void{unsafe{

@@ -1,0 +1,75 @@
+{
+  "archive_note": "已被 G6WAIT2 integrated rev6 的显式 timed API 修复方案替代；G6RUN2 integrated rev6 已完成修复后全新构建与真实同盘双启。2026-10-24恢复复核源码/契约，原修复七文件与正式指纹匹配，隔离回归22项零skip；正式独立作业 f9475146c35849ed9f713d2e0d9dc020 再次4项零skip、source_stable且进程退出。本轮交付G6FLUSH1.md保留证据。按历史替代卡归档，不宣称原共享Ops扩张设计已实施或验收；未新增生产代码或VM运行。",
+  "archived": true,
+  "archived_at": "2026-10-24T09:59:45+00:00",
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_virtio_blk"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T09:55:27+00:00",
+  "claimed_by": "codex-mcp-5f95564a50c4415d",
+  "completed_at": "2026-10-24T09:58:34+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-23T14:30:46+00:00",
+  "delivery": "codex-works/deliveries/G6FLUSH1.md",
+  "depends_on": [
+    "codex:G6DOC1"
+  ],
+  "description": "G6RUN2当前源码TCG实际两次seed均编译RESULT0/3/0/0成功但VirtIO FLUSH固定100000次轮询耗尽，两个700文件原始审计保留。原轮询次数不代表时间。参照现有AHCI/NVMe 5000ms命令契约，为VirtIO Ops增加单调milliseconds回调，block_service接现有milliseconds。发布前获得时间；完成只能在同一5000ms截止前接受，回调错误/倒退/无进展时有界拒绝；真实时限超时必须永久fault/held且不提前release，不扩大G6总3600s或P2屏障期限。不修改真实FLUSH命令或cache/no-flush配置。保留State/Lease布局，显式更新Ops ABI与所有调用方/探针；13旧场景及两个实际坏体保持，增加超过旧100000poll但在deadline内完成、deadline边界/迟到/clock错误/倒退/冻结、late completion不得清fault等真实C设备模型和生产坏体。debug/release ELF/COFF、原driver测试独立零skip源码稳定后集成，再由G6RUN2新构建实际两启，不沿用旧镜像。",
+  "document": "codex-works/tasks/G6FLUSH1-board.md",
+  "historical": false,
+  "id": "codex:G6FLUSH1",
+  "legacy_hash": "80f08300ae2532286b8200960d081f26e99e390f91085b44d194d1582b2f6868",
+  "number": "G6FLUSH1",
+  "owner": "codex",
+  "pause_control": "confirmed",
+  "resume_status": "submitted",
+  "rev": 10,
+  "review_note": "",
+  "status": "paused",
+  "title": "[L3阻塞修复] VirtIO完成等待使用真实单调截止时间并保留DMA失败持有",
+  "updated_at": "2026-10-24T09:59:45+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 22.782,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_virtio_blk",
+        "tests": 4,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/G6FLUSH1.md": "30907455ed740f5927adaaf4f65495ec81bd24a3534c775280d8e88af183831e",
+      "docs/virtio-blk-deadline.md": "68b92b105b35c466829cb78ea65702241ba75fdc4176d36d6b74d036c43685dd",
+      "services/drivers/block_service.dg": "8ad664eeeeb04f9f651b7de35b56d2d63d9f0e1257461ca3c8b8f77773985edb",
+      "services/drivers/virtio_blk.dg": "31e0da2f9d5f78cbc06574fcc6df285b6700b54d41c76fbbb91bdfe7c71e2b1e",
+      "tests/test_virtio_blk.py": "44170e0e6dc34b95809f398bb8c499c160237eac39a02f1860e1fba5305b2c4f",
+      "tests/virtio_blk_probe.c": "d1fde50023ef2189cf7ac6a9e8d5f72c3ca5e0e0e5d2441ed695fcad9b166000"
+    },
+    "finished_at": "2026-10-24T09:59:13+00:00",
+    "job": "f9475146c35849ed9f713d2e0d9dc020",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "services/drivers/virtio_blk.dg",
+    "services/drivers/block_service.dg",
+    "tests/virtio_blk_probe.c",
+    "tests/test_virtio_blk.py",
+    "docs/virtio-blk-deadline.md",
+    "codex-works/deliveries/G6FLUSH1.md"
+  ]
+}

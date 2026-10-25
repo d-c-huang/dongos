@@ -1,0 +1,45 @@
+// Appended only in the private native harness, after the real memory module.
+var FB_TEST_POOL:[32]paging.Table=[EMPTY_TABLE;32];
+var FB_TEST_ROOTS:*RootSnapshot=null;
+var FB_TEST_SNAPSHOT:*FramebufferSnapshot=null;
+export("fb_buffers") fn fb_buffers(roots:u64,snapshot:u64)void{unsafe{FB_TEST_ROOTS=roots as *RootSnapshot;FB_TEST_SNAPSHOT=snapshot as *FramebufferSnapshot;}return;}
+export("fb_user") fn fb_user(generation:u64,staged:bool)u64{unsafe{
+ KERNEL_PHYSICAL=0x100000;DYNAMIC_TABLES[1]=&FB_TEST_POOL[0];DYNAMIC_PHYSICAL[1]=0x2000000;POOL_LIMITS[1]=32;
+ match paging.init(&SPACES[1],FB_TEST_POOL[..],0x2000000,META[1][..],48,true){ok=>{},err(e)=>{return e;},}
+ var v=paging.PoolView{tables:null,metadata:null,count:0,physical:0,address_mask:0,used:0,nx:false};
+ match paging.inspect(startup.space_pointer(),&v){ok=>{},err(e)=>{return e;},}
+ var slot:usize=1;while slot<512{FB_TEST_POOL[0].entries[slot]=(*v.tables).entries[slot];slot+=1;}
+ PROCESSES[1]=EMPTY_PROCESS;PROCESSES[1].ready=1;PROCESSES[1].root=0x2000000;PROCESSES[1].frame.cr3=0x2000000;GENERATIONS[1]=generation;
+ if staged{STAGE_ID=1;STAGE_ROOT=0x2000000;STAGE_TABLES=true;STAGE_BOUND=true;STAGE_COUNT=0;}
+ return 0;
+}}
+export("fb_publish") fn fb_publish(pa:u64,bytes:u64)u64{unsafe{match publish_framebuffer(pa,bytes){ok=>{return 0;},err(e)=>{return e;},}}}
+export("fb_map") fn fb_map(bytes:u64)u64{unsafe{match map_framebuffer(1,0x60000000,0x4000000,bytes){ok=>{return 0;},err(e)=>{return e;},}}}
+export("fb_snapshot") fn fb_snapshot()u64{unsafe{
+ match snapshot_roots(FB_TEST_ROOTS){ok=>{},err(e)=>{return e;},}
+ match snapshot_framebuffer(FB_TEST_SNAPSHOT,FB_TEST_ROOTS){ok=>{return 0;},err(e)=>{return e;},}
+}}
+export("fb_recheck") fn fb_recheck()u64{unsafe{match recheck_framebuffer(FB_TEST_SNAPSHOT){ok=>{return 0;},err(e)=>{return e;},}}}
+export("fb_snapshot_ptr") fn fb_snapshot_ptr()u64{unsafe{return FB_TEST_SNAPSHOT as u64;}}
+export("fb_tables") fn fb_tables()u64{unsafe{return &FB_TEST_POOL[0] as u64;}}
+export("fb_epoch") fn fb_epoch()u64{unsafe{return framebuffer_epoch_pointer() as u64;}}
+export("fb_held") fn fb_held()u64{unsafe{return (*FRAMEBUFFER_LEDGER).held;}}
+export("fb_retire") fn fb_retire(abort:bool)u64{unsafe{
+ if abort{match stage_abort(1){ok=>{return 0;},err(e)=>{return e;},}}
+ match destroy(1){ok=>{return 0;},err(e)=>{return e;},}
+}}
+export("fb_hidden") fn fb_hidden()u64{unsafe{match paging.map_live(&SPACES[1],0x61000000,0x4000000,paging.USER|paging.WRITE|paging.WRITE_COMBINING){ok=>{return 0;},err(e)=>{return e;},}}}
+export("fb_other") fn fb_other(kind:u64)u64{unsafe{
+ if kind==0{match map_device(1,0x62000000,0x4000000,4096){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==1{match map_resource(1,0x62000000,0x4000000,4096){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==2{match framebuffer_disjoint(0x3ffffff,2){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==3{match resource_aperture(3,0x72000000,0x4000000,48){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==4{match replace_resource_aperture(3,0x72000000,0x4000000,48,0x5000000,48){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==5{match gui_resource_aperture(7,0,0,0x4000000,48){ok=>{return 0;},err(e)=>{return e;},}}
+ match own_frame(0x4000000){ok(index)=>{return 0;},err(e)=>{return e;},}
+}}
+
+export("fb_root_change") fn fb_root_change()void{unsafe{PINNED[1]=true;}return;}
+export("fb_transition") fn fb_transition()u64{unsafe{
+ var off:u64=0;while off<8192{match paging.replace_live(&SPACES[1],0x60000000+off,0x4000000+off,paging.USER|paging.WRITE|paging.UNCACHED){ok=>{},err(e)=>{return e;},}off+=4096;}return 0;
+}}

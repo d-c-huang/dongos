@@ -1,0 +1,138 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_framebuffer_ledger",
+    "module:tests.test_runtime_roots",
+    "module:tests.test_paging",
+    "module:tests.test_service_launch",
+    "module:tests.test_desktop_recreate",
+    "module:tests.test_gui_font_portal"
+  ],
+  "claim_from_status": "rework",
+  "claimed_at": "2026-10-24T09:14:57+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T09:15:25+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T08:50:23+00:00",
+  "delivery": "codex-works/deliveries/P2LEDGER44.md",
+  "depends_on": [
+    "codex:P2ROOT13",
+    "codex:P2CACHE20",
+    "codex:P2LARGE16"
+  ],
+  "description": "接续已集成B/OBS与CACHE组件。生产仅kernel/user/memory.dg；不改services或runtime_cache。阅读build/test/p2-historical36-review/cd-task-book-draft.md与cd-ledger-harness-notes.md作为设计参考，旧B待验文字已过时，不作为当前状态。本卡只实现独立ledger，不宣称C/D actual或物理WC通过。固定公开API：FramebufferSnapshot{epoch:u64,physical:u64,bytes:u64,count:usize,aliases:[64]runtime_roots.Alias}；snapshot_framebuffer(out:*FramebufferSnapshot,roots:*const RootSnapshot)!void；recheck_framebuffer(snapshot:*const FramebufferSnapshot)!void；framebuffer_epoch_pointer()*u64。永久ledger/scratch用service_memory arena，BSS仅指针，不增加大局部帧。publish_framebuffer在SMP前从runtime.boot_info真实BootInfo读取PA/size（不得将HHDM当PA），独立核完整kernel WC映射后发布；重复/不同aperture/overflow原子拒，initialize不清已发布ledger。每项保留root/identity/generation/VA/PA/bytes/flags/leaf_bytes，canonical序，kernel完整GOP页包络，user保持原compositor前缀。map前核slot/root/generation、全absent、容量/范围/冲突、epoch预算并预留journal；真实map/失效完成才提交；部分失败永久held并阻止snapshot/启动/再准入。stage_abort/destroy实际撤销且原失效退休完成后才删除授权，禁止新代覆盖旧代。所有外部PA/owned/share入口按实际页包络拒GOP重叠。snapshot准入核完整森林WC与独立发布项相等；recheck核epoch/authority/根代际，不强制转换中PTE仍WC；epoch仅独占cache提交，Gate token独立。必须执行真实memory+paging，C独立walker；synthetic只限startup/resources/hardware，列明来源和override。覆盖publish/map/abort/destroy/同slot新代、短user/全GOP尾页/隐藏alias/第N页失败/提前删项/padding/epoch溢出及失败不变；真坏DG须编译成功、同oracle正常exit1拒绝。可读取LM P2VEC42数据作边界用例，不得把fixture通过冒真实ledger通过。测试/交付须给source稳定证据，由协调器独立复验后验收集成。",
+  "document": "codex-works/tasks/P2LEDGER44-board.md",
+  "historical": false,
+  "id": "codex:P2LEDGER44",
+  "integration_note": "六授权文件已真实落盘主目录并逐项SHA与独立冻结指纹一致。正式9项零skip、源稳定且进程退出；同源runtime7 release构建完成并复算339输入/99内核暂存/7产物。登记本地主线工作树集成，未提交推送或运行VM。后续C/D实际消费者和硬件门仍保留。",
+  "legacy_hash": "adfda4e420c24987e5a0f6cbd90c9d18fa9341e40fdd98b9e021efbc85436da3",
+  "number": "P2LEDGER44",
+  "owner": "codex",
+  "rev": 9,
+  "review_note": "源码/契约审查通过：独立raw BootInfo发布、arena journal/held、原撤销flush/unbind后删项、完整forest与发布项对比、根快照复核且转换阶段不误核WC、HHDM前置边界已核。C直接原始PTE检查20正常+10真坏Dong运行；五坏体两模式编译成功并正常exit1，未以panic冒负控。正式85481e0d327745dab512a9a646576cf5六组9tests/0skip/source_stable/进程退出全通过；R1完整runtime7构建339source、99staged、7artifacts独立SHA一致，kernel1978768B。仅验收ledger宿主组件，不声称C/D实际、暖PCID、物理WC或客体运行通过。",
+  "status": "integrated",
+  "title": "P2帧缓冲独立授权账本及映射撤销生命周期",
+  "updated_at": "2026-10-24T09:24:35+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 173.078,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_ledger",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 40.328,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_roots",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 7.984,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_paging",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 39.875,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_service_launch",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 12.969,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_desktop_recreate",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 192.735,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_gui_font_portal",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P2LEDGER44.md": "fd3d8cdd8a336579637f6bec3162fbfbcbbc7e6842ddb461c6aff31da2c7989c",
+      "docs/p2-framebuffer-ledger.md": "1f6aa2f8bf797bc63d2c1d63387b32e4a78a054b71f65d950c2971d490d78e0e",
+      "kernel/user/memory.dg": "6a38eb28ad56d0f2eda40735c129ad0a53b14b60bf3c7a6870681625bf21da45",
+      "tests/framebuffer_ledger_probe.c": "5d97b90df85e6904e5fdf5ecbb48965e483b6db60a254f66043242951a05189d",
+      "tests/framebuffer_ledger_probe.dg": "6fe72e5ce07683de5b707734bf5440bf9aa30de133c3368b326262750e1aa1d0",
+      "tests/test_framebuffer_ledger.py": "9af821856ef7f2c55faf9a67697ccf5e90db967ea611ca0099a328971160c8e4"
+    },
+    "finished_at": "2026-10-24T09:23:36+00:00",
+    "job": "85481e0d327745dab512a9a646576cf5",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/user/memory.dg",
+    "tests/framebuffer_ledger_probe.dg",
+    "tests/framebuffer_ledger_probe.c",
+    "tests/test_framebuffer_ledger.py",
+    "docs/p2-framebuffer-ledger.md",
+    "codex-works/deliveries/P2LEDGER44.md"
+  ]
+}

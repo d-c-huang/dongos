@@ -8,6 +8,7 @@
 // kernel-authenticated PID/dual-incarnation, with private DMA bounce buffers.
 module drivers.xhci_service;
 import lib.sys as sys;
+import lib.hardware_profile as hardware_profile;
 import drivers.pci as pci;
 import drivers.pci_inventory as pci_inventory;
 import lib.pci_inventory_abi as pci_inventory_abi;
@@ -196,6 +197,15 @@ unsafe fn start_proxy()!void {unsafe {
     // Kernel shares only block2's persistent data page frames into this VA.
     if (*BOOT).channel==0&&(*BOOT).channel_address==0&&(*BOOT).channel_bytes==0 {return;}
     if (*BOOT).channel==0||(*BOOT).channel_address!=0x5100_0000||(*BOOT).channel_bytes!=65536 {return error.Setup;}
+    if hardware_profile.USB_ONLY {
+        var media:u64=0;var candidate:u64=0;
+        while candidate<ATTEMPTED {
+            let storage=&BOT_STORAGE[candidate as usize][0] as *bot.State;
+            if (*storage).held==1&&(*storage).ready==1&&(*storage).fault==0&&(*storage).block_bytes==512 {media+=1;}
+            candidate+=1;
+        }
+        if media!=1 {return error.Setup;}
+    }
     var i:u64=0;while i<ATTEMPTED {
         let storage=&BOT_STORAGE[i as usize][0] as *bot.State;
         if (*storage).held==1&&(*storage).ready==1&&(*storage).fault==0&&(*storage).block_bytes==512 {

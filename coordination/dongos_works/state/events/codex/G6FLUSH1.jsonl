@@ -1,0 +1,13 @@
+{"at":"2026-10-23T14:30:46+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-23T14:30:46+00:00","data":{"claimed_at":"2026-10-23T14:30:46+00:00","claimed_by":"codex-mcp-839d838dd7b04cc5","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-23T14:32:56+00:00","data":{"claimed_at":null,"claimed_by":null,"completed_at":null,"owner":"codex","resume_status":null,"rev":3,"status":"todo"},"kind":"release","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-23T14:32:56+00:00","data":{"claimed_at":null,"claimed_by":null,"completed_at":null,"owner":"codex","resume_status":"todo","rev":4,"status":"paused"},"kind":"pause","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:55:21+00:00","data":{"rev":5,"status":"todo"},"kind":"resume","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:55:27+00:00","data":{"claimed_at":"2026-10-24T09:55:27+00:00","claimed_by":"codex-mcp-5f95564a50c4415d","completed_at":null,"owner":"codex","resume_status":null,"rev":6,"status":"in_progress"},"kind":"claim","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:58:34+00:00","data":{"claimed_at":"2026-10-24T09:55:27+00:00","claimed_by":"codex-mcp-5f95564a50c4415d","completed_at":"2026-10-24T09:58:34+00:00","owner":"codex","resume_status":null,"rev":7,"status":"submitted"},"kind":"submit","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:58:39+00:00","data":{"job":"f9475146c35849ed9f713d2e0d9dc020","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:58:40+00:00","data":{"job":"f9475146c35849ed9f713d2e0d9dc020"},"kind":"verification_started","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:59:13+00:00","data":{"rev":8,"status":"submitted"},"kind":"verified","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:59:13+00:00","data":{"job":"f9475146c35849ed9f713d2e0d9dc020","status":"completed"},"kind":"job_finished","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:59:37+00:00","data":{"claimed_at":"2026-10-24T09:55:27+00:00","claimed_by":"codex-mcp-5f95564a50c4415d","completed_at":"2026-10-24T09:58:34+00:00","owner":"codex","resume_status":"submitted","rev":9,"status":"paused"},"kind":"pause","task_id":"codex:G6FLUSH1"}
+{"at":"2026-10-24T09:59:45+00:00","data":{"rev":10,"status":"paused"},"kind":"archive","task_id":"codex:G6FLUSH1"}

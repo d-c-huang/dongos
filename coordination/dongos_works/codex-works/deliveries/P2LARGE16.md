@@ -308,3 +308,126 @@ root 首次 OBS+B 宿主预检实际145项、12.762秒、errors=5、进程退出
 ## AI交付 2026-10-23T05:46:46+00:00 · codex-mcp-daece153b59c4bd5
 
 B R11仅test/doc/delivery三路径完成修后冻结。原47方法全部留：46方法AST完全同b6d5，唯一旧WHPX irqchip方法只将toy base补完整合法四drive夹具，原断言全部保留。新增2真实B execute/replay caller对共享strictWHPX配置门的控制，合法只推进下一独立边界主动抛，坏argv在此前拒/cleanup/no seal/无raw/无Popen，不冒guestpass；replay自洽guest/result重hash也不能绕过。Host40+ActualBuild8+Request1=49，其它runtime1/domain2/barrier1/buddy1/paging2，预计全56。生产runner、DG/ASM、overlay及其它15路径逐字同冻结b6d5，两个观察profile/原actualnegative/fullB合同不变。root独立修后OBS105+BHost40=145 tests/11.580s/0skip/rc0，build/test/p2-historical36-review/obs36-r7-b-r11-host-precheck-r2.log SHA1e3524eab12d977fe06edaa201319a54e20bfcfb010e9e64f82e64b2539742b6。首次同组145/12.762s/errors5/rc1为新增replay fixture漏after的五subcase，日志原件r1保留，原负责人补after.boot_info_ref=4096后真实重跑通过，不覆盖失败。独立静态合审obs36-r7-large16-r11-independent-review.md SHA1e757fc409d7004780e440c8d624a51c916530eaa52ecfd125a614814ec00d2c，七路径freshSHA一致且无剩余阻断，作者均未编译测试VM/状态/Git。尚未正式独立全矩阵或新源双boot实际通过；所有旧actual失败/terminal诊断保持false，P2partial/P5未实施/未push关机。
+
+
+## R12 返修交付（2026-10-23，root 领取 rev53；未执行测试）
+
+已通过 MCP 完整读取 `codex:P2LARGE16` 最新 in_progress rev53、完整 R12 review_note、write_paths/checks/dependencies；原任务书此前已完整读取，SHA `e1ededa0bca7abd8b0fb004b6c262ebc2d1644cb85935e45261fe7a6aff0439a`。root 已领取，本执行者未领取/提交或改变状态。仅本轮获授权的 `tests/run_p2_runtime_large_qemu.py`、`tests/test_p2_runtime_large.py`、`docs/runtime-large.md` 和本交付四路径，原其它14个 B 声明路径编辑前后逐文件 SHA256 相同。动态 receipt 和新错误负控未实现，未扩大范围。
+
+最新独立事实：OBS R8 正式110和 B `5b4b8c1e64da4a0ead8e4569f81f8b10` 完整56/0skip/source stable/stopped/exited。旧冻结源正常实际两个 boot runner 已 passed，result SHA `07d56741d3c61428117bcc5b4e9f996c7dabd073606096a29208141e7a6ad89b`，owned23708/37924均退出0，无PFLASH错。root 随后 strict replay rc0、两boot stdlib scoped raw audit passed，报告 `code/build/test/p2-historical36-review/b-r11-obs-r8-normal-scoped-raw.json`。这些是原冻结源的正常门事实，不替代 R12 新源独立验证，也不覆盖原精确负控。
+
+同源 omit 实际进入 B，但 attempted=complete1/poison0/steps127，AP1真实warm页5/replaced页6，完整生命周期正常结束，没有目标 stale。原 runner 随后继续采集，epoch21暂停1078ms，epoch22 CPU0/2 Timeout06090005、owner3，不是 replacement post 的CPU0-held目标。原 result SHA `858d3677177f6416351e3e5cdf2246c57a923212c719ddab0a5d105866b4a885`，1376文件指纹闭合及独立解码/审计报告原件保留false。Intel官方SDM Vol3A §5.10.2.2不保证TLB条目保留，所以warm后看到新值不能证明正确flush或WHPX暗刷；静态负控代码存在也不替代实际skip分支命中回执，更不替代实际stale证据。
+
+最小修正只在 `collect_boot` 原 `validate` 已抛 ValueError 的 except 内：negative 且原 report attempted==complete==1/poison==0 时判为一次性 owner 已正常完成、目标 stale 未观察到，立即沿原首失败保存路径记录 classification=`negative-no-stale-completed-owner`。保留首 epoch、checkpoint深拷贝、原异常类型/文字、原三个 terminal flags 和 cause=undetermined，bare raise 完全保留原异常对象。不再sleep/重试、额外resume、取下一after或进入后期PCID，不会改为pass或生成seal。原精确negative若真正通过严格validate仍先break；健康尚未完成状态沿原有界重试。normal分支短路不读取新增complete条件，两个profile默认与契约、完整old2MiB/forest/readers/ACK/owner/预算/原guest期限和采样上限均未修改。
+
+新增1个明确 synthetic Host 方法实际调用 production collect_boot，只在历史/hardware边界适配。它验证负控完成但严格validate失败时恰一次after/validate，无sleep/retry/resume/PCID，原异常对象、首独立checkpoint、三false terminal flags 和明确classification保持；修改宿主boot envelope不能回写首checkpoint。同一方法还验证未完成negative仍重试并让原精确negative通过，以及normal完成照常进入PCID。pipeline helper仅增加默认false的completed_owner fixture开关，原49个test方法AST全同、无删除或弱化；静态计 Host41/RequestGate1/ActualBuild8（共50方法，非执行数），原56完整矩阵相对新增1项，真实数以root独立结果为准。
+
+本轮实际仅 Python 标准库 ast.parse（不导入项目）、AST/源分支检查、原方法指纹/原14路径SHA比较和行尾空白检查；两Python可解析，三源码无尾空白。未编译、运行测试、OS link、VM、任务状态或Git操作。等待root独立预检/正式验证；B/P2仍未全部完成或验收，原omit-stale硬件依赖门待证明，新增receipt/flush-return-error仅后续建议，不能取代原门。用户已取消关机，不再安排关机。
+
+R12 冻结输入（本交付 SHA 另附）：
+
+| code 内路径 | SHA-256 |
+| --- | --- |
+| `tests/run_p2_runtime_large_qemu.py` | `1fe469b5016b1d16c21c6593cc78dfb2275a32816935889ef1225f077480e8cd` |
+| `tests/test_p2_runtime_large.py` | `7fb1c8401220763bc4ae37b1147dc3fda8d24e28bdd0358a95047c69ef9d3881` |
+| `docs/runtime-large.md` | `a2a793be2727b64763ca97490fd4fc39de466b3e8686036ed8140b525aaa7cc8` |
+
+
+### R12 首次独立宿主预检失败与健康暂态 fixture 修复（未复测）
+
+root 首次预检真实151项、9.961秒、errors=1、退出1，日志 `code/build/test/p2-historical36-review/obs-r8-b-r12-precheck.log`。新方法的 terminal/no-stale 分支已通过，但随后 pending negative 子场景失败：pipeline 临时 snapshot 只将 report 改 attempted0/poison0，仍继承最终负控 Domain/Bridge.failed=1，真实 collect_boot 的原终态门正确地拒绝。这是新增测试暂态数据不一致，不能删除重试断言或弱化生产门来通过。
+
+经 root 同轮明确授权，仅修 test/docs/delivery：pending snapshot 为 final after 的独立 deep copy，并设 attempted=complete=poison=0、Domain.failed=Bridge.failed=0；最终 negative after 自身仍为 poison/failed1，原精确负控分支不变。runner 未修改，SHA 仍 `1fe469b5016b1d16c21c6593cc78dfb2275a32816935889ef1225f077480e8cd`。原49个 test 方法AST仍全部相同。作者仍未运行测试、编译、VM、状态或Git；首次失败保留，等待 root 独立重跑。
+
+修复后的冻结指纹取代上一候选（交付自身 SHA 另附）：
+
+| code 内路径 | SHA-256 |
+| --- | --- |
+| `tests/test_p2_runtime_large.py` | `bb9fe3d99d8adedb2e7223d754ade469f411f74edcaea460d0b3bd9d53905e92` |
+| `docs/runtime-large.md` | `02d7cbad3e2130470c28952163018099794913c80f4c984ed7cf72128034fd18` |
+
+
+## AI交付 2026-10-23T07:56:13+00:00 · codex-mcp-daece153b59c4bd5
+
+R12四路径窄修复完成并root独立源码审查/预检。collect_boot仅在原validate抛错且negative attempted=complete1 poison0时记录negative-no-stale-completed-owner首失败并bare raise，阻止无效重采集；原正常/精确negative成功及未完成重试门保持。新增真实collect_boot宿主控制覆盖一次after、no sleep/resume/PCID、原异常对象与深拷贝首checkpoint，且覆盖健康未完成retry/原negative成功和normal PCID路径。原49方法AST保留。首次root151/9.961s errors1 rc1是pending夹具domain/bridge错误继承negative failed，原生产正确终止；已修pending深拷贝为健康未完成并保留最终negative失败字段，首次日志保留。root独立重跑151项7.371s零skip rc0，日志obs-r8-b-r12-precheck-fixed.log。原正常新OBS R8冻结源真实双boot/独立strict replay rc0/stdlib严格scoped raw audit通过；原omit未出现stale且后续无关timeout，未冒负控成功。R12尚未正式完整复验/新镜像VM，动态skip receipt/独立flush-return-error仅方案未实现。用户已取消关机，P2/P5未宣告完成或集成。
+
+## R13 返修交付（2026-10-23，root 领取 rev57；待正式复验）
+
+已通过 MCP 完整读取最新 `codex:P2LARGE16` in_progress rev57、R13 review_note、write_paths/checks 和原任务书；root 统一领取，本执行者未领取/提交或改变状态。本轮仅六路径：`kernel/sched/runtime_large_reader.asm`、`tests/p2_runtime_large_build.py`、`tests/run_p2_runtime_large_qemu.py`、`tests/test_p2_runtime_large.py`、`docs/runtime-large.md` 与本交付。原其它12个声明路径逐文件 SHA 与编辑前相同，包括原 owner、user_domain、services、memory、buddy、通用 build 和旧 native probes/tests；不改共享进度、协调数据库或派生索引。
+
+先核真实首 Failure/ACK/poison 链再实现：poll 的 trusted reader hook 在实际 flush 之前；flush 返回错误时 Domain.failed 先置1、产生 Hardware `0x06090003`，不更新 Seen/ACK。barrier_begin 逐CPU发布和 kick，AP1 可在其它 AP 发布/ACK 完成前失败。CPU0 的后续 poll/cpu_at 传播 Held `0x06090004`，owner operation3/state3/steps3/barriers5、poison、未退休回收；BSP 首 Failure 可为 user_bridge 的 Protocol `0x060b0011`、detail Held。其它CPU不要求全部失败或已 ACK post，不能把泛 Timeout、其它 owner/sequence 或 metrics.failed 当作所需首因。Domain120/Cpu120/Failure224的真实字段偏移由 layout 验证，Failure 按28Q、16项原始区采集。
+
+### 动态 receipt 与三份实际源码构建
+
+ASM 新增64字节对齐128字节 `runtime_large_test_receipt`，16Q顺序固定为 `magic,publish,argument_cpu,actual_cpu,domain,window,sequence,barrier,completed,requested,ack_before,cr3,cr4,rflags,real_result,returned_result`。omit/error magic 分别为 `0x524c465200010001`/`0x524c465200010002`。normal 与 before 全零；safe publisher 先写gen1、载荷、fence，再最后写gen2。重复命中或已有gen1只改gen3、保留首载荷。实际入口只接受AP1/实际GS CPU1/window1/同Domain，sequence=barrier=requested=completed+1、ACK-before=completed；记录实际 rawCR3/CR4 和采样时IF0，不将包装指令后的完整RFLAGS冒称调用入口flags。normal记录器保持 dormant，没有新增热路径调用或外部链接依赖。
+
+原 omit 真正跳过实际 flush 后记录 real_result=UINT64_MAX、returned_result=0；新 `flush-return-error` 独立case先调用完整原flush，实际返回0才记录real0/returned1并向真实生产调用者返回1。若原flush已经非零，原样传播，不强制成功、不生成伪造成功receipt。原实际 INVPCID/MOV-CR3 body、PCID/CR4、客体1秒/2秒期限、硬件flush和持久性门不变。
+
+build.CASES为normal/omit/error三项，合同升级 `p2-runtime-large-current-fault-v2`；新source/build记录和snapshot/result/boot/seal显式绑定 `p2-runtime-large-fault-v1`。缺/混合同或保存case不属于三项、不等于真实build.case时失败，旧immutable archive只能由原immutable runner/source验证。prepare/verify、工具角色/源图/产物fresh hash与原budget继续执行；ActualBuild原组现在真实构建三case。新四个完整代码范围为 omit→omit_end、record→record_end、publish→publish_end、user_smp_arch_flush→user_smp_arch_switch，原64B预览保留；新范围必须与ELF实际段内字节长度完全相等并逐字节核guest supervisor RX，跨段/截断拒绝。
+
+### 独立 error oracle、采集和回放
+
+`fault_receipt`128B和`bridge_failures`3584B加入同一历史epoch快照，沿原seal→cont→历史initialize/Capture/decode顺序，不额外live物理访问或延长暂停。新独立validator核原完整old2MiB/forest/全部alias/实际PTE-B/四核首轮warm-A，要求未complete/已poison、operation3/state3/steps3/barriers5、retire=reclaim0、AP1 requestedpost/ACKpre、CPU0LOCKED/kernel-tag0以及真实Hardware首Failure。其它已发布CPU只接受源码支持的Held，BSP还可为Protocol/detailHeld；pub0须全零，pub2只允许同一事务可证明的半发布前缀，metrics与发布顺序不能伪造。
+
+仅当上述所有稳定门都通过、已完整receipt绑定精确同一post，但AP1首Failure/Domain/Bridge/owner poison仍在发布时，抛 `FaultPublicationPending`。collect保存首 `first_pending_fault_checkpoint`、最多2次额外补采，pending处理/补采安排窗为1秒；若下一份完整oracle成功，其采集结束可晚于该窗，未冒称整次采集硬1秒。泛terminal/Timeout/异事务/错误Fault仍立即失败。新error的最终seal明确 `negative=flush-return-error,stale_load_evidence=False,actual_flush_return_error=True`，不能算作原omit stale门。
+
+原normal和omit的全生命周期、五ordinary UART/launch顺序、16barrier/2reclaim、源/工具/磁盘最终fresh核与ownedcleanup保持。原omit仍必须实际A/PTE-B/第二reader未ACK/完整post全核ACK/CPU0永久held；未观察stale而owner正常完成继续由R12 `negative-no-stale-completed-owner` 首次保留失败。两个独立observation profile的默认和显式选择不互相映射，负控不进入后期PCID。
+
+### 永久控制及独立预检事实
+
+原50个test方法无删除；47方法AST与R12原件相同，3个旧Host方法只适配显式fault合同及新snapshot原始符号/长度，保留原断言。ActualBuild setUp/tearDown由双构建改三构建，原8方法保留。新增6Host+1ActualBuild，静态Host47/RequestGate1/ActualBuild9，共57个方法，完整原六模块预计64项。新增控制实际调用receipt验证器、独立error oracle、collect与双boot replay，只对明确独立raw/forest/hardware数据边界适配；核调用没有被绕过。覆盖16Q逐字段/半发布/重复/缺失破坏，真实Failure传播、异事务和错误Fault、保留首pending及2次/1秒重试边界，result/boot/seal混合同及错case，跨ELF段/截断完整范围。safe publisher控制实际NASM ELF/COFF、链接C/sysv_abi并执行无特权发布器，正常实现须过、颠倒repeat分支与不完成发布的两份真实坏实现须被精确C oracle拒绝；未执行特权gate/record/flush，不能冒硬件命中证据。
+
+root早期隔离汇编预检三case×reader/arch×ELF/COFF共12对象，NASM `-Wall -Werror`且输入前后稳定；另root实际native safe publisher probe返回0，核初始全零、逐Q完整2、重复3和预置partial1→3均保留首载荷。目录 `code/build/test/p2-r13-assembly/run-0de53a38f6f3/`。这些只覆盖汇编与无特权publisher，没有OS link/VM。
+
+root首次独立OBS+BHost预检157项、零skip，1 error+1 failure、源稳定，日志 `code/build/test/p2-historical36-review/b-r13-host-precheck.log` SHA `9e43c84d68c00bef9b8177229e0088864d921521aeb90a3dd4c739bde923902d`。本项error是新pipeline fixture对字符串flush-return-error作 `int(negative or ...)`，本作者仅修三处为 `int(bool(...))`；未改任何生产门。OBS原queued反控在Windows stop=sealed=queued时未实际改字段，root在其归属文件改sealed-1，本作者未改OBS。首次result原件 `b-r13-host-precheck-r1-result.json` SHA `a656369096031c28bc1bb7284d75d7dee1e7107f10db5d92539c61e5e77d2b7c` 保留false。
+
+修后root独立重跑157项、7.306秒、0 error/0 failure/0 skip，四源码前后SHA一致；日志 `b-r13-host-precheck-r2.log` SHA `66b7addced325f4a687a1eddd7cbfb7a5a0e9bdf07c07247568407950d364a2f`，结果 `b-r13-host-precheck-result.json` SHA `d431bb2585ba5fdf0da4a92fff1204a90c456db1231ca4bee9894ff1bed52d8b`。其中OBS110+Host47通过，不包含Request/ActualBuild/其它原正式模块，不能登记正式64通过或三镜像通过。
+
+作者本轮只编辑和执行标准库ast.parse、源码/ABI/原50方法指纹、12冻结路径SHA及尾空白检查，没有自行运行测试、编译、OS link、VM、Git或状态操作。此前root R12正式 `e4ee7de582284b38b40e504e5d7f1e6e` 完整57/0skip/stable/stopped/exited只属旧轮。新源正式64项、fresh normal/omit/error三镜像、实际各双boot、strict final replay、stdlib独立raw审计与ownedcleanup均待root执行。原正常旧源双boot通过、原omit无stale和全部更早失败原件保留，不能被新合同重标；P2未全部完成/验收，物理WC及原omit-stale硬件依赖门待证，用户取消关机仍有效。
+
+R13冻结指纹（交付自身SHA另附）：
+
+| code 内路径 | SHA-256 |
+| --- | --- |
+| `kernel/sched/runtime_large_reader.asm` | `c212c45c323b06efed092ae85482735d6ce1dd0937671a23cf52bf27717dd1a1` |
+| `tests/p2_runtime_large_build.py` | `a1bd719663ec8920cd081d48486e0d21378f6325fae251b86eb1484f861ec97c` |
+| `tests/run_p2_runtime_large_qemu.py` | `135f5c1f1ecab4e1ce90b3e01428efe9d1b08c77732830ae9ef3c1ef3aef551e` |
+| `tests/test_p2_runtime_large.py` | `a31968a0359767b5ac97cd85291c1a7b2b558fd623593fcb42f73487db71ef1a` |
+| `docs/runtime-large.md` | `6b6a92cb7e26c8115876bade0a49f0ed40b21feeeea31af2bdf54c5a9b02506a` |
+
+## R14 返修交付（2026-10-23，root 领取 rev61；未执行测试）
+
+已通过MCP完整读取最新in_progress rev61的R14 review_note、原任务书（未截断，原SHA `e1ededa0bca7abd8b0fb004b6c262ebc2d1644cb85935e45261fe7a6aff0439a`）、write_paths/checks/dependencies。root统一领取，本作者未改变任务状态。本轮窄授权仅runner/test/docs/delivery四路径；ASM、build及其它原14路径保持冻结，不改guest协议、实际flush、原期限、ACK或旧omit-stale门。
+
+R13正式作业 `cd564952ad754918b1e70d44693da265` 完整64项、0skip、source_stable通过，但随后 `flush-error-r13-wire1` 实际首轮失败，result SHA `cf7eb93c627d15247e9d6ae655a50971ccb4f1369e6b89b564344d7b953f0a99`。root独立stdlib raw审计978文件闭合，报告 `code/build/test/p2-historical36-review/b-r13-flush-error-wire1-independent-raw.json` SHA `e42f69fabb3cd268124ac278fa048ed970472f1e903404387427632aec9029fc`；owned17364退出0/输入稳定/无PFLASH错误。AP1实际完整receipt real0→returned1、seq33636/pre33635、IF0；首Hardware精确，CPU0 poison/Held及旧块保持、state3/steps3/barriers5/未退休回收。这些分项命中不构成整轮或双boot通过，旧result原件保持false。
+
+明确首因是原oracle把非目标AP2/3的历史Failure.requested必须等于采集时current requested。实际两AP首记录requested33635，但current requested33636、ACK均33635，Failure.sequence/barrier仍是post33636。源码 `user_domain.barrier_begin` 192–194逐CPU发布requested并kick，没有在AP1失败后重查failed；AP2/3可先记录同一post的Held，然后CPU0继续将其requested从pre发布为post。因此只容许此已由实际证据和源码解释的单调差异，不能普遍放宽历史Failure事务身份。
+
+runner仅新增局部requested_matches：CPU0/AP1仍要求Failure.requested==current req；AP2/3须在{pre,post}且<=current req。完整Failure.ACK仍精确等于当前ACK；AP1仍需post/pre和Hardware，所有CPU的owner/lock/root、sequence/barrier/post、raw receipt/IF/PCID、retained old2MiB、PTE/forest/reader/无退休回收等门保持。pub2在该字段未写前只额外允许0，写后同一单调关系。历史小于pre、超过post、历史post而当前pre、异事务、ACK不符或Timeout都直接失败，不能归类为可重试pending。原2次补采/1秒pending处理窗未修改。
+
+仅扩展现有三个Host方法，原57个test方法全部保留、无新增方法；与R13 immutable test SHA `a31968a0359767b5ac97cd85291c1a7b2b558fd623593fcb42f73487db71ef1a` 静态对照，另外54方法AST完全相同。真实独立validator正向覆盖AP2/3的pre/pre、pre/post、post/post和pub2；反向覆盖两AP的regress/future/current回退、ACK/sequence/Timeout，以及CPU0/AP1必须精确当前req。坏体必须抛普通ValueError而非FaultPublicationPending。实际collect用历史pre/currentpost的已发布和半发布Failure前进到ready，保留原首次pending及无额外resume/PCID断言，非法历史关系只采一次且不记pending。双boot replay实际走distinct oracle、同样绑定两AP历史pre/currentpost；pub1/pub2的regress/future/current回退必须在首Failure门拒绝，原source-case/contract/forest/authority/archive.verify_all/noPCID/Popen拒绝等断言保留。全部是明确synthetic宿主数据边界，未制造实际客体或TLB证据。
+
+作者只做标准库ast.parse、三个方法差量/57方法保留、源码和行尾空白/SHA检查，未编译、运行测试、OS link、VM、Git或状态操作；未对immutable workspace写入。静态Host47/RequestGate1/ActualBuild9、完整预计64项不变，原ActualBuild三case构建不变。root随后须独立预检、正式全64及新源actual各双boot/strict final replay/raw审计。R13正式通过不覆盖R14，原失败actual也不由本修正重标为pass；P2/P5与硬件待验范围没有新增完成声明。
+
+R14冻结指纹（交付自身SHA另附）：
+
+| code 内路径 | SHA-256 |
+| --- | --- |
+| `tests/run_p2_runtime_large_qemu.py` | `7eaa878097927ef2a293ce1216e3593f8d4012f4ae5ac4838e9f810c683b35d5` |
+| `tests/test_p2_runtime_large.py` | `816e9bc9119ca5bb126c9951c25f849301b43067fd380b834afa9c08bcc09a86` |
+| `docs/runtime-large.md` | `17d2a7418619c46a3b4c2cd8399c6d2f6dcb4988f46c5e09ecc14a0e07ccb73d` |
+
+
+## AI交付 2026-10-23T11:58:25+00:00 · codex-mcp-839d838dd7b04cc5
+
+R13六授权路径冻结：16Q64对齐原始receipt记录AP1/window/post/ACK前/CR3CR4IF/真实与返回结果；normal全零，omit保留严格stale门，新flush-return-error实际flush成功后强制1独立oracle、AP1首Hardware/CPU0-held/旧2MiB不回收。完整4函数end范围绑定ELF/guest并拒截断；新build/fault contract拒混档case。发布短窗仅精确同事务有限补采2次/1秒pending处理窗，旧R12 failfast不变。保留50旧方法新增7（Host47 Request1 Actual9）；三freshbuild待正式。root已实际审查源码和测试，早期12ELF/COFF对象及安全publisher C探针通过；首次兼容157有1error和1failure原日志保留，B字符串int修bool、OBS独立R9修同tick反控后157/7.306s/0skip/源码稳定通过。docs/delivery记录完整边界。正式64项及新源actual双boot/replay/raw尚未执行，不申请提前accept/integrate；原stale硬件待验不以新case替代。
+
+
+## AI交付 2026-10-23T12:24:32+00:00 · codex-mcp-839d838dd7b04cc5
+
+R14四路径冻结，AP2/3 first Failure.requested允许同post的pre→current post单调历史，CPU0/AP1及ACK/root/owner/error严格不变，扩展3现有测试，原57方法保留。仅静态检查，未执行R14测试/构建/VM，不宣称通过。与此同时root对未改R13 immutable omit实际完成：动态漏刷hit和stale A真实出现，但原metrics.failed==0旧门拒绝，原false保持；需后续窄返修后统一正式复验。详见即将登记的rework原证据说明。
+
+
+## AI交付 2026-10-23T12:36:39+00:00 · codex-mcp-839d838dd7b04cc5
+
+R15四路径完成冻结，保留R14 AP2/3历史requested单调关系；当前fault-contract omit增加精确completed post/receipt/report/16项firstFailure归因，failed1必须对应完整同CPU/Domain/owner/root/ACK记录，AP1首Hardware，其它仅Held或BSPProtocol+detailHeld。严格归因逐核tuple才传reader，normal/legacy/default仍failed0，原stale/PTE/reader ACK/全tag ACK/held/旧块门保持。原57方法保留新增1Host（共58，完整预计65）。root兼容158/7.523s/0skip/源稳定通过；两份R13真实raw用旧immutable decoder+新candidate oracle只读诊断均通过，原resultfalse和SHA未改变，非新源验收。原作者额度退出后root仅补文档事实及提交，runner10213b82261cb887846dfadd763c9893934f8ded4881d14ede0462875a2bad95/test67562e91fc975b449a3c75f6ec3f538f1214461fad66b1080d1c98d8f59fd5bd不变。正式65项/三freshbuild/actual双boot/strict replay与raw尚待执行；不提前accepted/integrated。

@@ -1,0 +1,263 @@
+{
+  "job": "85481e0d327745dab512a9a646576cf5",
+  "formal_ledger_test_passed": true,
+  "all_task_checks_pending": false,
+  "main_sources_match": true,
+  "ledger_evidence": {
+    "passed": true,
+    "source_sha256": {
+      "kernel\\user\\memory.dg": "6a38eb28ad56d0f2eda40735c129ad0a53b14b60bf3c7a6870681625bf21da45",
+      "kernel\\mm\\paging.dg": "21f705eed8adc6de3de33387de19a0b0fb79d202ec8265d34a69d8f5b898b9dd",
+      "kernel\\mm\\runtime_roots.dg": "e70f1b1524db44e6a572e2e3be78b6339a1bc3c6f57153cd1e8c1ccef0ed59c0",
+      "tests\\framebuffer_ledger_probe.dg": "6fe72e5ce07683de5b707734bf5440bf9aa30de133c3368b326262750e1aa1d0",
+      "tests\\framebuffer_ledger_probe.c": "5d97b90df85e6904e5fdf5ecbb48965e483b6db60a254f66043242951a05189d",
+      "tests\\test_framebuffer_ledger.py": "9af821856ef7f2c55faf9a67697ccf5e90db967ea611ca0099a328971160c8e4"
+    },
+    "records": [
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "normal",
+        "returncode": 0,
+        "stdout": "ledger native normal passed 116 checks\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "abort",
+        "returncode": 0,
+        "stdout": "ledger native abort passed 59 checks\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "hidden",
+        "returncode": 0,
+        "stdout": "ledger hidden alias reject passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "partial",
+        "returncode": 0,
+        "stdout": "ledger partial failure held passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "overflow",
+        "returncode": 0,
+        "stdout": "ledger overflow preflight passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "raw-mismatch",
+        "returncode": 0,
+        "stdout": "ledger raw authority reject passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "retire-failed",
+        "returncode": 0,
+        "stdout": "ledger retirement failure held passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "root-change",
+        "returncode": 0,
+        "stdout": "ledger root metadata change rejected\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "transition",
+        "returncode": 0,
+        "stdout": "ledger independent authority survives transition\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "normal",
+        "case": "hhdm-overflow",
+        "returncode": 0,
+        "stdout": "ledger HHDM overflow rejected before arithmetic\n",
+        "stderr": ""
+      },
+      {
+        "mode": "debug",
+        "variant": "no-held",
+        "case": "partial",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 57: fb_held()==1&&fb_epoch()==0\n"
+      },
+      {
+        "mode": "debug",
+        "variant": "view-instead-of-raw",
+        "case": "raw-mismatch",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 52: fb_publish(0x4000000,12288)!=0\n"
+      },
+      {
+        "mode": "debug",
+        "variant": "hidden-extra-alias",
+        "case": "hidden",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 60: fb_snapshot()!=0\n"
+      },
+      {
+        "mode": "debug",
+        "variant": "retire-early",
+        "case": "normal",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 27: fb_held()==2\n"
+      },
+      {
+        "mode": "debug",
+        "variant": "allow-external-gop",
+        "case": "normal",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 55: fb_other(i)==0x04060004\n"
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "normal",
+        "returncode": 0,
+        "stdout": "ledger native normal passed 116 checks\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "abort",
+        "returncode": 0,
+        "stdout": "ledger native abort passed 59 checks\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "hidden",
+        "returncode": 0,
+        "stdout": "ledger hidden alias reject passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "partial",
+        "returncode": 0,
+        "stdout": "ledger partial failure held passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "overflow",
+        "returncode": 0,
+        "stdout": "ledger overflow preflight passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "raw-mismatch",
+        "returncode": 0,
+        "stdout": "ledger raw authority reject passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "retire-failed",
+        "returncode": 0,
+        "stdout": "ledger retirement failure held passed\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "root-change",
+        "returncode": 0,
+        "stdout": "ledger root metadata change rejected\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "transition",
+        "returncode": 0,
+        "stdout": "ledger independent authority survives transition\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "normal",
+        "case": "hhdm-overflow",
+        "returncode": 0,
+        "stdout": "ledger HHDM overflow rejected before arithmetic\n",
+        "stderr": ""
+      },
+      {
+        "mode": "release",
+        "variant": "no-held",
+        "case": "partial",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 57: fb_held()==1&&fb_epoch()==0\n"
+      },
+      {
+        "mode": "release",
+        "variant": "view-instead-of-raw",
+        "case": "raw-mismatch",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 52: fb_publish(0x4000000,12288)!=0\n"
+      },
+      {
+        "mode": "release",
+        "variant": "hidden-extra-alias",
+        "case": "hidden",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 60: fb_snapshot()!=0\n"
+      },
+      {
+        "mode": "release",
+        "variant": "retire-early",
+        "case": "normal",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 27: fb_held()==2\n"
+      },
+      {
+        "mode": "release",
+        "variant": "allow-external-gop",
+        "case": "normal",
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "ledger check failed line 55: fb_other(i)==0x04060004\n"
+      }
+    ],
+    "hardware_mocked": true,
+    "guest_boots": 0
+  },
+  "task_status": "integrated",
+  "task_rev": 9
+}

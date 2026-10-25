@@ -167,7 +167,7 @@ class Metadata:
         esp = Path(esp).resolve();output = esp.parent
         manifest_path, layout_path, elf_path = (output / n for n in ('build-inputs.json', 'dong_layout.json', 'kernel.elf'))
         production = json.loads(manifest_path.read_text(encoding='utf-8'))
-        check(verify_profile(output, production, expected_runtime=7, source_root=output.parent / 'source') == 1,
+        check(verify_profile(output, production, expected_runtime=7, source_root=output.parent / 'source') == 0,
               'capture requires source-bound current runtime7 profile')
         layout = json.loads(layout_path.read_text(encoding='utf-8'))
         check(layout['schema'] == 1 and layout['target'] == 'x86_64-dongos-elf', 'capture layout target differs')
@@ -187,7 +187,7 @@ class Metadata:
         check(bool(immutable), 'kernel ELF immutable segments missing')
         binding = dict(schema=SCHEMA, synthetic=False, runtime=7,
             kernel_elf_sha256=digest(image), layout_sha256=digest(layout_path.read_bytes()),
-            production_manifest_sha256=digest(manifest_path.read_bytes()), static_pools=1)
+            production_manifest_sha256=digest(manifest_path.read_bytes()), static_pools=0)
         return cls(read_elf_symbols(elf_path), types, binding, immutable)
 
     def derive(self, boot, kernel, rawmap, serial):

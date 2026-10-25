@@ -17,12 +17,38 @@ pub error Unsupported = 0x0303_0005;
 // ABI shared with the controller: one LAPIC, eight IOAPICs, HPET, PM timer.
 pub struct Views { pub lapic: u64, pub ioapics: [8]u64, pub hpet: u64, pub pm_timer: u64 }
 pub struct Plan { pub views: Views, pub physical: [SLOTS]u64, pub count: u64 }
+// Versioned, write-only failure observation. It never grants a device page.
+pub struct Conflict { pub version:u64,pub valid:u64,pub error_code:u64,pub slot:u64,pub address:u64,pub page:u64,
+    pub descriptor_index:u64,pub kind:u64,pub base:u64,pub pages:u64,pub attributes:u64 }
+pub const EMPTY_CONFLICT:Conflict=Conflict {version:0,valid:0,error_code:0,slot:0,address:0,page:0,
+    descriptor_index:0,kind:0,base:0,pages:0,attributes:0};
 pub const EMPTY_VIEWS: Views = Views { lapic: 0, ioapics: [0;8], hpet: 0, pm_timer: 0 };
 pub const EMPTY_PLAN: Plan = Plan { views: EMPTY_VIEWS, physical: [0;SLOTS], count: 0 };
 
 unsafe fn u64_at(raw: *const u8, offset: usize) u64 {
     unsafe { return read_unaligned((raw + offset) as *const u64); }
 }
+
+// Validate address arithmetic before any diagnostic write. The unsafe caller
+// still owns readability/writability; an invalid/aliased output is untouched.
+pub unsafe fn conflict_disjoint(conflict:*Conflict,address:u64,bytes:u64)bool{unsafe{
+    if conflict==null{return true;}
+    let first=conflict as u64;
+    if (first&7)!=0||first>MAX-sizeof(Conflict) as u64||address>MAX-bytes{return false;}
+    return bytes==0||first>=address+bytes||address>=first+sizeof(Conflict) as u64;
+}}
+pub unsafe fn clear_conflict(inventory:*const acpi.Inventory,raw:[]const u8,
+    retained:[]const resources.Resource,out:*Plan,conflict:*Conflict)!void{unsafe{
+    if conflict==null{return;}
+    if retained.len as u64>MAX/(sizeof(resources.Resource) as u64){return error.InvalidInput;}
+    var inventory_bytes:u64=0;if inventory!=null{inventory_bytes=sizeof(acpi.Inventory) as u64;}
+    var plan_bytes:u64=0;if out!=null{plan_bytes=sizeof(Plan) as u64;}
+    if !conflict_disjoint(conflict,inventory as u64,inventory_bytes)
+        ||!conflict_disjoint(conflict,raw.ptr as u64,raw.len as u64)
+        ||!conflict_disjoint(conflict,retained.ptr as u64,(retained.len as u64)*(sizeof(resources.Resource) as u64))
+        ||!conflict_disjoint(conflict,out as u64,plan_bytes){return error.InvalidInput;}
+    *conflict=EMPTY_CONFLICT;
+}return;}
 
 unsafe fn valid_map(raw: []const u8, stride: usize) bool {
     unsafe {
@@ -49,7 +75,7 @@ unsafe fn valid_map(raw: []const u8, stride: usize) bool {
 }
 
 unsafe fn add(candidate: *Plan, slot: usize, address: u64, bytes: u64,
-              raw: []const u8, stride: usize, retained: []const resources.Resource) !u64 {
+              raw: []const u8, stride: usize, retained: []const resources.Resource,conflict:*Conflict) !u64 {
     unsafe {
         if address == 0 || address >= LIMIT || bytes == 0 || bytes > LIMIT - address
             || (address & 4095) + bytes > 4096 { return error.Unsupported; }
@@ -59,15 +85,22 @@ unsafe fn add(candidate: *Plan, slot: usize, address: u64, bytes: u64,
             if (*candidate).physical[i] == page { return error.DuplicatePage; }
             i += 1;
         }
-        // Firmware may omit device holes. If a descriptor exists, it must
-        // actually classify this complete page as non-runtime MMIO.
+        // Firmware may omit device holes. Described pages must be MMIO.
+        // Only the MADT-discovered LAPIC (slot 0) may also serve EFI runtime;
+        // its single supervisor UC alias never grants runtime RAM or PCI MMIO.
         var offset: usize = 0;
         while offset < raw.len {
             let start = u64_at(raw.ptr,offset + 8);
             let end = start + u64_at(raw.ptr,offset + 24) * 4096;
             if page < end && start < page + 4096 {
                 let kind = read_unaligned((raw.ptr + offset) as *const u32);
-                if kind != 11 || (u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 {
+                if kind != 11 || ((u64_at(raw.ptr,offset + 32) & 0x8000_0000_0000_0000) != 0 && slot != 0) {
+                    if conflict!=null{
+                        *conflict=Conflict{version:1,valid:0,error_code:0x0303_0002,slot:slot as u64,address:address,page:page,
+                            descriptor_index:(offset/stride) as u64,kind:kind as u64,base:start,
+                            pages:u64_at(raw.ptr,offset+24),attributes:u64_at(raw.ptr,offset+32)};
+                        compiler_fence();(*conflict).valid=1;
+                    }
                     return error.RamConflict;
                 }
             }
@@ -90,6 +123,15 @@ unsafe fn add(candidate: *Plan, slot: usize, address: u64, bytes: u64,
 // disjoint from aligned writable output. Failure preserves the whole Plan.
 pub unsafe fn plan(inventory: *const acpi.Inventory, raw: []const u8, stride: usize,
                    retained: []const resources.Resource, out: *Plan) !void {
+    unsafe{return plan_core(inventory,raw,stride,retained,out,null);}
+}
+pub unsafe fn plan_diagnostic(inventory:*const acpi.Inventory,raw:[]const u8,stride:usize,
+    retained:[]const resources.Resource,out:*Plan,conflict:*Conflict)!void{unsafe{
+    try clear_conflict(inventory,raw,retained,out,conflict);
+    return plan_core(inventory,raw,stride,retained,out,conflict);
+}}
+unsafe fn plan_core(inventory: *const acpi.Inventory, raw: []const u8, stride: usize,
+                   retained: []const resources.Resource, out: *Plan,conflict:*Conflict) !void {
     unsafe {
         if inventory == null || out == null || ((inventory as u64) & 7) != 0 || ((out as u64) & 7) != 0
             || retained.ptr == null || retained.len == 0 || retained.len > 32 || !valid_map(raw,stride) {
@@ -98,18 +140,18 @@ pub unsafe fn plan(inventory: *const acpi.Inventory, raw: []const u8, stride: us
         if (*inventory).ioapic_count == 0 || (*inventory).ioapic_count > 8 { return error.InvalidInput; }
         if ((*inventory).lapic_address & 4095) != 0 { return error.Unsupported; }
         var next = EMPTY_PLAN;
-        next.views.lapic = try add(&next,0,(*inventory).lapic_address,4096,raw,stride,retained);
+        next.views.lapic = try add(&next,0,(*inventory).lapic_address,4096,raw,stride,retained,conflict);
         var i: usize = 0;
         while i < ((*inventory).ioapic_count as usize) {
-            next.views.ioapics[i] = try add(&next,i + 1,(*inventory).ioapics[i].address,32,raw,stride,retained);
+            next.views.ioapics[i] = try add(&next,i + 1,(*inventory).ioapics[i].address,32,raw,stride,retained,conflict);
             i += 1;
         }
         if (*inventory).hpet != 0 {
             if (*inventory).hpet_gas.address_space != 0 { return error.Unsupported; }
-            next.views.hpet = try add(&next,9,(*inventory).hpet_gas.address,1024,raw,stride,retained);
+            next.views.hpet = try add(&next,9,(*inventory).hpet_gas.address,1024,raw,stride,retained,conflict);
         }
         if (*inventory).pm_timer_gas.address != 0 && (*inventory).pm_timer_gas.address_space == 0 {
-            next.views.pm_timer = try add(&next,10,(*inventory).pm_timer_gas.address,4,raw,stride,retained);
+            next.views.pm_timer = try add(&next,10,(*inventory).pm_timer_gas.address,4,raw,stride,retained,conflict);
         }
         *out = next;
     }

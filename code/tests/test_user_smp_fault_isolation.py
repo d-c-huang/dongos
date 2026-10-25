@@ -65,6 +65,7 @@ class Tests(unittest.TestCase):
   text=(BASE/'kernel/user/services.dg').read_text();prefix=old.PREFIX
   actual='\n'.join(block(text,n)for n in ('unsafe fn process(', 'unsafe fn managed(', 'unsafe fn retire_one(', 'pub unsafe fn enable_smp(', 'export("dong_user_smp_project")','export("dong_user_smp_service")','export("dong_user_smp_interrupt")'))
   source=(ROOT/'tests/user_current_entry_probe.dg').read_text()+prefix+actual+old.TAIL+TAIL
+  source+=old.dormant_wiring(text)
   memory=old.MEMORY
   device=old.DEVICE
   c=(ROOT/'tests/user_current_entry_probe.c').read_text()
@@ -81,6 +82,8 @@ class Tests(unittest.TestCase):
   bridge=(BASE/'kernel/sched/user_bridge.dg').read_text()
   domain=(BASE/'kernel/sched/user_domain.dg').read_text()
   controls={'old-global-held':('bridge','deferred=true;service_event=258;','return error.Held;'),'missing-EOI':('bridge','else if user_bridge_eoi(cpu as u64,event)!=0{return error.Held;}\n   if !(try ud.captured_return_valid','if !(try ud.captured_return_valid'),'invalid-Frame-discarded':('bridge','deferred=true;service_event=258;','deferred=false;service_event=258;'),'new-event-not-retired':('service','}else if event==258{','}else if event==259{'),'trusted-root-treated-user-fault':('bridge','if *(((*process).frame+144) as *const u64)!=(*process).root{return error.Held;}',''),'missing-final-return-validation':('domain','if user_smp_arch_validate((*c).returned,(*c).return_root)!=1{fail(d);return error.Held;}','')}
+  memory+=old.dormant_memory()
+  c+=old.DORMANT_C
   candidate={}
   candidate['sched.user_domain']=(BASE/'kernel/sched/user_domain.dg').read_text()
   files=old.current_files()+[Path(__file__),ROOT/'tests/test_user_smp_services.py',ROOT/'tests/user_current_entry_probe.dg',ROOT/'tests/user_current_entry_probe.c'];before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in files}
@@ -91,7 +94,7 @@ class Tests(unittest.TestCase):
     if variant!='normal':
      kind,a,z=controls[variant];target={'service':s,'bridge':b,'domain':u}[kind];self.assertEqual(1,target.count(a));target=target.replace(a,z)
      s=target if kind=='service'else s;b=target if kind=='bridge'else b;u=target if kind=='domain'else u
-    overrides={**candidate,'sched.user_domain':u,'sched.user_bridge':b,'user_current_entry_probe':s,'user.memory':memory,'user.window_broker':old.WINDOWS,'user.device_host':device,'boot.trace':'module boot.trace;pub const SERVICE_STOP:u64=8;','boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}'}
+    overrides={**candidate,'boot.service_memory':old.dormant_resources(),'sched.user_domain':u,'sched.user_bridge':b,'user_current_entry_probe':s,'user.memory':memory,'user.window_broker':old.WINDOWS,'user.device_host':device,'boot.trace':'module boot.trace;pub const SERVICE_STOP:u64=8;','boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}'}
     copy_graph(stage,['user_current_entry_probe'],overrides);result=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(result.assembly);(d/'probe.c').write_text(c);(d/'validator.asm').write_text(validator)
     def run(args,label):
      r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60);(d/(label+'.json')).write_text(json.dumps(dict(command=list(map(str,args)),returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r

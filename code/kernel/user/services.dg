@@ -35,6 +35,12 @@ import user.shared_objects as shared;
 import lib.shared_abi as shared_abi;
 import lib.cap_notify_abi as capabi;
 import mm.runtime_large as runtime_large;
+import mm.runtime_exec as runtime_exec;
+import sched.runtime_exec_entry as runtime_exec_entry;
+import mm.runtime_cache as runtime_cache;
+import mm.runtime_roots as forest;
+import mm.phys_buddy as buddy;
+import boot.abi as boot_abi;
 import boot.memory_startup as memory_startup;
 import smp.large_memory as old_large;
 import sched.user_entry_plan as smp_entry;
@@ -84,6 +90,20 @@ unsafe extern "sysv64" fn runtime_large_environment(out:*runtime_large.Environme
 unsafe extern "sysv64" fn runtime_large_load(virtual:u64,out:*runtime_large.Sample)void;
 unsafe extern "sysv64" fn runtime_large_window(active:u64)void;
 unsafe extern "sysv64" fn runtime_large_digest(virtual:u64,bytes:u64)u64;
+// C/D owner storage is arena owned; only these pointers live in BSS. The mux
+// pointers are published after bind, the storage pointers before any bind.
+align(64) struct ExecStorage{context:runtime_exec.Context,ticket:LargeTicket,physical:u64,trace:resources.Block}
+align(64) struct CacheStorage{context:runtime_cache.Context,work:runtime_cache.Work,config:runtime_cache.Config,
+ ticket:LargeTicket,framebuffer:memory.FramebufferSnapshot,pages:resources.Block,
+ sampled:u64,hardware_status:u64,admission_result:u64,hardware:runtime_cache.Reading}
+pub var RUNTIME_EXEC:*runtime_exec.Context=null;
+pub var RUNTIME_CACHE:*runtime_cache.Context=null;
+var EXEC_STORAGE:*ExecStorage=null;var CACHE_STORAGE:*CacheStorage=null;var CACHE_ATTEMPTED:bool=false;
+const EXEC_GENERATION:u64=1;
+unsafe extern "sysv64" fn runtime_exec_hardware(out:*runtime_exec.Environment)void;
+unsafe extern "sysv64" fn runtime_exec_action(command:u64,virtual:u64,value:u64,ticket:*runtime_exec.FaultTicket,out:*runtime_exec.Sample)void;
+unsafe extern "sysv64" fn runtime_cache_hardware(action:u64,request:u64,barrier:u64,out:*runtime_cache.Reading)u64;
+unsafe extern "sysv64" fn kernel_framebuffer_gate_get()*runtime_cache.Gate;
 // Trusted role mask for the explicit ordinary busy-workload XSAVE bad build.
 // GUI clients may reuse the same physical slots and must never be selected.
 var SMP_TEST_SLOTS:u64=0;
@@ -1310,12 +1330,26 @@ pub unsafe fn enable_smp()!void{unsafe{
     var held=resources.Block{physical:0,virtual:0,pages:0};
     try resources.allocate((sizeof(LargeStorage)+4095)/4096,1,&held);
     LARGE_STORAGE=held.virtual as *LargeStorage;RUNTIME_LARGE=&(*LARGE_STORAGE).context;
-    try smp_domain.register_poll(d,large_poll);
+    try smp_domain.register_poll(d,runtime_poll);
     CURRENT=NONE;SMP_ENABLED=true;
 }return;}
+// The single trusted B/C/D multiplexer. An owner is reached only after its
+// complete binding published the pointer; the first failure is returned as is.
+// Domain.poll keeps the legacy check first and owns every flush ACK.
+unsafe fn runtime_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
+ let large=large_poll(d,cpu);if large!=0{return large;}
+ let exec=exec_poll(d,cpu);if exec!=0{return exec;}
+ return cache_poll(d,cpu);
+}}
 unsafe fn large_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
  if RUNTIME_LARGE==null||(*RUNTIME_LARGE).ready==0{return 0;}
  return runtime_large.poll(RUNTIME_LARGE,d,cpu);
+}}
+unsafe fn exec_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
+ if RUNTIME_EXEC==null{return 0;}return runtime_exec.poll(RUNTIME_EXEC,d,cpu);
+}}
+unsafe fn cache_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{
+ if RUNTIME_CACHE==null{return 0;}return runtime_cache.poll(RUNTIME_CACHE,d,cpu);
 }}
 // Bind distinct generation namespaces. Catalog restart generation, owner
 // incarnation, memory-root generation and queue generation are never equated.
@@ -1396,6 +1430,122 @@ unsafe fn large_try()!void{unsafe{
   runtime_large_environment,runtime_large_load,runtime_large_window,runtime_large_digest,(*header).deadline_ticks);
  try runtime_large.run(RUNTIME_LARGE);
 }return;}
+// C/D post-scheduler owners follow a completed B, one owner per projection, so
+// no single BKL hold spans two transactions. Each owner gets a fresh ticket and
+// RootSnapshot; B's frozen arrays are never reused. Any error is fail-stop.
+unsafe fn owner_ticket(ticket:*LargeTicket)!void{unsafe{
+ let b=smp_bridge.pointer();if b==null||(*b).failed!=0||CATALOG==null{return error.Protocol;}let d=(*b).domain;
+ try memory.snapshot_roots(&(*ticket).snapshot);
+ var slot:usize=0;while slot<16{
+  let cfg=(*CATALOG).configuration[slot];(*ticket).configuration[slot]=cfg;
+  (*ticket).incarnation[slot]=(*CATALOG).incarnation[slot];(*ticket).config_generation[slot]=0;(*ticket).owner[slot]=0;
+  if cfg!=procs.NONE{
+   if cfg>=(*CATALOG).count as u64{return error.Protocol;}
+   (*ticket).config_generation[slot]=(*CATALOG).states[cfg as usize].generation;
+   (*ticket).owner[slot]=(*CATALOG).states[cfg as usize].process;
+  }
+  (*ticket).queue_token[slot]=(*((*d).processes+slot)).token;
+  (*ticket).frame[slot]=(&(*process(slot)).frame) as u64;(*ticket).root[slot]=(*process(slot)).root;slot+=1;
+ }
+ try large_identity(ticket,true);
+}return;}
+// Independent recheck: live Catalog/Domain/memory identities against the
+// frozen ticket, then the owner's own root copy against that snapshot.
+unsafe fn owner_roots(ticket:*const LargeTicket,roots:*const forest.Root,count:u64)u64{unsafe{
+ match large_identity(ticket,true){ok=>{},err(code)=>{return code;},}
+ if count!=(*ticket).snapshot.count as u64{return 1;}
+ var i:usize=0;while i<(*ticket).snapshot.count{
+  let a=*(roots+i);let e=(*ticket).snapshot.roots[i];
+  if a.space!=e.space||a.identity!=e.identity||a.generation!=e.generation{return 1;}i+=1;
+ }return 0;
+}}
+unsafe fn exec_check(cookie:u64)u64{unsafe{
+ let s=EXEC_STORAGE;if s==null||cookie!=(&(*s).ticket) as u64{return 1;}
+ return owner_roots(&(*s).ticket,(&(*s).context.roots[0]) as *const forest.Root,(*s).context.report.root_count);
+}}
+unsafe fn cache_check(cookie:u64,roots:*const forest.Root,count:usize,ledger:*const forest.Alias,aliases:usize)u64{unsafe{
+ let s=CACHE_STORAGE;if s==null||cookie!=(&(*s).ticket) as u64{return 1;}
+ if roots as u64!=(&(*s).ticket.snapshot.roots[0]) as u64||ledger as u64!=(&(*s).framebuffer.aliases[0]) as u64
+  ||aliases!=(*s).framebuffer.count{return 1;}
+ let status=owner_roots(&(*s).ticket,roots,count as u64);if status!=0{return status;}
+ // Re-enumerate the published ledger, its epoch and its recorded root forest.
+ match memory.recheck_framebuffer(&(*s).framebuffer){ok=>{},err(code)=>{return code;},}
+ return 0;
+}}
+// C: one dynamic EXEC lifecycle on a fresh real order0 buddy lease. The lease
+// stays held afterwards (no transfer/free API). The PF adapter is registered
+// once with caller-owned trace records before the pointer reaches the mux.
+unsafe fn exec_try()!void{unsafe{
+ if EXEC_STORAGE!=null{return;}
+ let b=smp_bridge.pointer();let d=(*b).domain;
+ var held=resources.Block{physical:0,virtual:0,pages:0};
+ try resources.allocate((sizeof(ExecStorage)+4095)/4096,1,&held);
+ let s=held.virtual as *ExecStorage;EXEC_STORAGE=s;
+ try resources.allocate((runtime_exec_entry.TRACE_SLOTS*sizeof(runtime_exec_entry.RawTrace)+4095)/4096,1,&(*s).trace);
+ let ticket=&(*s).ticket;try owner_ticket(ticket);
+ (*s).physical=try buddy.alloc(memory_startup.allocator_pointer(),0);
+ let header=*((*b).headers) as *smp_entry.Cpu;let c=&(*s).context;
+ try runtime_exec.bind(c,d,memory_startup.space_pointer(),memory_startup.allocator_pointer(),
+  (*ticket).snapshot.roots[..(*ticket).snapshot.count],(*s).physical,ticket as u64,exec_check,
+  runtime_exec_hardware,runtime_exec_action,(*header).deadline_ticks);
+ let headers=slice_from_raw_parts((*b).headers as **runtime_exec_entry.Header,16);
+ try runtime_exec_entry.bind_trace(c,slice_from_raw_parts((*s).trace.virtual as *runtime_exec_entry.RawTrace,runtime_exec_entry.TRACE_SLOTS),
+  (*s).trace.virtual,(*s).trace.pages as u64*4096,headers);
+ try runtime_exec_entry.bind(c,d,headers,EXEC_GENERATION,runtime_exec_entry.dispatch);
+ compiler_fence();RUNTIME_EXEC=c;
+ try runtime_exec.run(c);
+}return;}
+// D: one GOP WC->UC->WC lifecycle, desktop only, once the published ledger
+// holds a private alias. Page receipts are sized from the actual ledger.
+unsafe fn cache_freeze(s:*CacheStorage,linear:*u64)!void{unsafe{
+ try owner_ticket(&(*s).ticket);try memory.snapshot_framebuffer(&(*s).framebuffer,&(*s).ticket.snapshot);
+ var pages:u64=0;var i:usize=0;while i<(*s).framebuffer.count{pages+=(*s).framebuffer.aliases[i].bytes/4096;i+=1;}
+ *linear=pages;
+}return;}
+// Preserve the real BSP admission sample without extra hardware reads. A failed
+// bind remains fail-stop; readers can diagnose the original PAT/MTRR rejection.
+unsafe fn cache_hardware(action:u64,request:u64,barrier:u64,out:*runtime_cache.Reading)u64{unsafe{
+ let code=runtime_cache_hardware(action,request,barrier,out);
+ if request==0&&action==runtime_cache.READ&&CACHE_STORAGE!=null{
+  (*CACHE_STORAGE).hardware=*out;(*CACHE_STORAGE).hardware_status=code;(*CACHE_STORAGE).sampled=1;
+ }
+ return code;
+}}
+unsafe fn cache_try()!void{unsafe{
+ if CACHE_ATTEMPTED||!GRAPHICS{return;}
+ let b=smp_bridge.pointer();let d=(*b).domain;
+ if CACHE_STORAGE==null{
+  var held=resources.Block{physical:0,virtual:0,pages:0};
+  try resources.allocate((sizeof(CacheStorage)+4095)/4096,1,&held);CACHE_STORAGE=held.virtual as *CacheStorage;
+ }
+ let s=CACHE_STORAGE;var linear:u64=0;try cache_freeze(s,&linear);
+ if (*s).framebuffer.count<2{return;}
+ if linear==0||linear>runtime_cache.MAX_LINEAR as u64{return error.Protocol;}
+ CACHE_ATTEMPTED=true;
+ try resources.allocate(((linear*sizeof(runtime_cache.Page) as u64+4095)/4096) as usize,1,&(*s).pages);
+ // The receipt allocation mapped kernel pages: freeze again after it.
+ var again:u64=0;try cache_freeze(s,&again);if again!=linear{return error.Protocol;}
+ let epoch=memory.framebuffer_epoch_pointer();let view=memory_startup.runtime_pointer();
+ if epoch==null||view==null||(*view).boot_info==0{return error.Protocol;}
+ let header=*((*b).headers) as *smp_entry.Cpu;let cfg=&(*s).config;
+ (*cfg).domain=d;(*cfg).kernel=memory_startup.space_pointer();(*cfg).info=(*view).boot_info as *const boot_abi.BootInfo;
+ (*cfg).roots=(*s).ticket.snapshot.roots[..(*s).ticket.snapshot.count];
+ (*cfg).ledger=(*s).framebuffer.aliases[..(*s).framebuffer.count];
+ (*cfg).pages=slice_from_raw_parts((*s).pages.virtual as *runtime_cache.Page,linear as usize);
+ (*cfg).work=&(*s).work;(*cfg).gate=kernel_framebuffer_gate_get();(*cfg).ledger_epoch=epoch;
+ (*cfg).check=cache_check;(*cfg).hardware=cache_hardware;
+ (*cfg).cookie=(&(*s).ticket) as u64;(*cfg).ticks=(*header).deadline_ticks;
+ let c=&(*s).context;let bound=runtime_cache.bind(c,cfg);
+ match bound{ok=>{},err(code)=>{(*s).admission_result=code;return bound;},}
+ compiler_fence();RUNTIME_CACHE=c;
+ try runtime_cache.run(c);
+}return;}
+unsafe fn owner_try()!void{unsafe{
+ if RUNTIME_LARGE==null||(*RUNTIME_LARGE).report.complete!=1{return;}
+ if EXEC_STORAGE==null{try exec_try();return;}
+ if RUNTIME_EXEC==null||(*RUNTIME_EXEC).report.complete!=1{return error.Protocol;}
+ try cache_try();
+}return;}
 unsafe fn runtime_pcid_metric(index:u64)u64{unsafe{
     if SMP_ENABLED{return services_smp_pcid_metric(index);}return services_pcid_metric(index);
 }}
@@ -1428,7 +1578,10 @@ export("dong_user_smp_project") fn smp_project()u64{unsafe{
         }else if (*p).token!=0{return 0x060b_0011;}
         slot+=1;
     }
+    // C/D are considered only in a later projection than the one completing B.
+    let settled=RUNTIME_LARGE!=null&&(*RUNTIME_LARGE).report.complete==1;
     let large=large_try();match large{ok=>{},err(e)=>{(*b).failed=1;atomic_store(&(*d).failed,1);return e;},}
+    if settled{let owners=owner_try();match owners{ok=>{},err(e)=>{(*b).failed=1;atomic_store(&(*d).failed,1);return e;},}}
     INFO.frames=memory.frame_count() as u64;INFO.process_count=(*(*d).engine).count;return 0;
 }}
 // This hint is calculated only by BSP from the authoritative saved Frame and

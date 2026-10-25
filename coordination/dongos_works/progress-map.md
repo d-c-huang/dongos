@@ -1,4 +1,96 @@
+# DongOS 整体任务图：当前检查点
+
+更新时间：2026-10-24 22:48 +08:00。控制台图源 `roadmap.json` 已同步以下结果。
+
+| 阶段/任务 | 当前状态 | 验收范围 |
+| --- | --- | --- |
+| L3/L3A | complete | 保持已验收的完整纯ELF矩阵结论 |
+| P2CD1 | integrated rev6 | C/D生产接线；正式172项零skip；正常、遗漏EXEC poll、遗漏CACHE poll三个实际WHPX客体及独立回放通过 |
+| P2CDTYPE1 | integrated rev6 | PAT×MTRR有效类型修复，正式1项零skip |
+| P2CDBUILD1 | integrated rev6 | 零静态池完整manifest适配，正式10项零skip；与父项合计182项 |
+| P2VEC42 / P2ERR43 | integrated rev15 / rev8 | Codex接手完成两项DeepSeek遗留数据任务，各1项正式零skip，真实移交完成 |
+| P2整体 | partial | C/D门已关闭；剩暖PCID实际复用与物理WC真机验收 |
+| P5 | partial | 保持既有验收范围，按既定顺序接续 |
+
+P2CD1最终正常及两类真实错误客体分别488/478/491份raw独立回放通过；1121源码输入与最终冻结客体及主目录一致，父项26份加builder两份文件已实际集成。runtime5/6/7内核分别1,986,960/1,991,056/1,995,152字节，原期限、ACK规则和2MiB限制保持。旧失败与中间构建全部保留。以上为本地集成，本轮没有提交或推送Git。
+
+当前证据以协调器最终状态及审查说明为准：[P2CD1](codex-works/tasks/P2CD1-board.md)、[P2CDTYPE1](codex-works/tasks/P2CDTYPE1-board.md)、[P2CDBUILD1](codex-works/tasks/P2CDBUILD1-board.md)、[P2VEC42](lmstudio-works/tasks/P2VEC42-board.md)、[P2ERR43](lmstudio-works/tasks/P2ERR43-board.md)。父项正式作业 `8cf746e3518145219278173a593dafbc`；builder正式作业 `ebf434eb7c83402fa6ddf6e51632b4df`。暖PCID及物理WC未由这些结果代替验收。
+
+## 历史检查点
+
+下方内容按原时间留存，其中“最新／当前／待完成”仅代表当时状态，不覆盖上表。
+
+2026-10-24 早前任务同步（Codex接手完成两项数据任务）：
+
+- `lmstudio:P2VEC42`：负责人 Codex，`integrated rev15`。12 条 GOP 页包络向量已修正；正式独立复验 `94b5d018570144e08c2d8eb8bd279120`，1 项通过、零 skip，源码稳定且进程退出。
+- `lmstudio:P2ERR43`：负责人 Codex，`integrated rev8`。8 种缓存错误码中文对照与真实 `kernel/mm/runtime_cache.dg` 一致；正式独立复验 `9868d94f74e745a38c6bb924ee380ae3`，1 项通过、零 skip，源码稳定且进程退出。
+- 四项契约及错误数据负控测试通过。两项各自数据/交付已真实移交并复算 SHA，与正式复验指纹一致；旧失败与改派历史保留。稳定 ID 的 lmstudio 前缀不代表当前负责人。
+- DeepSeek 的这两项未完成任务已清结；下方“DeepSeek已领取／待验收”等为历史记录。P2 整体仍 partial，后续仍为 C/D 实际接线及客体证据、暖 PCID 实际复用与物理 WC 验证；本次数据交付不替代这些阶段门。
+
+交付：`lmstudio-works/deliveries/P2VEC42.md`、`lmstudio-works/deliveries/P2ERR43.md`。状态以协调器最新 rev 为准。
+
+---
+
+2026-10-24T17:25:08+08:00 P2接续完成一个组件：P2LEDGER44已独立验收并集成rev9；正式六组9tests/0skip，source_stable且进程停止/退出。真实memory+paging账本在debug/release合计20正常场景与10真坏Dong拒绝；R1完整runtime7 release构建339输入、99暂存内核源、7产物SHA一致，kernel=1,978,768B，2MiB窗口余118,384B。P2REG45亦integrated6，旧启动/桌面回归夹具正式2tests/0skip。未执行新镜像客体运行，P2整体仍partial：下一步C/D实际接线及客体正负证据，另有暖PCID实际复用和无真机条件下的物理WC待验。DeepSeek继续本人P2VEC42，P2ERR43依赖前项验收。
+证据：coordination/dongos_works/reviews/2026-10-24-P2-ledger-verification.json、2026-10-24-P2-ledger-native.json、2026-10-24-P2-ledger-build.json；契约：code/docs/p2-framebuffer-ledger.md。以下为历史检查点。
+
+2026-10-24 17:17 +08:00 P2：P2REG45已integrated rev6（两项旧回归夹具独立2tests/0skip）。P2LEDGER44已实现独立授权账本并submitted rev6，R1补HHDM溢出前置拒绝，正式冻结作业85481e0d327745dab512a9a646576cf5运行中，尚未验收/集成。前轮本机18正常+10真坏源通过；原正式作业主动取消，不算通过。R1前runtime7构建成功（kernel 1,978,768B），R1同源构建进行中。DeepSeek已领取P2VEC42 rev7，P2ERR43待前项验收；不抢占其文件。P2整体仍partial，C/D实际接线、warm-PCID与真机WC保持待验。
+
+2026-10-24 最新改派：按用户要求，LM Studio运行已取消并停止；P2VEC42（rev6）与P2ERR43（rev2）负责人均已改为DeepSeek，状态todo待Harness领取。保留稳定ID lmstudio:P2VEC42/lmstudio:P2ERR43及原write_paths，前缀不代表当前负责人；先完成P2VEC42独立验收，再执行依赖项P2ERR43。独立测试仍由Codex维护。P2LEDGER44保留Codex负责，尚未实施。
+
+2026-10-24 P2接续：L3/L3A完整纯ELF矩阵已完成。P2仍partial；ROOT13/PCID12/WC14/EXEC19/CACHE20/RAW38/OBS36/LARGE16均已集成。当前剩独立GOP授权账本（P2LEDGER44已发布未实施）、C/D实际接线、暖PCID实际复用证据及真机WC。LM Studio按单并发执行P2VEC42边界向量，随后P2ERR43错误码对照；Codex编写的独立校验门P2LMTEST41已integrated rev6（4tests/0skip）。数据交付不能替代生产/客体验收。以下均为历史检查点，状态以协调器最新rev为准。
+
 # DongOS 整体任务图
+
+## 当前完成状态（2026-10-24T16:26:44+08:00）
+
+2026-10-24 L3完成：L3ELFMATRIX1 已独立验收并集成本地主线 main 工作树（integrated rev6）。正式作业 ed37c79515f94c87a488e538ea6ba20d：51项/27组全部通过、零skip，963.657秒，source_stable及进程停止/退出均确认。148份目标ELF、166次实际观察运行和六类错误源码通过独立产物审计；157主目录源码与复验一致，G6的456源仍逐字绑定已验收的2,062,984字节编译器。因此L3/L3A剩余纯ELF矩阵门关闭，整体状态更新为complete。
+
+完成回执：code/docs/l3-pure-elf-matrix.md；永久机器可读证据：coordination/dongos_works/reviews/2026-10-24-l3-closure.json。后续按既定顺序回到P2/P5；本次没有执行Git提交、推送或关机。下方“待验证/partial”等为历史检查点。
+
+2026-10-24 最新：L3ENC1、G6ENC1 均 integrated rev6。编码扩展正式4项零skip（486.25秒），G6正式15项零skip（0.813秒），源码稳定且进程退出。XMM/movdqu、32/64位原子和后端受限asm编码已实现；1017条字节对照及两模式真实纯ELF执行通过。新编译器2,062,984字节、源码494,247字节，fresh固定点与实际同盘两启通过；独立965+965原始转储、FAT/退休页审计通过，主目录456源与运行冻结输入一致。L3仍partial：剩完整语言矩阵通过纯ELF路径的覆盖验证，不再将上述编码缺口或新版G6列为待开发。证据见 coordination/dongos_works/codex-works/reviews/2026-10-24-G6-encoding.md/json；下方旧状态保留为历史。
+
+## L3接续（2026-10-24）
+
+最新：L3ENC1 integrated rev6，正式4项零skip/486.25秒，独立源码稳定；主目录生产与测试指纹匹配。G6ENC1 in_progress rev2，开始新版fresh固定点及客体复验；源码包494,247字节。此处未宣称新G6或完整L3通过。
+
+L3ENC1 submitted rev3，独立四项复验运行中；补齐内建assembler中后端实际生成的XMM、原子、受限asm编码。预检及补完整目标runtime后的纯ELF执行已通过，但尚未登记验收。下方G6成功仍属旧冻结源码，新编译器固定点预算和客体门待复验。没有把编码子项或旧G6外推为整个L3完成。
+
+## 最新优先级：先 L3，再接续 P2/P5（2026-10-23）
+
+最终检查点：G6RUN2 已独立验收并集成 rev6。真实同盘双启 run-b54a8a8d615b 全部通过，离线独审每启961原始文件、冻结输入、FAT固定点与128页退休清零；正式15项零skip复验通过。G6WAIT2/G6POOL1修复分别已集成rev6，G6DOC1集成rev8。L3当前G6门已关闭，更广L3A纯ELF覆盖仍未完成，继续优先于P2/P5。详情见 codex-works/reviews/2026-10-23-G6-current-run.md/json。以下“正在/待验”为本轮历史过程；尚未推送，不关机。
+
+接续实测：G6WAIT2 驱动计时等待已独立复验并集成 rev6；fresh 镜像的编译与服务退出成功，但旧检查器静态池假设导致原 run-662c6cec8a01 整体失败，700 个原始文件审计留存。G6POOL1 已以20项零skip正式复验并集成 rev6，严格验证当前构建的动态块服务池；正在冻结检查器上重新执行同盘双启动。G6RUN2 仍在途，尚未验收；L3A 更广纯ELF仍待完成。
+
+用户要求比较剩余工作并先完成较少的一组。按实际阶段门禁归组，L3剩新G6客体回归、L3A更广纯ELF覆盖两组；P2剩framebuffer账本、C/D接线、独立warm-PCID三组软件工作，另有物理WC真机待验。组数不是工时估算或任务卡数量。先恢复L3，G6DOC1已通过15项零skip独立复验并集成rev8；G6RUN2 in_progress rev2，正在当前冻结源码上全新构建；G5及历史L3C不重复开发。当前12个内核/构建文件相对G6PREP1快照有变化，后续G6必须fresh构建，不外推旧准备证据。
+
+## 当前结果：OBS/B 已独立验收并本地集成（2026-10-23）
+
+协调服务已恢复。P2OBS36 integrated rev37、P2LARGE16 integrated rev68：正式复验110/65项、零skip；同一R15冻结版本的正常、漏AP刷新、flush返回错误三场景各实际双启动，严格回放和独立raw审计全部通过。六启分别核对1930/1894、979/1087、981/980文件，owned进程均退出0，无PFLASH错误。主目录12/18个声明文件均匹配正式指纹后，分别登记accepted和integrated。
+
+负控证据已补齐；正常wire1采集干扰失败和此前启动/oracle失败仍保留，未放宽客体期限。详情见 `reviews/2026-10-23-P2OBS36-P2LARGE16-R15-review.md` 及同目录evidence.json。下方接续块为历史过程。P2其余ledger、C/D和独立warm-PCID消费者任务、P5及物理WC真机待验仍保留；本项内后续PCID检查通过不替代其他任务。本地新进展尚未推送，不关机。
+
+## 最新复验接续：R15（2026-10-23）
+
+补充：同源 `omit-r15-wire1` 已通过原runner实际双启动和严格回放。独立raw审计分别闭合979/1087文件，确认动态漏刷命中、AP1 stale-A而实际映射B、reader未ACK及旧2MiB保持；两个QEMU正常退出，无PFLASH错误。结果SHA256 `b021868d2ebbf6e21771c926c05940554c1935a875f98baeda531101506780a4`。两类负控已补齐，正在核对同源正常双启动；最终验收/集成尚未登记。
+
+P2LARGE16 R15 已 submitted rev66，正式作业 `4363ad07fc1145dbba775a2d817710b6` 通过65项、零skip，源码稳定且执行进程退出；三类镜像均从冻结源码构建。OBS R9 保持 submitted rev35，正式110项通过。两任务尚未登记验收/集成。
+
+R15 的 `flush-error-r15-wire3` 已通过原runner实际双启动及独立严格回放；AP1实际flush返回0、注入返回1，两轮均形成同事务失败持有且旧2MiB保持。独立原始审计分别闭合981/980个文件，两个QEMU正常退出，无PFLASH错误。此前两次启动未在原90秒内出现P1_START，失败归档保留；生产等待期限未修改。当前继续同源漏刷负控和正常双启动，尚不以返回错误负控代替stale-A漏刷验收。P2其余软件工作、P5及物理WC真机待验项仍保留。
+
+## 最新接续：协调服务恢复与负控证据（2026-10-23）
+
+用户关机后重新要求继续，协调服务已恢复并经MCP核对：P2OBS36 submitted rev31，正式110项零skip通过；P2LARGE16 R12 submitted rev55，作业 `e4ee7de582284b38b40e504e5d7f1e6e` 于北京时间16:09:39完成57项零skip，源码稳定、执行进程退出。两任务均未accepted/integrated。
+
+后续P2LARGE16已按R13返修并领取，当前in_progress rev57：新增动态命中记录、独立flush-return-error用例及完整代码范围绑定。早期独立检查通过12个ELF/COFF汇编对象及安全记录发布器C探针；这些不是R13完整复验或实际来宾验收。R13仍在实现与审查，尚未冻结、运行正式复验或新实际双启动。
+
+R13首轮独立兼容预检157项出现B夹具字符串转整数错误及OBS反控同tick无篡改问题，两项均已定位并修正。第二轮157项/7.306秒/零skip通过，四实现文件前后SHA一致；原50个B测试全部保留，新增7个。OBS仅反控改为sealed_ns-1，生产不变，R9 submitted rev34，本机110项通过。两任务均待新正式复验，不沿用旧轮次通过结果宣称新代码验收。
+
+随后OBS R9正式作业 `0553d178506e4026bec83d2adc021e7c` 通过110项、零skip、源稳定、进程退出，当前submitted rev35。B R13全部六路径冻结、submitted rev58，正式作业 `cd564952ad754918b1e70d44693da265` 正在运行64项及三镜像构建。新源actual双启动尚未进行，两任务尚未accepted/integrated。
+
+B R13随后正式64项全部通过、三镜像完成、零skip/源稳定/进程退出。首轮error实际记录完整AP1 real0→1及同事务Hardware，但AP2/3历史requested先于当前发布，旧相等断言拒绝；R14修正该单调历史关系但未单独执行复验。omit实际完整命中且观察到AP1 stale-A/PTE-B、reader未ACK、旧2MiB逐字节保持，独立978文件scoped审计闭合；原runner仍因metrics.failed=1与旧强制0规则矛盾拒绝。两次原result仍false，owned进程退出0、输入稳定、无PFLASH错误。现R15 in_progress rev64：保留R14并只在严格首Failure归因后允许omit的预期failed指标，normal/legacy门不变；待新正式复验及实际双启动，不提前验收。证据详见 `code/build/test/p2-historical36-review/b-r13-omit-wire1-stale-scoped-raw.json`。
+
+此前OBS R8/B R11冻结源的正常实际双boot、严格回放及独立raw审计通过；omit负控读到新值，未形成原stale门，后来无关超时不算通过。R12已修负控owner完成后立即失败退出，避免继续重复采样混入无关故障。本轮继续动态skip命中记录与独立flush-return-error负控，保持原stale要求和guest期限；新增负控不替代旧负控。P2剩余ledger/C-D/warm-PCID、P5及物理WC真机门尚未关闭。详见工作区 `UPLOAD_CHECKPOINT.md`；下述较早状态为历史记录。
 
 ## P2 优先，随后 P5（2026-10-23T02:55:00+08:00）
 

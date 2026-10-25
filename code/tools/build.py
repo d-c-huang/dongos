@@ -119,7 +119,9 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
           permission_case: str | None = None, runtime_level: int = 0,
           ipc_rounds: int = 1_000_000, smp_case: str | None = None,
           graphics_case: str | None = None, desktop_scale: int = 100,
-          compiler_job: bool = False) -> Path:
+          compiler_job: bool = False, usb_only: bool = False) -> Path:
+    if type(usb_only) is not bool or usb_only and (runtime_level != 7 or compiler_job or test):
+        raise ToolError('USB-only profile requires a normal runtime7 desktop build')
     if compiler_job and (runtime_level!=5 or stage!='p1' or cpu_case or memory_case or permission_case):
         raise ToolError('compiler job profile requires isolated P5')
     if desktop_scale not in (100,125,150,175,200) or (desktop_scale!=100 and runtime_level!=7):
@@ -160,6 +162,13 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
     fingerprints=lambda:{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in input_paths}
     inputs_before=fingerprints()
     if input_paths:(output/'source-before.json').write_text(json.dumps(inputs_before,indent=2)+'\n')
+    usb_profile = None
+    services_source_root = ROOT / 'services'
+    if usb_only:
+        from tools.usb_only_profile import generate as generate_usb_profile
+        services_source_root, usb_profile = generate_usb_profile(output)
+    def service_source(path):
+        return services_source_root / Path(path).relative_to('services')
     objects = []
     if stage == "p1":
         # Import only when building P1, so the P0 baseline remains independent.
@@ -170,7 +179,7 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
         elf_linker = find_tool("ld.lld", "LD_LLD")
         generated = output / "dong_probe.asm"
         layout_path = output / "dong_layout.json"
-        service_roots = ["--root", str(ROOT / "services")] if runtime_level >= 4 else []
+        service_roots = ["--root", str(services_source_root)] if runtime_level >= 4 else []
         # Production service kernels use the checked release backend to keep
         # the existing 2MiB image envelope. Isolated diagnostic probes retain
         # debug instrumentation; both modes remain native-tested.
@@ -232,7 +241,11 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
                     executable=target/'program.elf'
                     execute([elf_linker,'-pie','--no-dynamic-linker','-z','norelro','--build-id=none','-T',str(ROOT/'services/lib/service.ld'),'-o',str(executable),*map(str,items)])
                 else:
-                    executable = build_service(ROOT / path, output / "services" / name)
+                    if usb_only:
+                        executable = build_service(service_source(path), output / "services" / name,
+                                                   services_root=services_source_root)
+                    else:
+                        executable = build_service(ROOT / path, output / "services" / name)
                 programs.append((name, ELF, executable.read_bytes()))
             if runtime_level >= 7:
                 for name,path in (("compositor","services/desktop/service.dg"),("input","services/drivers/input_service.dg"),
@@ -242,7 +255,11 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
                                   ("fs-reader","services/apps/fs_reader.dg"),("xhci","services/drivers/xhci_service.dg"),
                                   ("terminal","services/apps/gui_terminal.dg"),("files","services/apps/gui_files.dg"),
                                   ("editor","services/apps/gui_editor.dg"),("settings","services/apps/gui_settings.dg")):
-                    executable=build_service(ROOT/path,output/"services"/name)
+                    if usb_only:
+                        executable=build_service(service_source(path),output/"services"/name,
+                                                 services_root=services_source_root)
+                    else:
+                        executable=build_service(ROOT/path,output/"services"/name)
                     programs.append((name,ELF,executable.read_bytes()))
                 for font_pixels in (16,20,24,28,32):
                     programs.append((f"font{font_pixels}",DATA,(ROOT/f"assets/fonts/dong-cjk-sc-{font_pixels}.dgfont").read_bytes()))
@@ -319,8 +336,11 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
             kernel_objects.append(assemble(ROOT / "kernel/user/shared_barrier.asm", output,
                                            fmt="elf64", test=test, stage=stage, defines=defines))
         if runtime_level >= 5:
+            # user.services imports the B/C/D owners for every runtime>=5
+            # graph, so each privileged reader is linked exactly once here.
             for source in ("parallel", "parallel_probe", "parallel_live", "user_entry", "user_arch",
-                           "user_bridge_arch", "user_legacy", "user_boot", "runtime_large_reader"):
+                           "user_bridge_arch", "user_legacy", "user_boot", "runtime_large_reader",
+                           "runtime_exec_reader", "runtime_cache_reader"):
                 kernel_objects.append(assemble(ROOT / ("kernel/sched/" + source + ".asm"), output,
                                                fmt="elf64", test=test, stage=stage, defines=defines))
         if memory_case == "cache-unmap":
@@ -385,6 +405,10 @@ def build(*, test: bool = False, stage: str = "p1", cpu_case: str | None = None,
             source_unchanged=inputs_before==after,source_sha256=after,
             artifacts={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in
                 (output/'kernel.bin',output/'kernel.elf',esp/'DONGOS.IMG',esp/'EFI/BOOT/BOOTX64.EFI',*((esp/'SERVICES.BIN',output/'kernel-optimization.json',profile_root/'build/storage_profile.dg') if runtime_level>=5 else ()))})
+        if usb_only:
+            from tools.usb_only_profile import verify as verify_usb_profile
+            verify_usb_profile(output, usb_profile)
+            manifest['usb_only_profile'] = usb_profile
         (output/'build-inputs.json').write_text(json.dumps(manifest,indent=2)+'\n')
         if inputs_before!=after:raise ToolError('Build inputs changed during compilation; retained artifacts are not accepted')
     print(f"Built {boot_dir / 'BOOTX64.EFI'}", flush=True)
@@ -455,6 +479,7 @@ def main() -> int:
                         help="0: diagnostic; 3: threads; 4: IPC; 5: storage shell; 6: APs and TLB domain; 7: desktop integration")
     parser.add_argument("--ipc-rounds", type=int, default=1_000_000)
     parser.add_argument('--compiler-job',action='store_true',help='P5 isolated pure compiler/controller profile')
+    parser.add_argument('--usb-only',action='store_true',help='normal runtime7 with USB-only storage authority')
     parser.add_argument("--headless", action="store_true", help="hide the QEMU display")
     parser.add_argument("--accel", choices=["tcg", "kvm", "whpx"], default="tcg")
     args = parser.parse_args()
@@ -475,7 +500,8 @@ def main() -> int:
                 execute([sys.executable, str(ROOT / "tests/run_acpi_qemu.py"), "--all"])
                 execute([sys.executable, str(ROOT / "tests/run_runtime_qemu.py"), "--all"])
             return 0
-        esp = build(stage=args.stage, runtime_level=args.runtime_level, ipc_rounds=args.ipc_rounds,compiler_job=args.compiler_job)
+        esp = build(stage=args.stage, runtime_level=args.runtime_level, ipc_rounds=args.ipc_rounds,
+                    compiler_job=args.compiler_job,usb_only=args.usb_only)
         if args.action in ("run", "debug"):
             if args.action == "debug":
                 print("QEMU paused; connect GDB with: target remote localhost:1234", flush=True)

@@ -4,6 +4,9 @@ pub const OK:u64=0;pub const INVALID:u64=1;pub const CAPACITY:u64=2;
 pub const NONE:u64=0;pub const RR:u64=1;pub const RI:u64=2;pub const LOAD:u64=3;pub const STORE:u64=4;pub const MEM:u64=5;pub const REG:u64=6;pub const REL:u64=7;pub const INDEX:u64=8;
 pub const MOV:u64=1;pub const ADD:u64=2;pub const SUB:u64=3;pub const AND:u64=4;pub const OR:u64=5;pub const XOR:u64=6;pub const CMP:u64=7;pub const TEST:u64=8;pub const LEA:u64=9;pub const MOVZX:u64=10;pub const MOVSX:u64=11;pub const MOVSXD:u64=12;pub const NEG:u64=13;pub const NOT:u64=14;pub const MUL:u64=15;pub const DIV:u64=16;pub const IDIV:u64=17;pub const IMUL:u64=18;pub const SHL:u64=19;pub const SHR:u64=20;pub const SAR:u64=21;pub const SETCC:u64=22;pub const PUSH:u64=23;pub const POP:u64=24;pub const CALL:u64=25;pub const JMP:u64=26;pub const JCC:u64=27;pub const CQO:u64=28;pub const RET:u64=29;pub const UD2:u64=30;pub const CLD:u64=31;pub const STD:u64=32;pub const MOVSB:u64=33;pub const STOSB:u64=34;pub const SYSCALL:u64=35;
 pub const RIP:u64=16;
+pub const MOVDQU:u64=36;pub const LOCK_CMPXCHG:u64=37;pub const LOCK_XADD:u64=38;
+pub const PAUSE:u64=39;pub const INT3:u64=40;pub const LFENCE:u64=41;pub const SFENCE:u64=42;pub const MFENCE:u64=43;
+pub const XCHG:u64=44;pub const CLI:u64=45;pub const STI:u64=46;pub const HLT:u64=47;
 pub struct Instruction{pub op:u64,pub form:u64,pub width:u64,pub dst:u64,pub src:u64,pub base:u64,pub disp:u64,pub imm:u64,pub src_width:u64,pub cc:u64,pub reserved:u64}
 const MAX:u64=0xffff_ffff_ffff_ffff;
 fn span(p:u64,n:u64)bool{return n==0||(p!=0&&n<=MAX-p);}
@@ -33,7 +36,7 @@ fn group(op:u64)u64{if op==ADD{return 0;}if op==OR{return 1;}if op==AND{return 4
 // Internal encoder only touches its private 15-byte scratch. Zero means invalid.
 unsafe fn build(b:[]u8,p:*const Instruction,compact:bool)usize{unsafe{
  let o=(*p).op;let f=(*p).form;let w=(*p).width;let d=(*p).dst;let s=(*p).src;let base=(*p).base;
- if (*p).reserved!=0||o<MOV||o>SYSCALL||f>INDEX{return 0;}
+ if (*p).reserved!=0||o<MOV||o>HLT||f>INDEX{return 0;}
  if o!=SETCC&&o!=JCC&&(*p).cc!=0{return 0;}
  if o!=MOVZX&&o!=MOVSX&&o!=MOVSXD&&(*p).src_width!=0{return 0;}
  if f!=RI&&f!=REL&&f!=INDEX&&(*p).imm!=0{return 0;}
@@ -53,7 +56,29 @@ unsafe fn build(b:[]u8,p:*const Instruction,compact:bool)usize{unsafe{
   b[0]=rex as u8;b[1]=0x8d;b[2]=(mod|4|((d&7)<<3))as u8;b[3]=((ss<<6)|((s&7)<<3)|(base&7))as u8;
   return put(b,4,(*p).disp,bytes);
  }
- if o>=CQO{
+ if (o>=PAUSE&&o<=MFENCE)||o>=CLI{
+  if f!=NONE||w!=0{return 0;}
+  if o==CLI{b[0]=0xfa;return 1;}if o==STI{b[0]=0xfb;return 1;}if o==HLT{b[0]=0xf4;return 1;}
+  if o==PAUSE{b[0]=0xf3;b[1]=0x90;return 2;}
+  if o==INT3{b[0]=0xcc;return 1;}
+  b[0]=0x0f;b[1]=0xae;b[2]=0xe8;if o==SFENCE{b[2]=0xf8;}else if o==MFENCE{b[2]=0xf0;}return 3;
+ }
+ if o==MOVDQU||o==LOCK_CMPXCHG||o==LOCK_XADD||o==XCHG{
+  if base>RIP||!i32fits((*p).disp)||d>15||s>15{return 0;}
+  var r=s;var opcode:u64=0;
+  if o==MOVDQU{
+   if w!=128||(f!=LOAD&&f!=STORE){return 0;}
+   b[0]=0xf3;opcode=0x7f;if f==LOAD{r=d;opcode=0x6f;}
+  }else{
+   if f!=STORE||(w!=32&&w!=64){return 0;}
+   b[0]=0xf0;opcode=0xb1;if o==LOCK_XADD{opcode=0xc1;}
+  }
+  var rex:u64=0x40;if o!=MOVDQU&&w==64{rex=rex|8;}if r>=8{rex=rex|4;}if base>=8&&base<16{rex=rex|1;}
+  var n:usize=1;if o==XCHG{n=0;}if rex!=0x40{b[n]=rex as u8;n+=1;}
+  if o==XCHG{b[n]=0x87;return modrm(b,n+1,r,base,true,(*p).disp,compact);}
+  b[n]=0x0f;b[n+1]=opcode as u8;return modrm(b,n+2,r,base,true,(*p).disp,compact);
+ }
+ if o>=CQO&&o<=SYSCALL{
   if f!=NONE||w!=0{return 0;}
   if o==SYSCALL{b[0]=0x0f;b[1]=0x05;return 2;}
   if o==CQO{b[0]=0x48;b[1]=0x99;return 2;}

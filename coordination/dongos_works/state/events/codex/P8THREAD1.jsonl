@@ -1,0 +1,9 @@
+{"at":"2026-10-25T09:43:26+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:43:26+00:00","data":{"claimed_at":"2026-10-25T09:43:26+00:00","claimed_by":"codex-mcp-14619bbd432c41a6","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:50:46+00:00","data":{"claimed_at":"2026-10-25T09:43:26+00:00","claimed_by":"codex-mcp-14619bbd432c41a6","completed_at":"2026-10-25T09:50:46+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:51:33+00:00","data":{"job":"b5fbb6268a394c98865545bfd2d50fca","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:51:34+00:00","data":{"job":"b5fbb6268a394c98865545bfd2d50fca"},"kind":"verification_started","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:51:43+00:00","data":{"rev":4,"status":"submitted"},"kind":"verified","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:51:43+00:00","data":{"job":"b5fbb6268a394c98865545bfd2d50fca","status":"completed"},"kind":"job_finished","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:52:12+00:00","data":{"rev":5,"status":"accepted"},"kind":"accept","task_id":"codex:P8THREAD1"}
+{"at":"2026-10-25T09:52:19+00:00","data":{"rev":6,"status":"integrated"},"kind":"integrate","task_id":"codex:P8THREAD1"}

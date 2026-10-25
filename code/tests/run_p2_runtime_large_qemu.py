@@ -31,6 +31,44 @@ LEGACY_OBSERVATION = 'legacy-idle-v1'
 KERNEL_OBSERVATION = 'current-kernel-v2'
 PCID_LOCK_FREE = raw.LOCK_FREE
 PCID_CURRENT_OWNER = raw.CURRENT_OWNER
+FAULT_CONTRACT = build.FAULT_CONTRACT
+FLUSH_ERROR = 'flush-return-error'
+RECEIPT_FIELDS = ('magic publish argument_cpu actual_cpu domain window sequence barrier completed requested '
+                  'ack_before cr3 cr4 rflags real_result returned_result').split()
+FAILURE_FIELDS = ('published version cpu argument_cpu entry vector stage error_code detail_code clock '
+                  'domain_available domain sequence owner lock mode requested acknowledged barrier completed '
+                  'published_kernel_root raw_root_available raw_root normalized_root_available normalized_root '
+                  'wait_started deadline acquired').split()
+
+
+def saved_fault_contract(result):
+    check(result.get('fault_contract') == FAULT_CONTRACT, 'missing/old fault observation contract; use immutable original runner')
+    for item in result.get('boots', []):
+        check(item.get('fault_contract') == FAULT_CONTRACT, 'mixed boot fault observation contract')
+    if 'seal' in result:
+        check(result['seal'].get('fault_contract') == FAULT_CONTRACT, 'mixed seal fault observation contract')
+        for item in result['seal'].get('boots', []):
+            check(item.get('fault_contract') == FAULT_CONTRACT, 'mixed boot seal fault observation contract')
+
+
+def resident_code_ranges(contract):
+    result = {name: 64 for name in ('runtime_large_environment', 'runtime_large_load',
+              'runtime_large_window', 'runtime_large_digest', 'runtime_large_test_omit')}
+    if contract.get('fault_contract') == FAULT_CONTRACT:
+        for name in ('runtime_large_test_omit', 'runtime_large_test_record', 'runtime_large_test_publish', 'user_smp_arch_flush'):
+            end = 'user_smp_arch_switch' if name == 'user_smp_arch_flush' else name + '_end'
+            size = contract['symbols'][end] - contract['symbols'][name]
+            check(3 <= size <= 4096, 'invalid complete fault function symbol boundary')
+            result[name] = size
+    return result
+
+
+def resident_code_bytes(contract, name, length):
+    expected = elf_bytes(contract['esp'], contract['symbols'][name], length)
+    if contract.get('fault_contract') == FAULT_CONTRACT and name in (
+            'runtime_large_test_omit', 'runtime_large_test_record', 'runtime_large_test_publish', 'user_smp_arch_flush'):
+        check(len(expected) == length, 'complete fault function crosses/truncates its executable ELF segment')
+    return expected
 
 
 def observation_profile(value=LEGACY_OBSERVATION, *, negative=False):
@@ -108,18 +146,27 @@ def layout_contract(esp):
              'user.services.LargeStorage', 'user.services.LargeTicket', 'user.memory.RootSnapshot',
              'boot.memory_startup.Workspace', 'sched.multicore.Engine', 'mm.phys_buddy.Allocator',
              'mm.phys_buddy.PageMeta', 'smp.large_memory.Report', 'sched.multicore.Cpu', 'sched.multicore.Thread',
-             'boot.abi.BootInfo']
+             'boot.abi.BootInfo', 'sched.user_domain.Domain', 'sched.user_domain.Cpu', 'sched.user_bridge.Failure']
     selected = {n: types[n] for n in names}
     check(types[names[1]]['size'] == 232 and types[names[2]]['size'] == 152
           and types['sched.user_domain.Domain']['size'] == 120 and types['sched.user_domain.Cpu']['size'] == 120,
           'source-bound native ABI differs')
     offsets = {n: {f['name']: f['offset'] for f in types[n]['fields']} for n in names}
+    for name, fields in [('sched.user_domain.Domain', 'ready failed lock owner online sequence barrier expected completed kernel_root engine cpus processes arena bytes'.split()),
+                         ('sched.user_domain.Cpu', 'mode token incarnation slot captured_token captured_incarnation captured requested acknowledged capture capture_xstate returned return_xstate return_root seen'.split()),
+                         ('sched.user_bridge.Failure', FAILURE_FIELDS)]:
+        check(types[name]['size'] == len(fields) * 8 and offsets[name] == {n: i * 8 for i, n in enumerate(fields)},
+              'fault sampling native layout differs: ' + name)
+    source_record = json.loads((esp.parent.parent / 'runtime-large-source.json').read_text(encoding='utf-8'))
+    check(source_record.get('fault_contract') == FAULT_CONTRACT and source_record.get('case') in build.CASES,
+          'old/unbound fault build contract')
     check(offsets[names[1]] == {n: i * 8 for i, n in enumerate(FIELDS)}, 'report offsets differ')
     check(types['boot.abi.BootInfo']['size'] == 160 and all(
           offsets['boot.abi.BootInfo'].get(name) == offset for name, offset in
           (('magic', 0), ('version', 8), ('size', 16), ('kernel_physical', 120))),
           'source-bound BootInfo layout ABI differs')
     return dict(types=selected, offsets=offsets, symbols=symbols, esp=str(esp), static_pools=static_pools,
+        fault_contract=FAULT_CONTRACT, fault_case=source_record['case'],
         storage_symbol=symbols[pcid.storage.symbol('user.services', 'LARGE_STORAGE')],
         context_symbol=symbols[pcid.storage.symbol('user.services', 'RUNTIME_LARGE')],
         request_symbol=symbols[pcid.storage.symbol('user.services', 'LARGE_REQUESTED')],
@@ -157,10 +204,13 @@ def decode_readers(data):
     return readers
 
 
-def validate_readers(report, readers, metrics, *, negative=False, require_pcid=False):
+def validate_readers(report, readers, metrics, *, negative=False, require_pcid=False, validated_failed_metrics=None):
     check(report['online'] == 15 and len(readers) == 16 and len(metrics) == 4, 'actual four-reader topology differs')
+    failed = (0, 0, 0, 0) if validated_failed_metrics is None else validated_failed_metrics
+    check(type(failed) is tuple and len(failed) == 4 and all(type(v) is int and v in (0, 1) for v in failed)
+          and (negative or failed == (0, 0, 0, 0)), 'failed metrics lack validated negative attribution')
     for cpu in range(4):
-        check(metrics[cpu][5] == 0 and (cpu == 0 or all(metrics[cpu][i] > 0 for i in (0, 2, 3))),
+        check(metrics[cpu][5] == failed[cpu] and (cpu == 0 or all(metrics[cpu][i] > 0 for i in (0, 2, 3))),
               'AP lacked actual user switch/timer/entry before owner')
         r = readers[cpu]
         phases = ('warm', 'replaced') if negative and cpu == 1 else ('warm', 'replaced', 'restored', 'merged')
@@ -244,6 +294,7 @@ class LargeGuest(pcid.PcidGuest):
         self.resume()
         image.initialize()
         contract = layout_contract(image.esp)
+        contract['esp'] = str(image.esp)
         capture, parts = pcid.Capture(image), {}
 
         def get(name, address, length):
@@ -277,6 +328,9 @@ class LargeGuest(pcid.PcidGuest):
         boot = raw.words(get('boot_report', info, 80), 10)
         domain = raw.words(get('domain', boot[5], 120), 15)
         get('cpus', domain[11], 16 * 120)
+        if contract.get('fault_contract') == FAULT_CONTRACT:
+            get('fault_receipt', contract['symbols']['runtime_large_test_receipt'], 128)
+            get('bridge_failures', contract['symbols'][pcid.storage.symbol('sched.user_bridge', 'FAILURES')], 16 * 224)
         get('processes', domain[12], 16 * 56)
         get('engine', domain[10], 12960)
         bridge_pointer = struct.unpack('<Q', get('bridge_pointer', contract['symbols'][pcid.storage.symbol('sched.user_bridge', 'ACTIVE')], 8))[0]
@@ -286,9 +340,9 @@ class LargeGuest(pcid.PcidGuest):
             get('header.' + str(cpu), header, 256)
             get('metrics.' + str(cpu), header + 5632, 192)
         code = {}
-        for name in ['runtime_large_environment', 'runtime_large_load', 'runtime_large_window', 'runtime_large_digest', 'runtime_large_test_omit']:
+        for name, length in resident_code_ranges(contract).items():
             address = contract['symbols'][name]
-            expected = elf_bytes(image.esp, address)
+            expected = resident_code_bytes(contract, name, length)
             _, code[name] = capture.physical(image.boot[15] + address - pcid.storage.KERNEL, len(expected), 'resident reader code ' + name)
         syms = contract['symbols']
         for name, size in [('SPACES', 16 * 64), ('META', 16 * 128), ('PROCESSES', 16 * 1288),
@@ -303,7 +357,7 @@ class LargeGuest(pcid.PcidGuest):
             if initialized:
                 check(count in (32, 128), 'unexpected actual private pool size')
                 _, pools[str(slot)] = capture.physical(physical, count * 4096, 'complete memory-owned private pool ' + str(slot))
-        snapshot = dict(label=label, epoch=image.epoch, parts=parts, kernel_pool=capture.pool, kernel_pool_ref=kernel_pool,
+        snapshot = dict(label=label, epoch=image.epoch, fault_contract=FAULT_CONTRACT, parts=parts, kernel_pool=capture.pool, kernel_pool_ref=kernel_pool,
                         user_pools=pools, payload=payload, registers=[image.register_ref(cpu) for cpu in range(4)],
                         boot_info_ref=image.boot_info_ref, code=code, serial_offset=image.serial_offset)
         profile = getattr(self, 'normal_observation_profile', LEGACY_OBSERVATION)
@@ -317,6 +371,8 @@ def decode(snapshot, archive, contract, *, normal_observation_profile=LEGACY_OBS
     archive.begin_snapshot(snapshot['epoch'])
     check(type(snapshot.get('serial_offset')) is int and snapshot['serial_offset'] == archive.snapshot_serial_offset,
           'runtime-large serial boundary differs from sealed capture epoch')
+    if contract.get('fault_contract') == FAULT_CONTRACT:
+        check(snapshot.get('fault_contract') == FAULT_CONTRACT, 'old/mixed snapshot fault observation contract')
     pool = snapshot['kernel_pool']
     check(pool[1] == 128 and snapshot['kernel_pool_ref']['physical'] == pool[0]
           and snapshot['kernel_pool_ref']['length'] == pool[1] * 4096, 'kernel pool provenance differs')
@@ -408,10 +464,10 @@ def decode(snapshot, archive, contract, *, normal_observation_profile=LEGACY_OBS
     bridge = raw.words(get('bridge'), 8)
     check(bridge[0] == 1 and bridge[2] == boot[5] and bridge[4] == boot[6], 'actual Bridge/domain/header set differs')
     boot_words = decode_boot_info(archive.read(snapshot['boot_info_ref']))
-    code_names = ['runtime_large_environment', 'runtime_large_load', 'runtime_large_window', 'runtime_large_digest', 'runtime_large_test_omit']
+    code_names = resident_code_ranges(contract)
     check(set(snapshot['code']) == set(code_names), 'resident reader code omitted')
-    for name in code_names:
-        address = contract['symbols'][name];expected = elf_bytes(contract['esp'], address)
+    for name, length in code_names.items():
+        address = contract['symbols'][name];expected = resident_code_bytes(contract, name, length)
         ref = snapshot['code'][name]
         check(ref['physical'] == boot_words[15] + address - pcid.storage.KERNEL and ref['length'] == len(expected)
               and archive.read(ref) == expected, 'resident kernel reader code bytes differ from the actual built ELF')
@@ -440,7 +496,17 @@ def decode(snapshot, archive, contract, *, normal_observation_profile=LEGACY_OBS
                           'private pool/parent/leaf exceeds actual hardware PA width')
         else:
             check(slot not in private and space_raw == bytes(64), 'absent private root was damaged/hidden')
-    return dict(synthetic=archive.legacy_fixture, epoch=snapshot['epoch'],
+    fault_data = {}
+    if contract.get('fault_contract') == FAULT_CONTRACT:
+        for name, symbol, length in [('fault_receipt', 'runtime_large_test_receipt', 128),
+                ('bridge_failures', pcid.storage.symbol('sched.user_bridge', 'FAILURES'), 16 * 224)]:
+            check(p[name]['virtual'] == contract['symbols'][symbol] and len(get(name)) == length,
+                  'fault raw symbol/size redirected')
+        check(p['fault_receipt']['virtual'] % 64 == 0, 'fault receipt alignment differs')
+        fault_data = dict(fault_contract=FAULT_CONTRACT, domain_address=boot[5],
+            fault_receipt=dict(zip(RECEIPT_FIELDS, struct.unpack('<16Q', get('fault_receipt')))),
+            failures=[dict(zip(FAILURE_FIELDS, struct.unpack_from('<28Q', get('bridge_failures'), cpu * 224))) for cpu in range(16)])
+    return dict(synthetic=archive.legacy_fixture, epoch=snapshot['epoch'], **fault_data,
         report=report, readers=readers, domain=domain, cpus=cpus, metrics=metrics,
         registers=registers, header_addresses=headers, data=data, pointer=pointer, payload=payload, physical=physical,
         kernel_image=image, kernel_meta=get('kernel_meta'), kernel_space=space, get=get,
@@ -568,7 +634,7 @@ def validate_authority(decoded, contract):
 
 
 def validate_pool_provenance(slot, root, pointer, pages, dynamic, dynamic_pointer, static, tables, *, static_pools):
-    check(type(static_pools) is int and 0 < static_pools <= 16, 'unbound static pool count')
+    check(type(static_pools) is int and 0 <= static_pools <= 16, 'unbound static pool count')
     if slot < static_pools:
         check(pages == 32 and root == static + slot * 32 * 4096 and pointer == tables + slot * 32 * 4096
               and dynamic == dynamic_pointer == 0, 'static pool physical provenance differs')
@@ -655,6 +721,179 @@ def validate_barrier_controls(decoded, *, negative=False, require_pcid=False,
             check(reg['CR3'] == root, 'barrier CPL0 raw kernel CR3/tag0 differs')
 
 
+def validate_fault_receipt(decoded, contract, *, case=None, require_pcid=False):
+    check(contract.get('fault_contract') == decoded.get('fault_contract') == FAULT_CONTRACT,
+          'missing/mixed decoded fault contract')
+    receipt = decoded.get('fault_receipt')
+    check(type(receipt) is dict and set(receipt) == set(RECEIPT_FIELDS)
+          and all(type(v) is int and 0 <= v < 1 << 64 for v in receipt.values()), 'invalid raw fault receipt')
+    if case is None:
+        check(all(v == 0 for v in receipt.values()), 'normal/before fault receipt is not all zero')
+        return dict(hit=False)
+    check(case in build.FAULT_MAGIC and contract.get('fault_case') == case, 'fault case differs from source build')
+    q = receipt;sequence = q['sequence']
+    check(q['magic'] == build.FAULT_MAGIC[case] and q['publish'] == 2,
+          'fault receipt missing/partial/repeated/wrong case')
+    check(q['argument_cpu'] == q['actual_cpu'] == 1 and q['window'] == 1
+          and q['domain'] == decoded['domain_address'], 'fault receipt CPU/window/Domain differs')
+    check(0 < sequence < 1 << 64 and sequence == q['barrier'] == q['requested']
+          and q['completed'] == q['ack_before'] == sequence - 1
+          and sequence <= decoded['domain'][5], 'fault receipt is not the replacement post request before ACK')
+    check(q['cr3'] == decoded['report']['root'] == decoded['domain'][9]
+          and q['cr4'] == decoded['metrics'][1][18] and not q['cr4'] & 128
+          and q['rflags'] & 2 and not q['rflags'] & 512, 'fault receipt raw kernel/IF/CR4 differs')
+    if require_pcid:check(q['cr4'] & (1 << 17), 'requested real PCID; fallback is not a pass')
+    check((q['real_result'], q['returned_result']) == (((1 << 64) - 1, 0) if case == 'omit-ap-flush' else (0, 1)),
+          'fault receipt did not omit or force the exact distinct return')
+    if decoded['report']['complete'] == 0:
+        check(sequence == decoded['report']['post_sequence'], 'fault receipt belongs to another owner transaction')
+    return dict(hit=True, case=case, sequence=sequence, real_result=q['real_result'], returned_result=q['returned_result'])
+
+
+class FaultPublicationPending(ValueError):
+    """Only the strict flush-error oracle can identify this bounded short window."""
+
+
+def validate_omit_first_failures(after, contract, *, require_pcid=False):
+    """Attribute current-contract failed metrics to this exact stale-load post."""
+    check(contract.get('fault_contract') == FAULT_CONTRACT and contract.get('fault_case') == 'omit-ap-flush'
+          and after.get('synthetic') is False, 'omit Failure attribution requires the current raw contract')
+    receipt = validate_fault_receipt(after, contract, case='omit-ap-flush', require_pcid=require_pcid)
+    r, d, cpus, metrics = after['report'], after['domain'], after['cpus'], after['metrics']
+    post, root = r['post_sequence'], r['root']
+    check(receipt['sequence'] == post == r['pre_sequence'] + 1 and r['complete'] == 0 and r['poison'] == 1
+          and r['error_code'] == 0x06090004 and r['operation'] == 3 and r['state'] == 3 and r['steps'] == 7
+          and r['barriers'] == 6 and r['reader_round'] == r['reader_sequence'] == 2 and r['expected'] == TAG | 6
+          and r['retired'] == r['reclaimed'] == 0 and d[:10] == [1, 1, 1, 0, 15, post, 0, 0, post, root]
+          and after['bridge'][1] == 1, 'omit Failure is not the precise completed replacement post')
+    failures = after.get('failures')
+    check(type(failures) is list and len(failures) == 16 and len(metrics) == 4, 'complete omit first-Failure array missing')
+    failed = []
+    for cpu, f in enumerate(failures):
+        check(type(f) is dict and set(f) == set(FAILURE_FIELDS)
+              and all(type(v) is int and 0 <= v < 1 << 64 for v in f.values()), 'omit first-Failure fields missing')
+        if cpu >= 4:
+            check(all(v == 0 for v in f.values()), 'offline omit Failure published')
+            continue
+        metric = metrics[cpu]
+        check(len(metric) == 24 and type(metric[5]) is int and metric[5] in (0, 1), 'omit failed metric is invalid')
+        failed.append(metric[5])
+        if f['published'] == 0:
+            check(cpu != 1 and metric[5] == 0 and all(v == 0 for v in f.values()), 'omit failed CPU lacks complete first Failure')
+            continue
+        check(f['published'] == 1 and f['version'] == 2 and f['clock'] > 0 and f['cpu'] == f['argument_cpu'] == cpu
+              and f['entry'] in (1, 2) and 1 <= f['stage'] <= 21
+              and f['domain_available'] == 1 and f['domain'] == after['domain_address']
+              and f['sequence'] == f['completed'] == post and f['barrier'] == 0
+              and f['owner'] == 0 and f['lock'] == 1 and f['mode'] == cpus[cpu][0]
+              and f['requested'] == f['acknowledged'] == cpus[cpu][7] == cpus[cpu][8] == post
+              and f['published_kernel_root'] == root
+              and f['raw_root_available'] == f['raw_root'] == f['normalized_root_available'] == f['normalized_root'] == 0,
+              'omit first Failure is incomplete/foreign or not the completed held post')
+        if cpu == 1:
+            check(f['error_code'] == 0x06090003 and f['detail_code'] == 0 and f['stage'] in (4, 5),
+                  'omit AP1 first Failure is not the actual stale-reader Hardware')
+        else:
+            check((f['error_code'], f['detail_code']) == (0x06090004, 0)
+                  or cpu == 0 and f['stage'] == 8 and (f['error_code'], f['detail_code']) == (0x060b0011, 0x06090004),
+                  'omit non-target Failure is not supported Held propagation')
+    return tuple(failed)
+
+
+def validate_flush_return_error(before, after, contract, *, require_pcid=False, **unused):
+    """A distinct injected return failure; it never certifies a stale load."""
+    check(contract.get('fault_case') == FLUSH_ERROR, 'flush-return-error differs from actual build')
+    check(before.get('synthetic') is after.get('synthetic') is False and before['report']['attempted'] == 0
+          and before['requested'] is False and after['requested'] is True, 'unbound flush-error before/after')
+    check(before['physical'] == after['physical'] and before['payload'] == after['payload'], 'old held block changed byte-for-byte')
+    validate_fault_receipt(before, contract)
+    receipt = validate_fault_receipt(after, contract, case=FLUSH_ERROR, require_pcid=require_pcid)
+    r, d, cpus = after['report'], after['domain'], after['cpus']
+    pre, post, root = r['pre_sequence'], r['post_sequence'], r['root']
+    check(r['version'] == r['attempted'] == 1 and r['physical'] == after['physical']
+          and root == raw.words(after['kernel_space'], 8)[3], 'flush-error owner/kernel/lease identity differs')
+    check(type(pre) is int and 0 < pre < (1 << 64) - 1 and post == pre + 1 == receipt['sequence'], 'flush-error post differs')
+    check(r['complete'] == 0 and r['poison'] in (0, 1)
+          and r['error_code'] == (0x06090004 if r['poison'] else 0)
+          and r['operation'] == 3 and r['state'] == 3 and r['steps'] == 3
+          and r['barriers'] == 5 and r['retired'] == r['reclaimed'] == 0 and r['online'] == 15
+          and r['tables_after'] == r['tables_before'] + 1 and len(cpus) == len(after['readers']) == 16
+          and len(after['metrics']) == len(after['registers']) == 4,
+          'flush error did not retain the precise unfinished replacement')
+    check(d[0] == 1 and d[1] in (0, 1) and d[2:5] == [1, 0, 15] and d[5:10] == [post, post, 15, pre, root]
+          and cpus[0][0] == 5 and all(cpus[cpu][0] in (1, 4) for cpu in (1, 2, 3))
+          and after['bridge'][1] in (0, 1), 'flush-error did not remain CPU0-held with incomplete target post')
+    publishing = not (r['poison'] and d[1] and after['bridge'][1])
+    check(cpus[1][7:9] == [post, pre], 'failed AP1 incorrectly acknowledged the flush')
+    failures = after.get('failures')
+    check(type(failures) is list and len(failures) == 16, 'complete first-Failure array missing')
+    for cpu in range(4):
+        req, ack = cpus[cpu][7:9];reg = after['registers'][cpu];metric = after['metrics'][cpu];f = failures[cpu]
+        check(req in (pre, post) and ack in (pre, post) and ack <= req, 'flush-error foreign/future ACK')
+        check(reg['CS'] & 3 == 0 and reg['CR3'] == root and reg['CR4'] == metric[18]
+              and not reg['CR4'] & 128 and metric[5] in (0, 1), 'flush-error CPU hardware/failed metric differs')
+        if require_pcid:check(reg['CR4'] & (1 << 17), 'requested real PCID; fallback is not a pass')
+        check(type(f) is dict and set(f) == set(FAILURE_FIELDS)
+              and all(type(v) is int and 0 <= v < 1 << 64 for v in f.values()), 'first-Failure fields missing')
+        # barrier_begin may publish AP2/3 requested after their first Held was recorded.
+        requested_matches = (f['requested'] in ((pre, post) if cpu in (2, 3) else (req,))
+                             and f['requested'] <= req)
+        if f['published'] == 0:
+            check(all(v == 0 for v in f.values()) and metric[5] == 0, 'failed CPU lacks first Failure')
+            publishing |= cpu == 1
+            continue
+        if f['published'] == 2:
+            expected = dict(version=2, cpu=cpu, argument_cpu=cpu, domain_available=1, domain=after['domain_address'],
+                sequence=post, barrier=post, completed=pre, owner=0, lock=1, mode=cpus[cpu][0],
+                acknowledged=ack, published_kernel_root=root)
+            check(metric[5] == 0 and all(f[k] in (0, v) for k, v in expected.items())
+                  and (f['requested'] == 0 or requested_matches)
+                  and f['raw_root_available'] == f['raw_root'] == f['normalized_root_available'] == f['normalized_root'] == 0,
+                  'partial first Failure contains foreign transaction fields')
+            allowed = (0, 0x06090003) if cpu == 1 else ((0, 0x06090004, 0x060b0011) if cpu == 0 else (0, 0x06090004))
+            check(f['error_code'] in allowed and f['detail_code'] in ((0, 0x06090004) if cpu == 0 else (0,))
+                  and (cpu != 1 or f['entry'] in (0, 1, 2) and f['stage'] in (0, 4, 5)),
+                  'partial first Failure contains an unrelated error')
+            publishing = True
+            continue
+        check(f['published'] == 1 and f['version'] == 2 and f['clock'] > 0 and f['cpu'] == f['argument_cpu'] == cpu
+              and f['domain_available'] == 1 and f['domain'] == after['domain_address']
+              and f['sequence'] == f['barrier'] == post and f['completed'] == pre
+              and f['owner'] == 0 and f['lock'] == 1 and f['mode'] == cpus[cpu][0]
+              and requested_matches and f['acknowledged'] == ack and f['published_kernel_root'] == root
+              and f['raw_root_available'] == f['raw_root'] == f['normalized_root_available'] == f['normalized_root'] == 0,
+              'first Failure is partial/foreign/later or not the held post')
+        if cpu == 1:
+            check(f['error_code'] == 0x06090003 and f['detail_code'] == 0
+                  and f['entry'] in (1, 2) and f['stage'] in (4, 5), 'AP1 first Failure is not actual poll Hardware')
+        else:
+            check((f['error_code'], f['detail_code']) == (0x06090004, 0)
+                  or cpu == 0 and (f['error_code'], f['detail_code']) == (0x060b0011, 0x06090004),
+                  'non-target Failure is not the supported Held propagation')
+    check(all(all(v == 0 for v in f.values()) for f in failures[4:]), 'offline Failure published')
+    check(r['reader_round'] == r['reader_sequence'] == 1 and r['expected'] == TAG | 5,
+          'flush error reached a later reader phase')
+    for cpu, reader in enumerate(after['readers']):
+        if cpu >= 4:
+            check(reader['request'] == reader['ack'] == reader['count'] == 0
+                  and all(all(v == 0 for v in reader[name].values()) for name in ('warm', 'replaced', 'restored', 'merged')),
+                  'offline reader used')
+            continue
+        warm = reader['warm'];metric = after['metrics'][cpu]
+        check(reader['request'] == reader['ack'] == reader['count'] == 1
+              and warm == dict(cpu=cpu, root=root, cr4=metric[18], value=TAG | 5)
+              and all(all(v == 0 for v in reader[name].values()) for name in ('replaced', 'restored', 'merged'))
+              and (cpu == 0 or all(metric[i] > 0 for i in (0, 2, 3))), 'flush-error warm load/ACK/later phase differs')
+    check(r['old_checksum'] == digest(before['payload']), 'flush-error old held digest differs')
+    validate_authority(after, contract)
+    forest = kernel_forest(after['kernel_image'], after['kernel_meta'], after['kernel_space'], r['physical'], negative=True)
+    if publishing:
+        raise FaultPublicationPending('same flush-error post is still publishing first Failure/owner poison')
+    return dict(passed=True, negative=FLUSH_ERROR, stale_load_evidence=False, actual_flush_return_error=True,
+                fault_contract=FAULT_CONTRACT, fault_receipt=receipt, kernel_forest=forest, old_held_bytes=LENGTH,
+                old_held_sha256=hashlib.sha256(after['payload']).hexdigest(), pcid_required=require_pcid)
+
+
 def validate(before, after, contract, *, negative=False, require_pcid=False,
              normal_observation_profile=LEGACY_OBSERVATION):
     profile = observation_profile(normal_observation_profile, negative=negative)
@@ -666,12 +905,20 @@ def validate(before, after, contract, *, negative=False, require_pcid=False,
     r = after['report']
     check(r['version'] == r['attempted'] == 1 and r['physical'] == after['physical']
           and r['root'] == raw.words(after['kernel_space'], 8)[3], 'actual owner/kernel/lease identity differs')
+    if contract.get('fault_contract') == FAULT_CONTRACT:
+        check(contract.get('fault_case') == ('omit-ap-flush' if negative else None), 'validation case differs from source build')
+        validate_fault_receipt(before, contract)
+        validate_fault_receipt(after, contract, case='omit-ap-flush' if negative else None, require_pcid=require_pcid)
     controls = validate_barrier_controls(after, negative=negative, require_pcid=require_pcid,
                                         normal_observation_profile=profile)
     check(r['old_checksum'] == digest(before['payload']), 'initial actual whole-window digest does not bind raw baseline')
     validate_authority(after, contract)
     forest = kernel_forest(after['kernel_image'], after['kernel_meta'], after['kernel_space'], r['physical'], negative=negative)
-    validate_readers(r, after['readers'], after['metrics'], negative=negative, require_pcid=require_pcid)
+    failed_metrics = (validate_omit_first_failures(after, contract, require_pcid=require_pcid)
+                      if negative and contract.get('fault_contract') == FAULT_CONTRACT else None)
+    reader_options = dict(negative=negative, require_pcid=require_pcid)
+    if failed_metrics is not None:reader_options['validated_failed_metrics'] = failed_metrics
+    validate_readers(r, after['readers'], after['metrics'], **reader_options)
     if negative:
         check(r['complete'] == 0 and r['poison'] == 1 and r['error_code'] != 0 and r['operation'] == 3
               and after['domain'][1] == 1 and after['domain'][2:4] == [1, 0], 'negative did not fail permanently held under CPU0 BKL')
@@ -689,7 +936,7 @@ def validate(before, after, contract, *, negative=False, require_pcid=False,
     return dict(passed=True, actual_cpu_loads=True, actual_kernel_cr3_consumer=True,
         cpl3_high_half_consumer=False, old_held_bytes=LENGTH, old_held_sha256=hashlib.sha256(after['payload']).hexdigest(),
         kernel_forest=forest, negative=negative, pcid_required=require_pcid,
-        normal_observation_profile=profile, observation_controls=controls)
+        normal_observation_profile=profile, observation_controls=controls, fault_contract=FAULT_CONTRACT)
 
 
 def source_tools(esp):
@@ -775,6 +1022,7 @@ def collect_boot(guest, boot, state, esp, *, negative, require_pcid,
     guest.normal_observation_profile = profile
     boot['normal_observation_profile'] = profile
     boot['pcid_observation_profile'] = pcid_profile
+    boot['fault_contract'] = FAULT_CONTRACT
     boot['gui_control'] = pcid.prior.close_gui(guest)
     boot['before'], baseline = guest.large_snapshot('before')
     contract = layout_contract(esp)
@@ -799,25 +1047,45 @@ def collect_boot(guest, boot, state, esp, *, negative, require_pcid,
             request['serial_end'] = len(guest.raw)
     until = time.monotonic() + 120
     last = None
+    fault_pending_until, fault_pending_captures = None, 0
     while True:
         boot['after'], observed = guest.large_snapshot('after')
         try:
-            validate(baseline, observed, contract, negative=bool(negative), require_pcid=require_pcid,
-                     normal_observation_profile=profile)
+            if negative == FLUSH_ERROR:
+                validate_flush_return_error(baseline, observed, contract, require_pcid=require_pcid)
+            else:
+                validate(baseline, observed, contract, negative=bool(negative), require_pcid=require_pcid,
+                         normal_observation_profile=profile)
             break
         except ValueError as exc:
             last = exc
+            if negative == FLUSH_ERROR and isinstance(exc, FaultPublicationPending):
+                now = time.monotonic()
+                if fault_pending_until is None:fault_pending_until = min(until, now + 1.0)
+                boot.setdefault('first_pending_fault_checkpoint', dict(epoch=boot['after']['epoch'],
+                    checkpoint=copy.deepcopy(boot['after']), error=str(exc), cause='same-post-publication-incomplete'))
+                if now >= fault_pending_until or fault_pending_captures >= 2:
+                    raise
+                fault_pending_captures += 1
+                time.sleep(.04)
+                continue
+            negative_completed_owner = bool(negative) and observed['report']['attempted'] == 1 \
+                and observed['report'].get('complete') == 1 and observed['report']['poison'] == 0
             terminal = dict(owner_poison=bool(observed['report']['poison']),
                             domain_failed=bool(observed['domain'][1]), bridge_failed=bool(observed['bridge'][1]))
-            if any(terminal.values()) or 'fallback is not a pass' in str(exc) or 'observer-disturbed' in str(exc):
+            if negative_completed_owner or any(terminal.values()) or 'fallback is not a pass' in str(exc) or 'observer-disturbed' in str(exc):
                 # A verified precise negative has already broken out above.
+                # This one-shot owner cannot later produce the missing stale
+                # load after completing its entire unpoisoned lifecycle.
                 # Here a permanent failure cannot become healthy by resuming.
                 # Retain the first checkpoint and original error, without
                 # assigning the failure to production code or its observer.
                 boot.setdefault('first_failed_checkpoint', dict(epoch=boot['after']['epoch'],
                     checkpoint=copy.deepcopy(boot['after']), error_type=type(exc).__name__, error=str(exc),
                     terminal=terminal, cause='undetermined',
-                    classification='observer-disturbed' if 'observer-disturbed' in str(exc) else 'terminal-validation-failure'))
+                    classification=('flush-return-error-not-observed-completed-owner' if negative == FLUSH_ERROR else
+                                    'negative-no-stale-completed-owner') if negative_completed_owner else
+                                   'observer-disturbed' if 'observer-disturbed' in str(exc) else 'terminal-validation-failure'))
                 raise
             if time.monotonic() >= until:
                 raise ValueError('no complete actual runtime-large checkpoint: ' + str(last)) from exc
@@ -870,7 +1138,10 @@ def replay(path, *, normal_observation_profile=None, pcid_observation_profile=No
     if 'seal' in result:
         check(result['seal'].get('normal_observation_profile', LEGACY_OBSERVATION) == profile,
               'saved seal normal observation profile differs from result')
+    saved_fault_contract(result)
     identity = build.identity(result['esp'])
+    check(result.get('negative') in build.CASES and result.get('negative') == identity.get('case'),
+          'saved negative differs from actual build case')
     check(result['source_identity'] == identity and result['execute'] is True and result['actual_guest_executed'] is True
           and result['synthetic'] is False
           and result['guest_memory_or_register_writes'] is False and len(result['boots']) == 2, 'not two actual source-bound boots')
@@ -902,8 +1173,11 @@ def replay(path, *, normal_observation_profile=None, pcid_observation_profile=No
                               metadata=pcid.capture_metadata(result['esp']))
         before = decode(boot['before'], archive, contract, normal_observation_profile=profile)
         after = decode(boot['after'], archive, contract, normal_observation_profile=profile)
-        seal = validate(before, after, contract, negative=bool(result['negative']), require_pcid=result['require_pcid'],
-                        normal_observation_profile=profile)
+        if result['negative'] == FLUSH_ERROR:
+            seal = validate_flush_return_error(before, after, contract, require_pcid=result['require_pcid'])
+        else:
+            seal = validate(before, after, contract, negative=bool(result['negative']), require_pcid=result['require_pcid'],
+                            normal_observation_profile=profile)
         seal['pcid_observation_profile'] = pcid_profile
         seals.append(seal)
         validate_launch_order(boot, serial, before, after, negative=bool(result['negative']))
@@ -914,7 +1188,7 @@ def replay(path, *, normal_observation_profile=None, pcid_observation_profile=No
                                   observation_profile=pcid_profile)
         archive.verify_all()
     check(sha(path.parent / 'data.img') == result['final_disk_sha256'], 'final guest disk changed')
-    return dict(passed=True, boots=seals, hardware_guest_evidence=True, historical_replay=False,
+    return dict(passed=True, boots=seals, hardware_guest_evidence=True, historical_replay=False, fault_contract=FAULT_CONTRACT,
                 normal_observation_profile=profile, pcid_observation_profile=pcid_profile)
 
 
@@ -923,6 +1197,7 @@ def execute(esp, output, *, accel='tcg', cpu='max,+smep,+smap,+umip', require_pc
             pcid_observation_profile=PCID_LOCK_FREE):
     profile = observation_profile(normal_observation_profile, negative=negative)
     pcid_profile = require_pcid_observation_profile(pcid_observation_profile, negative=negative)
+    check(negative in build.CASES, 'unknown runtime-large negative case')
     esp, output = Path(esp).resolve(), Path(output).resolve()
     check(kernel_irqchip is None or kernel_irqchip == 'off' and accel == 'whpx',
           'kernel-irqchip=off is an explicit WHPX-only configuration')
@@ -932,14 +1207,14 @@ def execute(esp, output, *, accel='tcg', cpu='max,+smep,+smap,+umip', require_pc
     output.mkdir(parents=True)
     disk = output / 'data.img';create(disk, 64)
     tools = source_tools(esp)
-    result = dict(schema=1, esp=str(esp), source_identity=identity, execute=True, passed=False,
+    result = dict(schema=1, fault_contract=FAULT_CONTRACT, esp=str(esp), source_identity=identity, execute=True, passed=False,
         negative=negative, require_pcid=require_pcid, tools_before=tools, boots=[], guest_memory_or_register_writes=False,
         actual_guest_executed=False, synthetic=False, accel=accel, cpu=cpu, kernel_irqchip=kernel_irqchip,
         normal_observation_profile=profile, pcid_observation_profile=pcid_profile)
     try:
         for index in (1, 2):
             state = output / ('boot-' + str(index))
-            boot = dict(normal_observation_profile=profile, pcid_observation_profile=pcid_profile)
+            boot = dict(normal_observation_profile=profile, pcid_observation_profile=pcid_profile, fault_contract=FAULT_CONTRACT)
             result['boots'].append(boot);guest = None
             try:
                 guest = LargeGuest(esp, disk, state, accel=accel, cpu=cpu, kernel_irqchip=kernel_irqchip)
@@ -974,7 +1249,7 @@ def main(argv=None):
     parser.add_argument('--reuse-esp', type=Path)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--execute', action='store_true')
-    parser.add_argument('--negative', choices=['omit-ap-flush'])
+    parser.add_argument('--negative', choices=list(build.FAULT_MAGIC))
     parser.add_argument('--require-pcid', action='store_true')
     parser.add_argument('--accel', choices=['tcg', 'whpx', 'kvm'], default='tcg')
     parser.add_argument('--cpu', default='max,+smep,+smap,+umip')

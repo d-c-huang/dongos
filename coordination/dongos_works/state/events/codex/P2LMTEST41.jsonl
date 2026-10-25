@@ -1,0 +1,9 @@
+{"at":"2026-10-24T08:43:59+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:44:01+00:00","data":{"claimed_at":"2026-10-24T08:44:01+00:00","claimed_by":"codex-mcp-14ca67a3341042c4","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:45:02+00:00","data":{"claimed_at":"2026-10-24T08:44:01+00:00","claimed_by":"codex-mcp-14ca67a3341042c4","completed_at":"2026-10-24T08:45:02+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:45:03+00:00","data":{"job":"1cbbfce655d34c37be29e227fe53fce7","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:45:03+00:00","data":{"job":"1cbbfce655d34c37be29e227fe53fce7"},"kind":"verification_started","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:45:14+00:00","data":{"rev":4,"status":"submitted"},"kind":"verified","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:45:14+00:00","data":{"job":"1cbbfce655d34c37be29e227fe53fce7","status":"completed"},"kind":"job_finished","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:46:31+00:00","data":{"rev":5,"status":"accepted"},"kind":"accept","task_id":"codex:P2LMTEST41"}
+{"at":"2026-10-24T08:46:32+00:00","data":{"rev":6,"status":"integrated"},"kind":"integrate","task_id":"codex:P2LMTEST41"}

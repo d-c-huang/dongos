@@ -21,6 +21,34 @@ def free_port():
     s=socket.socket();s.bind(('127.0.0.1',0));port=s.getsockname()[1];s.close();return port
 def symbol(module,name):return '__dg_m'+module.encode().hex()+'_g'+name.encode().hex()
 
+def verify_private_pools(roots,static_count,table_base,dynamic,pointers,limits,
+                         arena,arena_bytes,next_page,kernel_root,mapping):
+    """Bind startup roots to retained pools, independently of user mappings."""
+    if static_count not in (2,3) or len(roots)!=3 or len(set(roots))!=3:
+        raise ValueError('private pool shape differs')
+    if len(dynamic)!=16 or len(pointers)!=16 or len(limits)!=16 or limits[:3]!=[32]*3:
+        raise ValueError('startup private pool capacity differs')
+    if arena%4096 or not 0<arena<1<<48 or arena_bytes!=128*1024*1024 or arena+arena_bytes>1<<48 or not 0<next_page<=32768:
+        raise ValueError('invalid held arena extent')
+    ranges=[(kernel_root,kernel_root+128*4096)]
+    for pid,root in enumerate(roots):
+        wanted=table_base+pid*32*4096 if pid<static_count else dynamic[pid]
+        end=root+32*4096
+        if root!=wanted or root<=0 or root%4096 or end>1<<48:
+            raise ValueError('private root differs from retained pool')
+        if any(root<stop and start<end for start,stop in ranges):
+            raise ValueError('private table pools overlap')
+        ranges.append((root,end))
+        if pid<static_count:
+            if dynamic[pid] or pointers[pid]:raise ValueError('static pool has dynamic identity')
+        else:
+            pointer=pointers[pid]
+            if not arena<=root<end<=arena+next_page*4096 or pointer!=0xffffd40000000000+root-arena:
+                raise ValueError('dynamic table pool escaped allocated arena')
+            for offset in range(0,32*4096,4096):
+                if mapping(pointer+offset)&~0x60!=(root+offset)|0x8000000000000003:
+                    raise ValueError('dynamic table alias lost supervisor RW/NX/WB ownership')
+
 def read_owned_frames(count,extended,limit,arena_physical,arena_pages,physical,mapping=None):
     """Validate the complete dynamic table extent before any physical read."""
     base=0xffffd40000000000
@@ -132,7 +160,6 @@ def verify(qmp,state,serial,build):
     if original_root!=old['root_physical']:raise ValueError('kernel root not restored')
     roots=[report[n+'_root'] for n in ('shell','fs','block')]
     table_base=boot[15]+symbols[symbol('user.memory','TABLES')]-KERNEL
-    if roots!=[table_base+i*32*4096 for i in range(3)]:raise ValueError('private roots escaped exclusive pools')
     pages={}
     def page(pa):
         if pa not in pages:pages[pa]=physical(pa,4096,'page table')
@@ -162,6 +189,15 @@ def verify(qmp,state,serial,build):
     arena_pa,arena_bytes=struct.unpack_from('<2Q',global_data('boot.service_memory','PLAN',48),32)
     if (arena_pa,arena_bytes)!=(handoff[7],handoff[8]) or handoff[9]*4096!=arena_bytes or arena_pa!=report['arena_physical']:
         raise ValueError('retained service arena differs from loader handoff')
+    from tools.kernel_storage_profile import verify_profile
+    manifest=json.loads((build/'build-inputs.json').read_text(encoding='utf-8'))
+    static_count=verify_profile(build,manifest,source_root=ROOT)
+    verify_private_pools(roots,static_count,table_base,
+        list(struct.unpack('<16Q',global_data('user.memory','DYNAMIC_PHYSICAL',128))),
+        list(struct.unpack('<16Q',global_data('user.memory','DYNAMIC_TABLES',128))),
+        list(struct.unpack('<16Q',global_data('user.memory','POOL_LIMITS',128))),
+        arena_pa,arena_bytes,struct.unpack('<Q',global_data('boot.service_memory','NEXT_PAGE',8))[0],
+        original_root,lambda va:pte(original_root,va,False))
     frames=read_owned_frames(frame_count,extended,limit,arena_pa,handoff[9],physical,lambda va:pte(original_root,va,False))
     for index,(pa,va,writable) in enumerate(frames):
         if pte(original_root,va,False)&~0x60!=pa|0x8000000000000001|(2 if writable else 0):

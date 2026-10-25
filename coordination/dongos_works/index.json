@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-23T06:02:56+00:00",
+  "generated_at": "2026-10-25T15:39:52+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -5633,8 +5633,8 @@
       "title": "新G6宿主准备的独立证据审查与进度同步",
       "description": "依赖G6PREP1独立零skip/源码稳定并实际集成后执行。只新增真实新构建宿主准备的最终审查回执（md/json）与交付；逐项从正式job原始receipt、fixture和4ELF、build-inputs、seed FAT及负控日志复算，记录真实checks数量/耗时/任务rev、源码和产物SHA、预算余量。静态managed frame公式与动态峰值分开，不冒充OS/VM、guest FLUSH/同盘双启或旧G6扩大范围；明确deepseek:L3/L3A任务已集成与整体阶段partial区别。协调角色同时据最新MCP同步工作区progress-map/roadmap/ALLOCATION文档，保留旧历史。最后独立入口检查及实际内容/本地链接审查后验收集成。不修改生产/永久测试，不OS/VM/CLI/commit/push。",
       "assignment_owner": "codex",
-      "status": "paused",
-      "rev": 2,
+      "status": "integrated",
+      "rev": 8,
       "write_paths": [
         "codex-works/reviews/2026-10-23-G6-host-ready.md",
         "codex-works/reviews/2026-10-23-G6-host-ready.json",
@@ -5650,19 +5650,189 @@
       "auto_verify": false,
       "complexity": "standard",
       "created_at": "2026-10-22T18:17:13+00:00",
-      "updated_at": "2026-10-22T18:19:10+00:00",
+      "updated_at": "2026-10-23T14:05:42+00:00",
       "historical": false,
       "document": "codex-works/tasks/G6DOC1-board.md",
       "delivery": "codex-works/deliveries/G6DOC1.md",
-      "claimed_at": null,
-      "completed_at": null,
-      "claimed_by": null,
+      "claimed_at": "2026-10-23T14:01:16+00:00",
+      "completed_at": "2026-10-23T14:04:28+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
       "candidate": null,
-      "verification": null,
-      "review_note": "",
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_compiler_guest_runner",
+            "passed": true,
+            "tests": 15,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.61
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "codex-works/reviews/2026-10-23-G6-host-ready.md": "7a5e48d8d709c0706724c72aec38abcbed25bcfe729a07b19ae1c495c3d79060",
+          "codex-works/reviews/2026-10-23-G6-host-ready.json": "abfce90798cbdfc57d139df36572bc17724367171ea31d36c2cf20a0fd8333dd",
+          "codex-works/deliveries/G6DOC1.md": "7555965ff47578c1224cf26bd99c70cd3a1683c817e91f980370c3ace778a22c"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-23T14:05:05+00:00",
+        "job": "5279fdea41ba4447b776fdf4416206ec"
+      },
+      "review_note": "已实际审阅host-ready md/json与原test_compiler_job_preparation源码；stdlib独立复算318产物、445/7/4/12输入、49源码、真实ELF段页数、双FAT/链/源码SEED及空stage、负控SHA恢复和命令日志。明确12当前源码差异、历史host-only且动态峰值/新G6未证。正式5279fdea41ba4447b776fdf4416206ec通过15/0skip/0.61s/source_stable/process_stopped/execution_exited。三文件主目录SHA匹配，文档JSON链接存在，未运行VM或放宽阶段结论。",
       "legacy_hash": "3c27d771370d611a78005140013555cf61e99ecd5cfe1dc755ade7f1f3d48257",
-      "resume_status": "todo",
-      "pause_control": "confirmed"
+      "claim_from_status": "todo",
+      "integration_note": "三项审查/交付文件已真实落入本地主线协调工作区，并与正式复验指纹逐项相同；优先级已同步progress-map/ALLOCATION/roadmap。独立验收后单独登记本地集成；新G6客体和更广纯ELF仍待完成，未提交推送。"
+    },
+    {
+      "id": "codex:G6ENC1",
+      "number": "G6ENC1",
+      "owner": "codex",
+      "title": "扩展纯ELF编码后的当前编译器固定点及G6复验",
+      "description": "L3ENC1源码扩展后，在独立冻结副本fresh运行compiler_job_preparation，核对512KiB源码/2MiB ELF/56MiB arena/64KiB栈预算，实际同盘两启并独立raw/FAT/retirement审计。保留所有失败，不把旧G6用于当前源码。结果留档，正式零skip测试后才验收集成；不上传关机。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "codex-works/reviews/2026-10-24-G6-encoding.md",
+        "codex-works/reviews/2026-10-24-G6-encoding.json",
+        "codex-works/deliveries/G6ENC1.md"
+      ],
+      "depends_on": [
+        "codex:L3ENC1"
+      ],
+      "checks": [
+        "module:tests.test_compiler_guest_runner"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T06:37:25+00:00",
+      "updated_at": "2026-10-24T07:08:53+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/G6ENC1-board.md",
+      "delivery": "codex-works/deliveries/G6ENC1.md",
+      "claimed_at": "2026-10-24T06:44:13+00:00",
+      "completed_at": "2026-10-24T07:08:20+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_compiler_guest_runner",
+            "passed": true,
+            "tests": 15,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.813
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "codex-works/reviews/2026-10-24-G6-encoding.md": "d66ed331d73a1c2f89a0356d4e2ea5343e55d1ce6d40e3c9b211952ab3c3fea4",
+          "codex-works/reviews/2026-10-24-G6-encoding.json": "f8aa9a5586997c8a487b0798a0010aba3fc8523ec48da086eb3b137a458e0fbd",
+          "codex-works/deliveries/G6ENC1.md": "051cdd0907de1b723f202a607f9e3992c577af42ecfbb68b000438ec4551939c"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T07:08:32+00:00",
+        "job": "2d01ede4e1f543978a2e999adbec0e13"
+      },
+      "review_note": "审查当前编码生产改动及G6原runner契约，fresh固定点1项零skip；实际同盘两启PASS，独立离线965+965 raw/FAT/页退休审计通过，456源与主目录一致。永久证据包含原receipt、审计原文及哈希。独立作业2d01ede4e1f543978a2e999adbec0e13正式15项零skip，source_stable/process_stopped/execution_exited均true。范围限当前G6，不替代全部纯ELF语言矩阵。",
+      "legacy_hash": "d4ea874d9e287812c336704881f895530da95a71f1d94a0a7bbc80e3b3b1998d",
+      "claim_from_status": "todo",
+      "integration_note": "三份永久证据已真实落在主目录，逐份SHA256与独立复验fingerprint完全一致；L3ENC1生产文件此前已集成rev6。当前G6编译、同盘两启及独立审计闭环，登记集成。"
+    },
+    {
+      "id": "codex:G6POOL1",
+      "number": "G6POOL1",
+      "owner": "codex",
+      "title": "G6 当前静态/动态页表池独立检查适配",
+      "description": "G6RUN2 实跑 run-662c6cec8a01 已完成编译与服务退出，但旧 P5 检查器固定前三进程均为静态池，拒绝当前 storage_profile 的动态 block 池。核对构建 profile 与真实物理记录，严格证明页表池容量、arena 归属、映射及互斥；保留失败原件，不放宽跨池检查。增加正负控并独立定向复验；G6 双启动另由 G6RUN2 重新运行。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/run_services_qemu.py",
+        "tests/test_services_pool_ownership.py",
+        "codex-works/deliveries/G6POOL1.md"
+      ],
+      "depends_on": [
+        "codex:G6WAIT2"
+      ],
+      "checks": [
+        "module:tests.test_services_pool_ownership",
+        "module:tests.test_compiler_guest_runner"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-23T14:56:04+00:00",
+      "updated_at": "2026-10-23T14:58:28+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/G6POOL1-board.md",
+      "delivery": "codex-works/deliveries/G6POOL1.md",
+      "claimed_at": "2026-10-23T14:56:12+00:00",
+      "completed_at": "2026-10-23T14:57:43+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_services_pool_ownership",
+            "passed": true,
+            "tests": 5,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.406
+          },
+          {
+            "spec": "module:tests.test_compiler_guest_runner",
+            "passed": true,
+            "tests": 15,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.281
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/run_services_qemu.py": "8751b0f95f2e366be7d9b8f54204485effcb587c3bd7b9b30f5569cc2806e0a7",
+          "tests/test_services_pool_ownership.py": "865bf7a87d44ce3b3a0b301b363f04859f345c1be8e3a7374aa0246b16fc1471",
+          "codex-works/deliveries/G6POOL1.md": "cbee26d03f608804a934b54aae88e3e94a13b2bc9f068711f7327b781719404f"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-23T14:57:54+00:00",
+        "job": "dc797113b18f48799f55d0b1ed135f28"
+      },
+      "review_note": "实际审查 memory.dg uses_static_tables/prepare_tables、build profile 与检查调用顺序：构建配置经 verify_profile 绑定，动态 root/alias/32页容量/arena已分配上界/互斥及每页supervisor RW NX WB均独立约束；user pte原32页逐级边界未放宽。独立job dc797113b18f48799f55d0b1ed135f28 两模块20tests零skip、source_stable且进程退出。仅验收检查器，G6原失败保留，待新双启动。",
+      "legacy_hash": "fbb183e396653f43e080e4714c65486a394b3447242321cd56a47db169927391",
+      "claim_from_status": "todo",
+      "integration_note": "真实主目录三个声明文件已存在，SHA256分别8751b0f9…、865bf7a8…、cbee26d0…与独立复验指纹一致。登记检查器集成，不把此前G6失败改成通过。"
     },
     {
       "id": "codex:G6PREP1",
@@ -5789,6 +5959,145 @@
       "integration_note": "新增永久测试与3份契约/进度文档已实际在code主目录，全部正式复验指纹一致，独立原始产物与源码契约审查通过，登记本地集成。未启动来宾/提交/推送。按用户最新要求先P2后P5，G6DOC1保留paused2，扩大compiler新G6未外推为完成。"
     },
     {
+      "id": "codex:G6RUN2",
+      "number": "G6RUN2",
+      "owner": "codex",
+      "title": "[L3] 当前主线扩大编译器的全新G6构建及同盘双启独立验收",
+      "description": "用户改优先先完成L3。G6DOC1已证明旧PREP1归档有效但当前12内核/构建输入变化，不沿用旧镜像。先通过协调器冻结当前源码，在隔离workspace实际运行既有test_compiler_job_preparation获得fresh release完整固定点及production runtime5/compiler_job镜像，逐项load_inputs/verify_frozen、ELF/源/预算与FAT核对。随后root协调者按用户授权执行既有run_compiler_job_qemu原流程，真实单BSP客体编译、FLUSH、同盘双启、物理隔离/guard/无能力以及128页退休闭合，原始归档和独立raw审查齐全才可验收。编译器56MiB/64KiB/2MiB预算、原guest期限不放宽，失败保留；不声称更广纯ELF已完成。实现者仅记录证据/文档，不擅改生产源；若定位源缺陷另行明确返修范围。独立检查通过并实际文件集成后登记；不提交/推送/关机。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "codex-works/reviews/2026-10-23-G6-current-run.md",
+        "codex-works/reviews/2026-10-23-G6-current-run.json",
+        "codex-works/deliveries/G6RUN2.md"
+      ],
+      "depends_on": [
+        "codex:G6DOC1",
+        "codex:G5INT1"
+      ],
+      "checks": [
+        "module:tests.test_compiler_guest_runner"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-23T14:06:05+00:00",
+      "updated_at": "2026-10-23T15:15:08+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/G6RUN2-board.md",
+      "delivery": "codex-works/deliveries/G6RUN2.md",
+      "claimed_at": "2026-10-23T14:06:05+00:00",
+      "completed_at": "2026-10-23T15:14:27+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_compiler_guest_runner",
+            "passed": true,
+            "tests": 15,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.984
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "codex-works/reviews/2026-10-23-G6-current-run.md": "bf2cf71237003b868783c7bbf0497e998149a710086ddf84ff157387fd329889",
+          "codex-works/reviews/2026-10-23-G6-current-run.json": "8efaa49aa0d8906cc6621f56b52b241d4a5314daa968ecfaa45b3764f14cad12",
+          "codex-works/deliveries/G6RUN2.md": "843710f481ee2709c99a6b71a12bca45c9f3522fd2751d64bb21f17b75a42094"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-23T15:14:45+00:00",
+        "job": "812d5b622b2148c6848cb00511879302"
+      },
+      "review_note": "已实际审查fresh生产源码、VirtIO计时契约、池归属检查及G6原runner路径；同盘两启run-b54a8a8d615b原结果PASS，owned QEMU各退出0。独立离线审计961+961原始文件、所有冻结输入、精确FAT固定点、128页退休全零及请求状态通过（audit SHA086c1523…），主目录生产源与实跑一致。正式job812d5b622b2148c6848cb00511879302 15tests/0skip、source_stable且进程退出。只验收当前G6，不关闭广义L3A。",
+      "legacy_hash": "247271a58cf902a94c77498385c33a0cea55ee42367b3bd4ef72fa15c4aca0f3",
+      "claim_from_status": "todo",
+      "integration_note": "主目录三个实际交付文件SHA bf2cf712…/8efaa49a…/843710f4…与独立复验指纹一致；实现修复G6WAIT2/G6POOL1已真实主目录集成，生产源与实跑冻结输入逐文件一致。登记当前G6闭环；L3A更广纯ELF保留未完成。"
+    },
+    {
+      "id": "codex:G6WAIT2",
+      "number": "G6WAIT2",
+      "owner": "codex",
+      "title": "[L3阻塞修复] VirtIO显式有界时间等待入口与真实FLUSH验证",
+      "description": "保留共享Ops/State/Lease ABI，新增显式timed read/write/flush入口接Now回调，block_service接现有milliseconds，旧轮询API及tablet语义保持。timed路径发布前取时，使用与AHCI/NVMe相同5000ms命令截止，在期限内完整used/status才成功；时钟错误/倒退/连续100000次不进展有界拒绝；迟到不得清fault，失败后DMA held直至真实reset。真实C模型覆盖超过100000poll但deadline内完成、恰到/超过deadline、clock失败/倒退/冻结、late completion和无发布失败原子性，保留原13场景及真坏体，新增deadline绕过/旧计数截断真坏体。新API不改FLUSH/cache，不扩大G6总3600秒或P2期限。debug/release两格式独立0skip/source stable后集成，再由G6RUN2新构建真实双启。旧G6两次编译成功但FLUSH Timeout，700文件raw审计各通过，历史失败不改。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "services/drivers/virtio_blk.dg",
+        "services/drivers/block_service.dg",
+        "tests/virtio_blk_probe.dg",
+        "tests/virtio_blk_probe.c",
+        "tests/test_virtio_blk.py",
+        "docs/virtio-blk-deadline.md",
+        "codex-works/deliveries/G6WAIT2.md"
+      ],
+      "depends_on": [
+        "codex:G6DOC1"
+      ],
+      "checks": [
+        "module:tests.test_virtio_blk"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-23T14:33:32+00:00",
+      "updated_at": "2026-10-23T14:40:19+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/G6WAIT2-board.md",
+      "delivery": "codex-works/deliveries/G6WAIT2.md",
+      "claimed_at": "2026-10-23T14:33:33+00:00",
+      "completed_at": "2026-10-23T14:38:37+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_virtio_blk",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 23.938
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "services/drivers/virtio_blk.dg": "31e0da2f9d5f78cbc06574fcc6df285b6700b54d41c76fbbb91bdfe7c71e2b1e",
+          "services/drivers/block_service.dg": "8ad664eeeeb04f9f651b7de35b56d2d63d9f0e1257461ca3c8b8f77773985edb",
+          "tests/virtio_blk_probe.dg": "9a9f5b6d7a7a057f0fbfbfdefae711e7f7c42b8450e5e98416008fc32cfb3340",
+          "tests/virtio_blk_probe.c": "d1fde50023ef2189cf7ac6a9e8d5f72c3ca5e0e0e5d2441ed695fcad9b166000",
+          "tests/test_virtio_blk.py": "44170e0e6dc34b95809f398bb8c499c160237eac39a02f1860e1fba5305b2c4f",
+          "docs/virtio-blk-deadline.md": "68b92b105b35c466829cb78ea65702241ba75fdc4176d36d6b74d036c43685dd",
+          "codex-works/deliveries/G6WAIT2.md": "a8598910d8a9a146050a827865bcb62f17c97854cc004bb40b9418554eb683fb"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-23T14:39:09+00:00",
+        "job": "e8510c2b91054ebe941e0c6d0eec57af"
+      },
+      "review_note": "独立审查显式timed入口及生产block_service回调：共享State/Ops/Lease和tablet不变，取时在发布前，单调差值避免加法溢出，5000ms边界和完成后复查，冻结100000次有界拒绝；所有发布后失败沿原fault/held直至真实reset。正式e8510c2b91054ebe941e0c6d0eec57af通过4项/23.938s/0skip，source_stable/process_stopped/execution_exited；两模式24真实C场景、两对象格式/布局/栈与5类实际坏体均通过，本机修后4项23.816s。原R1/R2夹具失败及两次客体FLUSH失败保留。代码已实际在主目录，不把组件验收代替后继新G6构建/双启。",
+      "legacy_hash": "a93aba4eec8f1647a4becf36ecf8623ba2609a49e409244b265d70ff05133432",
+      "claim_from_status": "todo",
+      "integration_note": "已真实完成七声明文件主目录实现/文档/交付，内容与正式复验指纹匹配，独立验收后登记本地集成。G6RUN2接续全新构建与实际同盘双启；旧归档不能替代。未提交推送。"
+    },
+    {
       "assignment_owner": "codex",
       "auto_dispatch": false,
       "auto_verify": false,
@@ -5854,6 +6163,143 @@
         "codex-works/tests/test_l3_defer_native.py",
         "codex-works/deliveries/L3DEFER1.md"
       ]
+    },
+    {
+      "id": "codex:L3ELFMATRIX1",
+      "number": "L3ELFMATRIX1",
+      "owner": "codex",
+      "title": "L3完整语言矩阵纯ELF实际执行与独立验收",
+      "description": "复用G5 51项27组完整语言/ABI/诊断/负控矩阵，原生Dong前端后端生成目标汇编交给生产native_assembler生成ELF，宿主观察器只负责装载/外部运行时适配，不能用NASM生成目标指令或静默回退。保留两模式、真实负控、来源哈希、零skip与完整覆盖判定；独立冻结复验后验收集成。只改测试和证据，若发现生产缺陷另立修复卡；不上传、不关机。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "lang/tests/test_l3_elf_full_matrix.py",
+        "lang/tests/l3_elf_observer.py",
+        "codex-works/deliveries/L3ELFMATRIX1.md",
+        "codex-works/reviews/2026-10-24-L3-ELF-matrix.md",
+        "codex-works/reviews/2026-10-24-L3-ELF-matrix.json"
+      ],
+      "depends_on": [
+        "codex:L3ENC1",
+        "codex:G6ENC1"
+      ],
+      "checks": [
+        "module:lang.tests.test_l3_elf_full_matrix"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T07:40:07+00:00",
+      "updated_at": "2026-10-24T08:25:06+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/L3ELFMATRIX1-board.md",
+      "delivery": "codex-works/deliveries/L3ELFMATRIX1.md",
+      "claimed_at": "2026-10-24T07:40:23+00:00",
+      "completed_at": "2026-10-24T08:07:43+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:lang.tests.test_l3_elf_full_matrix",
+            "passed": true,
+            "tests": 51,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 963.657
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "lang/tests/test_l3_elf_full_matrix.py": "411f9e7e89c26de5344321151cbe49f18bb17589a97b7ea4f52b2d65b25063e2",
+          "lang/tests/l3_elf_observer.py": "c47e2d377964097a0c1b0e8c7e66f39e8611bbe077c028ab081dafb54b6329e4",
+          "codex-works/deliveries/L3ELFMATRIX1.md": "1da26d23105618e84b6ed74ee4d0f7f5f7054777b9a2cc4be429fd3ae78c789f",
+          "codex-works/reviews/2026-10-24-L3-ELF-matrix.md": "5c23bde42b6383b10cc1faaafe97ee87970a654578b0b92884e4f7bfc05a098a",
+          "codex-works/reviews/2026-10-24-L3-ELF-matrix.json": "2453786ab3d11f51232126c5ff762a45b5d379aeb827e38cf7c23cc170d8250e"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T08:23:58+00:00",
+        "job": "ed37c79515f94c87a488e538ea6ba20d"
+      },
+      "review_note": "已审查生产assembler/ELF地址契约及观察桥：实际Dong输出进入同源native_assembler，内核验证ELF，COFF仅绝对符号、无目标代码段；按原地址装载原始字节，宿主extern仅独立槽桥接，RX/RW保持，无NASM目标回退。原51项/27组断言保留，字节观察仅改读ELF（AST一致）；私有全局地址负控等价双LEA，生产不改。独立冻结job ed37c79515f94c87a488e538ea6ba20d 51tests/0skip/963.657s全通过，source_stable/process_stopped/execution_exited均true。独立stdlib审计259输入、148目标ELF、166次实际观察执行及6类真实错误源码通过。157主目录源码及5交付指纹匹配；G6的456源仍一致。完整纯ELF矩阵门关闭，历史失败保留。",
+      "legacy_hash": "500e2b7caf09af8594a8e123ea87810434904cffc03d39b23b149cec901689b0",
+      "claim_from_status": "todo",
+      "integration_note": "两份测试代码与三份交付/提交证据已真实落在main主目录，5份SHA256逐项匹配accepted独立fingerprint；157源码无差异、G6 456源仍绑定已验收当前编译器。登记本地主线文件集成rev6；不提交/推送。提交文档保留为当时快照，最终完成状态同步到L3进度及完成回执。"
+    },
+    {
+      "id": "codex:L3ENC1",
+      "number": "L3ENC1",
+      "owner": "codex",
+      "title": "L3A纯ELF补齐XMM原子及受限无操作数指令",
+      "description": "继续L3，补齐现有nasm_program实际生成的movdqu、lock cmpxchg/xadd、pause/int3/lfence/sfence/mfence到内建assembler与x86 encoder。保持严格操作数/输出原子性，debug/release真实编译执行、NASM独立字节对照和错误操作数负控。仅关闭本编码差集，不外推全L3或新G6。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "lang/bootstrap/x86_encode.dg",
+        "lang/bootstrap/native_assembler.dg",
+        "lang/tests/test_l3_extended_encoding.py",
+        "codex-works/deliveries/L3ENC1.md"
+      ],
+      "depends_on": [
+        "codex:G6RUN2"
+      ],
+      "checks": [
+        "module:lang.tests.test_l3_extended_encoding"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T06:24:33+00:00",
+      "updated_at": "2026-10-24T06:44:11+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/L3ENC1-board.md",
+      "delivery": "codex-works/deliveries/L3ENC1.md",
+      "claimed_at": "2026-10-24T06:24:52+00:00",
+      "completed_at": "2026-10-24T06:35:19+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:lang.tests.test_l3_extended_encoding",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 486.25
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "lang/bootstrap/x86_encode.dg": "c35f1f32e4412acc0fd7d0a7085e0ef94f643a4cc19908f5fc182d6e66c3821b",
+          "lang/bootstrap/native_assembler.dg": "0bd6de7b97707f089cd70ed6219ae87f9d10464be4344069abd13080d712b59f",
+          "lang/tests/test_l3_extended_encoding.py": "9e9eb13527a3c3ce6b6e98dba36e6c6e70332f66a670dda4e257b592b055cf53",
+          "codex-works/deliveries/L3ENC1.md": "2daf7f782280ad054a80200870fad8e900bd7ed494c3efd353c3ab93a04fb51a"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T06:43:47+00:00",
+        "job": "e1c4412f3d2944efb5a85cf9d4d148f8"
+      },
+      "review_note": "实际审查两生产模块：XMM独立kind仅movdqu内存双向允许；LOCK/XCHG限定32/64位STORE，REX/ModRM和RIP修补保留；特权指令零操作数，既有输出原子性未改变。独立job e1c4412f3d2944efb5a85cf9d4d148f8 全4tests/0skip/486.25s，源码稳定且进程已退出。1017条NASM字节对照、错误形式/容量与57别名预检、实际ELF原子内存/CAS成功失败，真正Dong两模式Win64桥接→native ELF执行37通过。只验收编码差集，新G6单独验证。",
+      "legacy_hash": "f44d83bde00222cd3903ce5c0461d968515b2c3e0d9897374d75a9b6e812536b",
+      "claim_from_status": "todo",
+      "integration_note": "声明的四个真实主目录文件指纹c35f1f32/0bd6de7b/9e9eb135/2daf7f78与正式独立复验一致，实际文件集成完成。G6ENC1接续新版自举及客体门，旧结果不外推。"
     },
     {
       "assignment_owner": "codex",
@@ -7100,6 +7546,311 @@
       "integration_note": "6声明源码/文档已真实集成code，当前指纹与ac7…正式冻结输入一致。组件3tests0skip及60产物/tool/命令已核，登记仅代码组件集成，生产入口和实际guest/physical WC仍待闭合，不据host清P2。"
     },
     {
+      "id": "codex:P2CD1",
+      "number": "P2CD1",
+      "owner": "codex",
+      "title": "P2 C/D生产接线接手、零静态池适配与独立客体验证",
+      "description": "用户明确授权接手Claude独立worktree P2CD1，完成剩余修复与独立复验，通过后真实集成和更新进度。保留Claude原交付/补丁，冻结主目录基线应用补丁。审查B/C/D mux及C真实buddy/entry/trace绑定、D账本/资源/期限；错误fail-stop，不弱化根森林、缓存类型、池身份和源码绑定。修复runtime7零静态池oracle/runner/合成夹具语义、四类SMP夹具、runtime5/6构建预算回归，不扩大2MiB。全新release构建；宿主组件/接线/真实坏体零skip稳定。root协调者按用户本次授权运行受控QEMU取得C/D正负客体证据，执行者不自行启动VM。实际正负证据未过不得验收集成，不将warm-PCID或物理WC真机门标完成。额外组件缺陷需另明确范围；无提交推送。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/user/services.dg",
+        "kernel/user/memory.dg",
+        "kernel/build/storage_profile.dg",
+        "tools/build.py",
+        "tools/kernel_storage_profile.py",
+        "tests/test_user_smp_services.py",
+        "tests/test_kernel_storage_profile.py",
+        "tests/test_user_smp_poll_fast.py",
+        "tests/test_user_smp_poll_wakes.py",
+        "tests/test_user_smp_readonly.py",
+        "tests/test_user_smp_fault_isolation.py",
+        "tests/p2_pcid_oracle.py",
+        "tests/run_p2_pcid_qemu.py",
+        "tests/run_p2_runtime_large_qemu.py",
+        "tests/p2_bulk_capture.py",
+        "tests/test_p2_runtime_large.py",
+        "tests/test_p2_pcid.py",
+        "tests/test_p2_historical_capture.py",
+        "tests/p2_runtime_large_build.py",
+        "tests/test_p2_bulk_capture.py",
+        "tests/test_p2_pcid_build.py",
+        "tests/test_p2_cd_wiring.py",
+        "tests/run_p2_cd_qemu.py",
+        "docs/p2-cd-wiring.md",
+        "codex-works/deliveries/P2CD1.md",
+        "codex-works/reviews/2026-10-24-P2CD1.json"
+      ],
+      "depends_on": [
+        "codex:P2LEDGER44",
+        "codex:P2REG45"
+      ],
+      "checks": [
+        "module:tests.test_p2_cd_wiring",
+        "module:tests.test_kernel_storage_profile",
+        "module:tests.test_user_smp_services",
+        "module:tests.test_p2_runtime_large",
+        "module:tests.test_p2_pcid",
+        "module:tests.test_p2_historical_capture"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T11:24:24+00:00",
+      "updated_at": "2026-10-24T14:33:08+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2CD1-board.md",
+      "delivery": "codex-works/deliveries/P2CD1.md",
+      "claimed_at": "2026-10-24T11:24:33+00:00",
+      "completed_at": "2026-10-24T13:45:30+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_p2_cd_wiring",
+            "passed": true,
+            "tests": 39,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 653.688
+          },
+          {
+            "spec": "module:tests.test_kernel_storage_profile",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 18.156
+          },
+          {
+            "spec": "module:tests.test_user_smp_services",
+            "passed": true,
+            "tests": 6,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1250.422
+          },
+          {
+            "spec": "module:tests.test_p2_runtime_large",
+            "passed": true,
+            "tests": 58,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 725.235
+          },
+          {
+            "spec": "module:tests.test_p2_pcid",
+            "passed": true,
+            "tests": 38,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.61
+          },
+          {
+            "spec": "module:tests.test_p2_historical_capture",
+            "passed": true,
+            "tests": 28,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 3.86
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/user/services.dg": "6ce1c8ad23a27f1a2a502911f1032956b7ad3e40f5a67c5622911f31449fe3c1",
+          "kernel/user/memory.dg": "53e1164d68516e7c3acc746ee76aedd6cb0044057d628f3796952cbe772eaa12",
+          "kernel/build/storage_profile.dg": "f1483a9070b517ef53dcfdc42812415108592414d72b3eb3cc57e23ea2ff2528",
+          "tools/build.py": "aa0530256bf8a3bd15926648af908f87cfaa91d032b38f72fee943c1bb90b47d",
+          "tools/kernel_storage_profile.py": "d94cbc4d2485885af83b47a6c4ee866c6ebfb575bcc4e3ee1bbf617a21d7e5b7",
+          "tests/test_user_smp_services.py": "23c8e3a1a6c4f8a94f0096dac1ea72bd39caf791e9a934aa3e5b2927a31602d2",
+          "tests/test_kernel_storage_profile.py": "8823bf83181f56521fbd1d6cb189b50a1a065923261884e3f8bd292b17acfe8b",
+          "tests/test_user_smp_poll_fast.py": "878d6af8335ea35b76eae224b5e30e10a7722db0ad47887ff159ae07371f5fcf",
+          "tests/test_user_smp_poll_wakes.py": "9af1c7db6bc62f03e0835ead1783dd3ab49b7915d4ed8e534074e41640c59e0e",
+          "tests/test_user_smp_readonly.py": "24b5e14a267d3c5e536d050d099b5a47327912f7cd966bf88b63628d4c7e3b93",
+          "tests/test_user_smp_fault_isolation.py": "15318f909fe05e445edaef948cd96e84176d8e3fe9283f8d19dccd22836d2e89",
+          "tests/p2_pcid_oracle.py": "daa4bc84a8107973dc1bb14dbe436588e0c343d6a17dfa96b75c998d3ee1378c",
+          "tests/run_p2_pcid_qemu.py": "8b6003fe280c17ae8c3ff1bf79ed627cbde73c62f1c22b8ef36e60f2af86cbc4",
+          "tests/run_p2_runtime_large_qemu.py": "66d145c2dcbaac11307aa02871f69b4336ddb38a9901395dbd6a36e3457627cd",
+          "tests/p2_bulk_capture.py": "da0e29838630d8e60ebd2ed62567b481796df3b511a2421ab1710ae883027980",
+          "tests/test_p2_runtime_large.py": "517d62a2a628c69305b69bd73c126c663413b1e42c921be15a3f02732495d5a3",
+          "tests/test_p2_pcid.py": "8cf84c52b68d715934bcbff847cc1b81dd9d82c52a5f9b06381dc7ac35f0b3b7",
+          "tests/test_p2_historical_capture.py": "d34c7221d9575853d1789ad1b3ad86aecbd4d360e5ab3641d99e3ef5068a8f5f",
+          "tests/p2_runtime_large_build.py": "a1bd719663ec8920cd081d48486e0d21378f6325fae251b86eb1484f861ec97c",
+          "tests/test_p2_bulk_capture.py": "8460a6af5677380b91c7b345feee2e7bd54462b29f3672f7edbd356401ffd4ef",
+          "tests/test_p2_pcid_build.py": "675611e33c904537e161011f5b4adb9ed26c69c31ce178dcb7c32fa915a4f054",
+          "tests/test_p2_cd_wiring.py": "351f5759d2ca3911edc0fdfeae72932cfc6981c107163ca4bfc756ae352d2e89",
+          "tests/run_p2_cd_qemu.py": "2cec5422c78062acba5dd357087f672a15c5699516593077ffcfc75c2da55440",
+          "docs/p2-cd-wiring.md": "4e78676b875e3fa9d3e2059a05a7a98708e9c49cb0e42a12742ff3d015fa28ca",
+          "codex-works/deliveries/P2CD1.md": "b4b6d5a70ee00c99961727d686857604a3f6a1623291f7459e08bb6ee177cc3a",
+          "codex-works/reviews/2026-10-24-P2CD1.json": "bad4facb8d78f8246a37518867acdf2b2b3640691d94c8297cafe4c93b689d9b"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T14:29:59+00:00",
+        "job": "8cf746e3518145219278173a593dafbc"
+      },
+      "review_note": "已实际审查Claude原始补丁及最终源码/契约/反控：B large_try/large_identity/large_check逐块一致；C绑定真实buddy order0、entry/headers和PF trace；D使用真实GOP ledger、实际根快照/页回执并在分配后重新冻结。原Domain/Bridge期限、ACK、held和观察预算未放宽，runtime5/6/7内核1,986,960/1,991,056/1,995,152B均守2MiB；全部零静态池调用方按真实arena身份校验。连续slot0 UART无命令间暂停，历史raw严格epoch/source/offset/Catalog绑定。正常及两种实际生产遗漏poll的最终WHPX客体首轮通过，独立进程离线回放488/478/491raw通过；C13屏障/2回执/8PF/页表75恢复，D5屏障/两轮8100页完整撤销回收重映射，四CPU真实动作/ACK。负例实际报告C Reader 0x06140004和D Domain Held 0x06090004、首次STORE/READ请求掩码与ACK0、held/poison、对应BSP投影链，且原始AP WAIT时钟确实跨原deadline，不接受任意错误或虚假到期。独立指针来源审查与final-negative-audit保留。正式独立8cf746e3518145219278173a593dafbc六模块39+3+6+58+38+28=172tests/0skip通过；source_stable/process_stopped/execution_exited均true。P2CDTYPE1与P2CDBUILD1均已独立集成rev6。主目录26声明文件与正式fingerprint完全一致，整体1121源码与三类实际guest冻结图一致；所有旧失败/不稳定构建保留。接受P2CD1局部接线与零池修复；不接受warm-PCID复用、物理WC性能或真机门。",
+      "legacy_hash": "1aac619cf848d427c992894fb543b1f94de34b9c4ca6146a0498d72e740a0cf3",
+      "claim_from_status": "todo",
+      "integration_note": "已完成真实文件移交至code/及coordination/dongos_works/：父项24源码/文档文件与两份交付审查记录，共26份；连同P2CDBUILD1两文件共28份。所有目标均先按接手基线/本任务进度hash预检并备份，transplant-manifest.json记录before/after。正式复验后再次按协调器fingerprint核对26文件完全相同，完整1121生产源码图与最终正常/C遗漏poll/D遗漏poll客体冻结图相同。独立复验172tests零skip稳定，补充builder10tests零skip及有效类型组件独立验收均已集成。原Claudeworktree/原始交付/补丁、全部失败及raw归档保留。登记本地主目录集成并更新进度；无commit/push，warm-PCID及物理WC真机门保持未接受。"
+    },
+    {
+      "id": "codex:P2CDBUILD1",
+      "number": "P2CDBUILD1",
+      "owner": "codex",
+      "title": "P2CD1 零静态池构建身份适配补登记",
+      "description": "P2CD1最终范围审计发现原登记遗漏tests/p2_pcid_build.py，零静态池完整构建身份验证必须由1改为0；本项只补齐该必要适配，不改构建绑定、编译工具或失败条件。父任务隔离副本已保留修改，补登记后纳入移交；独立复验tests.test_p2_pcid_build及父项实际新构建/正负guest，源码稳定零skip后验收。与父项其他已声明profile/oracle适配共同复验，不能单独宣称P2CD1完成。无提交推送，不手改协调器索引。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/p2_pcid_build.py",
+        "codex-works/deliveries/P2CDBUILD1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_p2_pcid_build"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T13:36:28+00:00",
+      "updated_at": "2026-10-24T14:32:40+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2CDBUILD1-board.md",
+      "delivery": "codex-works/deliveries/P2CDBUILD1.md",
+      "claimed_at": "2026-10-24T13:36:38+00:00",
+      "completed_at": "2026-10-24T13:45:29+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_p2_pcid_build",
+            "passed": true,
+            "tests": 10,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 4.281
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/p2_pcid_build.py": "4c3af75bded8787c36ecd3e220685179766f6c267d21eedeec2b2eef2327f353",
+          "codex-works/deliveries/P2CDBUILD1.md": "d96a7f541e44a05f49cf6d34f284ae11182b1621b30c7f85b8b4766763b61d71"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T14:30:17+00:00",
+        "job": "ebf434eb7c83402fa6ddf6e51632b4df"
+      },
+      "review_note": "已审查唯一builder生产适配：verify_profile对runtime7完整manifest预期由1改0，与父项零静态池一致；工具角色、command、完整source/overlay/profile/artifact绑定及失败关闭均保留。正式独立ebf434eb7c83402fa6ddf6e51632b4df为10tests/0skip通过，source_stable/process_stopped/execution_exited均true。父项实际三类最终guest及独立离线回放488/478/491raw通过，1121输入冻结图与主目录一致。最终2份文件逐一主目录hash与正式fingerprint一致，审查依据包含父项隔离副本保留源码和完整失败历史。仅接受该必要adapter，不外推warm-PCID或真机门。",
+      "legacy_hash": "48e9a77758f615cc186a9b5491e4da289295dee9c9e18c5b8fb6caf16c3f81ef",
+      "claim_from_status": "todo",
+      "integration_note": "已真实复制必要builder adapter至code/tests/p2_pcid_build.py，交付至coordination/dongos_works/codex-works/deliveries/P2CDBUILD1.md；移交前基线预检和原文件备份完整，父目录transplant-manifest.json记录before/after。最终2文件主目录fingerprint与独立验收实物完全一致，完整1121源码输入与最终客体图一致。登记本地文件集成；无commit/push。"
+    },
+    {
+      "id": "codex:P2CDTYPE1",
+      "number": "P2CDTYPE1",
+      "owner": "codex",
+      "title": "P2CD1阻塞修复：按PAT×MTRR实际有效类型验证GOP准入",
+      "description": "用户授权完成P2CD1剩余修复。实际TCG C完成后D准入0x06150004；原始A硬件BOX证实PAT4=WC且GOP有MTRR UC。既有cache_type_plan.effective_type和Intel SDM表13-7规定PAT WC/MTRR UC实际仍WC、PAT UC实际UC。runtime_cache独立硬编码MTRR必须WB过窄，与已验收有效类型规划不符。按每页解析MTRR，再用既有effective_type分别证明WC、UC两轮目标，不修改PAT/MTRR或放宽保留位/未知类型/冲突/每CPU原始相等/期限/持有。新增UC/WT/WP/WC/WB原始MTRR正常模型和非法/重叠冲突/变化拒绝，真实生产坏体防止恢复WB-only或绕过有效类型判断；独立0skip源码稳定审查后集成。原错误不重标通过，主P2CD1仍待C/D客体正负证据；无提交推送。Intel依据https://cdrdv2-public.intel.com/868137/325462-089-sdm-vol-1-2abcd-3abcd-4.pdf 表13-7。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/mm/runtime_cache.dg",
+        "tests/runtime_cache_probe.c",
+        "tests/test_runtime_cache.py",
+        "docs/runtime-cache.md",
+        "codex-works/deliveries/P2CDTYPE1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_runtime_cache"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T11:43:44+00:00",
+      "updated_at": "2026-10-24T12:01:35+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2CDTYPE1-board.md",
+      "delivery": "codex-works/deliveries/P2CDTYPE1.md",
+      "claimed_at": "2026-10-24T11:43:45+00:00",
+      "completed_at": "2026-10-24T11:55:44+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_runtime_cache",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 213.437
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/mm/runtime_cache.dg": "d9c341c0e22bfeb585f11f08632c3742b2dd5e8aec3a46d03de6a08c6aae913b",
+          "tests/runtime_cache_probe.c": "f8a2b3583195ead85b7e0d677302de30e72ff45dcd3837f40a95dee269884d35",
+          "tests/test_runtime_cache.py": "18e002ad54e9a61f4cd5f735dbfeebccdb7703197b281c186e5c9b1c051d2153",
+          "docs/runtime-cache.md": "96325a2d8fccdacc0b28dfb8f2ac3ca914ab43b907634a0362e15c7c63ea639d",
+          "codex-works/deliveries/P2CDTYPE1.md": "729f71ac252a0f5303f2068916ad441b4145ba67fda51d8f1574077a781e443e"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T11:59:50+00:00",
+        "job": "82cf626668fe437c803de857b41405c0"
+      },
+      "review_note": "已实际审查源码与既有cache_type_plan及Intel SDM表13-7：原WB-only不等价于有效WC/UC；现每页MTRR解析成功后分别证明effective_type(WC)=WC和effective_type(UC)=UC。保留PAT0/3/4、CR0/CR4、物理宽度、全原始MTRR保留位/非法类型/重叠冲突/跨CPU一致性及运行中变化拒绝，cache维护/原期限/held不变、无WRMSR。实际审查C设备模型五种合法MTRR、非法/冲突/变化和7类实际生产坏体，debug/release共16组ELF/COFF；本机R2 1test/194.246s/0skip；正式82cf626668fe437c803de857b41405c0 1test/213.437s/0skip、source_stable/process_stopped/execution_exited。R1夹具失败保留；仅组件验收，P2CD1客体门仍未关闭。",
+      "legacy_hash": "1335f4d54276f7ef1c018284495422517386beeb18b74197c2f50729659c3b1b",
+      "claim_from_status": "todo",
+      "integration_note": "五声明文件已从隔离副本真实移交主目录，独立验收后全部SHA与正式82cf626668fe437c803de857b41405c0指纹一致；登记组件本地集成。P2CD1隔离候选使用相同四源码/测试/契约字节，父任务仍待最终客体正负及正式复验，未提交推送。"
+    },
+    {
       "id": "codex:P2DISCOVERY22",
       "number": "P2DISCOVERY22",
       "owner": "codex",
@@ -7752,8 +8503,8 @@
       "title": "P2调度后多根WB大页事务及真实AP内核消费者",
       "description": "用户顺序先完整P2后P5。P2ROOT13已integrated15，本项真实接续调度后多根WB/NX大页owner及内核AP消费者，不放宽旧active/shared/exec/cache owner准入，不修改旧WINDOW/seal/held租约，不另alloc order9。新窗口固定large_memory.WINDOW+2MiB同PML4/PDPT/PD，旧PDE0永久保留，拒绝需新顶层共享分支的情况，仍完整审kernel及所有user[1..511]。\n新增memory只读0..15可信完整根快照/recheck，包含所有initialized/ready/pinned/preloaded未admit根，不按Catalog READY过滤；拒在途stage/failure，核实际静/动态32/128池、root/Frame.cr3/Space与memory generation。services另绑定真实Catalog配置/owner token/incarnation/配置generation、Domain的队列token/root/incarnation/frame/Cpu/queue，不将不同代际相等。由large_memory只读borrow提供旧512页WB/RW/NX held物理块并用buddy只读allocation审计确认order9 head/tails，不释放/改变旧所有权。\n新runtime_large owner只支持固定NEW2MiB map/split/replace单页/拒非连续merge/恢复/merge/unmap生命周期。真实CPU0/IF0/kernel root/BKL owner0/LOCKED+active healthy Domain/PGE0为前提，逐CPU PCIDE0/1均只走新全tag协议。每个事务先全online quiesce barrier+recheck，再真实paging live，再新sequence全tag barrier；仅ACK完整后reclaim真实Retired。中途失败永久held/poison，保留lease/receipts，Domain/Bridge failed阻止用户返回，不rollback/fallback。retired/P2ROOT Scratch/根/别名/reader报告等使用arena，不增巨大BSS/帧、不扩4096帧或2MiB装载预算。\n不改Domain/Cpu ABI布局，在user_domain增加一次注册的可信poll hook（默认null），仅CPU/IF0/kernel root/已完整捕获的IDLE/KERNEL/LOCKED状态执行；保持现有屏障/legacy/捕获/返回守卫。新reader ASM真实volatile读NEW+5page，记录actual CR3/CR4/CPU，独立request/ACK序号，不能以flush次数冒load。正常services BKL一次触发，必须每个online AP已真实user entries/timer/switch后再运行，不能塞入只读skip路径；读者为调度后kernel CR3真实内核消费者，绝不宣称CPL3高半部读取。\n保留旧WINDOW及held所有512页内容；全CPU独立warm新alias页5=A，在内核root/BKLwait保持期间split+replace到held页6=B，二次全tag barrier后同CPU再次load B，不额外MOV CR3掩盖缺APflush。真坏体只省本owner替换窗口内一个AP的实际全tagflush而仍ACK，再真实load必须精准抓A!=B；其它启动/普通PCID逻辑保持。还需根遗漏/共享项/不同代际/漏ACK/错误CPU/RETURNING未收回/提前reclaim/旧WINDOW变化/非连续merge等原子拒绝。永久native真实DG/paging+C独立raworacle、debug/release真坏实现/两格式/guards、真实构建与只读guest runner/raw replay；实现者不测试/VM，协调者独立0skip复验并在实际文件主线集成后登记。普通执行者不OS/VM/AI CLI/commit/push；root在源码/host审查后可按用户P2授权跑准备好的受控隔离VM。物理WC/PGE/任意顶层分支不属于本项通过。",
       "assignment_owner": "codex",
-      "status": "paused",
-      "rev": 48,
+      "status": "integrated",
+      "rev": 68,
       "write_paths": [
         "kernel/mm/runtime_large.dg",
         "kernel/user/memory.dg",
@@ -7791,21 +8542,260 @@
       "auto_verify": false,
       "complexity": "standard",
       "created_at": "2026-10-22T19:15:29+00:00",
-      "updated_at": "2026-10-23T06:02:55+00:00",
+      "updated_at": "2026-10-23T13:42:54+00:00",
       "historical": false,
       "document": "codex-works/tasks/P2LARGE16-board.md",
       "delivery": "codex-works/deliveries/P2LARGE16.md",
-      "claimed_at": "2026-10-23T05:33:55+00:00",
-      "completed_at": "2026-10-23T05:46:46+00:00",
-      "claimed_by": null,
+      "claimed_at": "2026-10-23T12:24:58+00:00",
+      "completed_at": "2026-10-23T12:36:39+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
       "candidate": null,
-      "verification": null,
-      "review_note": "R11仅三路径：tests/test_p2_runtime_large.py、docs/runtime-large.md、本delivery。OBS36 R7在其runner/testpcid/doc/delivery增加WHPX独有mutableOVMF_VAR cache=writethrough强持久性配置及严格argv门，不改B production/算法/API/观察profile。此前B R10 b6d5正式54/0skip/stable/stopped/exited，R5全部旧B18保持指纹。实际normal-r10-wire1一boot/5launch/BbeforeE13-afterE19正常，原B validate+独立2MiB/PTE/readers A-B-A-A/16barrier2reclaim/12roots核验报告7c1f22d0...，但laterPCID90s无满足全部门的候选，整体false ca375fdb...；原失败留档。OBS R6仅必要AP实际CS33提前拒优化已经140/11.490s/0skip独立宿主预检，新源无actualpass。旧omit-r10-wire1首STOPevent0到return1343ms后UARTtimeout，2epoch无B/owned10392exit0/inputs stable，原result56789033...保留false。rootdiagnostic5仅VARScache更强，真实query-block pflash1.writebackfalse/no-flushfalse，data仍writebacktrue/no-flushfalse，CODEreadonly与ESP不变，STOPevent/return都<15.625ms；原数据5384bbfd...acceptancefalse/terminal不cont不冒双boot。R7源码正式采用候选还须全部formal+actual证明，不延长guest期限/90s采样或关flush。\n你只适配test_p2_runtime_large.py:129的最简launch argv fixture为完整合法双pflash（CODE readonly+VARS mutable）、ESP与id=data cache=writeback，保留该测试全部原machine/cpu/topology/interrupt原断言与其它47原方法，不改变productionrunner/overlay。与OBS作者entry_review协调WHPX normalize/verify严格门接口，不以无pflash跳过真实门维持toyfixture。可新增真正B caller对新严格adapter API边界拒绝/传播控制，不删旧Host38/ActualBuild8/Request1；原full54可随新增上升。doc/delivery如实写仅fixture和新host环境proof准备，既有B算法/guest生产14+runner等其它15路径冻结，旧profile默认/actualnegative精确AP1旧值held逻辑不改。作者只实现/静态检查，不编译测试VM/状态/Git，冻结SHA交root独审；root预检/正式全矩阵/新fresh normal+omit各双boot+strict replay+raw独核后才验收集成，P2partial/P5未实施/未push关机。",
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_runtime_large",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 64.937
+          },
+          {
+            "spec": "module:tests.test_p2_runtime_large",
+            "passed": true,
+            "tests": 58,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 586.375
+          },
+          {
+            "spec": "module:tests.test_user_domain",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 70.0
+          },
+          {
+            "spec": "module:tests.test_user_smp_barrier",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 12.938
+          },
+          {
+            "spec": "module:tests.test_buddy",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.984
+          },
+          {
+            "spec": "module:tests.test_paging",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.812
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/mm/runtime_large.dg": "2f45344d8a4e3a70c475a9c2d0a248817fce40c4f40f8be88d04885bfb123018",
+          "kernel/user/memory.dg": "ca72b4a695f8b87179befcb68359f81d4fdea5df3041510966a66b69cf0b5ca6",
+          "kernel/user/services.dg": "5d3e5ba6d5e0a1af7a52b2d25e0d5f48392e9cc8e9fe94aaa72d9fdb966bfe4f",
+          "kernel/sched/user_domain.dg": "2e639577b66094c122eedf64179556a6e60fe3702b4a3341b80b1d38f49e0797",
+          "kernel/sched/runtime_large_reader.asm": "c212c45c323b06efed092ae85482735d6ce1dd0937671a23cf52bf27717dd1a1",
+          "kernel/smp/large_memory.dg": "b62416f74dccffc4eaecca230d14b6e7f64cf8b189f6f72f16309f9c7adecb49",
+          "kernel/mm/phys_buddy.dg": "af2de720d420e939496322025a17685f14bb2ecc77fac106b8e8509789e6f737",
+          "tools/build.py": "1e383c08eb1ab8caa0df817a56889e2f8019edd89dd06914732a1b59eb73c456",
+          "tests/runtime_large_probe.dg": "9b03062430c710306acc2bdd074233d9b79d0865a7de4f2b2197452cdf8760bf",
+          "tests/runtime_large_probe.c": "0d0dc5458f2cee9a1be48f174d5e8d1bb3635839fb48414771124a0128be6cb3",
+          "tests/test_runtime_large.py": "c0d1fd62b8747d220439a73008d4e618bcb88e8b33cce62f725ec5c0111d0ae4",
+          "tests/p2_runtime_large_build.py": "a1bd719663ec8920cd081d48486e0d21378f6325fae251b86eb1484f861ec97c",
+          "tests/run_p2_runtime_large_qemu.py": "10213b82261cb887846dfadd763c9893934f8ded4881d14ede0462875a2bad95",
+          "tests/test_p2_runtime_large.py": "67562e91fc975b449a3c75f6ec3f538f1214461fad66b1080d1c98d8f59fd5bd",
+          "tests/test_user_domain.py": "ddfe3e1100ea3cf486ab3a7980a7cade6917090d918190ecccc36d9152863ada",
+          "tests/test_buddy.py": "a59aa88cd2ebb3baae7427e709f55cf79b7e6a1e0a5fc8f493831e80115250dc",
+          "docs/runtime-large.md": "20ae47b779871f3c16dbdc8d93fa2ccda48f7541d4d839beaa03655f460a0d3f",
+          "codex-works/deliveries/P2LARGE16.md": "54e4f0396f3ed77e1e82bf45caecb825a781bf0f5beb2dd220c9e683f020be5d"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-23T12:49:20+00:00",
+        "job": "4363ad07fc1145dbba775a2d817710b6"
+      },
+      "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
       "legacy_hash": "e1ededa0bca7abd8b0fb004b6c262ebc2d1644cb85935e45261fe7a6aff0439a",
       "claim_from_status": "rework",
       "pause_note": "用户最新明确要求立即上传完整当前代码并关机，停止继续P2/P5实施。请求停止当前R11复验及其子进程，保留已有测试/失败证据；当前尚未完成双boot正常/负控、严格回放及独立验收，不标accepted/integrated。上传为当前工作检查点。",
-      "pause_control": "confirmed",
-      "resume_status": "submitted"
+      "integration_note": "已完成真实文件本地主线集成：主目录18个声明文件逐项SHA256匹配R15独立正式复验指纹；正常/精确漏刷/实际flush返回错误共六启、严格回放及独立raw审计均通过。accepted rev67后单独登记integrated，不代表Git提交/推送。证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json；既往失败保留，P2其他消费者/P5/物理WC不由本项关闭。"
+    },
+    {
+      "id": "codex:P2LEDGER44",
+      "number": "P2LEDGER44",
+      "owner": "codex",
+      "title": "P2帧缓冲独立授权账本及映射撤销生命周期",
+      "description": "接续已集成B/OBS与CACHE组件。生产仅kernel/user/memory.dg；不改services或runtime_cache。阅读build/test/p2-historical36-review/cd-task-book-draft.md与cd-ledger-harness-notes.md作为设计参考，旧B待验文字已过时，不作为当前状态。本卡只实现独立ledger，不宣称C/D actual或物理WC通过。固定公开API：FramebufferSnapshot{epoch:u64,physical:u64,bytes:u64,count:usize,aliases:[64]runtime_roots.Alias}；snapshot_framebuffer(out:*FramebufferSnapshot,roots:*const RootSnapshot)!void；recheck_framebuffer(snapshot:*const FramebufferSnapshot)!void；framebuffer_epoch_pointer()*u64。永久ledger/scratch用service_memory arena，BSS仅指针，不增加大局部帧。publish_framebuffer在SMP前从runtime.boot_info真实BootInfo读取PA/size（不得将HHDM当PA），独立核完整kernel WC映射后发布；重复/不同aperture/overflow原子拒，initialize不清已发布ledger。每项保留root/identity/generation/VA/PA/bytes/flags/leaf_bytes，canonical序，kernel完整GOP页包络，user保持原compositor前缀。map前核slot/root/generation、全absent、容量/范围/冲突、epoch预算并预留journal；真实map/失效完成才提交；部分失败永久held并阻止snapshot/启动/再准入。stage_abort/destroy实际撤销且原失效退休完成后才删除授权，禁止新代覆盖旧代。所有外部PA/owned/share入口按实际页包络拒GOP重叠。snapshot准入核完整森林WC与独立发布项相等；recheck核epoch/authority/根代际，不强制转换中PTE仍WC；epoch仅独占cache提交，Gate token独立。必须执行真实memory+paging，C独立walker；synthetic只限startup/resources/hardware，列明来源和override。覆盖publish/map/abort/destroy/同slot新代、短user/全GOP尾页/隐藏alias/第N页失败/提前删项/padding/epoch溢出及失败不变；真坏DG须编译成功、同oracle正常exit1拒绝。可读取LM P2VEC42数据作边界用例，不得把fixture通过冒真实ledger通过。测试/交付须给source稳定证据，由协调器独立复验后验收集成。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 9,
+      "write_paths": [
+        "kernel/user/memory.dg",
+        "tests/framebuffer_ledger_probe.dg",
+        "tests/framebuffer_ledger_probe.c",
+        "tests/test_framebuffer_ledger.py",
+        "docs/p2-framebuffer-ledger.md",
+        "codex-works/deliveries/P2LEDGER44.md"
+      ],
+      "depends_on": [
+        "codex:P2ROOT13",
+        "codex:P2CACHE20",
+        "codex:P2LARGE16"
+      ],
+      "checks": [
+        "module:tests.test_framebuffer_ledger",
+        "module:tests.test_runtime_roots",
+        "module:tests.test_paging",
+        "module:tests.test_service_launch",
+        "module:tests.test_desktop_recreate",
+        "module:tests.test_gui_font_portal"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T08:50:23+00:00",
+      "updated_at": "2026-10-24T09:24:35+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2LEDGER44-board.md",
+      "delivery": "codex-works/deliveries/P2LEDGER44.md",
+      "claimed_at": "2026-10-24T09:14:57+00:00",
+      "completed_at": "2026-10-24T09:15:25+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_framebuffer_ledger",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 173.078
+          },
+          {
+            "spec": "module:tests.test_runtime_roots",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 40.328
+          },
+          {
+            "spec": "module:tests.test_paging",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 7.984
+          },
+          {
+            "spec": "module:tests.test_service_launch",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 39.875
+          },
+          {
+            "spec": "module:tests.test_desktop_recreate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 12.969
+          },
+          {
+            "spec": "module:tests.test_gui_font_portal",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 192.735
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/user/memory.dg": "6a38eb28ad56d0f2eda40735c129ad0a53b14b60bf3c7a6870681625bf21da45",
+          "tests/framebuffer_ledger_probe.dg": "6fe72e5ce07683de5b707734bf5440bf9aa30de133c3368b326262750e1aa1d0",
+          "tests/framebuffer_ledger_probe.c": "5d97b90df85e6904e5fdf5ecbb48965e483b6db60a254f66043242951a05189d",
+          "tests/test_framebuffer_ledger.py": "9af821856ef7f2c55faf9a67697ccf5e90db967ea611ca0099a328971160c8e4",
+          "docs/p2-framebuffer-ledger.md": "1f6aa2f8bf797bc63d2c1d63387b32e4a78a054b71f65d950c2971d490d78e0e",
+          "codex-works/deliveries/P2LEDGER44.md": "fd3d8cdd8a336579637f6bec3162fbfbcbbc7e6842ddb461c6aff31da2c7989c"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T09:23:36+00:00",
+        "job": "85481e0d327745dab512a9a646576cf5"
+      },
+      "review_note": "源码/契约审查通过：独立raw BootInfo发布、arena journal/held、原撤销flush/unbind后删项、完整forest与发布项对比、根快照复核且转换阶段不误核WC、HHDM前置边界已核。C直接原始PTE检查20正常+10真坏Dong运行；五坏体两模式编译成功并正常exit1，未以panic冒负控。正式85481e0d327745dab512a9a646576cf5六组9tests/0skip/source_stable/进程退出全通过；R1完整runtime7构建339source、99staged、7artifacts独立SHA一致，kernel1978768B。仅验收ledger宿主组件，不声称C/D实际、暖PCID、物理WC或客体运行通过。",
+      "legacy_hash": "adfda4e420c24987e5a0f6cbd90c9d18fa9341e40fdd98b9e021efbc85436da3",
+      "claim_from_status": "rework",
+      "integration_note": "六授权文件已真实落盘主目录并逐项SHA与独立冻结指纹一致。正式9项零skip、源稳定且进程退出；同源runtime7 release构建完成并复算339输入/99内核暂存/7产物。登记本地主线工作树集成，未提交推送或运行VM。后续C/D实际消费者和硬件门仍保留。"
     },
     {
       "id": "codex:P2LIVE1",
@@ -7917,6 +8907,77 @@
       "legacy_hash": "2c3e87fb1947f571ef4429238e3b5d3cba7fb48030c86f5f5ef3007a11b49bb2",
       "claim_from_status": "todo",
       "integration_note": "真实本地文件集成已完成并预检通过，非仅状态登记。reviews/2026-10-21-P2LIVE1-integration.json逐一记录14声明主文件与正式rev4指纹完全一致，9关键文件与最终freeze一致，主目录8源码根共1299文件同a2/b2/r2实际构建/运行来源；m2仅paging一个故意坏语句。独立review明确PASS且14指纹复核稳定；8个既有P5关键文件SHA及HEAD 28fae186eade64aac9eec17fcc2fb30913b948f6未变，其它既有dirty保留。正式12项0skip、独立与真实guest证明均完整后，先accepted rev5，再登记本地integrated；原失败和范围边界保留。不建PR、不提交、不推送。"
+    },
+    {
+      "id": "codex:P2LMTEST41",
+      "number": "P2LMTEST41",
+      "owner": "codex",
+      "title": "P2本地模型小任务独立夹具校验与接续状态校准",
+      "description": "用户继续P2并授权本地LM Studio完成简单任务。Codex编写独立fixture验证器，分别检查GOP页包络已知向量和runtime_cache真实错误常量映射；自测要求正常数据通过、错rounding/overflow/字段/重复ID/错错误码拒绝，LM不可修改验证器。同步P2实际剩余为ledger、C/D实际接线、独立warm-PCID，物理WC真机待验保留；不重复已integrated组件。本项不关闭P2。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "lmstudio-works/tests/p2_fixture_contract.py",
+        "lmstudio-works/tests/test_p2_fixture_contract.py",
+        "lmstudio-works/tests/test_p2_rounding_vectors.py",
+        "lmstudio-works/tests/test_p2_cache_errors.py",
+        "codex-works/deliveries/P2LMTEST41.md"
+      ],
+      "depends_on": [
+        "codex:P2CACHE20",
+        "codex:P2OBS36",
+        "codex:P2LARGE16"
+      ],
+      "checks": [
+        "discover:lmstudio-works/tests:test_p2_fixture_contract.py"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T08:43:59+00:00",
+      "updated_at": "2026-10-24T08:46:32+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2LMTEST41-board.md",
+      "delivery": "codex-works/deliveries/P2LMTEST41.md",
+      "claimed_at": "2026-10-24T08:44:01+00:00",
+      "completed_at": "2026-10-24T08:45:02+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "discover:lmstudio-works/tests:test_p2_fixture_contract.py",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.218
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "lmstudio-works/tests/p2_fixture_contract.py": "1f8f62628817c8d6e263fa67b63a047e8fe92fba68743ebf5a8e8639d48755d6",
+          "lmstudio-works/tests/test_p2_fixture_contract.py": "7c4ff948cb1a23f4c87fd88e90b91fab4c376e014692260e5da98bc63e3d9992",
+          "lmstudio-works/tests/test_p2_rounding_vectors.py": "bc6b7779c1c1a486d1ea588c7f950c6ec079b96c06c5035583b93c6a139ac4ad",
+          "lmstudio-works/tests/test_p2_cache_errors.py": "c638245ddf199dee36ab1d9b48269ab1e6410135a7f14952608ebd7bbe0a6d8a",
+          "codex-works/deliveries/P2LMTEST41.md": "9ee07e2f6dbfb1abd7419ad67ad3e32fa7fb8ef1bd730e1a464e6dfb84222c84"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T08:45:14+00:00",
+        "job": "1cbbfce655d34c37be29e227fe53fce7"
+      },
+      "review_note": "实际审查边界规则、独立手算答案及反控；正式1cbbfce655d34c37be29e227fe53fce7 4项零skip通过，源码稳定且进程退出。码表验证实际读取生产DG常量，模型不能修改测试。5文件主目录SHA与正式一致。",
+      "legacy_hash": "5f34eefa55f091243e788d656ee7edc0ac7baddaa980089a31cc5c8dc72bf6ca",
+      "claim_from_status": "todo",
+      "integration_note": "5声明文件已真实落入主目录且SHA匹配accepted，登记测试门集成。不代表P2或实际GOP授权通过。"
     },
     {
       "id": "codex:P2MASK18",
@@ -8186,8 +9247,8 @@
       "title": "P2 显式历史 CapturedImage 与暂停外原始审计",
       "description": "用户最终顺序P2全部软件/本机→P5全部软件/本机→真机待验留档→完整代码GitHub提交推送→关机，执行中不询问。OBS34 v2 integrated6/正式36；795 R6 B完整37零skip与两份新1108source/286artifacts构建通过，但实际normal-r4首ps超时且输入不变/ownedVM退出/final_disk_verified真。root独立6bulk+424slice闭合；真实stop确认0ms、6bulk235ms、暂停内Python审计4453ms、总4688ms；424派生文件在cont后250ms落盘，明确不能放宽原1s guest期限。修复最小真实paused阶段stop/query→六原始bulk→四CPU只读HMP→封存E及serial边界→runner显式cont/query。重型constructor BootInfo/ELF/privatepool验证、PCID/B组装/解码只在真实运行或owned退出后针对独立CapturedImage(E)执行。live PcidGuest.pause/physical/kernel/current_epoch/hmp始终真实paused-only；历史view不能持QMP/UART/控制入口、不能伪造stopped或把历史PA数据冒当前读取。明示source epoch/observed seal time/真实derived queued time/file materialization time与running或exit批次；v2 queued<=resume约束不能偷放宽/回填，须独立v3 profile/方法，旧v1/v2各用旧immutable runner，显式拒错profile。历史slice仍完整canonical file/len/SHA/PA/bulk_id/offset；最终owned退出后fresh所有磁盘hash/parentbytes/metadata/serial/timeline，late tamper/repeatedflush/xboverwrite/主异常/失败cont全原门保留。不新增pmemsave、RAM/reg/TSC/clock/deadline/ACK写。bootstrap重审计由base明确overridable hook拆开，默认其它runner原流程不变，历史审核后明确校验并只回传必要初始化字段；禁止全局monkeypatch或泛化proxy暴露controller。GUI使用明确历史snapshot receipt+新鲜epoch/token/实际fresh ps/kill回执，不把历史Catalog缓存接作当前Guest.catalog；slot/incarnation/root复用和sync/disk顺序保持。B由原任务R7四路径接续同API，before→五真实ordinary UART launch→after→laterPCID顺序严格，serial_offset在cont前固定，不取运行后len(raw)。先提出跨task窄API给root/B负责人再实现。原bulk17/pcid19/GUI控制不删弱，新增真实production边界控制重型审计发生在cont之后、view无controller/活Guest运行读拒、历史派生真实时间/跨epoch拒/运行中无RAMfallback/晚期篡改拒、GUI身份fresh和实际UART、失败捕获/cont/预算/cleanup保留。实现者不编译测试VM；root冻结后独立检查四模块、B Host兼容+原完整37；新sourcegraph再fresh构建和quiet WHPX正常/精确负控。若最小采集仍超过原期限，继续held/observer-disturbed，不改生产deadline，另设resident历史trace。",
       "assignment_owner": "codex",
-      "status": "submitted",
-      "rev": 27,
+      "status": "integrated",
+      "rev": 37,
       "write_paths": [
         "tests/run_desktop_settings_qemu.py",
         "tests/run_process_lifecycle_qemu.py",
@@ -8215,13 +9276,13 @@
       "auto_verify": false,
       "complexity": "standard",
       "created_at": "2026-10-22T23:48:41+00:00",
-      "updated_at": "2026-10-23T05:47:24+00:00",
+      "updated_at": "2026-10-23T13:42:12+00:00",
       "historical": false,
       "document": "codex-works/tasks/P2OBS36-board.md",
       "delivery": "codex-works/deliveries/P2OBS36.md",
-      "claimed_at": "2026-10-23T05:33:52+00:00",
-      "completed_at": "2026-10-23T05:46:45+00:00",
-      "claimed_by": "codex-mcp-daece153b59c4bd5",
+      "claimed_at": "2026-10-23T11:51:36+00:00",
+      "completed_at": "2026-10-23T11:52:11+00:00",
+      "claimed_by": "codex-mcp-839d838dd7b04cc5",
       "candidate": null,
       "verification": {
         "passed": true,
@@ -8236,19 +9297,19 @@
             "timed_out": false,
             "process_stopped": true,
             "execution_exited": true,
-            "elapsed_seconds": 5.734
+            "elapsed_seconds": 3.672
           },
           {
             "spec": "module:tests.test_p2_pcid",
             "passed": true,
-            "tests": 33,
+            "tests": 38,
             "skips": 0,
             "returncode": 0,
             "cancelled": false,
             "timed_out": false,
             "process_stopped": true,
             "execution_exited": true,
-            "elapsed_seconds": 0.64
+            "elapsed_seconds": 0.625
           },
           {
             "spec": "module:tests.test_user_smp_gui_control",
@@ -8260,7 +9321,7 @@
             "timed_out": false,
             "process_stopped": true,
             "execution_exited": true,
-            "elapsed_seconds": 0.422
+            "elapsed_seconds": 0.406
           },
           {
             "spec": "module:tests.test_p2_historical_capture",
@@ -8272,7 +9333,7 @@
             "timed_out": false,
             "process_stopped": true,
             "execution_exited": true,
-            "elapsed_seconds": 3.906
+            "elapsed_seconds": 2.625
           }
         ],
         "process_stopped": true,
@@ -8282,23 +9343,24 @@
           "tests/run_desktop_settings_qemu.py": "7c35a4cb2ac99fe3dc362cbf40d7ee9ad063aaf646e1a02453bb0f03bb8ce661",
           "tests/run_process_lifecycle_qemu.py": "b1ff4a101f8295c5643919da0daeb204a7f679a66d6c2685c3c24ec354dcea84",
           "tests/run_current_user_smp_qemu.py": "ed319c5a60841caaa240d81e7b19593d20e4f407712f0c53b964cb426ff6323f",
-          "tests/run_p2_pcid_qemu.py": "fea3a57d320cad5a3d2ae7933a42653e869bd920709c22676cb6904bb3795d92",
+          "tests/run_p2_pcid_qemu.py": "e21a1ac5a6948414d00a7a20f5cb204dbd3293b8fc3fcb1a3331ee243633ac6e",
           "tests/p2_bulk_capture.py": "4bf720a0e30d555365ec41b5c4139f00057672e8f4ca09ef1bc80466ee19797a",
           "tests/p2_pcid_oracle.py": "d7c4443dadde048e0499fa499f63d8c92d550270bd6420534bf5d6fd50c4f418",
-          "tests/test_p2_bulk_capture.py": "d97e2f6dab856c4707d4387b4aa780ea7342265f44c7c43564e9d4d35f5428a3",
-          "tests/test_p2_pcid.py": "9e9d9d4d59ee6637939b0cbe106f99f82eab8c8d537f9f521af43ad102f830a1",
+          "tests/test_p2_bulk_capture.py": "8460a6af5677380b91c7b345feee2e7bd54462b29f3672f7edbd356401ffd4ef",
+          "tests/test_p2_pcid.py": "c9ba4071569c696acbd452521744861347ed64dda4868f47ccf510d93c9135ee",
           "tests/test_user_smp_gui_control.py": "11ab7e36493c6cf38e77f18f22e1952d248a4dfa4398ce370c4db1929e9959b3",
           "tests/test_p2_historical_capture.py": "18f357e72699d61dd3f3c94b3128430da39e5bab6a92bd0129dffbaf7424b8eb",
-          "docs/p2-observer-capture.md": "1795e31026f544acbd404e184f98bcf17a4efc25d74365d814bc922b4241d2f1",
-          "codex-works/deliveries/P2OBS36.md": "fa4f4725d15ea2bd3d258b3455246fec4d896d90f80839c873bcaed97c93cc4d"
+          "docs/p2-observer-capture.md": "794b880a969d4ae9aea44dad088769b194dc78fc677240f705baa4e752227910",
+          "codex-works/deliveries/P2OBS36.md": "43911efd13ebb0ea03e3799587159d7daa1ee43026520788ea7352faf6ff500f"
         },
         "summary": "定向复验通过，等待源码/契约审查",
-        "finished_at": "2026-10-23T05:47:24+00:00",
-        "job": "aacbfb1bf6e0464fab534f784317e93b"
+        "finished_at": "2026-10-23T11:58:46+00:00",
+        "job": "0553d178506e4026bec83d2adc021e7c"
       },
-      "review_note": "R7仅四路径：tests/run_p2_pcid_qemu.py、tests/test_p2_pcid.py、docs/p2-observer-capture.md、本delivery；R6历史测试保持冻结。R6submit23已root独立140/11.490s/0skip预检通过，必要AP早拒代码/6新控全部保留，独审a47a2f90...；尚无formal或actual新pass，不把它改记通过。\n新证据旧冻结b6d5 omit-r10-wire1 result56789033...仍false/1boot/2epoch/无B，owned10392exit0/stable。透明QMP记录首STOP事件0→stop return1343ms→query-status0，真实慢段在STOP之后；独立root445raw全部核验，符合QEMU停核后drain/flush位置，但不独占排除host调度/发送。prelaunch HMPflush三rw backend诊断a22d809b...仅attempt，各0ms但启动后STOP766ms，不能采纳该方案；running HMPflush持BQL可阻断WHPX进展，诊断4只写build未执行，不采用。\nroot仅mutableOVMF_VAR cache=writethrough受控诊断5：额外build-only harness ee6962421e954b085e9b21300107ad4719826bb5f2d9f9bc466ecd2cd25c1065，source/tools输入稳定、owned33760exit0、terminalfirststop后不cont、acceptancefalse；first-stop-diagnostic.json SHA5384bbfdf961abd9efba137c25d987767d7c9d34c1308801ef129626d6d47a06。before/after argv仅index17 VARS字符串新增cache=writethrough。首cont前真实query-block：pflash1.rofalse/writebackfalse/directfalse/no-flushfalse；data.rofalse/writebacktrue/directfalse/no-flushfalse；CODE pflash0 readonlytrue及ESP保持原；首次STOPevent0/return0（15.625ms量化非零耗时保证）。这只是候选配置诊断，未完整capture/cont/GUI/B/双boot，不计实际验收/保证。官方QEMU raw→file pflash同步blk写在writecachefalse下FUA/仿真flush将真实持久化移固件阶段，原stop final drain/flush保留。CODE readonly/ESP/data/writeback均不改；仅针对WHPX可写VARS，TCG/KVM旧行为保持。\n必须在Pcid本地launch_command做纯argv窄适配及严格verify：WHPX实际命令必须恰双pflash（唯一readonly CODE、唯一可写OVMF_VARS.fd）及唯一id=data cache=writeback可写，拒缺失/重复/歧义、重复/错误cache、cache.no-flush等覆盖或全局-snapshot、改CODE可写/缓存、data readonly/unsafe/丢writeback。只允许唯一mutableVARS新增cache=writethrough，已正确值可幂等用于verify，错误旧值/unsafe等不得自动洗白。verify必须拒被移除cache（不能补后直接视为原命令同一）、重新哈希坏argv不通过。所有非VARS参数字节保持，正确处理QEMU逗号转义文件路径，不naive split破坏文件尾；保持base builder真实启动路径，不改tools/build.py/B生产/PGE/所有guestABI/期限/时钟/ACK/初始hash。现PCID两个及BHost一个最简无drive toy argv需补完整合法双pflash/data/ESP fixture并保留原断言；BHost路径由B R11负责人适配，不偷改。本项只改本四路径，和B冻结接口协作。\n新增有效Host控制包括真实adapter幂等/唯一变更、file逗号保留、错误/重复cache、VARS只读/CODE可写、dataunsafe/writeback丢失、missing/duplicate drives/global snapshot拒、verify拒去cache/重新hash坏argv；不得以找不到pflash便跳过严格WHPX门保持toy测试。既有R6全部102控和PCID/negative/IO/cleanup门不删弱。无新运行中QMPflush，无关闭durability，无新增Clock/客体写。作者不编译测试VM/状态/Git；实现静态冻结SHA交root/独审，root独立预检/正式OBS全矩阵+B全54或新增总数、新源normal+omit镜像/各双boot/strict finalreplay+raw独审后才accepted/integrated。P2partial/P5未实施，尚未push/关机。",
+      "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
       "legacy_hash": "aed9e4327b9352c553b3ffe6f297e6a0c299f695cc45b4fc2b495da5dc164864",
-      "claim_from_status": "rework"
+      "claim_from_status": "rework",
+      "integration_note": "已完成真实文件本地主线集成：主目录12个声明文件逐项SHA256匹配独立正式复验指纹；同源三场景六启及严格回放/raw审计通过。登记与accepted分开；不代表Git提交或推送。完整证据见reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json。"
     },
     {
       "id": "codex:P2OOM4",
@@ -8569,6 +9631,82 @@
       "legacy_hash": "a0241674ab0a98c9ad1bd98a8a3bb93977763ac505d901928218df728b3c7e25",
       "claim_from_status": "todo",
       "integration_note": "六授权实物已实际落main工作树code及works映射，主目录指纹与正式34f5...六文件完全一致；先accepted再单独登记integrated。原user_entry.asm保持b1e9057b772bb9367ee2a2de2762cd59025c57761b062e41b129097bcaa8a325，Raw/Header/旧入口ABI和callback精确身份保持。生产C/D仍须绑定真实Block/32records及独立sourcePA provenance并跑新actual门，本项不越界关闭阶段。Git统一提交推送仍在P2/P5全部软件/本机复验完成后执行。"
+    },
+    {
+      "id": "codex:P2REG45",
+      "number": "P2REG45",
+      "owner": "codex",
+      "title": "P2既有服务启动与桌面重建回归夹具接续",
+      "description": "P2LEDGER44运行声明的回归发现两项旧夹具编译失败：test_service_launch抽取的生产服务函数已调用large_request但夹具未提供；test_desktop_recreate的独立memory stub缺map_framebuffer。两测试不执行本轮ledger生产实现，保持原原生正负判定、拒绝放宽检查或skip，仅补齐新已集成接口的明确模拟边界，暴露并断言必要调用。不得修改生产源码/其它测试，不声称替代ledger实际页表测试。通过独立正式两测试后集成。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/test_service_launch.py",
+        "tests/test_desktop_recreate.py",
+        "codex-works/deliveries/P2REG45.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_service_launch",
+        "module:tests.test_desktop_recreate"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-24T09:05:36+00:00",
+      "updated_at": "2026-10-24T09:09:37+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P2REG45-board.md",
+      "delivery": "codex-works/deliveries/P2REG45.md",
+      "claimed_at": "2026-10-24T09:05:43+00:00",
+      "completed_at": "2026-10-24T09:07:37+00:00",
+      "claimed_by": "codex-mcp-14ca67a3341042c4",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_service_launch",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 33.5
+          },
+          {
+            "spec": "module:tests.test_desktop_recreate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 10.157
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/test_service_launch.py": "bc72e45ad2956eaffaade7a83b1d1517ee9dbee157c795dee7bb867206a614fc",
+          "tests/test_desktop_recreate.py": "77e9ef425f5e5b9c8723dd7f2733b8ac72d92ddfee44128f1af5197572dfca8e",
+          "codex-works/deliveries/P2REG45.md": "e4fc5da9bbfa948e3cf5e9c42f96f5d1a69a0d703cff51244ce95d99d0c356cf"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T09:08:36+00:00",
+        "job": "cdcce3a19ad74b0a9ddaf7f7e3a9f6b9"
+      },
+      "review_note": "逐项审查两夹具补充：large_request明确mock且核memory.ACTIVE==16/未失败；map_framebuffer复用原C精确id/VA/PA/rounding检查，无放松/skip。正式cdcce3a19ad74b0a9ddaf7f7e3a9f6b9两测试零skip通过，原真实错误源码仍由C拒绝，source_stable/进程停止退出均true。此门仅服务/桌面兼容回归，不冒真实ledger/WC。",
+      "legacy_hash": "fa8d3f4543ed63287b2b99c77eace74e0e84cc05d30b89cd956bac1cf7d482cb",
+      "claim_from_status": "todo",
+      "integration_note": "真实两测试及交付已在主目录；逐文件SHA256与正式冻结fingerprint相同，未从候选冒充集成。独立2tests/0skip通过且源稳定，登记本地主线工作树集成；不提交推送。"
     },
     {
       "id": "codex:P2ROOT13",
@@ -10050,6 +11188,1383 @@
       "legacy_hash": "865db60a761e7aa32a151d93858eb476c3caebf122bebfdae3ed89de32f86e83",
       "claim_from_status": "todo",
       "integration_note": "已完成真实本地文件集成：七授权路径均实际位于主工作区；逐一重算SHA与正式rev4 verification的七项fingerprint完全一致，五测试/观测文件还与真实control/fault冻结副本及独立审查SHA一致。文件映射与证明封存reviews/2026-10-21-P5CTX2-integration.json。P5CTX1两生产文件SHA保持既定823fc277...及548c6daf...，HEAD仍28fae186eade64aac9eec17fcc2fb30913b948f6，其它既有改动保留。accepted rev5已通过；本次只登记本地集成，不建PR、不commit、不push；P5范围仍为partial，held1/drain UNKNOWN，无DMA回收或重启。"
+    },
+    {
+      "id": "codex:P8BOOTDIAG1",
+      "number": "P8BOOTDIAG1",
+      "owner": "codex",
+      "title": "真机黑屏的UEFI屏幕阶段与错误诊断",
+      "description": "用户Intel真机从H盘runtime0启动后黑屏有信号。仅补引导器可见诊断，不推断实际根因或放宽4GiB/映像校验/内存规则。EFI入口在串口前显示版本/S00；读盘、校验、GOP、ACPI等阶段与早期原错误码上屏。首次最终GetMemoryMap/ExitBootServices序列前永久关闭固件打印，包括失败重试和fatal，后续不得调用固件控制台。Microsoft x64 ABI、有限长度ASCII→UTF16、空控制台与错误返回需实际原生执行验证。当前无存储runtime0重建与正常、损坏/缺失映像客体验证；准备新介质但需用户插回H盘后才更新。真实硬件门保持待验。只改声明六文件，build输出另存，原第一次镜像/失败保留。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "boot/efi_main.asm",
+        "boot/loader_console.asm",
+        "tests/test_loader_console.py",
+        "tests/loader_console_probe.c",
+        "docs/loader-console.md",
+        "codex-works/deliveries/P8BOOTDIAG1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_loader_console",
+        "module:tests.test_image"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T09:06:07+00:00",
+      "updated_at": "2026-10-25T09:14:43+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8BOOTDIAG1-board.md",
+      "delivery": "codex-works/deliveries/P8BOOTDIAG1.md",
+      "claimed_at": "2026-10-25T09:06:12+00:00",
+      "completed_at": "2026-10-25T09:12:41+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_loader_console",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.938
+          },
+          {
+            "spec": "module:tests.test_image",
+            "passed": true,
+            "tests": 13,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 2.235
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "boot/efi_main.asm": "5142c36bb33ef37fb8194cebec14774c1a740519b70228f613fba5571fc9dab4",
+          "boot/loader_console.asm": "1f8a8ea3fc5e48752314d67c11afe0d9f609249341cad9cdcc2bc76d6fbbf1b4",
+          "tests/test_loader_console.py": "e42aa947e84ed3c303daba572d51bdb412d103eb9ba5fca918c59a9fd5d7785a",
+          "tests/loader_console_probe.c": "75594a5f0433fab605f9e493c195bf284c764d3ef2a9985f304807bb0eecbfa7",
+          "docs/loader-console.md": "9dd708225c4eabbda1b22fc8e57a59ccd17a117e94029d04d7b96212a7cd7222",
+          "codex-works/deliveries/P8BOOTDIAG1.md": "e299357fb727a395c27c2ceda530e97491f01571178880e3da1dd387a68b5b8b"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T09:13:08+00:00",
+        "job": "3e65aa9682154e548f8a928f3310ee69"
+      },
+      "review_note": "实际审查两生产ASM、独立C/原生测试及契约：Microsoft x64对齐/shadow与非易失状态正确；ASCII有限长度且UTF16/ASCII缓冲与callee shadow分离；固件调用在首个最终GetMemoryMap之前封存，重试/fatal后仅串口，未放宽4GiB/BootInfo/映像拒绝。独立3e65aa9682154e548f8a928f3310ee69共2+13=15tests/0skip通过，source_stable/stopped/exited。正常、真实篡改和缺失镜像三个当前EFI客体分别原PASS/E08/E04，完整串口精确一次并有真实截图；根已目视正常与E08画面。最终EFI972dc5a5…绑定三运行，内核与首轮U盘逐字一致且独立解包核对。六主目录文件逐SHA与正式fingerprint一致。仅验收可见诊断能力；真机黑屏根因/阶段门仍待新物理观察，U盘未插回，未登记介质已更新。",
+      "legacy_hash": "0266921396873e824e0a1efe9bc3582c82ad70d7a4a0bcccf1fa77ccf1f58946",
+      "claim_from_status": "todo",
+      "integration_note": "六声明文件真实位于code/及coordination/dongos_works中，已独立通过15项零skip正式复验并逐SHA核对与fingerprint完全一致，accept后单独登记本地文件集成。正常与两类拒绝客体绑定EFI972dc5a5…，当前R2可见诊断介质候选位于code/build/hardware/bootdiag-20261025-r3/source/esp；已准备同一SanDisk身份/旧SHA预检、原件备份与读回验证脚本。H盘当前不在开发机，未执行写回，真实硬件仍黑屏待定位；新观察前不将P2/P8标通过。原失败全部保留，无commit/push。"
+    },
+    {
+      "id": "codex:P8GOP1",
+      "number": "P8GOP1",
+      "owner": "codex",
+      "title": "真机E10的GOP分辨率回退与分支诊断",
+      "description": "用户真机图证S01加载器低跳板和镜像校验成功，S04报E10；原runtime3通过，runtime7独有display_mode强制1920x1080，实际桌面契约已支持800..1920x600..1080、width<=stride<=2048、RGB/BGR。修复为有界枚举<=256模式，优先最大有效像素面积（仍优先1080p），失败候选按次优重试，必要使用完整验证后的当前模式；每次Query buffer释放一次，FreePool失败停止；SetMode后检查实际Mode/Info/格式/范围/低4GB framebuffer和容量，不截断/不支持BLT-only或bitmask。800x600等fallback必须通过真实native回调与缺Free/坏排序/漏actual验证的实际坏体。efi新增GOP分支原因及完整64位数值诊断，失败仍在EBS前；不打印未验证buffer字段，不越界查Mode/Info。root实际VM验证1080p原模式与只暴露fallback的模式，独立定向测试0skip源稳定后验收/集成。保持USB-only profile、P8低跳板/EBS契约和kernel/services不变；H不在则仅准备待插回，不写其它盘、不格式化、不Git提交推送。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 10,
+      "write_paths": [
+        "boot/display_mode.asm",
+        "boot/efi_main.asm",
+        "tests/test_display_mode.py",
+        "tests/display_mode_probe.c",
+        "tests/test_loader_graphics.py",
+        "tests/loader_graphics_probe.c",
+        "docs/loader-gop-fallback.md",
+        "codex-works/deliveries/P8GOP1.md"
+      ],
+      "depends_on": [
+        "codex:P8USBONLY1"
+      ],
+      "checks": [
+        "module:tests.test_display_mode",
+        "module:tests.test_loader_graphics",
+        "module:tests.test_loader_console",
+        "module:tests.test_loader_handoff"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T12:36:37+00:00",
+      "updated_at": "2026-10-25T13:14:59+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8GOP1-board.md",
+      "delivery": "codex-works/deliveries/P8GOP1.md",
+      "claimed_at": "2026-10-25T12:59:45+00:00",
+      "completed_at": "2026-10-25T13:05:51+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_display_mode",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 3.062
+          },
+          {
+            "spec": "module:tests.test_loader_graphics",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 5.266
+          },
+          {
+            "spec": "module:tests.test_loader_console",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.89
+          },
+          {
+            "spec": "module:tests.test_loader_handoff",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 8.516
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "boot/display_mode.asm": "86abf55fe16165d4d3b2c1217b439a64f09063501ab842703ce6d4095e107dac",
+          "boot/efi_main.asm": "1e35d3db680edc670a387cfc7e00c7f7d1e0740f74567a834143e287a97f5bf2",
+          "tests/test_display_mode.py": "d523289fc09c656115104bff8ca4e11d183043f88e3b8483da77519d48424a87",
+          "tests/display_mode_probe.c": "eacb67219af02edfb05d38d3ac19cc50704a48300f2a18c83f3f9d7a3745294d",
+          "tests/test_loader_graphics.py": "47929991842420b3e8bc5bfb3ee5b2a0e3bb4cdad3bde8bf5d51c3a2b21b9453",
+          "tests/loader_graphics_probe.c": "c4bdb8f71ad3c01c87dbc5d370af44e9b972f0a179f670906984de2bf27327c4",
+          "docs/loader-gop-fallback.md": "d5e97ec3e8d9f4b7037df39f1b3d4daf6bad029479fdb1b293b018957192b966",
+          "codex-works/deliveries/P8GOP1.md": "e7f66e74a2dc4d38138fe5ac99f20e8913744ce507b3d05f6120330cace78886"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T13:06:32+00:00",
+        "job": "bc6de4297c56409abf5c67ebdd47f900"
+      },
+      "review_note": "实际审查8声明文件的GOP契约/Win64ABI/所有权/失败回退/Info守卫/完整低4G地址和容量约束、UEFI类型对齐、原低跳板及最终EBS边界。native实际坏体缺Free/漏actual/坏ranking/漏low4G/删typed对齐均由执行或COFF符号oracle拒绝。返修独立job bc6de4297c56409abf5c67ebdd47f900 四模块7项全部PASS/0skip/source稳定/进程已退出；r1失败及UEFI ASSERT现场完整保留且未发布。r2完整build源稳定，仅2boot ASM变化，最终14类型符号map对齐PASS，kernel旧版字节一致、17服务actual ASM/PHDR/全部ALLOC同值。root实际r2 live-full-1080/result.json passed=true，两WHPX启动全HID字符/按钮/F12pwd消费、mkdir/write/append/rm/cat/sync及CBW/CSW/FLUSH、17ELF及kernel代码和各CPU健康检查全过，second整USB SHA与first同51107ec8d2b80d86712ce60512b4e57e2cd86d5752ab27d9dc914257fd98ce45。cirrus fallback/result.json passed=true，固件仅3模式且实际800x600 BGR桌面，真实截图/UC像素/ELF/池/CPU/USB视图/同步强审计通过；此fallback不另声明实际HID，HID在1080两boot完成。三VM全停止、observer源稳定、三个可写内盘整SHA始终未变。现在可发布原H；真实Intel桌面/HID仍待用户复测，不代替物理PCID/WC验收。",
+      "legacy_hash": "26b9c140ba6e5ec2b61e2d7ff02aa52b805ea2b2911a23a19c7e3260d20cb246",
+      "claim_from_status": "rework",
+      "integration_note": "声明8文件已真实落在主源码/交付目录，独立7项与r2完整build指纹匹配、最终typed对齐已检查，actual1080两boot+Cirrus800x600全过后完成发布。原SanDisk H serial4C530000010320109015/disk2/USB非系统/单MBR FAT32几何前后不变；旧4文件已在build/hardware/usb-gop-20261025-r2/usb-publish/before完整备份。只替换BOOTX64.EFI(29696B SHA ef523ac810db866f1df95983c4e5bdaf3ead54b3ed5cde6cc94c3265e1940874)、配套SERVICES.BIN(33333248B SHA0402983df59e488e04b0dd18e11dd619902890dc7234306cb1a3c737af134c88)和DONGTEST.TXT，原DONGOS.IMG保留b263...cef0；全部flush/fsync并从H完整读回SHA一致。最终原卷native只读全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，已正常退出；回执usb-publish/receipt.json含全SHA及native结果。没有格式化/分区/原始磁盘写入/内盘写入/Git。所有实际VM已停。首轮UEFI对齐回归和publisher UTF8预检失败均保留且未发布首轮候选；最终R4已可交用户实机再测，物理桌面/HID尚待反馈。"
+    },
+    {
+      "id": "codex:P8HIGH1",
+      "number": "P8HIGH1",
+      "owner": "codex",
+      "title": "高地址UEFI加载与低地址页表交接兼容修复",
+      "description": "用户Intel真机R2报告S00/START/E01_LOADED_IMAGE_RANGE。原已交付PE默认首选0x140000000(5GiB)，当前self检查拒绝>4GiB；E01也共用于HandleProtocol失败，新增实际base/size/status可见取证。不做删除安全检查式修复：允许已验证自身包含entry的高地址映像，在最终map/EBS前分配独立低地址EfiLoaderCode页，复制无外部引用的交接代码及私有GDT，先跳入低页才切CR3；切换后不能访问原PE、高EFI栈或原GDT。保留BootInfo/服务/trace ABI、低4GiB映射、2MiB内核、GOP严格要求、EBS无固件回调封存。独立原生验证range/copy/bounds/坏体，实际低/高载入客体须用完整地址证明，正常和hash/missing拒绝均回归。不宣称实际目标硬件通过，更新H介质待插回。声明六文件及build普通产物，不提交推送。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "boot/efi_main.asm",
+        "boot/loader_handoff.asm",
+        "tests/test_loader_handoff.py",
+        "tests/loader_handoff_probe.c",
+        "docs/loader-high-address.md",
+        "codex-works/deliveries/P8HIGH1.md"
+      ],
+      "depends_on": [
+        "codex:P8BOOTDIAG1"
+      ],
+      "checks": [
+        "module:tests.test_loader_handoff",
+        "module:tests.test_loader_console",
+        "module:tests.test_image"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T09:23:08+00:00",
+      "updated_at": "2026-10-25T09:36:21+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8HIGH1-board.md",
+      "delivery": "codex-works/deliveries/P8HIGH1.md",
+      "claimed_at": "2026-10-25T09:23:08+00:00",
+      "completed_at": "2026-10-25T09:34:23+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_loader_handoff",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 8.5
+          },
+          {
+            "spec": "module:tests.test_loader_console",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.688
+          },
+          {
+            "spec": "module:tests.test_image",
+            "passed": true,
+            "tests": 13,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 2.235
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "boot/efi_main.asm": "d70f6aba475483348199eee2ca6e4a9460d590d954874b808f50ec16b35e1549",
+          "boot/loader_handoff.asm": "bd7b110d51494e1be34ce9480ed99aee04f3f66e1072b38f77cc8655e3bb41ec",
+          "tests/test_loader_handoff.py": "476f98ad1ddd0c0f16792c679e0619be872d48d3148919caccb34460444fe834",
+          "tests/loader_handoff_probe.c": "c67e9d233e8c326ef28abd9e6339cc928d99a5877a5f21f2a94e04cfa231c227",
+          "docs/loader-high-address.md": "9ae845931eb81acf88af73d059b9b8fed2b2de779c9e418cd49cdbac94037f93",
+          "codex-works/deliveries/P8HIGH1.md": "e4682eb0d02d52f3aaa7ccaaea33b5817b7d6b7b1712ca328d7e3044aa2c8836"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T09:35:15+00:00",
+        "job": "3054c45d502645828a1ccf4dd7c8c98d"
+      },
+      "review_note": "实际审查production两ASM/契约/native oracle：range严格排空/溢出/entry越界，高地址不盲拒；final-map前LoaderCode低页、自含284B/8RIP闭包、私有GDT/GDTR/IDTR与低栈，先跳低再CR3/CS，无原PE引用，服务trace寄存器保持；E14有界串口保留，原4GiB bootstrap/GOP及2MiB窗口未放宽。独立3054c45d502645828a1ccf4dd7c8c98d 2+2+13=17tests/0skip，source_stable/stopped/exited。实际五客体全部通过：旧R2自然5GiB运行在0x140001d73停E01；新低/真实5GiB正常原PASS，新真实5GiB篡改/缺失原E08/E04。根目视旧E01和新high正常截图；独立pmemsave的BootInfo/最终raw map证明type1唯一覆盖低页、无Conventional重叠，GDTR为低副本地址；实读CR3物理walk确认原PE不在新root。三源码build前后SHA稳定，内核与首轮USB逐字不变，六主文件与正式fp一致。仅接受修复，不宣称目标真机或完整runtime7矩阵通过；H待插回。",
+      "legacy_hash": "1d02ca8eb6436a909ecaae6a211dbd7f522d43a1b233f488e579348e1ad71c0a",
+      "claim_from_status": "todo",
+      "integration_note": "六声明文件已实际位于code/及works_root并逐SHA与独立验证fp一致，完成accept后单独登记本地集成。正式17零skip与五类真实客体/raw物理审计均已通过；最终源码稳定、EFI29bdd9c4…、原内核3c904bb4…绑定。无存储USB DIAG R3候选及旧R2备份/新旧SHA预检/刷盘flush读回脚本位于code/build/hardware/high-loader-20261025-r2/；H当前未插回，尚未更新介质。目标Intel真机仍待重试，不计整体P2/P8/暖PCID/物理WC通过。没有提交或推送Git。"
+    },
+    {
+      "id": "codex:P8LAPIC1",
+      "number": "P8LAPIC1",
+      "owner": "codex",
+      "title": "真机LAPIC Runtime-MMIO的定向UC映射兼容",
+      "description": "用户新图精确证据：S01/error03030002/CPU8，DEVICE_SLOT0，MADT LAPIC address/page/base FEE00000，descriptor pages1/typeB=11，attributes最高RUNTIME位设置。当前policy把runtime type11也当RamConflict，而该bit是UEFI虚拟运行时映射要求并非RAM类型；内核EBS后无EFI runtime调用/SetVirtualAddressMap，旧root/宽HHDM已退休，新root显式白名单，allocator仅非runtime type7，device映射为supervisor WRITE|UC/NX且platform读前核MSR地址。最小修复仅允许slot0可信MADT LAPIC的type11带RUNTIME，其他slot runtime type11继续拒绝，所有非11(含Reserved/runtimecode/data/RAM)、retained/duplicate/几何/原子性/UC flags保持，rawmap attrs不改、不硬编码FEE或整串attr、不改user.devices或allocator/EFI服务/预算。原生debug/release/O0O2实际planner+prepare新增runtimeLAPIC成功/ctx全零/PTE权限与query→map顺序，其他runtime设备仍fail且0sideeffects；真实旧拒绝/误放所有runtime/误放RAM坏体应正常oracle拒绝。独立0skip/source稳定。root正常USB-only runtime7两boot原GUI/HID/FS/CPU强gate，以及8CPU私有EFI type11+runtime LAPIC descriptor结合真实IRQ线程完成的regression VM，核原描述符不变/UC supervisor NX PTE与无WB/HHDM别名、129ticks等原IRQ契约；必要私有guard1→2停在S03取证不能冒充正常成品。原SanDisk已插H，验证后核身份/旧SHA、备份flushfsync全readback及readonlyFAT审计，不format/partition/internal/Git。物理是否继续到desktop待用户复测。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/boot/device_policy.dg",
+        "tests/device_policy_probe.c",
+        "tests/test_device_policy.py",
+        "tests/device_memory_diag_probe.c",
+        "tests/test_device_memory_diag.py",
+        "docs/hardware-runtime-lapic.md",
+        "codex-works/deliveries/P8LAPIC1.md"
+      ],
+      "depends_on": [
+        "codex:P8MMIO1"
+      ],
+      "checks": [
+        "module:tests.test_device_policy",
+        "module:tests.test_device_memory_diag",
+        "module:tests.test_boot_progress",
+        "module:tests.test_framebuffer_gate",
+        "module:tests.test_runtime_qemu_result"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T15:17:25+00:00",
+      "updated_at": "2026-10-25T15:39:50+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8LAPIC1-board.md",
+      "delivery": "codex-works/deliveries/P8LAPIC1.md",
+      "claimed_at": "2026-10-25T15:17:26+00:00",
+      "completed_at": "2026-10-25T15:28:56+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_device_policy",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 19.86
+          },
+          {
+            "spec": "module:tests.test_device_memory_diag",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 26.734
+          },
+          {
+            "spec": "module:tests.test_boot_progress",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 18.656
+          },
+          {
+            "spec": "module:tests.test_framebuffer_gate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 17.547
+          },
+          {
+            "spec": "module:tests.test_runtime_qemu_result",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.406
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/boot/device_policy.dg": "7b16b401b05b57073190a49ebefb6ad5bad2929bbdf51080eebecd9dc881043a",
+          "tests/device_policy_probe.c": "7ffebdfd1c425b8349cf9b6bb773b3661d5b319601fb82837e050de8a58f92de",
+          "tests/test_device_policy.py": "b8745110c24a8588bd90bdb9299b61c2e080a6bb253aefd3eab4752f2e30952a",
+          "tests/device_memory_diag_probe.c": "edb70e0d37ad6e03013de1e0cc3c872ff90c612f115726af2a0b6bfebe802bb7",
+          "tests/test_device_memory_diag.py": "4254d6dd25dfa6e274d0b12e26a4a96e50b5cd5de5ec16bb979b86a342d12314",
+          "docs/hardware-runtime-lapic.md": "73b441c10342bb0f21e28e4d291b101caa46bc5bcc35447d63eacc4205f5f280",
+          "codex-works/deliveries/P8LAPIC1.md": "52654b16e69b15726360bf622f004d64ff23af373f76636a540b8c896accd974"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T15:30:51+00:00",
+        "job": "25499c6bb1484f4a9b961f03af7a54b5"
+      },
+      "review_note": "已审查7文件及UEFI原定义/当前根缓存所有权：生产仅kind!=11 || (runtime && slot!=0)，只MADT LAPIC type11 Runtime兼容；没有地址/attr串硬编码和UCcap位猜测，其它Runtime槽/全部非11/retained/duplicates/geometry/原子性/Plan184/Views88/Conflict88保持，rawattrs只读。无EFI runtime调用/SetVirtualAddressMap，旧root/PGE/PCID宽alias已退休，新root显式白名单/allocator仅非runtime type7，device安装supervisor WRITE|UC/NX，platform先核APIC_BASE。native policy1041+85及prepare各222真实场景/多capmask12×两API、strictUCflags/query→map和原子性，旧拒/误放Runtime/ReservedRAM/吞错/截断发布等实际坏体由oracle正常拒绝。独立job25499c6bb1484f4a9b961f03af7a54b5五模块7项PASS/0skip/source稳定/进程退出。完整USB-only runtime7 source build稳定。root live-full正常两WHPX boot完整HID/F12pwd/GUI/写追加删读syncFLUSH/代码池页表及全部CPU健康通过，state14 failed0 error0 view0 ctx88全0；两boot整USB SHA均66e1225edb0cc26ad949c616167b415661dc03b843db5571041f99cf7520369e。runtime-proof8CPU私有EFI原LAPIC descriptor type11 attrs800000000000100D与真实rawmap完全一致，只有kernel guard cmp1→2在真实runtime_begin后取证，materialized kernel一字节差；真实平台/调度BSS与串口原oracle/engine/guards/控制器验证129ticks65switches两worker64ticks失败0，slot0 Runtime MMIO已实际读写并产生IRQ，ctx0，真实CR3==retained root==View root，设备PTE exactRW/UC/NX/super且HHDM LAPIC不存在。受控终态S03/error1/cpu8记录，不冒称完整SMP或desktop8通过；原oracle只投影已证一字节guard的terminaldelimiter，真实metrics/报告/寄存器未改。三VM全停，normal objects/observer源图不变，受控USB与3可写内盘整SHA不变。可发布正常修复版原H，实际Intel是否越过S01到desktop仍待用户复测。",
+      "legacy_hash": "da07250dc8378e855d7809a476c4ef73786e12aae5bd7d8b0f66ceed99588e61",
+      "claim_from_status": "todo",
+      "integration_note": "7授权文件已真实集成主code/及coordination交付目录，指纹与独立复验25499c6bb1484f4a9b961f03af7a54b5一致；源码契约审查、5模块7测试0skip/source稳定、正常runtime7两次完整桌面/HID/F12pwd/USB文件操作与CPU强观察器、8CPU Runtime LAPIC真实IRQ线程129ticks/65switches/UCsupervisorNX PTE和无HHDM别名证据均已通过，三VM已停。已核原SanDisk disk2序列4C530000010320109015/USB/7798784000B/单FAT32 H:/offset131072及旧四文件SHA，完整备份在code/build/hardware/usb-lapic-20261025-r1/usb-publish/before；正常修复EFI/IMG/SERVICES与说明已flush/fsync写入并全SHA读回一致，非私有guard候选。EFI 8e5a903d98cf8cf5dbaffcf75aa8c1cfcda580e65c0632dea9e74d521944f17b，IMG a2995517b6b6d79e7d1448aee352e669e54a9b49e21b3a20904c603c83c593c9，SERVICES b1525883415712c210e5bd0e228ecc80c6be230e3b7137949059246815faedc3；receipt.json记录身份前后及manifest和两VM报告hash。实际卷原生readonly-volume审计正常返回：mount_error0 ready1 readonly0 dirty0 clusters=BPB=1899872 reads53263 writes0 flushes0 bad_io0 canaries1，rb未修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk/Git改动；真机是否越过S01及桌面/键鼠仍待用户启动反馈，不将VM取证等同于物理验收。"
+    },
+    {
+      "id": "codex:P8MMIO1",
+      "number": "P8MMIO1",
+      "owner": "codex",
+      "title": "真机S01 RamConflict的设备页与原始描述符诊断",
+      "description": "用户真机S01 IRQ PREPARE/CPU_COUNT8/FIRST_ERROR0x03030002，已精确对应device_policy.add映射前拒绝非MMIO11或RUNTIME描述符；未知设备与原始type，不能把错误名当普通RAM事实，也不能直接放开Reserved。保持所有原规划/输出原子性/UC ownership/检查/预算/USB-only策略，仅追加版本化88B只写诊断上下文：version,valid,error,slot,address,page,descriptor_index,type,descriptor_base,pages,attributes（11qword）。原plan与device_prepare两参数接口语义不变，新增nullable诊断接口经device_memory/runtime_probe导出，runtime7 ASM传独立kernel BSS上下文，不改Plan184/Views88。只有真实RamConflict分支在已验证rawmap后发布context.valid1，其他失败/success/无上下文不能显示旧内容；新out必须不别名输入/Plan，错误不发生设备映射/invalidate/MMIO读写。屏幕仅S01/failed/error匹配/versionvalid时在原两个Gate writer内以640x480亦安全布局显示stage/CPU/error/slot/DEV_ADDR/UEFI_TYPE/DESC_BASE/PAGES/ATTR，完整64位，不新增writer、不重开Gate/首次CPL3后不画，原无context屏幕保持。native debug/release实际planner+原强fixture/截断发布坏体、actual device_memory.prepare副作用stub证明RamConflict零query/map/invalidate、actual renderer独立像素oracle及坏体；独立0skip源稳定。root正常USB-only runtime7完整build/原桌面HIDFS两boot强gate和私有冲突屏VM，截图/raw记录匹配，失败历史保留。原SanDisk已插H，身份和旧成品SHA核验/备份/flushfsync全读回/只读卷审计，不格式化/分区/内盘/Git；只交下一轮准确定位，不猜根因或宣告物理桌面通过。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/boot/device_policy.dg",
+        "kernel/boot/device_memory.dg",
+        "kernel/runtime_probe.dg",
+        "kernel/runtime.asm",
+        "kernel/entry.asm",
+        "include/boot_progress.inc",
+        "tests/device_policy_probe.dg",
+        "tests/device_policy_probe.c",
+        "tests/test_device_policy.py",
+        "tests/test_device_memory_diag.py",
+        "tests/device_memory_diag_probe.c",
+        "tests/boot_progress_probe.c",
+        "tests/test_boot_progress.py",
+        "docs/hardware-mmio-conflict.md",
+        "codex-works/deliveries/P8MMIO1.md"
+      ],
+      "depends_on": [
+        "codex:P8STAGE1"
+      ],
+      "checks": [
+        "module:tests.test_device_policy",
+        "module:tests.test_device_memory_diag",
+        "module:tests.test_boot_progress",
+        "module:tests.test_framebuffer_gate",
+        "module:tests.test_runtime_qemu_result"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T14:22:35+00:00",
+      "updated_at": "2026-10-25T14:51:57+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8MMIO1-board.md",
+      "delivery": "codex-works/deliveries/P8MMIO1.md",
+      "claimed_at": "2026-10-25T14:22:36+00:00",
+      "completed_at": "2026-10-25T14:41:42+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_device_policy",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.516
+          },
+          {
+            "spec": "module:tests.test_device_memory_diag",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 11.719
+          },
+          {
+            "spec": "module:tests.test_boot_progress",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 15.171
+          },
+          {
+            "spec": "module:tests.test_framebuffer_gate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 16.172
+          },
+          {
+            "spec": "module:tests.test_runtime_qemu_result",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.406
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/boot/device_policy.dg": "dc22291ccc720d7166724b37a50bc138c91446945f0c138f1aedcd5fee7be606",
+          "kernel/boot/device_memory.dg": "7636257c135016807bd463108e932bb8bc9c0a729542a3285787dd6757175e75",
+          "kernel/runtime_probe.dg": "9302bc60b431bcc340de4786de4ad1e72db88fba70c386db3208eed0dad22d0c",
+          "kernel/runtime.asm": "a8fe98e99bb7e4aa0e2452b6adcc5233c37c7d41b365f91387346a92fbc6da4d",
+          "kernel/entry.asm": "c06e7671c76a084f2564d9992e8e108efb669044e37a5d30f63d6acd9cc40688",
+          "include/boot_progress.inc": "f7512bde9f1a0c3f5054bf88f764cd0eca453d17b43838f135435f4d91cb5e43",
+          "tests/device_policy_probe.dg": "7e7c2195a56886e93c1d9dabca70ba3043403e1d8bc0dcaaa935900415f577a2",
+          "tests/device_policy_probe.c": "30f05a780a449e6bd8559e8336a92dd65d1919f59479f7664995a4d4164ff0f3",
+          "tests/test_device_policy.py": "48e6d5f87f0e4058032f4ceaddf748577a582a6cda37cdd49d1419f6edee1d77",
+          "tests/test_device_memory_diag.py": "dd8c2c729fd81b09bd77942959e1a71fee32126ebe85087165404c867d0d215d",
+          "tests/device_memory_diag_probe.c": "f0ef44a7c1a6ba9dcdbcf47bd530116caaeff90b5745e0d4396d29ab9daa8fcc",
+          "tests/boot_progress_probe.c": "cd82ff3ffdfb33ad3f691971dc304272ba0f2852cf858ac77334aabfc6b5c6f6",
+          "tests/test_boot_progress.py": "591db8699c440ffc6dfc3e340a535d561889a8809ceca3b0f5cdcdaa96ce844e",
+          "docs/hardware-mmio-conflict.md": "c9c2653e643e3d6203e6bd539e71775c7007714770341f107c1c6fdd4bbd2ff1",
+          "codex-works/deliveries/P8MMIO1.md": "f315c09557e20be28fc6fc643e5392b8280ba833f974b3f10ddd7bcd21d07436"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T14:43:22+00:00",
+        "job": "8193bb8be6094e9ea2dbe26d0f12bade"
+      },
+      "review_note": "实际审查15文件及新ABI/边界/alias/失败原子性：原type11且非RUNTIME接受谓词、retained/重复页/几何/Plan184/Views88保持，旧接口null语义保持；88B Conflict在全部alias/overflow校验后清零，真实RamConflict分支写valid0/fence/valid1，Plan/Views仍原子失败。runtime7传独立BSS三参数；只有S01/failed/firsterror/version/valid/error_code精确匹配显示9行，原2writer/Gate/geometry/首次CPL3 disable保持，无候选MMIO探测。实际policy旧1041+53诊断、prepare debug/release各186场景含零query/map/invalidate/touch、renderer182场景/两format/64bit，真实吞guard/漏valid/截断/错offset坏体均oracle拒绝；compiler↔ASM↔C 11字段88B一致。独立job8193bb8be6094e9ea2dbe26d0f12bade五模块7项PASS/0skip/source稳定/进程退出。完整USB-only runtime7 build源稳定；root正常live-full两WHPX boot全原HID/F12/GUI/FS写追加删读syncFLUSH/代码池页表及CPU健康门通过，均phase14/failed0/error0/view0/cpus4且ctx88B全零，second整USB SHA=first b3dbbab5a9db27e9960e53c3c11e0e2f63449a2279fcec60b38f5861918d6559。私有EFI conflict-2仅postEBS交付map追加LAPIC reserved fixture，正常kernel/IMG/services字节均未改；真实planner产生S01/error03030002，ctx11字段与rawmap index125/stride48/basefee00000/pages1/type0/attr0及sealed UART marker完全相同，9行真实QMP像素逐项通过，未进入IRQ/THREADS/SMP/service，USB和3可写内盘整SHA不变。三VM全停，normal源/objects未变。首次fixture observer用错BootInfo map indices导致断言失败，保留conflict/；已依据实际160B捕获校正为4/5/6并重跑通过，不改变验收门。可发布正常候选原H；物理冲突设备/type仍待用户新照片，不推断Reserved为RAM，不宣告已修复或物理桌面通过。",
+      "legacy_hash": "464ab03e5fbd1afb086bebdba6763067d37c50b8a924cc01fa124768835397b6",
+      "claim_from_status": "todo",
+      "integration_note": "15声明文件已真实落盘主目录且与独立7项0skip/source稳定指纹一致，正常完整USB-only两boot及私有EFI真实冲突屏均通过且全停；Plan/Views/旧接口/接受条件/超时/USB-only权限不放宽。新三参数只观察原冲突字段、冲突零query/map/invalidate，normalctx88B全零。已将正常source/esp发布原SanDisk H serial4C530000010320109015/disk2/非系统USB；单MBR FAT32 offset131072 size7798652928前后不变。旧4文件完整备份r1/usb-publish/before；新EFI29696B fd7ae7302e6b212d069feb20ea9093dffd079cd130f5f33205c0a0b0d53cab03、IMG2007170B d0a88eb28a2fa599a2597d4708c7c14d98c2df48de7d89270d56fd08a62ca611、SERVICES33333248B a0466f5f43e312ea5b4727eddcae0a8ac2c5a3e92259d9c827fb99a712e755c1及说明971B均flush/fsync并H全SHA读回一致。最终原卷native readonly全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53263 writes0 flushes0 bad_io0 canaries1，进程已退出，receipt.json绑定原卷日志及normal/controlled VM SHA。无格式化/分区/原始磁盘/内盘/Git。私有EFI fixture与首个观察器BootInfo索引错误失败留作历史未发布；H正常诊断候选入口仍R4，S01 error2新增DEVICE SLOT/DEV ADDRESS/UEFI TYPE/DESC BASE/PAGES/ATTR。实际Intel冲突设备与类型未知，等用户新照片后定向兼容修复，不宣告真机冲突或桌面已通过。"
+    },
+    {
+      "id": "codex:P8STAGE1",
+      "number": "P8STAGE1",
+      "owner": "codex",
+      "title": "真机ACPI画面后停滞的有界屏幕启动阶段诊断",
+      "description": "用户确认R4已越过GOP且60秒停P3 ACPI READY，原runtime3物理THREADS PASS，当前正常USB-only runtime7没有后续屏幕检查点，不能据此判定ACPI/USB故障。补runtime7专属BSP同步阶段及失败原始64位码显示：IRQ准备/线程完成、可选AVX、SMP/AP/large/TLB/parallel边界、service ELF准备及首次CPL3前；只在既有Framebuffer Gate与原geometry验证内绘制，保持两个外层writer，使用已arm的RuntimeView，未arm/closed gate不访问MMIO；禁固件/驱动探测/guest写入注入，不改变runtime0/3/4/5/6预处理行为、算法校验、超时和USB-only权限。所有hook保留输入/返回寄存器和flags、SysV对齐，不在已arm计时器到sched_start或发布SMP deadline的临界区插入渲染，不在首次CPL3后写framebuffer。native执行实际helper/renderer验证阶段、失败码、guard/canary、Gate拒绝和真实坏体；原Gate与runtime观察器回归及独立0skip/source稳定；root完整重建runtime7 USB-only并实际VM验证主桌面/HID/FS原强契约，必要实际失败体证明阶段定位且不假PASS。原SanDisk已插回H，更新前核身份与R4成品SHA，备份flush/fsync/readback；不格式化/分区/内盘/Git。真机结果待用户复测，只交诊断不猜根因。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 10,
+      "write_paths": [
+        "kernel/entry.asm",
+        "kernel/boot_progress.asm",
+        "include/boot_progress.inc",
+        "kernel/runtime.asm",
+        "kernel/smp_runtime.asm",
+        "kernel/services_run.asm",
+        "tests/test_boot_progress.py",
+        "tests/boot_progress_probe.c",
+        "docs/hardware-boot-progress.md",
+        "codex-works/deliveries/P8STAGE1.md"
+      ],
+      "depends_on": [
+        "codex:P8GOP1"
+      ],
+      "checks": [
+        "module:tests.test_boot_progress",
+        "module:tests.test_framebuffer_gate",
+        "module:tests.test_runtime_qemu_result"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T13:23:56+00:00",
+      "updated_at": "2026-10-25T14:06:42+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8STAGE1-board.md",
+      "delivery": "codex-works/deliveries/P8STAGE1.md",
+      "claimed_at": "2026-10-25T13:49:12+00:00",
+      "completed_at": "2026-10-25T13:57:01+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_boot_progress",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 11.594
+          },
+          {
+            "spec": "module:tests.test_framebuffer_gate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 19.718
+          },
+          {
+            "spec": "module:tests.test_runtime_qemu_result",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.407
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/entry.asm": "ab2efce6280f7b3413f0d62918a7b1697f0f48845de230063bfc7cae509bce72",
+          "kernel/boot_progress.asm": "90299f230a9fbf6c23ba9c41965d50d80cb51c2b9566b58ea0cfa1d1a707aad9",
+          "include/boot_progress.inc": "fb51ad17da64c4604a2e8f0ac6c281cd4383df3a374416a82d15db4333c8021a",
+          "kernel/runtime.asm": "607932f009350cb9038e70dfb1c69ff5455d2056bbbe8a48bf4ed70078cc098a",
+          "kernel/smp_runtime.asm": "e9a82fbad873f4449096816c14ce198046864df57daa431a0ecd0c68d495545b",
+          "kernel/services_run.asm": "78d27db14e96e1e100966696bbbd339b1f00cf75fd411e1820e0803282cb14c1",
+          "tests/test_boot_progress.py": "848103da3075efd97015f1038683984c66ecffa82c29e5eca9596e4850a3cc44",
+          "tests/boot_progress_probe.c": "341f2f013d68f4d05eb886f34a4c5cbd2ba8561b923ef461102b9a70e44ccea3",
+          "docs/hardware-boot-progress.md": "00d66e16c1c3f11584d28e0feb7aeb54f813256cb1acd3d8323b4ec60b3628f8",
+          "codex-works/deliveries/P8STAGE1.md": "021e01da8e9c045882a5127648cb9c7c58fa2785dbe6d0fc03fbc47e4d325756"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T13:58:15+00:00",
+        "job": "1a08020b52474ddc9b48aaab3b5117b6"
+      },
+      "review_note": "已实际审查10文件：仅runtime7阶段宏，首draw成功后arm；helper全15GPR/flags/DF保留且不触XMM，唯一TU first64biterror避免macro局部符号重复；全部glyph/hex仍原2外writer内、Gate4qwords及geometry保持，未arm/closed/disable拒写；timerarm→sched→stop/AP deadline内部无hook，首次SMP/legacyCPL3前S14后立即disable。native真实宏/renderer独立像素oracle84cases1101checks O0/O2、截断/漏disable实际坏体、whole entry+2TU reader正常/旧重复回归体有效；非7profile20组ALLOC与R4一致。返修独立job1a08020b52474ddc9b48aaab3b5117b6 三模块5项PASS/0skip/source稳定/进程全退出；P8SYMBOL1另已独立integrated，generic构建工具未改。root r2完整normal build source稳定，现有reader解析实际kernel29681symbols；live-full/result.json passed true，两WHPX完整boot的真实HID/F12pwd/GUI/原代码池页表/写追加删读sync与FLUSH/CPU健康全部通过；两次实际新状态均phase14 failed0 error0 view0 cpus4，second整USB SHA与first均c672453f8b97ed16d8baa847b95846257080795522a014d80ddd457f1b70e84c。bad-stage3实际private cmp1→2坏guard重链配套EFI，materialized code仅一字节不同，真实线程先完成再显示S03 BOOT FAILED firsterror1/failed1，源码/normalobjects未变、截图逐像素/代码核对、无SMP/services后续marker。三VM全停，normal observer源稳定，USB失败体及所有可写内盘整SHA未变。H发布前只读原卷审计ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flush0 bad_io0 canaries1。可发布诊断版；实际Intel阻塞根因仍待用户下一屏，不声明物理桌面/HID/PCID/WC通过。",
+      "legacy_hash": "70620ba5dd37142d0635ca1519d9e25fc708c972d39885f9bdcb54cd0cacbec2",
+      "claim_from_status": "rework",
+      "integration_note": "10声明源码/测试/文档/交付文件已真实集成主目录且与返修独立指纹一致。独立5项/0skip/source稳定及r2实际正常两boot+受控S03失败体全部通过且全停，P8SYMBOL1补充已integrated；完整build当前源图稳定，原算法/超时/USB-only策略不放宽。H原SanDisk serial4C530000010320109015/disk2/USB非系统/单MBR FAT32起始131072大小7798652928均前后不变；r2/usb-publish/before完整备份原4文件。已刷写正常source/esp的BOOTX64.EFI(29696B cb4df70207f2a5335e7dc58a688b40696d59b0ab673c05706c94d39992583c61)、DONGOS.IMG(2003058B 2a2d0c55cf444c24ccb51ebe9bcbb94d576f53b9ed95f7a61f2cb5b704559dc3)、SERVICES.BIN(33333248B a7f463b897eef1c092a137f765e06a15d1cfb43933346cc6555d4808012061bf)及说明；每个flush/fsync+H全SHA读回一致。发布前后原卷native只读全FAT审计均PASS ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，进程正常退出，receipt.json已绑定两日志。没有格式化/分区/原始磁盘/内盘写入/Git。首轮观察器/private-include失败保留；H仅发布正常诊断版，controlled坏体独立存放。用户下次仍DIAGR4入口，内核新S01-S14/CPUCOUNT/FIRSTERROR，等待真实最后屏定位阻塞，不声明Intel桌面/HID/PCID/WC物理通过。"
+    },
+    {
+      "id": "codex:P8SYMBOL1",
+      "number": "P8SYMBOL1",
+      "owner": "codex",
+      "title": "启动观察器兼容合法NASM宏私有局部符号",
+      "description": "P8STAGE1完整成品的真实ELF含跨对象同名..@34.recorded等NASM宏私有STB_LOCAL/STT_NOTYPE标签，ELF合法但tests/run_cpu_qemu.read_elf_symbols把所有重复名字当歧义而拒绝，当前normal VM在读取符号时退出，未能验收。只在CPU观察器忽略NASM ..@ 前缀且binding=STB_LOCAL的私有实现标签；同名global/weak和普通有意义local歧义仍拒绝，不放宽required CPU symbols/结构边界/defined/UTF8等检查，不改构建已哈希tools/elf_symbols.py或生产程序。用真实NASM两目标链接ELF及精确host负例覆盖private重复可用、global重复/普通local重复/缺required/截断仍拒绝，零skip/源稳定。补充适配独立验收后P8STAGE1再进行实际完整VM及最终验收。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/run_cpu_qemu.py",
+        "tests/test_cpu_elf_symbols.py",
+        "codex-works/deliveries/P8SYMBOL1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_cpu_elf_symbols"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T13:42:39+00:00",
+      "updated_at": "2026-10-25T13:53:24+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8SYMBOL1-board.md",
+      "delivery": "codex-works/deliveries/P8SYMBOL1.md",
+      "claimed_at": "2026-10-25T13:42:39+00:00",
+      "completed_at": "2026-10-25T13:51:22+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_cpu_elf_symbols",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 5.125
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/run_cpu_qemu.py": "bb143beb9852bb7c7db30f21c2c368060de1732c84dfb592317fcb95365fec31",
+          "tests/test_cpu_elf_symbols.py": "5a36d1843b684233ba29e66df1daaeff608cebaad47c3d8792425a27167cfb71",
+          "codex-works/deliveries/P8SYMBOL1.md": "22d0e2cb3e1648905c434a445f8141d0e829af00fb2bcf617faaab04e262ff55"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T13:51:53+00:00",
+        "job": "4cde07bcf7cd42ddaaec961de80a717f"
+      },
+      "review_note": "已审查parser仅在UTF8/bounds检查后忽略info==0且..@前缀实现标签，不放宽required、普通local/global/weak/typedprivate冲突和表边界。真实NASM2TU+ld fixture18场景、旧函数实际失败对照有效；独立job4cde07bcf7cd42ddaaec961de80a717f 1项PASS/0skip/source稳定/进程退出，原CPU结果协议17项额外回归PASS。只改测试观察器，不称其解决normal generic链；主任务已另将宏错误记录收敛唯一TU并重建。无生产/VM/磁盘/Git变化。",
+      "legacy_hash": "94f49834d1f67c02c1ff936c9cd548eceef15e0630f308ceaf6cdf059529c3d5",
+      "claim_from_status": "todo",
+      "integration_note": "3声明文件已真实落盘并与独立指纹一致；CPU observer及实际ELF正负夹具完成，主目录可用，未改构建工具和生产策略。主任务P8STAGE1继续以唯一TU诊断helper兼容全部既有reader。"
+    },
+    {
+      "id": "codex:P8THREAD1",
+      "number": "P8THREAD1",
+      "owner": "codex",
+      "title": "无磁盘真机中断线程诊断的完成画面",
+      "description": "用户报告R3 runtime0已显示DONGOS P3 ACPI READY，只记录基础引导/CPU内存/ACPI/GOP用户观察，不外推P3中断线程或完整P8。准备正常runtime3无存储测试：仅当runtime_begin真实成功返回后设置完成状态并重新绘制THREADS PASS画面；尚未完成或失败不得显示PASS。原129ticks/65switches/两worker/GPR-xstate/guard时钟算法门保持，其他runtime级别预处理输出不改。仅三个声明文件，使用已集成高地址EFI交接；实际6GiB高载入客体验证完整原runtime串口oracle并目视新画面，坏体漏调runtime不得出现PASS。H介质待插回，测试版无块服务/FS/桌面/输入，不触内置盘。通过独立复验及主目录实物审查后分accept/integrate。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/entry.asm",
+        "docs/hardware-runtime-diagnostic.md",
+        "codex-works/deliveries/P8THREAD1.md"
+      ],
+      "depends_on": [
+        "codex:P8HIGH1"
+      ],
+      "checks": [
+        "module:tests.test_runtime_qemu_result"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T09:43:26+00:00",
+      "updated_at": "2026-10-25T09:52:19+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8THREAD1-board.md",
+      "delivery": "codex-works/deliveries/P8THREAD1.md",
+      "claimed_at": "2026-10-25T09:43:26+00:00",
+      "completed_at": "2026-10-25T09:50:46+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_runtime_qemu_result",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.407
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/entry.asm": "929085de440197b24b102d0ec47b92b6aa23a92a5213fd9131f8a31e7b53e295",
+          "docs/hardware-runtime-diagnostic.md": "9aad75d0d8d89d97cb7b42262ac6fa7a2be33e018e1592ac88ed4d3a0e2d40c2",
+          "codex-works/deliveries/P8THREAD1.md": "29782b89e0fc64b7998808f5d4a1188ea0ff051b4e21b31494cdfa8a6712e747"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T09:51:43+00:00",
+        "job": "b5fbb6268a394c98865545bfd2d50fca"
+      },
+      "review_note": "实际审查仅runtime3成功返回后标志/重画，初始ACPI标题保留；嵌套宏兼容旧renderer提取，完成字节在Gate存储外，原enter/leave/所有边界及其它runtime保持。正式b5fbb6268a394c98865545bfd2d50fca协议3tests/0skip稳定并退出；额外实际renderer/Gate组与协议共4tests/16.543s/0skip，完整所有级别入口汇编。未修改production runner实际过原129ticks/65switches/两worker64ticks/失败0、98物理读/4guard/3MMIO；额外全boot ASM/source绑定闭合，候选ESP与runner逐SHA相同。当前5GiB正常与实际漏runtime坏体真实执行：物理完成字节1/0，正常完整协议与THREADS PASS；坏体原kernel fail并保持ACPI READY，根已目视两屏无假PASS。三主文件与正式fp及候选冻结源一致。仅验收诊断显示；用户硬件仅已报告runtime0成功，runtime3物理待验，H未插回。",
+      "legacy_hash": "3830fe6ab8d889821b632ba0ff4a5a22542c7f4c9614590fc4b748ab111a3fae",
+      "claim_from_status": "todo",
+      "integration_note": "三声明文件已真实位于主目录，独立复验后逐SHA匹配正式fingerprint，候选冻结源/同生产runner ESP一致，accept与integrate单独登记。无磁盘runtime3线程诊断包及R3旧EFI/内核hash预检、原件备份/flush/读回脚本位于code/build/hardware/p3-threads-20261025-r1/；EFI8f77ffe3…、IMGd5b0504b…由实际正常/漏调反控和原生产硬件观察绑定。H未插回，尚未执行新介质写入；用户报告runtime0基础画面通过有单独user-observation，新的线程/USB/暖PCID/WC物理门保持待验。未提交推送。"
+    },
+    {
+      "id": "codex:P8USBADAPT1",
+      "number": "P8USBADAPT1",
+      "owner": "codex",
+      "title": "USB-only构建验真与原设备测试夹具适配",
+      "description": "P8USBONLY1必要配套：新共享profile模块引入后，旧test_device_manager隔离坏体复制清单必须包含该真实默认模块；USB镜像verify_build必须只读验真声明的全services快照，不让伪造USB_ONLY元数据或缺失/改写快照沿旧通用路径通过。build_usb增加显式--usb-only normal runtime7便捷入口，复用--esp时声明USB-only必须实物profile有效。默认普通构建路径保持，未格式化/写盘，无OS/VM，本任务不重复USB实施。只四声明文件，独立定向测试后集成。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/test_device_manager.py",
+        "tools/build_usb.py",
+        "tests/test_usb_profile_packaging.py",
+        "codex-works/deliveries/P8USBADAPT1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_device_manager",
+        "module:tests.test_usb_profile_packaging"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T10:18:09+00:00",
+      "updated_at": "2026-10-25T10:51:25+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBADAPT1-board.md",
+      "delivery": "codex-works/deliveries/P8USBADAPT1.md",
+      "claimed_at": "2026-10-25T10:18:10+00:00",
+      "completed_at": "2026-10-25T10:49:51+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_device_manager",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 16.047
+          },
+          {
+            "spec": "module:tests.test_usb_profile_packaging",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.625
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/test_device_manager.py": "bba7eab48cf04e6361d70a7dea49aed126984556037dfa7a7b7913131df3d20d",
+          "tools/build_usb.py": "efd0eee33d9389f6bc3d3307ecedc9bf3c1b60a6d9871f4d7024ca2fd43b4b38",
+          "tests/test_usb_profile_packaging.py": "cabcf1400c5b6b3454fcf324fc0ec63024a464de834b3e1d5ee6090fc5bb0de9",
+          "codex-works/deliveries/P8USBADAPT1.md": "ab852ab0a563eaf6dc7884f2e40b73db619b6ff4b8d0a8335e27c10225302106"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T10:50:21+00:00",
+        "job": "d961830e1ced4c5193574d1d0d14a627"
+      },
+      "review_note": "实际审查tools/build_usb.py调用完整USB原/快照源图验证且--usb-only复用普通ESP在镜像创建前拒绝；查看test_device_manager仅增加真实默认profile复制/源指纹，packaging测试覆盖metadata/快照改写和缺失。独立作业d961830e1ced4c5193574d1d0d14a627，2模块8tests，0skip，均正常退出，source_stable=true，scope指纹吻合。此验收仅打包与fixture，不替代P8USBONLY1实际VM或硬件验收。",
+      "legacy_hash": "4905eef06f78589e86adc858ed076e38430d6dac27e7588d1e44841549eae1e9",
+      "claim_from_status": "todo",
+      "integration_note": "实现与交付四路径已实际保存在项目主源码/works目录，不是候选独立副本；独立复验和scope SHA通过后登记集成，无Git提交推送。"
+    },
+    {
+      "id": "codex:P8USBAUDIT2",
+      "number": "P8USBAUDIT2",
+      "owner": "codex",
+      "title": "USB完整FAT审计的有界独立启动预算",
+      "description": "R3/R4/R5真实同MBR USB含33MB服务包需完整FAT镜像/目录/链/孤儿簇审计，固定全部进程10秒会在FS仍有真实I/O进展时强制退休/重启；R5保留3次FS超时后READY与TLB Timeout失败。先前不延长期限的优化不足，本任务明确仅USB_ONLY正常profile的FS cfg1启动采用60秒有界预算，默认及其余17配置仍10秒；不删审计、不加重试、不改TLB/磁盘/HID门槛。共享hardware_profile决定可信内核catalog，不接受用户指定预算，hz乘法前上界拒绝、失败不发布catalog。两profile全18cfg真实native断言、hz零/溢出与输出不变，60->10真实坏体失败；现有service launch及3套process catalog默认ABI回归，仅新增真实profile源指纹。root重编译实际单USB+三可写内盘/HID/两启动，不给worker VM/物理盘权限。所有失败保留。P8USBAUDIT1为未执行的声明模块名错误已归档。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/user/processes.dg",
+        "tests/test_usb_startup_budget.py",
+        "tests/usb_startup_budget_probe.c",
+        "tests/test_service_launch.py",
+        "tests/test_process_catalog.py",
+        "tests/test_process_catalog32.py",
+        "tests/test_process_catalog_r6.py",
+        "codex-works/deliveries/P8USBAUDIT2.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_usb_startup_budget",
+        "module:tests.test_service_launch",
+        "module:tests.test_process_catalog",
+        "module:tests.test_process_catalog32",
+        "module:tests.test_process_catalog_r6"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T11:17:21+00:00",
+      "updated_at": "2026-10-25T11:26:34+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBAUDIT2-board.md",
+      "delivery": "codex-works/deliveries/P8USBAUDIT2.md",
+      "claimed_at": "2026-10-25T11:17:22+00:00",
+      "completed_at": "2026-10-25T11:22:21+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_usb_startup_budget",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.281
+          },
+          {
+            "spec": "module:tests.test_service_launch",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 36.063
+          },
+          {
+            "spec": "module:tests.test_process_catalog",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 17.016
+          },
+          {
+            "spec": "module:tests.test_process_catalog32",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 16.797
+          },
+          {
+            "spec": "module:tests.test_process_catalog_r6",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 17.0
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/user/processes.dg": "b3565712f20e6d5d43f02380f19817af18dd5a0601fed1667861eded0309afb5",
+          "tests/test_usb_startup_budget.py": "e16abfedb3c91f10007ad1575872d6e1e40c7d2b6365274cd15b2c0b886bda6e",
+          "tests/usb_startup_budget_probe.c": "bc321b2a6bedc74a3dbf3093c81ab9af775c78a2d0588d9f1002275c8f565c98",
+          "tests/test_service_launch.py": "edb78684f7ecc4afbccc4eb3357c3f4afa98a13b37d2c79df489872ca01dca01",
+          "tests/test_process_catalog.py": "cfdac8944c9c66b71249ae4d9d734d077a745c832a790e3db72cc1288796873b",
+          "tests/test_process_catalog32.py": "c9e617d0c55a45d511df19a4ca21f1193216c6c17348c63cc1647af4323d9f6d",
+          "tests/test_process_catalog_r6.py": "1b534abcde7717b6abd3f954da093abb5aff81bd0c55bff4d3789bef11577c89",
+          "codex-works/deliveries/P8USBAUDIT2.md": "6c61166be8094b0412aa55bdd75f4868b0bdf73ac2beceed4cb50e89031a7cd8"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T11:24:07+00:00",
+        "job": "86387ddd616e4837a9f343bd50667cd8"
+      },
+      "review_note": "实际审查内核仅USB_ONLY cfg1固定60秒，hz>MAX/60在Catalog任何写前拒绝；default及其余17配置依然hz*10，无ABI/依赖/权限/重试变更。完整native oracle独立逐字核10776B与guards、合法MAX/60及MAX/10边界、0/overflow/ready非法输出不变、60->10真坏体rc1；四旧fixture仅追加真实profile指纹。独立job86387ddd616e4837a9f343bd50667cd8全部5模块5tests0skip，source_stable/8路径SHA吻合。R6 VM亦已实际核catalog18配置预算，整体HID仍待main验收。",
+      "legacy_hash": "01607f361ec3697583ffdc8f3b222eac1ef889d91458ca77cd1e73c13b317c82",
+      "claim_from_status": "todo",
+      "integration_note": "8个声明文件已实际落盘于主code及正确works，独立验真指纹一致后登记集成，无Git提交推送。"
+    },
+    {
+      "id": "codex:P8USBFSTEST1",
+      "number": "P8USBFSTEST1",
+      "owner": "codex",
+      "title": "USB容量策略引入后的原FAT坏体夹具适配",
+      "description": "P8USBONLY1使fs.fat32显式import lib.hardware_profile，旧FAT三个测试的私有源复制与指纹固定清单缺该默认模块。仅将真实默认模块纳入各source SHA与隔离roots，原坏体算法、错误断言、容量/布局/持久化门一律保持；不改生产源码或物理介质。独立正式复验后本地集成。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/test_fat32.py",
+        "tests/test_fat32_paths.py",
+        "tests/test_fat32_allocation.py",
+        "codex-works/deliveries/P8USBFSTEST1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_fat32",
+        "module:tests.test_fat32_paths",
+        "module:tests.test_fat32_allocation"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T10:33:55+00:00",
+      "updated_at": "2026-10-25T10:54:13+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBFSTEST1-board.md",
+      "delivery": "codex-works/deliveries/P8USBFSTEST1.md",
+      "claimed_at": "2026-10-25T10:33:56+00:00",
+      "completed_at": "2026-10-25T10:50:24+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_fat32",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 45.953
+          },
+          {
+            "spec": "module:tests.test_fat32_paths",
+            "passed": true,
+            "tests": 6,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 59.672
+          },
+          {
+            "spec": "module:tests.test_fat32_allocation",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 37.531
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/test_fat32.py": "3243d3e02195111614529511ffdf2f06ec403a9fc84b18eadb03010f38843ad2",
+          "tests/test_fat32_paths.py": "a07985c849614b70066c1a80525cb64e38568e4f56e3f7752eab62d25fac1b3f",
+          "tests/test_fat32_allocation.py": "11e837eb29614246d03688ae14c344786d421fdf92ce983d61dce47b9280d5d7",
+          "codex-works/deliveries/P8USBFSTEST1.md": "4e8ebbcbac86d25a093638360806094ed89fab7027c0a2c692201e220c6e1c8f"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T10:52:59+00:00",
+        "job": "1fa1f75d554341799beea23a340e4f03"
+      },
+      "review_note": "实际审查三个旧FAT测试Git diff与坏体fixture，均只增加真实默认hardware_profile依赖到SOURCES和私有源树；原mirror写缺失/LFN checksum/entry scan/cursor坏体、边界与性能预算均保留。独立job1fa1f75d554341799beea23a340e4f03三模块12tests0skip，真实native正常/坏体正常退出，source_stable=true、scope SHA匹配。",
+      "legacy_hash": "26556b59f61a947209d0305d215abe3bd3426c0423038f6986707f1edb2c06ed",
+      "claim_from_status": "todo",
+      "integration_note": "三fixture和交付文档已实际保存在项目主源码/正确works目录，独立复验和指纹核验通过后登记集成，无Git提交推送。"
+    },
+    {
+      "id": "codex:P8USBONLY1",
+      "number": "P8USBONLY1",
+      "owner": "codex",
+      "title": "仅USB存储授权的真机桌面与键鼠测试版",
+      "description": "用户已报告真实DONGOS P3 THREADS PASS，继续准备同一SanDisk 8GB MBR FAT32的桌面/键鼠版。不格式化、不访问内置数据盘。显式usb_only正常runtime7构建：同一已哈希services快照给kernel和全部CPL3，默认profile保持旧行为；共享角色策略排除PCI BLOCK，kernel admit/grant在任何PCI写/BAR/DMA前拒slot2，block在PCI扫描前只走USB且失败不回退；USB含分区视图以适配原MBR FAT32，READ/WRITE相对偏移/容量严格边界、保留原proxy校验；必要时有界扩展USB-profile FAT审计bitmap，不删审计门。须只读核实H实际MBR/BPB和FSInfo，必要兼容修复可在已声明FS文件内最小实现，不能更改物理文件系统跳过错误。实际同一MBR USB启动/数据+键鼠2/3，混合可写NVMe/AHCI/VirtIO哨兵，证明backend4、内盘无授权/BAR/DMA，原内盘SHA未变；真实GUI与USB键鼠消费并验证启动文件保持。旧USB runner拓扑断言不放宽，新contract另实现。严禁自行更新H直到候选通过复验，插回后核身份/备份/flush读回，无Git提交推送；hardware待用户实际运行，不外推PCID/WC验收。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tools/build.py",
+        "tools/user_services.py",
+        "tools/usb_only_profile.py",
+        "services/lib/hardware_profile.dg",
+        "services/drivers/device_policy.dg",
+        "kernel/user/devices.dg",
+        "services/drivers/block_service.dg",
+        "services/drivers/xhci_service.dg",
+        "services/drivers/usb_partition.dg",
+        "services/fs/fat32.dg",
+        "tests/test_usb_only_profile.py",
+        "tests/usb_only_policy_probe.dg",
+        "tests/usb_only_policy_probe.c",
+        "tests/test_usb_partition.py",
+        "tests/usb_partition_probe.dg",
+        "tests/usb_partition_probe.c",
+        "tests/test_usb_fat32.py",
+        "tests/usb_fat32_probe.c",
+        "tests/run_usb_only_hardware_qemu.py",
+        "docs/usb-only-hardware.md",
+        "codex-works/deliveries/P8USBONLY1.md"
+      ],
+      "depends_on": [
+        "codex:P8THREAD1"
+      ],
+      "checks": [
+        "module:tests.test_usb_only_profile",
+        "module:tests.test_usb_partition",
+        "module:tests.test_usb_fat32",
+        "module:tests.test_usb_block_proxy",
+        "module:tests.test_device_manager",
+        "module:tests.test_usb_runtime_qemu"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T10:11:52+00:00",
+      "updated_at": "2026-10-25T12:25:07+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBONLY1-board.md",
+      "delivery": "codex-works/deliveries/P8USBONLY1.md",
+      "claimed_at": "2026-10-25T10:11:53+00:00",
+      "completed_at": "2026-10-25T12:17:02+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_usb_only_profile",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 16.922
+          },
+          {
+            "spec": "module:tests.test_usb_partition",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 32.469
+          },
+          {
+            "spec": "module:tests.test_usb_fat32",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 79.172
+          },
+          {
+            "spec": "module:tests.test_usb_block_proxy",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.141
+          },
+          {
+            "spec": "module:tests.test_device_manager",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 15.563
+          },
+          {
+            "spec": "module:tests.test_usb_runtime_qemu",
+            "passed": true,
+            "tests": 19,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.046
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tools/build.py": "cc6b8a0d12c31f2a19eef24bd56d3981016c37f2ec1d06eba4dc28095992772d",
+          "tools/user_services.py": "11ab32b00f7cf0df859b1fc5e485ef3d9fd440c22cfd1460b12ab917e8f36ae8",
+          "tools/usb_only_profile.py": "cd8f1f1b1bb57bb912ba51d98f9f28e0c4db0fa2953c872f6c589dd6d5ad16d8",
+          "services/lib/hardware_profile.dg": "2acfb4b3597987fcebe78f8128c860b6234276318f1ebc765cff548276a11e72",
+          "services/drivers/device_policy.dg": "fdce7c35fcd2ade6338bfb7579be3a3451f2684f179c0821b27249cfac2f1044",
+          "kernel/user/devices.dg": "c53dc68df0e243bbe0fc0a1cb9bea9ceb4ad278a14099db8f3ecaf1de9fac303",
+          "services/drivers/block_service.dg": "243b4fdf18ad947eb9a5216e2a5a98fdb107060288039288ffec3fb49f871ced",
+          "services/drivers/xhci_service.dg": "2e409b73a1eb231854aa57f0333fac9be43518b6df00ed159307b7f028ef0c3e",
+          "services/drivers/usb_partition.dg": "73a742b4e4c42abac64218beb2117b734fd825e49a1344c34b2367626ed3d4af",
+          "services/fs/fat32.dg": "d7e6675fff49480e9337d7d134ec4943f0dd456f0c0c1e86cf9c7ae2fa404e57",
+          "tests/test_usb_only_profile.py": "093d276d0bfe5e9d14141b0894f34684702974de3c4d6744a8172c93168e1316",
+          "tests/usb_only_policy_probe.dg": "d56b00695241e726f869bafdd2a5d1d0124f8fd38b7510d7041dc2ec61e882a7",
+          "tests/usb_only_policy_probe.c": "8e2d42138705026ccc580759b5a5f3b3f3f1e736c9a09dd088bd83beb0d9abf5",
+          "tests/test_usb_partition.py": "e00cd13c44b03b2fc03790db00f1c5702b6529e2d5397ad84f20071200b0edc3",
+          "tests/usb_partition_probe.dg": "6523b7db67b7431508f43e3f908d1a1139b74612fcd3a0852f2e6141638afc56",
+          "tests/usb_partition_probe.c": "2d9cdcd6a25ecf8ae09de533fb1293fa10f9ef112cb098ca52aae2712b313a14",
+          "tests/test_usb_fat32.py": "9f2b919679c46a1d41d2795d6d196d92a59839be786beae8875db504682cc8f8",
+          "tests/usb_fat32_probe.c": "942506abf37a07d8f65f4d2ed80d20b4fd79ecffb86dc38a1a99c0c39272a1f7",
+          "tests/run_usb_only_hardware_qemu.py": "b137fd9cb6c48e161f11d24303bbb6e03a314dcdcbc157914d6e38ad57fc4abc",
+          "docs/usb-only-hardware.md": "b29798ef45b75d06a86e885c1fced93e22954bcc5fd8a391f7783ad0c52844a1",
+          "codex-works/deliveries/P8USBONLY1.md": "71f5d8ce7727f813157d62648223238763bd3cfeaf97e987402d9a5161f97e48"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T12:19:51+00:00",
+        "job": "c68c11789ff14cd98832daf6fdfdbda7"
+      },
+      "review_note": "实际审查21声明文件：完整USB snapshot给kernel+17CPL3并防篡改，default模块不改；shared rank/内核admit+grant早退/USB block先于PCI扫描三层fail-closed；唯一MBR视图减法边界与raw proxy身份容量保留；USB2MiB bitmap完整mirror/LFN/目录/循环/交叉/孤儿审计，FSInfo仅8 hint字节兼容且独立范围/保留区检查；单遍seen先检查cluster且有界，8B清零/比较全覆盖。独立jobc68c11789ff14cd98832daf6fdfdbda7全部6模块29tests0skip，正常退出、source_stable=true、21路径SHA匹配；补充任务已独立集成。Root真实R6 live-full-gate-2/result.json passed=true，17实际assembly与kernel代码/私有池/页表一致，两次同MBR单USB+有线USB键鼠+三个可写内部NVMe/AHCI/VirtIO完整SHA不变；真实终端a make/release和compositor按钮消费、F12/pwd精确4字符、mkdir/write/append/remove/cat/sync与实际CBW/CSW FLUSH、原引导payload保持，第二轮整个USB SHA=首轮7a90e1c722e0998de5378611d38c598252d1220bd7a6515b660f03fc1989883d。四CPU metrics.failed及Bridge失败全零；每轮最后只stop一次不resume，原暂停取证诱发deadline历史失败保留。人工5项host控制亦0skip；所有QEMU已退出、runner输入SHA稳定b137fd9c...。此为源码/候选验收；待H身份/备份/fsync/读回后登记集成；真机桌面及P2 warm-PCID/WC均不宣称已验收。",
+      "legacy_hash": "5cf0904f9dcb82117c0d0ba27ba170f8630746423299ec980aad364296b3be62",
+      "claim_from_status": "todo",
+      "integration_note": "实现21路径已实际落盘主code/正确works且与独立复验指纹一致，非仅候选副本。R6 live-full-gate-2完整2次启动通过，29项独立0skip+人工5项host控制通过，所有QEMU已退出。已在通过验收后更新H：fresh身份Disk2 SanDisk serial4C530000010320109015/7798784000B/USB/非boot-system/唯一MBR0C offset131072 size7798652928保持；先验证原runtime3 EFI/IMG/TXT三SHA并备份到code/build/hardware/usb-only-20261025-r6/usb-publish/before，再仅复制EFI/BOOT/BOOTX64.EFI(28160B)、DONGOS.IMG(2003058B)、SERVICES.BIN(33333248B)、DONGTEST.TXT(725B)，逐文件flush+fsync与完整SHA读回相同，无格式化/分区或raw写。receipt.json all_payload_readbacks_match=true，原分区保留。使用正式独立job编译的同源USB-release native只读H再审计：mount_error0 ready1 readonly0 dirty0 clusters1899872 reads53261 writes0 flushes0 bad_io0 canaries1（real-volume-after-publish.log）。发布收据与前后卷日志均保存在该build硬件目录；代码集成和USB发布完成，真机桌面/键鼠实际结果待用户测试，P2 warm-PCID/物理WC未提升，无Git提交推送。"
+    },
+    {
+      "id": "codex:P8USBSTART1",
+      "number": "P8USBSTART1",
+      "owner": "codex",
+      "title": "USB专用输入启动与大卷挂载缓存适配",
+      "description": "P8USBONLY1 R2真实混合磁盘启动失败保留mixed-run-1：INIT_FAILURE kind2/3 id4是input配置，原PS2探测在禁用i8042的USB拓扑下耗尽10秒时限。USB_ONLY应直接等原可信cfg13 READY认证，保持1024次有界等待及incarnation/tag验证，绝不发PS2端口/IRQ调用；默认PS2流程不变。现有mount_cache仍限定262144簇，在真实H1899872簇时降为逐扇区RPC，USB模式采用共享FAT_AUDIT_BYTES上限，仅扩大缓存资格、保留两条32sector只读mount-only缓存、原fat完整审计和fail-closed。不延长guest启动时限。增加真实main USBprofile探针，认证失败和PS2/IRQ触达反例，实际cache高簇回调计数/错误传递/边界测试，并兼容默认FS fixture依赖。由root真实VM复验，禁止worker VM/物理盘；无H写入。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "services/drivers/input_service.dg",
+        "services/fs/mount_cache.dg",
+        "tests/test_usb_input_usbonly.py",
+        "tests/usb_input_usbonly_probe.c",
+        "tests/test_fs_service.py",
+        "tests/test_usb_mount_cache.py",
+        "tests/usb_mount_cache_probe.c",
+        "codex-works/deliveries/P8USBSTART1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_usb_input_usbonly",
+        "module:tests.test_usb_input_entry",
+        "module:tests.test_input_service",
+        "module:tests.test_fs_service",
+        "module:tests.test_usb_mount_cache"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T10:47:47+00:00",
+      "updated_at": "2026-10-25T11:18:52+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBSTART1-board.md",
+      "delivery": "codex-works/deliveries/P8USBSTART1.md",
+      "claimed_at": "2026-10-25T10:47:48+00:00",
+      "completed_at": "2026-10-25T11:04:46+00:00",
+      "claimed_by": "codex-mcp-14619bbd432c41a6",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_usb_input_usbonly",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 421.11
+          },
+          {
+            "spec": "module:tests.test_usb_input_entry",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 69.516
+          },
+          {
+            "spec": "module:tests.test_input_service",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 48.484
+          },
+          {
+            "spec": "module:tests.test_fs_service",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 81.156
+          },
+          {
+            "spec": "module:tests.test_usb_mount_cache",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 85.36
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "services/drivers/input_service.dg": "7c8785137de0864238d4b355c038f8f46983807cbdef075149782d8a9510d6cf",
+          "services/fs/mount_cache.dg": "25004469bde59c4dc19a292d43a8f930f92c92405285fdad72f436b46de46aab",
+          "tests/test_usb_input_usbonly.py": "8ae41b1d599fe016e86192700a3a04b63f446716d71e2b6c8083c0ae44f51093",
+          "tests/usb_input_usbonly_probe.c": "4308a13ee8fdef12d2cc141d904737a172f3fc12f114933880b0ac044cf2b0e1",
+          "tests/test_fs_service.py": "38f8be47448e445136bb9241f1edfaa4faba102b906bc75670c6e0d8db7c04cb",
+          "tests/test_usb_mount_cache.py": "b624a5db6cbf89fdcd23e913a3a70d1ab338bbc71e9b29db8542f4c958c1140e",
+          "tests/usb_mount_cache_probe.c": "de3e7e4bd7ad43a828f61110f53dccc71db6dd0b64e0c8d938f2151bb3ff5d1f",
+          "codex-works/deliveries/P8USBSTART1.md": "d7618f28d404b62e1c9a1ca7b69a5fe8152cdb50b797b4e8e2d4806e57d2df02"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-25T11:16:44+00:00",
+        "job": "cb7b880b1d484c8080a8d5e726da88d7"
+      },
+      "review_note": "实际审查USB input在queue/console/usb_rpc初始化之后仅认证原cfg13 tag/incarnation，1024上限不变，PS2/tablet/IRQ三路径不触达，默认流程保留；审查完整真实22DG闭包及122次native正常/坏体，成功由实际pump/reply/GUI事件而非返回0判定。mount_cache只扩大USB eligibility至真实bitmap cap，保留2x32-sector lifecycle/失败不重试，两个unaligned u64拷贝精确512B。独立jobcb7b880b1d484c8080a8d5e726da88d7全部5模块9tests，0skip，正常退出，source_stable和8路径SHA吻合。FS更大启动预算另由P8USBAUDIT2维护，本验收不替代main桌面VM。",
+      "legacy_hash": "f4bfc1c6220aa3cb79dbce8969cef6143d6cca6c569b95a688b126daef48a70c",
+      "claim_from_status": "todo",
+      "integration_note": "8项实现/测试/交付已实际落到主code与正确works目录，与独立复验指纹相同，登记集成，不执行Git提交推送。"
     },
     {
       "assignment_owner": "codex",
@@ -15583,6 +18098,166 @@
       }
     },
     {
+      "id": "lmstudio:P2ERR43",
+      "number": "P2ERR43",
+      "owner": "codex",
+      "title": "P2简单数据：缓存事务八种错误码中文对照",
+      "description": "只生成JSON及交付。fixture严格为schema=1,module='mm.runtime_cache',errors数组。8项，每项严格name,code,meaning字段；code为0x十六进制字符串，meaning为简短准确中文。常量：Invalid=0x06150001(参数/状态无效)、Authority=0x06150002(可信CPU/根/权限前提不满足)、Forest=0x06150003(页表森林与授权别名闭包不符)、HardwareState=0x06150004(PAT/MTRR等硬件状态不符)、Held=0x06150005(事务资源须保持持有)、Deadline=0x06150006(截止期限)、Capacity=0x06150007(容量不足)、Storage=0x06150008(调用方存储范围/别名不合法)。用于后续C/D诊断，不增加枚举、不改数字、不声称真机验证。交付写未运行测试，由Codex读取真实生产源码复验。P2VEC42验收后才执行，LM同一时刻仅一项。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 8,
+      "write_paths": [
+        "lmstudio-works/fixtures/p2-cache-errors.json",
+        "lmstudio-works/deliveries/P2ERR43.md"
+      ],
+      "depends_on": [
+        "lmstudio:P2VEC42"
+      ],
+      "checks": [
+        "discover:lmstudio-works/tests:test_p2_cache_errors.py"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "simple",
+      "created_at": "2026-10-24T08:46:56+00:00",
+      "updated_at": "2026-10-24T10:12:51+00:00",
+      "historical": false,
+      "document": "lmstudio-works/tasks/P2ERR43-board.md",
+      "delivery": "lmstudio-works/deliveries/P2ERR43.md",
+      "claimed_at": "2026-10-24T10:11:20+00:00",
+      "completed_at": "2026-10-24T10:12:02+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "discover:lmstudio-works/tests:test_p2_cache_errors.py",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.203
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "lmstudio-works/fixtures/p2-cache-errors.json": "84002a953aa5fc1ddf2b627ff0af86a58f2fb1a64ff9421159385ba1c67ac816",
+          "lmstudio-works/deliveries/P2ERR43.md": "3d454ce28f6957aefd7118675c859450a9783cc774fc511a6ddf5070e141c515"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T10:12:22+00:00",
+        "job": "9868d94f74e745a38c6bb924ee380ae3"
+      },
+      "review_note": "已实际审查JSON与生产kernel/mm/runtime_cache.dg八种pub error及调用处：名称/编码逐项对应0x06150001..08；中文含义涵盖参数状态、可信CPU/根/权限、森林别名闭包、PAT/MTRR、持有、deadline、容量和存储别名，未新增枚举。独立测试直接读取冻结真实生产常量，正式9868d94f74e745a38c6bb924ee380ae3 1项/0skip、source_stable/process_stopped/execution_exited；另4项契约和错误码/重复负控通过。只两声明文件变化，前项已集成后才实施，不宣称真机WC。",
+      "legacy_hash": "6b26635e161cd5be2b62f6545faecc1519bbfa7bc7113c22317644c34908efc9",
+      "assignment_history": [
+        {
+          "at": "2026-10-24T08:54:24+00:00",
+          "from_owner": "lmstudio",
+          "to_owner": "deepseek",
+          "previous_claimed_by": null,
+          "note": "用户明确从LM Studio改派给DeepSeek Harness；本项尚未执行。保留任务ID/原授权路径/独立测试及依赖P2VEC42，先完成前项验收再领取本项；交付8种缓存错误码对照，不修改生产或测试。"
+        },
+        {
+          "at": "2026-10-24T10:10:36+00:00",
+          "from_owner": "deepseek",
+          "to_owner": "codex",
+          "previous_claimed_by": null,
+          "note": "用户明确授权Codex接手DeepSeek尚未完成的两项任务。本项尚未领取，无外部执行者；保留稳定ID、两声明文件、独立测试及P2VEC42依赖，待前项独立验收后执行。"
+        }
+      ],
+      "claim_from_status": "todo",
+      "integration_note": "JSON和交付已从独立snapshot真实移交到项目works_root，并在独立验收后逐文件复算与正式9868d94f74e745a38c6bb924ee380ae3指纹一致：JSON84002a95…、交付3d454ce2…。登记本地集成。P2VEC42集成文件亦重验SHA一致；共仅四个任务声明文件交付，未修改测试/生产、未提交推送或执行OS/VM。"
+    },
+    {
+      "id": "lmstudio:P2VEC42",
+      "number": "P2VEC42",
+      "owner": "codex",
+      "title": "P2简单数据：12条GOP页包络边界向量",
+      "description": "仅生成JSON及交付，不改测试或生产源码。fixture严格为{schema:1,cases:[...]}，每行id,base,size,valid,physical,bytes。base/size/有效physical/bytes用0x十六进制字符串；无效physical/bytes均null；valid是bool。有效规则：0x100000<=base<2^48，0<size<=0x1000000，base+size<=2^48。physical向下取4096整页，end向上取4096整页，bytes=end-physical。原size16MiB但base有偏移时rounded允许多一页。固定12行顺序(id,base,size)：aligned-byte,0x100000,0x1；aligned-page,0x100000,0x1000；edge-exact,0x100001,0xfff；cross-page,0x100fff,0x2；unaligned-two-pages,0x12345001,0x2000；maximum-aligned,0x100000,0x1000000；maximum-unaligned,0x100001,0x1000000；physical-limit-exact,0xffffffffff00,0x100；physical-limit-overflow,0xffffffffff00,0x101；zero-size,0x100000,0x0；size-too-large,0x100000,0x1000001；below-one-mib,0xfffff,0x1。自行计算输出，交付写未运行测试。只作P2未来ledger独立测试数据，不宣称实际授权或物理WC通过。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 15,
+      "write_paths": [
+        "lmstudio-works/fixtures/p2-gop-rounding.json",
+        "lmstudio-works/deliveries/P2VEC42.md"
+      ],
+      "depends_on": [
+        "codex:P2LMTEST41"
+      ],
+      "checks": [
+        "discover:lmstudio-works/tests:test_p2_rounding_vectors.py"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "simple",
+      "created_at": "2026-10-24T08:46:32+00:00",
+      "updated_at": "2026-10-24T10:11:18+00:00",
+      "historical": false,
+      "document": "lmstudio-works/tasks/P2VEC42-board.md",
+      "delivery": "lmstudio-works/deliveries/P2VEC42.md",
+      "claimed_at": "2026-10-24T10:09:29+00:00",
+      "completed_at": "2026-10-24T10:10:26+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "discover:lmstudio-works/tests:test_p2_rounding_vectors.py",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 0.203
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "lmstudio-works/fixtures/p2-gop-rounding.json": "878689d1a7ae14886e575c37b8c43e0b4f73ab848d0eec52144ec5ef8ed0d10b",
+          "lmstudio-works/deliveries/P2VEC42.md": "ed3702040cb3f6e5702f13dde227953984dbc5cfab74f24a1615c822281a146e"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T10:10:52+00:00",
+        "job": "94b5d018570144e08c2d8eb8bd279120"
+      },
+      "review_note": "已实际逐行审查JSON和任务书：固定12行/顺序/字段、bool与十六进制字符串严格符合；8有效/4无效，跨页=0x2000、未对齐两页=0x3000、16MiB偏移包络=0x1001000、2^48精确终点=0x1000，四无效均false/null。独立审查测试使用固定输入和独立整除包络，已运行4项契约/错误负控全部通过。正式94b5d018570144e08c2d8eb8bd279120 1项/0skip、source_stable/process_stopped/execution_exited。旧错误交付追加纠正且历史保留，仅两声明文件真实移交；本次仅验收数据，不宣称实际授权或物理WC。",
+      "legacy_hash": "7fb2063fbc893bc00a0e1b14316518632dc011864053daab229928a5d10d743a",
+      "last_run_note": "执行失败、缺少交付或修改超出归属；请查看日志",
+      "assignment_history": [
+        {
+          "at": "2026-10-24T08:54:24+00:00",
+          "from_owner": "lmstudio",
+          "to_owner": "deepseek",
+          "previous_claimed_by": "cli:lmstudio",
+          "note": "用户明确改派给DeepSeek Harness。LM实现作业c618694b7753410aa624ddac20c9317e已通过正式cancel接口停止并登记cancelled，未产生可验收交付。任务ID/写路径及独立测试保持；DeepSeek Harness读取本任务完整契约与最新rev领取，完成12条页包络向量及交付。不得把取消或旧失败标通过。"
+        },
+        {
+          "at": "2026-10-24T10:09:19+00:00",
+          "from_owner": "deepseek",
+          "to_owner": "codex",
+          "previous_claimed_by": "deepseek-mcp-3c146c1eac3b47a0",
+          "note": "用户明确要求Codex接手DeepSeek未完成的两项任务。原领取已由operator确认停止，paused/confirmed且无pause_requested。保留稳定ID、范围、依赖、历史及独立测试；Codex完成12条JSON与真实交付，独立复验后实际集成。"
+        }
+      ],
+      "pause_note": "用户要求将P2VEC42重新分配给DeepSeek Harness。现有DeepSeek领取先暂停：原执行者须停止编辑及外部进程并acknowledge_pause，随后协调器重新指派deepseek清除旧领取，保留原任务ID、写路径、测试和历史。不得继续旧轮实现或自行标记通过。",
+      "claim_from_status": "todo",
+      "integration_note": "两声明文件已从独立snapshot实际移交到项目works_root，逐文件复算SHA与正式作业94b5d018570144e08c2d8eb8bd279120指纹一致：JSON878689d1…、交付ed370204…；独立验收后登记本地集成。未修改测试或生产源码，未提交推送。"
+    },
+    {
       "assignment_owner": null,
       "auto_dispatch": false,
       "auto_verify": false,
@@ -16638,6 +19313,124 @@
       ]
     },
     {
+      "id": "codex:G6FLUSH1",
+      "number": "G6FLUSH1",
+      "owner": "codex",
+      "title": "[L3阻塞修复] VirtIO完成等待使用真实单调截止时间并保留DMA失败持有",
+      "description": "G6RUN2当前源码TCG实际两次seed均编译RESULT0/3/0/0成功但VirtIO FLUSH固定100000次轮询耗尽，两个700文件原始审计保留。原轮询次数不代表时间。参照现有AHCI/NVMe 5000ms命令契约，为VirtIO Ops增加单调milliseconds回调，block_service接现有milliseconds。发布前获得时间；完成只能在同一5000ms截止前接受，回调错误/倒退/无进展时有界拒绝；真实时限超时必须永久fault/held且不提前release，不扩大G6总3600s或P2屏障期限。不修改真实FLUSH命令或cache/no-flush配置。保留State/Lease布局，显式更新Ops ABI与所有调用方/探针；13旧场景及两个实际坏体保持，增加超过旧100000poll但在deadline内完成、deadline边界/迟到/clock错误/倒退/冻结、late completion不得清fault等真实C设备模型和生产坏体。debug/release ELF/COFF、原driver测试独立零skip源码稳定后集成，再由G6RUN2新构建实际两启，不沿用旧镜像。",
+      "assignment_owner": "codex",
+      "status": "paused",
+      "rev": 10,
+      "write_paths": [
+        "services/drivers/virtio_blk.dg",
+        "services/drivers/block_service.dg",
+        "tests/virtio_blk_probe.c",
+        "tests/test_virtio_blk.py",
+        "docs/virtio-blk-deadline.md",
+        "codex-works/deliveries/G6FLUSH1.md"
+      ],
+      "depends_on": [
+        "codex:G6DOC1"
+      ],
+      "checks": [
+        "module:tests.test_virtio_blk"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-23T14:30:46+00:00",
+      "updated_at": "2026-10-24T09:59:45+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/G6FLUSH1-board.md",
+      "delivery": "codex-works/deliveries/G6FLUSH1.md",
+      "claimed_at": "2026-10-24T09:55:27+00:00",
+      "completed_at": "2026-10-24T09:58:34+00:00",
+      "claimed_by": "codex-mcp-5f95564a50c4415d",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_virtio_blk",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 22.782
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "services/drivers/virtio_blk.dg": "31e0da2f9d5f78cbc06574fcc6df285b6700b54d41c76fbbb91bdfe7c71e2b1e",
+          "services/drivers/block_service.dg": "8ad664eeeeb04f9f651b7de35b56d2d63d9f0e1257461ca3c8b8f77773985edb",
+          "tests/virtio_blk_probe.c": "d1fde50023ef2189cf7ac6a9e8d5f72c3ca5e0e0e5d2441ed695fcad9b166000",
+          "tests/test_virtio_blk.py": "44170e0e6dc34b95809f398bb8c499c160237eac39a02f1860e1fba5305b2c4f",
+          "docs/virtio-blk-deadline.md": "68b92b105b35c466829cb78ea65702241ba75fdc4176d36d6b74d036c43685dd",
+          "codex-works/deliveries/G6FLUSH1.md": "30907455ed740f5927adaaf4f65495ec81bd24a3534c775280d8e88af183831e"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-24T09:59:13+00:00",
+        "job": "f9475146c35849ed9f713d2e0d9dc020"
+      },
+      "review_note": "",
+      "legacy_hash": "80f08300ae2532286b8200960d081f26e99e390f91085b44d194d1582b2f6868",
+      "claim_from_status": "todo",
+      "resume_status": "submitted",
+      "pause_control": "confirmed",
+      "archived": true,
+      "archived_at": "2026-10-24T09:59:45+00:00",
+      "archive_note": "已被 G6WAIT2 integrated rev6 的显式 timed API 修复方案替代；G6RUN2 integrated rev6 已完成修复后全新构建与真实同盘双启。2026-10-24恢复复核源码/契约，原修复七文件与正式指纹匹配，隔离回归22项零skip；正式独立作业 f9475146c35849ed9f713d2e0d9dc020 再次4项零skip、source_stable且进程退出。本轮交付G6FLUSH1.md保留证据。按历史替代卡归档，不宣称原共享Ops扩张设计已实施或验收；未新增生产代码或VM运行。"
+    },
+    {
+      "id": "codex:P8USBAUDIT1",
+      "number": "P8USBAUDIT1",
+      "owner": "codex",
+      "title": "USB完整FAT审计的有界独立启动预算",
+      "description": "R3/R4/R5真实单MBR USB含33MB服务包需完整FAT镜像/目录/链/孤儿簇审计，固定所有进程10秒会在FS仍有真实I/O进展时强制退休/重启，R5保留3次FS超时后READY与TLB Timeout失败。先前P8USBSTART1不延长期限的优化未能覆盖真实I/O成本；本任务明确仅USB_ONLY正常profile的FS cfg1启动采用60秒有界预算，默认和其余17配置仍10秒；不删审计、不加重试、不放宽TLB/磁盘/HID oracles。共享hardware_profile决定可信内核catalog，不接受用户指定预算，所有hz乘法先做相应上界拒绝。真实native两profile全18cfg断言、非法hz零/溢出及输出不变，60->10坏体正常失败；旧service launch/process ABI回归。root重编译并实际同USB/三可写内盘/HID/两次启动验证，不VM或物理盘给worker。不把TLB失败或鼠标失败隐去，保留全部历史。",
+      "assignment_owner": "codex",
+      "status": "paused",
+      "rev": 3,
+      "write_paths": [
+        "kernel/user/processes.dg",
+        "tests/test_usb_startup_budget.py",
+        "tests/usb_startup_budget_probe.c",
+        "tests/test_processes.py",
+        "codex-works/deliveries/P8USBAUDIT1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_usb_startup_budget",
+        "module:tests.test_service_launch",
+        "module:tests.test_processes"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-25T11:16:33+00:00",
+      "updated_at": "2026-10-25T11:17:21+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USBAUDIT1-board.md",
+      "delivery": "codex-works/deliveries/P8USBAUDIT1.md",
+      "claimed_at": null,
+      "completed_at": null,
+      "claimed_by": null,
+      "candidate": null,
+      "verification": null,
+      "review_note": "",
+      "legacy_hash": "26d4ad8c3be4bbec1df26c755e14d5b0599134e86a7d8d973d187f36a19fca14",
+      "resume_status": "todo",
+      "pause_control": "confirmed",
+      "archived": true,
+      "archived_at": "2026-10-25T11:17:21+00:00",
+      "archive_note": "未执行的错误模块登记已暂停，归档保留历史；不创建虚假包装测试。P8USBAUDIT2使用现有process_catalog定向复验。"
+    },
+    {
       "id": "cursor:CR30",
       "number": "CR30",
       "owner": "cursor",
@@ -17186,6 +19979,46 @@
         "deepseek-works/tests/test_module_function_index.py",
         "deepseek-works/deliveries/D28.md"
       ]
+    },
+    {
+      "id": "lmstudio:LM10",
+      "number": "LM10",
+      "owner": "lmstudio",
+      "title": "P2简单数据：runtime_cache八种错误码中文对照",
+      "description": "只生成两文件，不改测试/生产代码。fixture为JSON，严格顶层schema=1,module='mm.runtime_cache',errors数组；恰好8项，每项严格字段name,code,meaning。code为0x十六进制字符串，meaning为简短准确中文，不声称这些错误已在真机验证。生产常量依据：Invalid=0x06150001(参数/状态无效)、Authority=0x06150002(可信CPU/根/权限前提不满足)、Forest=0x06150003(页表森林与授权别名闭包不符)、HardwareState=0x06150004(PAT/MTRR等实际硬件状态不符)、Held=0x06150005(事务资源须保持持有)、Deadline=0x06150006(截止期限)、Capacity=0x06150007(容量不足)、Storage=0x06150008(调用方存储范围/别名等不合法)。用于P2 C/D后续诊断显示，不增加枚举、不改名、不改数字。交付说明未运行测试，由Codex对照当前生产源码逐项独立验证。依赖LM9验收后再运行，同一时刻只执行一项本地模型任务。",
+      "assignment_owner": "lmstudio",
+      "status": "paused",
+      "rev": 3,
+      "write_paths": [
+        "lmstudio-works/fixtures/p2-cache-errors.json",
+        "lmstudio-works/deliveries/LM10.md"
+      ],
+      "depends_on": [
+        "lmstudio:LM9"
+      ],
+      "checks": [
+        "discover:lmstudio-works/tests:test_p2_cache_errors.py"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "simple",
+      "created_at": "2026-10-24T08:45:28+00:00",
+      "updated_at": "2026-10-24T08:46:55+00:00",
+      "historical": false,
+      "document": "lmstudio-works/tasks/LM10-board.md",
+      "delivery": "lmstudio-works/deliveries/LM10.md",
+      "claimed_at": null,
+      "completed_at": null,
+      "claimed_by": null,
+      "candidate": null,
+      "verification": null,
+      "review_note": "",
+      "legacy_hash": "f268922d155f36ebb503a052dfa96cf00e8c3d7b47e8a2d0d510d6baa8fd6879",
+      "resume_status": "todo",
+      "pause_control": "confirmed",
+      "archived": true,
+      "archived_at": "2026-10-24T08:46:55+00:00",
+      "archive_note": "错误依赖卡，未运行或生成文件。暂停已确认；使用P2ERR43接续正确依赖，历史LM9不动。"
     },
     {
       "archive_note": "用户要求处理剩余暂停任务。已核对本项paused rev2、停止已确认、无领取者及活动/排队作业，声明生产文件未落盘；依据ALLOCATION.md的2026-10-20暂停结论及当前主线lower_program/program_ir/names.collect，原窄u64接线/函数清单/操作码任务已被通用原生编译链取代，继续执行会重复建设。归档退出默认清单，保留任务书、原状态及事件历史；不恢复、不转派，不标记验收或集成，不删除文件或修改数据库/index。",

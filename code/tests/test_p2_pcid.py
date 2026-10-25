@@ -142,7 +142,7 @@ class OracleTests(unittest.TestCase):
             'spaces','meta','generations','static_table_anchor','catalog_pointer','arena_plan','arena_next'))}
         image=mock.Mock()
         image.contract=dict(info_symbol=0x1111,syscall_entry=decoded['syscall_entry'],memory_processes=0x2222,
-                            worker_elfs={},global_symbols=globals_,static_pools=1)
+                            worker_elfs={},global_symbols=globals_,static_pools=0)
         image.esp=Path('synthetic/esp');image.epoch=1;image.serial_offset=55
         image.catalog.return_value=dict(slots={cfg:cfg for cfg in o.ARGS},incarnations=[1]*16,
             snapshots={v['cfg']:dict(process=v['token']) for v in decoded['workers']})
@@ -281,7 +281,7 @@ class OracleTests(unittest.TestCase):
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'unknown'):
                 o.require_observation_profile(value)
         archive=mock.Mock()
-        contract=dict(info_symbol=0,syscall_entry=0,memory_processes=0,worker_elfs={},global_symbols={},static_pools=1)
+        contract=dict(info_symbol=0,syscall_entry=0,memory_processes=0,worker_elfs={},global_symbols={},static_pools=0)
         for record,expected in (({},o.CURRENT_OWNER),({'observation_profile':o.CURRENT_OWNER},o.LOCK_FREE),
                                 ({'observation_profile':None},o.LOCK_FREE)):
             with self.subTest(record=record,expected=expected),self.assertRaises(ValueError):
@@ -324,7 +324,7 @@ class OracleTests(unittest.TestCase):
         memory=bytearray(16*1288);space=bytearray(64);root=0x900000;pointer=0xffffd40000100000;meta=0xffffffff80180000
         struct.pack_into('<2Q',memory,1288,1,root);struct.pack_into('<Q',memory,1288+160,root)
         struct.pack_into('<6Q',space,0,1,pointer,32,root,meta+128,(1<<48)-4096);space[48]=1;struct.pack_into('<Q',space,56,1)
-        args=dict(static_pools=1,static_base=0x210000,static_virtual=0xffffffff80010000,metadata_virtual=meta,
+        args=dict(static_pools=0,static_base=0x210000,static_virtual=0xffffffff80010000,metadata_virtual=meta,
                   limits=[32,32,32,128]+[32]*12,dynamics=[0,root]+[0]*14,pointers=[0,pointer]+[0]*14,
                   generations=[0,1]+[0]*14,kernel_image=0x200000,arena=0x800000,next_page=1024)
         self.assertEqual((root,pointer),o.pool_identity(memory,space,1,**args))
@@ -749,7 +749,7 @@ class OracleTests(unittest.TestCase):
             # These calls stop at the serial gate before any raw/private-pool
             # decode. They cannot be mistaken for a successful guest snapshot.
             contract = dict(info_symbol=0, syscall_entry=0, memory_processes=0,
-                            worker_elfs={}, global_symbols={}, static_pools=1)
+                            worker_elfs={}, global_symbols={}, static_pools=0)
             for epoch, offset in ((1, 41), (2, 83)):
                 with self.subTest(epoch=epoch), self.assertRaisesRegex(ValueError, 'four raw register'):
                     o.decode_snapshot(dict(epoch=epoch, serial_offset=offset, registers=[]),
@@ -785,7 +785,7 @@ class OracleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'historical v3 profile'):
                 o.decode_snapshot(dict(epoch=1, serial_offset=7), archive, info_symbol=0,
                                   syscall_entry=0, memory_processes=0, worker_elfs={},
-                                  global_symbols={}, static_pools=1)
+                                  global_symbols={}, static_pools=0)
             (root / ref['file']).write_bytes(raw)
             legacy = o.Archive(root, [ref], legacy_fixture=True)
             with self.assertRaisesRegex(ValueError, 'synthetic fixture'):
@@ -910,6 +910,109 @@ class OracleTests(unittest.TestCase):
                         mock.patch.object(o,'Archive',side_effect=AssertionError('bad argv reached raw decode')) as archive:
                     with self.assertRaises(ValueError):runner.replay(path)
                 archive.assert_not_called()
+
+
+class StartupWaitTests(unittest.TestCase):
+    def guest(self, accel='whpx'):
+        guest = object.__new__(runner.PcidGuest)
+        guest._startup_accel = accel
+        guest._startup_wait_pending = True
+        guest.raw = bytearray()
+        guest.process = mock.Mock()
+        guest.process.poll.return_value = None
+        guest.evidence = {}
+        return guest
+
+    def clock(self, guest, events):
+        from contextlib import ExitStack
+        stack = ExitStack()
+        now = [0.0]
+        def tick(_):
+            now[0] += .25
+            for at, marker in events:
+                if at <= now[0] and marker not in guest.raw:
+                    guest.raw.extend(marker + b'\r\n')
+        stack.enter_context(mock.patch.object(runner.time, 'monotonic', side_effect=lambda: now[0]))
+        stack.enter_context(mock.patch.object(runner.time, 'monotonic_ns', side_effect=lambda: int(now[0]*1e9)))
+        stack.enter_context(mock.patch.object(runner.time, 'sleep', side_effect=tick))
+        stack.enter_context(mock.patch.object(runner.settings.subprocess, 'Popen', side_effect=AssertionError('no VM')))
+        return stack, now
+
+    def test_actual_base_loop_firmware_and_desktop_budgets(self):
+        desktop = b'DONGOS_P7_DESKTOP_READY'
+        events = [(71, b'DONGOS_P1_START'), (91, desktop)]
+        old = self.guest()
+        context, now = self.clock(old, events)
+        with context, self.assertRaises(TimeoutError):
+            runner.settings.Guest.wait(old, desktop)
+        self.assertEqual(now[0], 90.25)
+        guest = self.guest()
+        context, now = self.clock(guest, events)
+        with context:
+            guest.wait(desktop)
+        self.assertEqual(now[0], 91)
+        phases = guest.evidence['host_startup_wait']['phases']
+        self.assertEqual([p['complete'] for p in phases], [True, True])
+        self.assertEqual([p['started_ns'] for p in phases], [0, 71_000_000_000])
+        self.assertEqual([p['ended_ns'] for p in phases], [71_000_000_000, 91_000_000_000])
+
+    def test_each_missing_phase_keeps_original_timeout(self):
+        for events, elapsed, completed in [([], 90.25, [False]),
+                ([(71, b'DONGOS_P1_START')], 161.25, [True, False])]:
+            with self.subTest(events=events):
+                guest = self.guest()
+                context, now = self.clock(guest, events)
+                with context, self.assertRaises(TimeoutError):
+                    guest.wait(b'DONGOS_P7_DESKTOP_READY')
+                self.assertEqual(now[0], elapsed)
+                self.assertFalse(guest._startup_wait_pending)
+                phases = guest.evidence['host_startup_wait']['phases']
+                self.assertEqual([p['complete'] for p in phases], completed)
+                self.assertIn('TimeoutError', phases[-1]['error'])
+
+    def test_other_accelerators_markers_and_repeated_wait_unchanged(self):
+        desktop = b'DONGOS_P7_DESKTOP_READY'
+        for accel, marker, pending in [('tcg', desktop, True), ('kvm', desktop, True),
+                ('whpx', b'OTHER', True), ('whpx', desktop, False)]:
+            with self.subTest(accel=accel, marker=marker, pending=pending):
+                guest = self.guest(accel)
+                guest._startup_wait_pending = pending
+                context, now = self.clock(guest, [(91, marker)])
+                with context, self.assertRaises(TimeoutError):
+                    guest.wait(marker)
+                self.assertEqual(now[0], 90.25)
+                self.assertNotIn('host_startup_wait', guest.evidence)
+                self.assertEqual(guest._startup_wait_pending, pending)
+
+    def test_first_exception_identity_and_no_firmware_retry(self):
+        guest = self.guest()
+        failure = RuntimeError('original guest failure')
+        with mock.patch.object(runner.settings.Guest, 'wait', side_effect=failure) as wait:
+            with self.assertRaises(RuntimeError) as raised:
+                guest.wait(b'DONGOS_P7_DESKTOP_READY')
+            self.assertIs(raised.exception, failure)
+            wait.assert_called_once_with(guest, b'DONGOS_P1_START', 90)
+            wait.reset_mock()
+            with self.assertRaises(RuntimeError):
+                guest.wait(b'DONGOS_P7_DESKTOP_READY')
+            wait.assert_called_once_with(guest, b'DONGOS_P7_DESKTOP_READY', 90)
+
+    def test_constructor_binds_accelerator_before_base_wait(self):
+        for accel in ('tcg', 'kvm', 'whpx'):
+            def base(guest, *args):
+                self.assertEqual(guest._startup_accel, accel)
+                self.assertTrue(guest._startup_wait_pending)
+                guest.raw = bytearray(b'DONGOS_P1_START\r\nDONGOS_P7_DESKTOP_READY\r\n')
+                guest.evidence = {}
+                guest.wait(b'DONGOS_P7_DESKTOP_READY')
+            with self.subTest(accel=accel), \
+                    mock.patch.object(runner, 'capture_metadata', return_value=None), \
+                    mock.patch.object(runner, 'elf_contract', return_value={'static_pools': 0}), \
+                    mock.patch.object(runner.settings.acpi, 'validation_symbols', return_value={}), \
+                    mock.patch.object(runner.life.ProcessGuest, '__init__', base), \
+                    mock.patch.object(runner.settings.subprocess, 'Popen', side_effect=AssertionError('no VM')):
+                guest = runner.PcidGuest(Path('esp'), Path('disk'), Path('state'), accel=accel)
+                self.assertEqual('host_startup_wait' in guest.evidence, accel == 'whpx')
 
 
 if __name__ == '__main__':

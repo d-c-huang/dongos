@@ -21,9 +21,11 @@ typedef uint64_t (ABI *Write)(uint64_t,uint64_t,uint64_t,uint64_t,uint64_t);
 typedef uint64_t (ABI *Fence)(uint64_t,uint64_t);
 typedef uint64_t (ABI *Acquire)(uint64_t,size_t,size_t,Lease *);
 typedef uint64_t (ABI *Release)(uint64_t,const Lease *);
+typedef uint64_t (ABI *Now)(uint64_t,uint64_t *);
 typedef struct { Read read;Write write;Fence fence;Acquire acquire;Release release; } Ops;
 typedef struct { uint64_t capacity,maximum,readonly,ready,faulted,held,completed,avail,used; } Info;
 typedef struct { Info info;uint64_t busy,published,generation,notify_offset;Transport transport;const Ops *ops;uint64_t context;Lease lease; } State;
+extern ABI uint64_t vb_timed_read(State *,uint64_t,size_t,uint8_t *,Now),vb_timed_write(State *,uint64_t,size_t,const uint8_t *,Now),vb_timed_flush(State *,Now);
 typedef uint64_t (ABI *ConfigRead)(uint64_t,uint64_t,uint32_t *);
 extern ABI size_t vb_state_size(void),vb_transport_size(void);
 extern ABI void vb_state_reset(State *);
@@ -39,6 +41,22 @@ static unsigned scenario,config_fail,config_calls,acquired,released,release_fail
 static uint64_t accepted[2],desc_address,avail_address,used_address;
 static uint8_t *allocation,*dma;static unsigned fences[4],old_release,old_full,requests,flushes;
 static uint16_t device_avail,device_used;static State state;
+static unsigned pending,poll_count,clock_calls;static uint16_t pending_used;
+static ABI uint64_t milliseconds(uint64_t context,uint64_t *out) {
+    CHECK(context==99&&out);clock_calls++;
+    if(scenario==20||(scenario==17&&clock_calls>1))return 1;
+    *out=100;
+    if(scenario==13)*out+=poll_count/1000;
+    else if(scenario==22)*out=UINT64_MAX-2+(clock_calls>1);
+    else if(clock_calls>1) {
+        if(scenario==14||scenario==23)*out=5099;
+        else if(scenario==15||scenario==21)*out=5100;
+        else if(scenario==16)*out=5101;
+        else if(scenario==18)*out=99;
+    }
+    if(scenario==23&&clock_calls>=3)*out=5100;
+    return 0;
+}
 static uint16_t r16(const uint8_t *p) { uint16_t x;memcpy(&x,p,2);return x; }
 static uint32_t r32(const uint8_t *p) { uint32_t x;memcpy(&x,p,4);return x; }
 static uint64_t r64(const uint8_t *p) { uint64_t x;memcpy(&x,p,8);return x; }
@@ -100,13 +118,16 @@ static void process_request(void) {
     unsigned slot=156+(device_used%8)*8;w32(dma+slot,scenario==1||scenario==7?5:0);
     uint32_t written=(uint32_t)(kind==0?bytes+1:1);if(scenario==2)written++;
     w32(dma+slot+4,written);device_used=(uint16_t)(device_used+(scenario==3?2:1));w16(dma+154,device_used);
+    if(scenario==13||scenario==19||scenario==21) {
+        pending=1;pending_used=device_used;poll_count=0;w16(dma+154,(uint16_t)(device_used-1));
+    }
 }
 static ABI uint64_t mmio_read(uint64_t context,uint64_t handle,uint64_t offset,uint64_t width,uint64_t *out) {
     CHECK(context==99&&handle==11&&(offset&(width-1))==0);
     if(offset==0x300||offset==0x304) { CHECK(width==4);*out=offset==0x300?256:0;return 0; }
     if(offset==4) { CHECK(width==4);*out=feature_select?(scenario==11?3:1):(scenario==12?0:scenario==10?544:512);return 0; }
     if(offset==18) { CHECK(width==2);*out=1;return 0; }
-    if(offset==20) { CHECK(width==1);*out=status;return 0; }
+    if(offset==20) { CHECK(width==1);if(pending){poll_count++;if(scenario==13&&poll_count==150001){w16(dma+154,pending_used);pending=0;}}*out=status;return 0; }
     if(offset==21) { CHECK(width==1);*out=gen;return 0; }
     if(offset==24) { CHECK(width==2);*out=qsize;return 0; }
     if(offset==28) { CHECK(width==2);*out=qenable;return 0; }
@@ -139,7 +160,7 @@ static void invalid_snapshot(uint64_t lba,size_t count,uint8_t *out,uint64_t exp
     CHECK(vb_read(&state,lba,count,out)==expected);CHECK(memcmp(&before,&state,sizeof state)==0&&memcmp(snapshot,dma,DMA_BYTES)==0&&old==requests);free(snapshot);
 }
 int main(int argc,char **argv) {
-    CHECK(argc==2);scenario=(unsigned)strtoul(argv[1],NULL,0);CHECK(scenario<=12);
+    CHECK(argc==2);scenario=(unsigned)strtoul(argv[1],NULL,0);CHECK(scenario<=23);
     CHECK(vb_state_size()==288&&sizeof state==288&&vb_transport_size()==136&&sizeof(Transport)==136);
     allocation=malloc(DMA_BYTES+8192);CHECK(allocation);dma=(uint8_t *)(((uintptr_t)allocation+4095+16)&~(uintptr_t)4095);
     CHECK((uintptr_t)dma!=GPA);config_init();Region region={ECAM,0,0,0};Cursor cursor={0};Function function={0};
@@ -168,6 +189,30 @@ int main(int argc,char **argv) {
     }
     CHECK(init==0&&state.info.capacity==256&&state.info.maximum==128&&state.info.ready==1&&state.info.held==1&&status==15);
     uint8_t *output=malloc(65536+32),*input=malloc(65536);CHECK(output&&input);memset(output,0xa7,65536+32);
+    if(scenario>=13) {
+        State before=state;uint8_t snapshot[DMA_BYTES];memcpy(snapshot,dma,DMA_BYTES);
+        uint64_t code=vb_timed_read(&state,7,2,output+16,milliseconds);
+        if(scenario==13||scenario==14||scenario==22) {
+            CHECK(code==0&&memcmp(output+16,cache+7*512,1024)==0);
+            if(scenario==13)CHECK(poll_count==150001);
+            for(unsigned i=0;i<512;i++)input[i]=(uint8_t)(i*29+11);
+            clock_calls=0;poll_count=0;CHECK(vb_timed_write(&state,17,1,input,milliseconds)==0);
+            CHECK(memcmp(disk+17*512,input,512)!=0);
+            clock_calls=0;poll_count=0;CHECK(vb_timed_flush(&state,milliseconds)==0&&flushes==1&&memcmp(disk+17*512,input,512)==0);
+        } else {
+            CHECK(code==ERROR((scenario==17||scenario==18||scenario==19||scenario==20)?13:7));
+            for(unsigned i=0;i<65536+32;i++)CHECK(output[i]==0xa7);
+            if(scenario==20) {CHECK(requests==0&&memcmp(&before,&state,sizeof state)==0&&memcmp(snapshot,dma,DMA_BYTES)==0);}
+            else {
+                CHECK(state.info.ready==0&&state.info.faulted==1&&state.published==1&&state.info.completed==0&&released==0);
+                w16(dma+154,device_used);pending=0;
+                CHECK(vb_timed_flush(&state,milliseconds)==ERROR(3)&&released==0&&state.published==1);
+                if(scenario==19)CHECK(poll_count==100000);
+            }
+        }
+        CHECK(vb_close(&state)==0&&acquired==released);free(output);free(input);free(allocation);
+        printf("virtio deadline and retained DMA passed scenario=%u\n",scenario);return 0;
+    }
     if(scenario==10) { CHECK(vb_write(&state,0,1,output+16)==ERROR(10));CHECK(requests==0); }
     uint64_t result=vb_callback_read((uint64_t)(uintptr_t)&state,7,2,output+16);
     if((scenario>=1&&scenario<=7)||scenario==9) {

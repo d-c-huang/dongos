@@ -1,0 +1,67 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_runtime_cache"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T11:43:45+00:00",
+  "claimed_by": "codex-mcp-5f95564a50c4415d",
+  "completed_at": "2026-10-24T11:55:44+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T11:43:44+00:00",
+  "delivery": "codex-works/deliveries/P2CDTYPE1.md",
+  "depends_on": [],
+  "description": "用户授权完成P2CD1剩余修复。实际TCG C完成后D准入0x06150004；原始A硬件BOX证实PAT4=WC且GOP有MTRR UC。既有cache_type_plan.effective_type和Intel SDM表13-7规定PAT WC/MTRR UC实际仍WC、PAT UC实际UC。runtime_cache独立硬编码MTRR必须WB过窄，与已验收有效类型规划不符。按每页解析MTRR，再用既有effective_type分别证明WC、UC两轮目标，不修改PAT/MTRR或放宽保留位/未知类型/冲突/每CPU原始相等/期限/持有。新增UC/WT/WP/WC/WB原始MTRR正常模型和非法/重叠冲突/变化拒绝，真实生产坏体防止恢复WB-only或绕过有效类型判断；独立0skip源码稳定审查后集成。原错误不重标通过，主P2CD1仍待C/D客体正负证据；无提交推送。Intel依据https://cdrdv2-public.intel.com/868137/325462-089-sdm-vol-1-2abcd-3abcd-4.pdf 表13-7。",
+  "document": "codex-works/tasks/P2CDTYPE1-board.md",
+  "historical": false,
+  "id": "codex:P2CDTYPE1",
+  "integration_note": "五声明文件已从隔离副本真实移交主目录，独立验收后全部SHA与正式82cf626668fe437c803de857b41405c0指纹一致；登记组件本地集成。P2CD1隔离候选使用相同四源码/测试/契约字节，父任务仍待最终客体正负及正式复验，未提交推送。",
+  "legacy_hash": "1335f4d54276f7ef1c018284495422517386beeb18b74197c2f50729659c3b1b",
+  "number": "P2CDTYPE1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查源码与既有cache_type_plan及Intel SDM表13-7：原WB-only不等价于有效WC/UC；现每页MTRR解析成功后分别证明effective_type(WC)=WC和effective_type(UC)=UC。保留PAT0/3/4、CR0/CR4、物理宽度、全原始MTRR保留位/非法类型/重叠冲突/跨CPU一致性及运行中变化拒绝，cache维护/原期限/held不变、无WRMSR。实际审查C设备模型五种合法MTRR、非法/冲突/变化和7类实际生产坏体，debug/release共16组ELF/COFF；本机R2 1test/194.246s/0skip；正式82cf626668fe437c803de857b41405c0 1test/213.437s/0skip、source_stable/process_stopped/execution_exited。R1夹具失败保留；仅组件验收，P2CD1客体门仍未关闭。",
+  "status": "integrated",
+  "title": "P2CD1阻塞修复：按PAT×MTRR实际有效类型验证GOP准入",
+  "updated_at": "2026-10-24T12:01:35+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 213.437,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_cache",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P2CDTYPE1.md": "729f71ac252a0f5303f2068916ad441b4145ba67fda51d8f1574077a781e443e",
+      "docs/runtime-cache.md": "96325a2d8fccdacc0b28dfb8f2ac3ca914ab43b907634a0362e15c7c63ea639d",
+      "kernel/mm/runtime_cache.dg": "d9c341c0e22bfeb585f11f08632c3742b2dd5e8aec3a46d03de6a08c6aae913b",
+      "tests/runtime_cache_probe.c": "f8a2b3583195ead85b7e0d677302de30e72ff45dcd3837f40a95dee269884d35",
+      "tests/test_runtime_cache.py": "18e002ad54e9a61f4cd5f735dbfeebccdb7703197b281c186e5c9b1c051d2153"
+    },
+    "finished_at": "2026-10-24T11:59:50+00:00",
+    "job": "82cf626668fe437c803de857b41405c0",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/mm/runtime_cache.dg",
+    "tests/runtime_cache_probe.c",
+    "tests/test_runtime_cache.py",
+    "docs/runtime-cache.md",
+    "codex-works/deliveries/P2CDTYPE1.md"
+  ]
+}

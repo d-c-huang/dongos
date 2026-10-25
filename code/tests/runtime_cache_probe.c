@@ -111,7 +111,8 @@ static U DG hardware(U action,U request,U barrier,Reading*out){
  out->default_type=UINT64_C(0x806);out->apic=current*2+2;
  out->request=request;out->barrier=barrier;out->action=action;
  if(bad_mtrr&&current==2){out->variable[0]=6;}
- if(bad_range){out->variable[0]=PA;out->variable[1]=MASK|2048;}
+ if(bad_range){U kinds[8]={0,0,1,4,5,6,3,1};out->variable[0]=PA|kinds[bad_range];out->variable[1]=MASK|2048;
+ if(bad_range==7){out->variable[2]=PA|4;out->variable[3]=MASK|2048;}}
  if(request){
   if(!(gate->word&CLOSED)||!gate->drained){raw_failure="early-open-gate";return 1;}
   if(action==2){
@@ -221,16 +222,22 @@ int main(int argc,char**argv){
  else if(!strcmp(scenario,"returning")){domain->cpus[0].mode=6;REQUIRE(!preflight(ERR_AUTH));}
  else if(!strcmp(scenario,"active-barrier")){domain->barrier=1;REQUIRE(!preflight(ERR_AUTH));}
  else if(!strcmp(scenario,"hidden-USER")){REQUIRE(!rc_map(spaces[1],UV1+0x100000,PA,19));REQUIRE(!preflight(ERR_FOREST));}
- else if(!strcmp(scenario,"non-WB-MTRR")){bad_range=1;REQUIRE(!preflight(ERR_HW));}
+ else if(!strcmp(scenario,"invalid-MTRR")){bad_range=6;REQUIRE(!preflight(ERR_HW));}
+ else if(!strcmp(scenario,"conflicting-MTRR")){bad_range=7;REQUIRE(!preflight(ERR_HW));}
  else{
-  REQUIRE(!rc_bind(context,config));REQUIRE(!rc_hook(context,domain));
+  if(!strcmp(scenario,"mtrr-UC"))bad_range=1;
+  else if(!strcmp(scenario,"mtrr-WC"))bad_range=2;
+  else if(!strcmp(scenario,"mtrr-WT"))bad_range=3;
+  else if(!strcmp(scenario,"mtrr-WP"))bad_range=4;
+  else if(!strcmp(scenario,"mtrr-WB"))bad_range=5;
+  U bound=rc_bind(context,config);if(bound){return failure("valid-effective-types-rejected",__LINE__);}REQUIRE(!rc_hook(context,domain));
   if(!strcmp(scenario,"missing-ack")){stop_cpu=2;}
   else if(!strcmp(scenario,"bad-maintenance")){bad_maint=1;}
   else if(!strcmp(scenario,"mtrr-changed")){bad_mtrr=1;}
-  else if(strcmp(scenario,"all")){return failure("unknown scenario",__LINE__);}
+  else if(strcmp(scenario,"all")&&strncmp(scenario,"mtrr-",5)){return failure("unknown scenario",__LINE__);}
   U code=rc_run(context);
   if(raw_failure){return failure(raw_failure,__LINE__);}
-  if(!strcmp(scenario,"all")){
+  if(!strcmp(scenario,"all")||(bad_range>=1&&bad_range<=5)){
    REQUIRE(!code&&report->complete==1&&report->poison==0&&report->committed==1&&report->held==1);
    REQUIRE(report->barriers==5&&report->linear==9&&report->revoked==18&&report->reclaimed==18&&report->remapped==18);
    REQUIRE(first_ack[1]==7&&first_ack[2]==7&&maintained[1]==7&&maintained[2]==7&&second_ack[1]==7&&second_ack[2]==7);

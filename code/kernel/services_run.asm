@@ -1,4 +1,5 @@
 bits 64
+%include "boot_progress.inc"
 global services_pcid_metric
 extern user_pcid_enabled,user_pcid_switches,user_pcid_retained
 %ifndef P6_USER_SMP
@@ -100,6 +101,7 @@ service_runtime_begin:
     mov rbp,rsp
     push rbx
     push r12
+    HW_BOOT_STAGE 12
     lea rsi,[rel services_marker_started]
     call serial_write
     lea rdi,[rel user_kernel_guard_low]
@@ -120,6 +122,7 @@ service_runtime_begin:
     call dong_services_prepare
     test rax,rax
     jnz .error
+    HW_BOOT_STAGE 13
     lea rsi,[rel services_marker_loaded]
     call serial_write
 %if P6_USER_SMP
@@ -131,6 +134,8 @@ service_runtime_begin:
     je .error
     test rax,rax
     jz .legacy_user
+    HW_BOOT_STAGE 14
+    HW_BOOT_DISABLE
     call user_smp_boot_begin
     test eax,eax
     jnz .error
@@ -144,6 +149,8 @@ service_runtime_begin:
     lea rdi,[rel user_active_frame]
     mov rsi,[rdi+UserFrame.cr3]
     lea rdx,[rel user_kernel_stack_top]
+    HW_BOOT_STAGE 14
+    HW_BOOT_DISABLE
     call user_run
     mov r12,rax
     call dong_services_report
@@ -166,6 +173,7 @@ service_runtime_begin:
 .bad:
     mov eax,0x050b0002
 .error:
+    HW_BOOT_ERROR
     mov r12,rax
     lea rsi,[rel services_marker_error]
     call serial_write

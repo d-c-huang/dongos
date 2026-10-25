@@ -1,0 +1,73 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_virtio_blk"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-23T14:33:33+00:00",
+  "claimed_by": "codex-mcp-839d838dd7b04cc5",
+  "completed_at": "2026-10-23T14:38:37+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-23T14:33:32+00:00",
+  "delivery": "codex-works/deliveries/G6WAIT2.md",
+  "depends_on": [
+    "codex:G6DOC1"
+  ],
+  "description": "保留共享Ops/State/Lease ABI，新增显式timed read/write/flush入口接Now回调，block_service接现有milliseconds，旧轮询API及tablet语义保持。timed路径发布前取时，使用与AHCI/NVMe相同5000ms命令截止，在期限内完整used/status才成功；时钟错误/倒退/连续100000次不进展有界拒绝；迟到不得清fault，失败后DMA held直至真实reset。真实C模型覆盖超过100000poll但deadline内完成、恰到/超过deadline、clock失败/倒退/冻结、late completion和无发布失败原子性，保留原13场景及真坏体，新增deadline绕过/旧计数截断真坏体。新API不改FLUSH/cache，不扩大G6总3600秒或P2期限。debug/release两格式独立0skip/source stable后集成，再由G6RUN2新构建真实双启。旧G6两次编译成功但FLUSH Timeout，700文件raw审计各通过，历史失败不改。",
+  "document": "codex-works/tasks/G6WAIT2-board.md",
+  "historical": false,
+  "id": "codex:G6WAIT2",
+  "integration_note": "已真实完成七声明文件主目录实现/文档/交付，内容与正式复验指纹匹配，独立验收后登记本地集成。G6RUN2接续全新构建与实际同盘双启；旧归档不能替代。未提交推送。",
+  "legacy_hash": "a93aba4eec8f1647a4becf36ecf8623ba2609a49e409244b265d70ff05133432",
+  "number": "G6WAIT2",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "独立审查显式timed入口及生产block_service回调：共享State/Ops/Lease和tablet不变，取时在发布前，单调差值避免加法溢出，5000ms边界和完成后复查，冻结100000次有界拒绝；所有发布后失败沿原fault/held直至真实reset。正式e8510c2b91054ebe941e0c6d0eec57af通过4项/23.938s/0skip，source_stable/process_stopped/execution_exited；两模式24真实C场景、两对象格式/布局/栈与5类实际坏体均通过，本机修后4项23.816s。原R1/R2夹具失败及两次客体FLUSH失败保留。代码已实际在主目录，不把组件验收代替后继新G6构建/双启。",
+  "status": "integrated",
+  "title": "[L3阻塞修复] VirtIO显式有界时间等待入口与真实FLUSH验证",
+  "updated_at": "2026-10-23T14:40:19+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 23.938,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_virtio_blk",
+        "tests": 4,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/G6WAIT2.md": "a8598910d8a9a146050a827865bcb62f17c97854cc004bb40b9418554eb683fb",
+      "docs/virtio-blk-deadline.md": "68b92b105b35c466829cb78ea65702241ba75fdc4176d36d6b74d036c43685dd",
+      "services/drivers/block_service.dg": "8ad664eeeeb04f9f651b7de35b56d2d63d9f0e1257461ca3c8b8f77773985edb",
+      "services/drivers/virtio_blk.dg": "31e0da2f9d5f78cbc06574fcc6df285b6700b54d41c76fbbb91bdfe7c71e2b1e",
+      "tests/test_virtio_blk.py": "44170e0e6dc34b95809f398bb8c499c160237eac39a02f1860e1fba5305b2c4f",
+      "tests/virtio_blk_probe.c": "d1fde50023ef2189cf7ac6a9e8d5f72c3ca5e0e0e5d2441ed695fcad9b166000",
+      "tests/virtio_blk_probe.dg": "9a9f5b6d7a7a057f0fbfbfdefae711e7f7c42b8450e5e98416008fc32cfb3340"
+    },
+    "finished_at": "2026-10-23T14:39:09+00:00",
+    "job": "e8510c2b91054ebe941e0c6d0eec57af",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "services/drivers/virtio_blk.dg",
+    "services/drivers/block_service.dg",
+    "tests/virtio_blk_probe.dg",
+    "tests/virtio_blk_probe.c",
+    "tests/test_virtio_blk.py",
+    "docs/virtio-blk-deadline.md",
+    "codex-works/deliveries/G6WAIT2.md"
+  ]
+}

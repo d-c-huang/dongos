@@ -2,6 +2,7 @@
 // only the selected storage/input function receives BAR/DMA grants. No raw user PA
 // selects a RAM mapping. AP activation requires a new shared/TLB protocol.
 module user.devices;
+import lib.hardware_profile as hardware_profile;
 import boot.memory_startup as startup;
 import boot.service_memory as resources;
 import boot.acpi_startup as acpi;
@@ -80,6 +81,7 @@ var XHCI_SNAPSHOT_BLOCK:resources.Block=resources.Block {physical:0,virtual:0,pa
 var XHCI_SNAPSHOT_ATTEMPTED:bool=false;
 pub unsafe fn require_manager()void{unsafe{MANAGED=true;}return;}
 pub unsafe fn admit(role:u64,ecam:u64)!void{unsafe{
+    if hardware_profile.USB_ONLY&&role==1{return error.Denied;}
     if !MANAGED||ecam==0||(ecam&4095)!=0{return error.Denied;}
     if role==1{if ADMITTED_BLOCK!=0&&ADMITTED_BLOCK!=ecam{return error.Denied;}ADMITTED_BLOCK=ecam;return;}
     if role==2{if ADMITTED_INPUT!=0&&ADMITTED_INPUT!=ecam{return error.Denied;}ADMITTED_INPUT=ecam;return;}
@@ -286,6 +288,7 @@ unsafe fn interrupt_caps(ecam:u64,disable:bool)!u64 {
 }
 pub unsafe fn grant(id: usize,table: *handles.Table,ecam: u64) !void {
     unsafe {
+        if hardware_profile.USB_ONLY&&id==2{return error.Denied;}
         if id==ADMITTED_XHCI {try xhci_grant(table,ecam);return;}
         if (id!=2 && id!=4) || (ecam&4095)!=0 ||(id==2&&BLOCK_QUARANTINED)||(id==4&&INPUT_QUARANTINED){ return error.Denied; }
         if MANAGED&&((id==2&&ecam!=ADMITTED_BLOCK)||(id==4&&ecam!=ADMITTED_INPUT)){return error.Denied;}

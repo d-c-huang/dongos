@@ -1,0 +1,97 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_loader_handoff",
+    "module:tests.test_loader_console",
+    "module:tests.test_image"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T09:23:08+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T09:34:23+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T09:23:08+00:00",
+  "delivery": "codex-works/deliveries/P8HIGH1.md",
+  "depends_on": [
+    "codex:P8BOOTDIAG1"
+  ],
+  "description": "用户Intel真机R2报告S00/START/E01_LOADED_IMAGE_RANGE。原已交付PE默认首选0x140000000(5GiB)，当前self检查拒绝>4GiB；E01也共用于HandleProtocol失败，新增实际base/size/status可见取证。不做删除安全检查式修复：允许已验证自身包含entry的高地址映像，在最终map/EBS前分配独立低地址EfiLoaderCode页，复制无外部引用的交接代码及私有GDT，先跳入低页才切CR3；切换后不能访问原PE、高EFI栈或原GDT。保留BootInfo/服务/trace ABI、低4GiB映射、2MiB内核、GOP严格要求、EBS无固件回调封存。独立原生验证range/copy/bounds/坏体，实际低/高载入客体须用完整地址证明，正常和hash/missing拒绝均回归。不宣称实际目标硬件通过，更新H介质待插回。声明六文件及build普通产物，不提交推送。",
+  "document": "codex-works/tasks/P8HIGH1-board.md",
+  "historical": false,
+  "id": "codex:P8HIGH1",
+  "integration_note": "六声明文件已实际位于code/及works_root并逐SHA与独立验证fp一致，完成accept后单独登记本地集成。正式17零skip与五类真实客体/raw物理审计均已通过；最终源码稳定、EFI29bdd9c4…、原内核3c904bb4…绑定。无存储USB DIAG R3候选及旧R2备份/新旧SHA预检/刷盘flush读回脚本位于code/build/hardware/high-loader-20261025-r2/；H当前未插回，尚未更新介质。目标Intel真机仍待重试，不计整体P2/P8/暖PCID/物理WC通过。没有提交或推送Git。",
+  "legacy_hash": "1d02ca8eb6436a909ecaae6a211dbd7f522d43a1b233f488e579348e1ad71c0a",
+  "number": "P8HIGH1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查production两ASM/契约/native oracle：range严格排空/溢出/entry越界，高地址不盲拒；final-map前LoaderCode低页、自含284B/8RIP闭包、私有GDT/GDTR/IDTR与低栈，先跳低再CR3/CS，无原PE引用，服务trace寄存器保持；E14有界串口保留，原4GiB bootstrap/GOP及2MiB窗口未放宽。独立3054c45d502645828a1ccf4dd7c8c98d 2+2+13=17tests/0skip，source_stable/stopped/exited。实际五客体全部通过：旧R2自然5GiB运行在0x140001d73停E01；新低/真实5GiB正常原PASS，新真实5GiB篡改/缺失原E08/E04。根目视旧E01和新high正常截图；独立pmemsave的BootInfo/最终raw map证明type1唯一覆盖低页、无Conventional重叠，GDTR为低副本地址；实读CR3物理walk确认原PE不在新root。三源码build前后SHA稳定，内核与首轮USB逐字不变，六主文件与正式fp一致。仅接受修复，不宣称目标真机或完整runtime7矩阵通过；H待插回。",
+  "status": "integrated",
+  "title": "高地址UEFI加载与低地址页表交接兼容修复",
+  "updated_at": "2026-10-25T09:36:21+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 8.5,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_handoff",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 6.688,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_console",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 2.235,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_image",
+        "tests": 13,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "boot/efi_main.asm": "d70f6aba475483348199eee2ca6e4a9460d590d954874b808f50ec16b35e1549",
+      "boot/loader_handoff.asm": "bd7b110d51494e1be34ce9480ed99aee04f3f66e1072b38f77cc8655e3bb41ec",
+      "codex-works/deliveries/P8HIGH1.md": "e4682eb0d02d52f3aaa7ccaaea33b5817b7d6b7b1712ca328d7e3044aa2c8836",
+      "docs/loader-high-address.md": "9ae845931eb81acf88af73d059b9b8fed2b2de779c9e418cd49cdbac94037f93",
+      "tests/loader_handoff_probe.c": "c67e9d233e8c326ef28abd9e6339cc928d99a5877a5f21f2a94e04cfa231c227",
+      "tests/test_loader_handoff.py": "476f98ad1ddd0c0f16792c679e0619be872d48d3148919caccb34460444fe834"
+    },
+    "finished_at": "2026-10-25T09:35:15+00:00",
+    "job": "3054c45d502645828a1ccf4dd7c8c98d",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "boot/efi_main.asm",
+    "boot/loader_handoff.asm",
+    "tests/test_loader_handoff.py",
+    "tests/loader_handoff_probe.c",
+    "docs/loader-high-address.md",
+    "codex-works/deliveries/P8HIGH1.md"
+  ]
+}

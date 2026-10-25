@@ -1,0 +1,40 @@
+{
+  "archive_note": "错误依赖卡，未运行或生成文件。暂停已确认；使用P2ERR43接续正确依赖，历史LM9不动。",
+  "archived": true,
+  "archived_at": "2026-10-24T08:46:55+00:00",
+  "assignment_owner": "lmstudio",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:lmstudio-works/tests:test_p2_cache_errors.py"
+  ],
+  "claimed_at": null,
+  "claimed_by": null,
+  "completed_at": null,
+  "complexity": "simple",
+  "created_at": "2026-10-24T08:45:28+00:00",
+  "delivery": "lmstudio-works/deliveries/LM10.md",
+  "depends_on": [
+    "lmstudio:LM9"
+  ],
+  "description": "只生成两文件，不改测试/生产代码。fixture为JSON，严格顶层schema=1,module='mm.runtime_cache',errors数组；恰好8项，每项严格字段name,code,meaning。code为0x十六进制字符串，meaning为简短准确中文，不声称这些错误已在真机验证。生产常量依据：Invalid=0x06150001(参数/状态无效)、Authority=0x06150002(可信CPU/根/权限前提不满足)、Forest=0x06150003(页表森林与授权别名闭包不符)、HardwareState=0x06150004(PAT/MTRR等实际硬件状态不符)、Held=0x06150005(事务资源须保持持有)、Deadline=0x06150006(截止期限)、Capacity=0x06150007(容量不足)、Storage=0x06150008(调用方存储范围/别名等不合法)。用于P2 C/D后续诊断显示，不增加枚举、不改名、不改数字。交付说明未运行测试，由Codex对照当前生产源码逐项独立验证。依赖LM9验收后再运行，同一时刻只执行一项本地模型任务。",
+  "document": "lmstudio-works/tasks/LM10-board.md",
+  "historical": false,
+  "id": "lmstudio:LM10",
+  "legacy_hash": "f268922d155f36ebb503a052dfa96cf00e8c3d7b47e8a2d0d510d6baa8fd6879",
+  "number": "LM10",
+  "owner": "lmstudio",
+  "pause_control": "confirmed",
+  "resume_status": "todo",
+  "rev": 3,
+  "review_note": "",
+  "status": "paused",
+  "title": "P2简单数据：runtime_cache八种错误码中文对照",
+  "updated_at": "2026-10-24T08:46:55+00:00",
+  "verification": null,
+  "write_paths": [
+    "lmstudio-works/fixtures/p2-cache-errors.json",
+    "lmstudio-works/deliveries/LM10.md"
+  ]
+}

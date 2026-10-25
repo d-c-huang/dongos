@@ -1,0 +1,28 @@
+{
+  "scope": "Full original G5 51-test/27-group matrix through production native ELF",
+  "complete": false,
+  "status": "submitted for independent full verification",
+  "candidate_sha256": {
+    "lang/tests/l3_elf_observer.py": "c47e2d377964097a0c1b0e8c7e66f39e8611bbe077c028ab081dafb54b6329e4",
+    "lang/tests/test_l3_elf_full_matrix.py": "411f9e7e89c26de5344321151cbe49f18bb17589a97b7ea4f52b2d65b25063e2"
+  },
+  "preflight": {
+    "archive": "D:\\projects\\2026\\dongos\\code\\build\\test\\G5-full\\run-44e7ae0502a8",
+    "tests_run": 49,
+    "passed": 48,
+    "failed": 1,
+    "remaining_not_run": 2,
+    "reason": "Original static-address mutant used unsupported symbolic displacement; final source-mutant adapter uses equivalent two LEAs"
+  },
+  "negative_probe": {
+    "archive": "D:\\projects\\2026\\dongos\\code\\build\\test\\G5-full\\run-2e726a606319",
+    "returncode": 2,
+    "stderr": "wrong-global-address"
+  },
+  "production_changes": false,
+  "limitations": [
+    "Windows host observation adapter; not new OS dynamic linking",
+    "No physical hardware acceptance",
+    "Formal full verification is required before acceptance"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:lang.tests.test_l3_elf_full_matrix"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T07:40:23+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T08:07:43+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T07:40:07+00:00",
+  "delivery": "codex-works/deliveries/L3ELFMATRIX1.md",
+  "depends_on": [
+    "codex:L3ENC1",
+    "codex:G6ENC1"
+  ],
+  "description": "复用G5 51项27组完整语言/ABI/诊断/负控矩阵，原生Dong前端后端生成目标汇编交给生产native_assembler生成ELF，宿主观察器只负责装载/外部运行时适配，不能用NASM生成目标指令或静默回退。保留两模式、真实负控、来源哈希、零skip与完整覆盖判定；独立冻结复验后验收集成。只改测试和证据，若发现生产缺陷另立修复卡；不上传、不关机。",
+  "document": "codex-works/tasks/L3ELFMATRIX1-board.md",
+  "historical": false,
+  "id": "codex:L3ELFMATRIX1",
+  "integration_note": "两份测试代码与三份交付/提交证据已真实落在main主目录，5份SHA256逐项匹配accepted独立fingerprint；157源码无差异、G6 456源仍绑定已验收当前编译器。登记本地主线文件集成rev6；不提交/推送。提交文档保留为当时快照，最终完成状态同步到L3进度及完成回执。",
+  "legacy_hash": "500e2b7caf09af8594a8e123ea87810434904cffc03d39b23b149cec901689b0",
+  "number": "L3ELFMATRIX1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已审查生产assembler/ELF地址契约及观察桥：实际Dong输出进入同源native_assembler，内核验证ELF，COFF仅绝对符号、无目标代码段；按原地址装载原始字节，宿主extern仅独立槽桥接，RX/RW保持，无NASM目标回退。原51项/27组断言保留，字节观察仅改读ELF（AST一致）；私有全局地址负控等价双LEA，生产不改。独立冻结job ed37c79515f94c87a488e538ea6ba20d 51tests/0skip/963.657s全通过，source_stable/process_stopped/execution_exited均true。独立stdlib审计259输入、148目标ELF、166次实际观察执行及6类真实错误源码通过。157主目录源码及5交付指纹匹配；G6的456源仍一致。完整纯ELF矩阵门关闭，历史失败保留。",
+  "status": "integrated",
+  "title": "L3完整语言矩阵纯ELF实际执行与独立验收",
+  "updated_at": "2026-10-24T08:25:06+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 963.657,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:lang.tests.test_l3_elf_full_matrix",
+        "tests": 51,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/L3ELFMATRIX1.md": "1da26d23105618e84b6ed74ee4d0f7f5f7054777b9a2cc4be429fd3ae78c789f",
+      "codex-works/reviews/2026-10-24-L3-ELF-matrix.json": "2453786ab3d11f51232126c5ff762a45b5d379aeb827e38cf7c23cc170d8250e",
+      "codex-works/reviews/2026-10-24-L3-ELF-matrix.md": "5c23bde42b6383b10cc1faaafe97ee87970a654578b0b92884e4f7bfc05a098a",
+      "lang/tests/l3_elf_observer.py": "c47e2d377964097a0c1b0e8c7e66f39e8611bbe077c028ab081dafb54b6329e4",
+      "lang/tests/test_l3_elf_full_matrix.py": "411f9e7e89c26de5344321151cbe49f18bb17589a97b7ea4f52b2d65b25063e2"
+    },
+    "finished_at": "2026-10-24T08:23:58+00:00",
+    "job": "ed37c79515f94c87a488e538ea6ba20d",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "lang/tests/test_l3_elf_full_matrix.py",
+    "lang/tests/l3_elf_observer.py",
+    "codex-works/deliveries/L3ELFMATRIX1.md",
+    "codex-works/reviews/2026-10-24-L3-ELF-matrix.md",
+    "codex-works/reviews/2026-10-24-L3-ELF-matrix.json"
+  ]
+}

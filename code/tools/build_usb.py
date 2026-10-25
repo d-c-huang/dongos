@@ -20,12 +20,16 @@ def verify_build(esp: Path) -> dict:
         path = Path(name) if Path(name).is_absolute() else esp.parent / name
         if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             raise ValueError('completed build artifact changed: ' + str(path))
+    if 'usb_only_profile' in metadata:
+        from tools.usb_only_profile import verify as verify_usb_only
+        verify_usb_only(esp.parent, metadata['usb_only_profile'], source_root=ROOT)
     return metadata
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--esp', type=Path, help='reuse a completed normal desktop ESP')
+    parser.add_argument('--usb-only', action='store_true', help='require USB-only desktop storage authority')
     parser.add_argument('--output', type=Path, default=ROOT / 'build/usb/dongos.img')
     parser.add_argument('--size-mib', type=int, choices=(64, 128, 256, 512), default=128)
     args = parser.parse_args()
@@ -39,9 +43,11 @@ def main() -> int:
     if output.exists() or output.is_symlink() or output.with_name(output.name + '.json').exists():
         raise FileExistsError('output already exists; choose a new --output filename')
     output.parent.mkdir(parents=True, exist_ok=True)
-    esp = args.esp.resolve() if args.esp else build(runtime_level=7,
+    esp = args.esp.resolve() if args.esp else build(runtime_level=7,usb_only=args.usb_only,
         output=ROOT / 'build/usb' / ('source-' + uuid.uuid4().hex[:12]))
-    verify_build(esp)
+    metadata = verify_build(esp)
+    if args.usb_only and 'usb_only_profile' not in metadata:
+        raise ValueError('reused ESP is not an explicit USB-only profile')
     result = create(esp, output, args.size_mib)
     verify_build(esp)
     print('Boot image:', result['image'])

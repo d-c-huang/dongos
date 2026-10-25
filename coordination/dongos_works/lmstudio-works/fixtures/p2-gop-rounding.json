@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "id": "aligned-byte",
+      "base": "0x100000",
+      "size": "0x1",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x1000"
+    },
+    {
+      "id": "aligned-page",
+      "base": "0x100000",
+      "size": "0x1000",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x1000"
+    },
+    {
+      "id": "edge-exact",
+      "base": "0x100001",
+      "size": "0xfff",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x1000"
+    },
+    {
+      "id": "cross-page",
+      "base": "0x100fff",
+      "size": "0x2",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x2000"
+    },
+    {
+      "id": "unaligned-two-pages",
+      "base": "0x12345001",
+      "size": "0x2000",
+      "valid": true,
+      "physical": "0x12345000",
+      "bytes": "0x3000"
+    },
+    {
+      "id": "maximum-aligned",
+      "base": "0x100000",
+      "size": "0x1000000",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x1000000"
+    },
+    {
+      "id": "maximum-unaligned",
+      "base": "0x100001",
+      "size": "0x1000000",
+      "valid": true,
+      "physical": "0x100000",
+      "bytes": "0x1001000"
+    },
+    {
+      "id": "physical-limit-exact",
+      "base": "0xffffffffff00",
+      "size": "0x100",
+      "valid": true,
+      "physical": "0xfffffffff000",
+      "bytes": "0x1000"
+    },
+    {
+      "id": "physical-limit-overflow",
+      "base": "0xffffffffff00",
+      "size": "0x101",
+      "valid": false,
+      "physical": null,
+      "bytes": null
+    },
+    {
+      "id": "zero-size",
+      "base": "0x100000",
+      "size": "0x0",
+      "valid": false,
+      "physical": null,
+      "bytes": null
+    },
+    {
+      "id": "size-too-large",
+      "base": "0x100000",
+      "size": "0x1000001",
+      "valid": false,
+      "physical": null,
+      "bytes": null
+    },
+    {
+      "id": "below-one-mib",
+      "base": "0xfffff",
+      "size": "0x1",
+      "valid": false,
+      "physical": null,
+      "bytes": null
+    }
+  ]
+}

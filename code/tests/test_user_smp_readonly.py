@@ -117,6 +117,7 @@ int main(void){
   entry=(ROOT/'tests/user_current_entry_probe.dg').read_text()+prefix+actual+TAIL
   # setup uses ! operations inside an ordinary exported result wrapper.
   entry=entry.replace('export("ro_setup") fn setup()u64{unsafe{','unsafe fn setup_inner()!u64{unsafe{')+'\nexport("ro_setup") fn setup()u64{unsafe{match setup_inner(){ok(v)=>{return v;},err(e)=>{return e;},}}}\n'
+  entry+=old.dormant_wiring(text)
   memory=old.MEMORY+'''unsafe extern "sysv64" fn ro_output(slot:u64,va:u64,size:u64,write:u64)u64;
 pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{if ro_output(slot as u64,va,size as u64,write as u64)!=1{return error.Invalid;}}return;}pub error Invalid=0x1111;
 '''
@@ -136,6 +137,8 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
    'missing-mutation-after-barrier':('bridge','if policy==0{let after=try ud.barrier_begin(d,cpu);try ud.barrier_wait(d,cpu,after,try deadline(d,cpu));}',''),
   }
   out=ROOT/'build/test/p6-readonly-native'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True);evidence={};nasm,cc=tool('nasm','NASM'),tool('gcc','CC')
+  memory+=old.dormant_memory()
+  c+=old.DORMANT_C
   candidate={}
   bridge=(BASE/'kernel/sched/user_bridge.dg').read_text();candidate['sched.user_bridge']=bridge
   for mode in ('debug','release'):
@@ -148,7 +151,7 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
      if kind=='services':
       policy=block(s,'export("dong_user_smp_service_policy")');self.assertEqual(1,policy.count(old_s));s=s.replace(policy,policy.replace(old_s,new_s))
      else:self.assertEqual(1,b.count(old_s));b=b.replace(old_s,new_s)
-    overrides={**candidate,'sched.user_bridge':b,'user_current_entry_probe':s,'user.memory':memory,'user.devices':devices,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':old.DEVICE+'pub unsafe fn irq_poll_readonly(token:u64,owner:u64,after:u64)bool{return false;}'}
+    overrides={**candidate,'boot.service_memory':old.dormant_resources(),'sched.user_bridge':b,'user_current_entry_probe':s,'user.memory':memory,'user.devices':devices,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':old.DEVICE+'pub unsafe fn irq_poll_readonly(token:u64,owner:u64,after:u64)bool{return false;}'}
     copy_graph(stage,['user_current_entry_probe'],overrides);compiled=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(compiled.assembly);(d/'probe.c').write_text(c)
     objects=[]
     def run(args,label):

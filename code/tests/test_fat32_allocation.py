@@ -20,6 +20,7 @@ from lang.tests.test_dongc import nasm_flags, tool
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = [ROOT / p for p in (
     "services/fs/fat32.dg", "services/fs/errors.dg", "services/fs/path.dg", "services/fs/lfn.dg",
+    "services/lib/hardware_profile.dg",
     "tests/fat32_allocation_exports.dg.inc", "tests/fat32_allocation_probe.c", "tests/test_fat32_allocation.py")]
 
 
@@ -59,6 +60,8 @@ class Fat32AllocationTests(unittest.TestCase):
         (services / "fs").mkdir(parents=True)
         for name in ("errors.dg", "path.dg", "lfn.dg"):
             shutil.copyfile(ROOT / "services/fs" / name, services / "fs" / name)
+        (services / "lib").mkdir()
+        shutil.copyfile(ROOT / "services/lib/hardware_profile.dg", services / "lib/hardware_profile.dg")
         source = (ROOT / "services/fs/fat32.dg").read_text()
         if mutation == "entry-scan":
             start = source.index("unsafe fn find_free(")

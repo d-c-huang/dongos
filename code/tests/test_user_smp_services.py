@@ -98,7 +98,8 @@ export("us_large_state") fn large_state(which:u64)u64{unsafe{
  if which==2{return LARGE_TRIES;}if which==3{return LARGE_REQUESTED as u64;}
  if RUNTIME_LARGE==null{return 0xffff_ffff_ffff_ffff;}
  if which==4{return (*RUNTIME_LARGE).ready;}if which==5{return (*RUNTIME_LARGE).report.attempted;}
- if which==6{return (*RUNTIME_LARGE).report.complete;}return 0xffff_ffff_ffff_ffff;
+ if which==6{return (*RUNTIME_LARGE).report.complete;}
+ if which==7{return OWNER_TRIES;}if which==8{return EXEC_POLLS;}if which==9{return CACHE_POLLS;}return 0xffff_ffff_ffff_ffff;
 }}
 export("us_get") fn get(which:u64)u64{unsafe{
  if which==0{return CURRENT as u64;}if which==1{return (*(memory.processes()+7)).frame.rax;}if which==2{return INFO.syscalls;}
@@ -124,6 +125,12 @@ unsafe fn large_try()!void{unsafe{
   ||LARGE_REQUESTED||(*RUNTIME_LARGE).ready!=0||(*RUNTIME_LARGE).report.attempted!=0
   ||(*RUNTIME_LARGE).report.complete!=0{return error.Protocol;}
 }return;}
+// C/D stay dormant while B is unarmed: their mux slots are counted, and the
+// post-B owner selector must never be reached by an ordinary projection.
+var OWNER_TRIES:u64=0;var EXEC_POLLS:u64=0;var CACHE_POLLS:u64=0;
+unsafe fn owner_try()!void{unsafe{OWNER_TRIES+=1;}return error.Protocol;}
+unsafe fn exec_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{EXEC_POLLS+=1;}return 0;}
+unsafe fn cache_poll(d:*smp_domain.Domain,cpu:usize)u64{unsafe{CACHE_POLLS+=1;}return 0;}
 '''
 RESOURCES='''module boot.service_memory;
 pub error InvalidState=0x0507_0001;
@@ -172,7 +179,7 @@ U ABI smp_service_fixture_event(U phase,U slot,U value){C(cpu==0&&d->lock==1&&d-
 }
 U ABI smp_service_fixture_irq(U vector){return smp_service_fixture_event(3,0,vector);}
 int main(int argc,char**argv){C(argc==2);U gui=!strcmp(argv[1],"gui");setup();cpu=0;C(!ue_lock(0));C(!us_setup(gui?14:9)&&us_get(0)==16);large_boundary();
- C(us_large_registered()==0x06090002);C(!ue_poll(0)&&!d->failed);
+ C(us_large_registered()==0x06090002);C(!ue_poll(0)&&!d->failed);C(us_large_state(8)>=1&&us_large_state(9)==us_large_state(8));
  C(us_large_guard(1)==0x050b0002&&us_large_guard(2)==0x050b0002&&us_large_guard(3)==0x050b0002);large_boundary();C(us_large_state(2)==3);
  C(!us_project()&&!us_project()&&us_get(6)==7&&d->processes[7].token&&us_get(8)==(gui?0:128));C(us_large_state(2)==5);C(!us_select());
  U saved=us_get(1);C(us_guard(1)==0x060b0011&&us_get(1)==saved);C(us_guard(2)==0x060b0011&&us_get(1)==saved);C(us_guard(3)==0x060b0011&&us_get(1)==saved);
@@ -180,7 +187,7 @@ int main(int argc,char**argv){C(argc==2);U gui=!strcmp(argv[1],"gui");setup();cp
  C(!us_irq(0x51)&&!us_irq(0x5c)&&!us_irq(0x60)&&interrupts==3&&us_get(4)==3&&us_get(0)==16);
  if(!strcmp(argv[1],"exit")||gui){C(!us_op(0xff)&&us_get(0)==16&&performed==3&&withdrawn==1&&!us_get(5));}
  else{C(!strcmp(argv[1],"fault"));C(!us_fault()&&us_get(0)==16&&us_get(3)==1&&withdrawn==1&&!us_get(5));}
- C(us_get(7)==UINT64_MAX&&!d->processes[7].token&&!us_get(8)&&!ue_audit());large_boundary();C(!ue_unlock(0));
+ C(us_get(7)==UINT64_MAX&&!d->processes[7].token&&!us_get(8)&&!ue_audit());large_boundary();C(!us_large_state(7));C(!ue_unlock(0));
  printf("actual services SMP callback checks=%u scenario=%s real-Catalog scope generation frame-authority retire-before-withdraw IRQ-BSP dormant-LARGE owned-zero-RAM pages=%u storage-bytes=%u runtime_large_executed=false actual_qemu_executed=false\n",(unsigned)checks,argv[1],(unsigned)large_pages,(unsigned)us_large_size());return 0;}
 '''
 MUTATION_POLICY="\nU ABI user_bridge_service_policy(U slot,U event,U frame){(void)slot;(void)event;(void)frame;return 0;}\n"
@@ -197,6 +204,8 @@ class Tests(unittest.TestCase):
    'foreign-Frame-pointer':('||pointer!=(&(*process(slot)).frame) as u64',''),
    'AP-owner-runs-perform':('if (*d).owner!=0||(*d).lock!=1||(*cpu).mode','if (*d).lock!=1||(*cpu).mode'),
    'duplicate-admission':('if (*p).token==0{\n                let cfg','if true{\n                let cfg'),
+   'mux-skips-exec-owner':('let exec=exec_poll(d,cpu);if exec!=0{return exec;}',''),
+   'owner-before-settled-large':('if settled{let owners=owner_try();','if true{let owners=owner_try();'),
   }
   out=ROOT/'build/test/p6-cpl3-service-native'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True)
   before=source_hashes();tool_paths={'python':str(Path(sys.executable).resolve()),'nasm':None,'cc':None}
@@ -232,7 +241,7 @@ class Tests(unittest.TestCase):
     help_result=run([nasm,'-h','-w'],out,'nasm-warning-help');self.assertEqual(0,help_result.returncode,help_result.stderr);help_text+='\n'+help_result.stdout
    flags=['-Wall','-Werror']+['-w-'+name for name in ('reloc-rel-dword','reloc-abs-qword') if re.search(r'(?m)^\s*'+re.escape(name)+r'\s',help_text)]
    text=(BASE/'kernel/user/services.dg').read_text(encoding='utf-8')
-   needles=('unsafe fn process(', 'unsafe fn managed(', 'unsafe fn retire_one(', 'pub unsafe fn enable_smp(', 'unsafe fn large_poll(', 'export("dong_user_smp_project")', 'export("dong_user_smp_service")', 'export("dong_user_smp_interrupt")')
+   needles=('unsafe fn process(', 'unsafe fn managed(', 'unsafe fn retire_one(', 'pub unsafe fn enable_smp(', 'unsafe fn runtime_poll(', 'unsafe fn large_poll(', 'export("dong_user_smp_project")', 'export("dong_user_smp_service")', 'export("dong_user_smp_interrupt")')
    for needle in (*needles,'struct LargeTicket{','align(64) struct LargeStorage{'):self.assertEqual(1,text.count(needle),needle)
    actual='\n'.join(block(text,n) for n in needles)
    declarations='\n'.join(block(text,n) for n in ('struct LargeTicket{','align(64) struct LargeStorage{'))
@@ -276,7 +285,7 @@ class Tests(unittest.TestCase):
       evidence.append(case);self.assertEqual(0 if variant=='normal'else 1,r.returncode,r.stdout+r.stderr)
       if variant!='normal':self.assertIn('user CPL3 current-source oracle line',r.stderr);self.assertNotIn('actual services SMP callback checks=',r.stdout)
       else:self.assertIn('dormant-LARGE owned-zero-RAM',r.stdout);self.assertIn('runtime_large_executed=false actual_qemu_executed=false',r.stdout)
-   self.assertEqual(26,len(evidence));self.assertEqual(6,sum(e['variant']=='normal' for e in evidence))
+   self.assertEqual(30,len(evidence));self.assertEqual(6,sum(e['variant']=='normal' for e in evidence))
    self.assertEqual(before,source_hashes());self.assertEqual(tools_before,tool_hashes());passed=True
   except BaseException as exc:
    failure=dict(type=type(exc).__name__,message=str(exc),active=active);raise
@@ -286,10 +295,46 @@ class Tests(unittest.TestCase):
    (out/'validation-summary.json').write_text(json.dumps(dict(passed=passed and before==after and tools_before==tools_after,failure=failure,
      contract='current-service-dormant-large-v2',current_source=True,historical_replay=False,actual_services_fragments=True,real_catalog_domain_queue=True,
      source_before=before,source_after=after,sources_unchanged=before==after,tools_before=tools_before,tools_after=tools_after,tools_unchanged=tools_before==tools_after,
-     artifact_sha256=artifacts,commands=commands,compilations=compilations,evidence=evidence,skipped=[],normal_expected=6,mutant_expected=20,
+     artifact_sha256=artifacts,commands=commands,compilations=compilations,evidence=evidence,skipped=[],normal_expected=6,mutant_expected=24,
      synthetic_RAM_boundary=True,memory_hardware_and_perform_boundary_mocked=True,large_context_type='mm.runtime_large.Context',actual_large_poll_source=True,
      actual_large_poll_registration=passed and sum(e['variant']=='normal' for e in evidence)==6,
      runtime_large_executed=False,actual_ap_cpl3_executed=False,actual_qemu_executed=False,os_build_executed=False),indent=2)+'\n',encoding='utf-8')
    print('USER_SMP_SERVICE_EVIDENCE',out)
   self.assertTrue(passed and before==after and tools_before==tools_after,'late source/tool changes must fail the unittest and its receipt')
 if __name__=='__main__':unittest.main(verbosity=2)
+
+
+def dormant_wiring(text):
+ """Real B storage/mux declarations; C/D and transaction stay explicitly dormant.
+ Focused policy tests do not impersonate a successful B/C/D transaction.
+ """
+ return '\n'.join(block(text,n) for n in ('struct LargeTicket{','align(64) struct LargeStorage{'))+DORMANT+'\n'+block(text,'unsafe fn runtime_poll(')+block(text,'unsafe fn large_poll(')
+
+def dormant_memory():
+ return block((ROOT/'kernel/user/memory.dg').read_text(),'pub struct RootSnapshot{')
+
+def dormant_resources():
+ return RESOURCES+block((ROOT/'kernel/boot/service_memory.dg').read_text(),'pub struct Block ')
+
+DORMANT_C=r'''
+/* Synthetic owned RAM allocator; transaction/hardware not executed here. */
+typedef struct {U physical,virtual_address,pages;} DormantBlock;
+U ABI smp_service_fixture_allocate(U pages,U alignment,DormantBlock*out){
+ C(pages&&pages<=128&&alignment==1&&out);void*p=arena((size_t)pages*4096);
+ memset(p,0,(size_t)pages*4096);out->physical=0x3000000;out->virtual_address=(U)(uintptr_t)p;out->pages=pages;return 0;
+}
+'''
+
+
+def current_files():
+ # Compatibility with the older focused policy suites; retain the full
+ # transitive inventory instead of returning their obsolete short file list.
+ return [ROOT/name for name in source_hashes()]
+
+
+def load_tests(loader,suite,pattern):
+ # Keep the four focused production policy suites in the declared service gate.
+ # The C/D component gate remains separate within each coordinator time limit.
+ for name in ['test_user_smp_poll_fast','test_user_smp_poll_wakes','test_user_smp_readonly','test_user_smp_fault_isolation']:
+  suite.addTests(loader.loadTestsFromName('tests.'+name))
+ return suite

@@ -527,7 +527,10 @@ class ObserverTests(unittest.TestCase):
                 writes = index['materializations'];batch = writes['batches'][0];record = writes['files'][0]
                 if case=='missing': writes['files'].pop()
                 elif case=='hash': record['sha256'] = '0'*64
-                elif case=='queued': record['queued_ns'] = index['epochs'][0]['stop']['confirmed_ns']
+                elif case=='queued':
+                    # Coarse host clocks can give stop, seal and queue the same
+                    # tick. Forge strictly outside the legal boundary.
+                    record['queued_ns'] = index['epochs'][0]['sealed_ns'] - 1
                 elif case=='materialized': record['materialized_ns'] = batch['started_ns']-1
                 elif case=='phase': batch['phase'] = 'exit'
                 elif case=='confirmation': batch['evidence']['confirmed_ns'] -= 1

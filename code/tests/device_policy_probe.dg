@@ -12,3 +12,9 @@ export("device_plan") fn make(inventory: *const acpi.Inventory, raw: *const u8, 
     }
 }
 export("device_plan_size") fn bytes() usize { return sizeof(policy.Plan); }
+export("device_conflict_size") fn conflict_bytes()usize{return sizeof(policy.Conflict);}
+export("device_plan_diagnostic") fn diagnose(inventory:*const acpi.Inventory,raw:*const u8,bytes:usize,
+    stride:usize,kept:*const resources.Resource,count:usize,out:*policy.Plan,conflict:*policy.Conflict)u64{
+    unsafe{match policy.plan_diagnostic(inventory,slice_from_raw_parts(raw,bytes),stride,
+        slice_from_raw_parts(kept,count),out,conflict){ok=>{return 0;},err(code)=>{return code;},}}
+}

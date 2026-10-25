@@ -2,6 +2,7 @@
 // hardware access: the dispatcher validates authority and commits resources.
 module user.processes;
 import lib.process_abi as abi;
+import lib.hardware_profile as hardware_profile;
 pub const CONFIGS:usize=18;
 pub const SLOTS:usize=16;
 pub const EVENTS:usize=64;
@@ -21,6 +22,7 @@ unsafe fn configure(c:*Catalog,id:usize,name:[]const u8,deps:u64,flags:u64,retri
 }return;}
 pub unsafe fn initialize(c:*Catalog,hz:u64)!void{unsafe{
     if c==null||(*c).ready!=0||hz==0||hz>0xffff_ffff_ffff_ffff/10{return error.abi.Invalid;}
+    if hardware_profile.USB_ONLY&&hz>0xffff_ffff_ffff_ffff/60{return error.abi.Invalid;}
     (*c).count=CONFIGS;(*c).sequence=0;
     var i:usize=0;while i<32{
         (*c).configs[i]=abi.EMPTY_CONFIG;(*c).states[i]=abi.EMPTY_SNAPSHOT;
@@ -31,6 +33,9 @@ pub unsafe fn initialize(c:*Catalog,hz:u64)!void{unsafe{
     let auto=abi.AUTOSTART|abi.ESSENTIAL;let retry=auto|abi.RESTART;
     configure(c,0,"shell",1<<1,retry,3,hz);
     configure(c,1,"fs",1<<2,retry,3,hz);
+    // Full USB FAT audit includes both FAT copies and every allocated chain.
+    // Give only this trusted boot phase a larger bounded I/O budget.
+    if hardware_profile.USB_ONLY {(*c).configs[1].timeout_ticks=hz*60;}
     configure(c,2,"block",1<<6,auto,0,hz);
     configure(c,3,"compositor",(1<<1)|(1<<4),retry,3,hz);
     configure(c,4,"input",1<<6,auto,0,hz);

@@ -14,7 +14,10 @@ import drivers.ahci as ahci;
 import drivers.ahci_core as core;
 import drivers.nvme as nvme;
 import drivers.usb_block_proxy as usb;
+import drivers.usb_partition as usb_partition;
+import lib.hardware_profile as hardware_profile;
 var USB:usb.State=usb.EMPTY;
+var USB_VIEW:usb_partition.View=usb_partition.EMPTY;
 pub error Setup = 0x0506_0001;
 var STATE: blk.State = blk.EMPTY_STATE;
 var AHCI:ahci.State=ahci.EMPTY_STATE;
@@ -162,6 +165,7 @@ unsafe fn setup() !void {
     unsafe {
         BOOT = sys.boot();
         if BOOT == null || (*BOOT).version != 1 || (*BOOT).channel_bytes != protocol.CHANNEL_BYTES { return error.Setup; }
+        if hardware_profile.USB_ONLY {try setup_usb();return;}
         var regions: [1]pci.Region = [pci.Region { base: (*BOOT).reserved0, segment: 0,
             start_bus: (*BOOT).reserved1, end_bus: (*BOOT).reserved2 }];
         var cursor = pci.EMPTY_CURSOR;
@@ -215,16 +219,44 @@ unsafe fn setup() !void {
     }
     return;
 }
+// No PCI scan/claim is reached by the USB-only profile. The initial metadata
+// read uses the same authenticated channel before publishing block READY.
+unsafe fn setup_usb()!void {unsafe {
+    if (*BOOT).block==0||(*BOOT).channel_address==0 {return error.Setup;}
+    let initialized=usb.initialize(&USB,(*BOOT).block);if initialized!=0 {return error.Setup;}
+    var request=sys.EMPTY_MESSAGE;var response=sys.EMPTY_MESSAGE;
+    request.words[0]=protocol.READ;request.words[2]=1;
+    let read=usb.execute(&USB,&request,&response);if read!=0 {return error.Setup;}
+    try usb_partition.inspect(slice_from_raw_parts((*BOOT).channel_address as *const u8,512),USB.capacity,&USB_VIEW);
+    log_hex("usb_partition_lba=0x",USB_VIEW.base);log_hex("usb_partition_sectors=0x",USB_VIEW.capacity);
+    log_hex("usb_raw_capacity=0x",USB_VIEW.disk_capacity);
+    BACKEND=4;if sys.log("DONGOS_USB_ONLY_BLOCK_READY\r\n")!=0 {return error.Setup;}
+}return;}
+
+unsafe fn usb_operation()u64 {unsafe {
+    if !hardware_profile.USB_ONLY {return usb.execute(&USB,&REQUEST,&RESPONSE);}
+    var request=REQUEST;
+    if request.words[0]==protocol.READ||request.words[0]==protocol.WRITE {
+        var physical:u64=0;
+        match usb_partition.translate(&USB_VIEW,request.words[1],request.words[2],&physical) {
+            ok=>{},err(code)=>{return code;},
+        }
+        request.words[1]=physical;
+    }
+    // Raw USB response capacity/identity is checked before presenting the
+    // logical FAT partition capacity to FS. READY/FLUSH remain untranslated.
+    return usb.execute(&USB,&request,&RESPONSE);
+}}
 unsafe fn operation_inner() u64 {
     unsafe {
         RESPONSE = sys.EMPTY_MESSAGE;
         let op = REQUEST.words[0]; let lba = REQUEST.words[1]; let count = REQUEST.words[2]; let offset = REQUEST.words[4];
-        if BACKEND==4{return usb.execute(&USB,&REQUEST,&RESPONSE);}
+        if BACKEND==4{return usb_operation();}
         if op == protocol.READY { return 0; }
         if op == protocol.FLUSH {
             if BACKEND==3 {match nvme.flush(&NVME) {ok=>{return 0;},err(code)=>{return code;},}}
             if BACKEND==2 {match ahci.flush(&AHCI) {ok=>{return 0;},err(code)=>{return code;},}}
-            match blk.flush(&STATE) { ok => { return 0; }, err(code) => { return code; }, }
+            match blk.flush_timed(&STATE,milliseconds) { ok => { return 0; }, err(code) => { return code; }, }
         }
         if (op != protocol.READ && op != protocol.WRITE) || count == 0 || count > 128
             || offset > (*BOOT).channel_bytes || count * 512 > (*BOOT).channel_bytes - offset { return 0x0506_0002; }
@@ -232,11 +264,11 @@ unsafe fn operation_inner() u64 {
         if op == protocol.READ {
             if BACKEND==3 {match nvme.read_sectors(&NVME,lba,count as usize,data) {ok=>{RESPONSE.words[1]=count;return 0;},err(code)=>{return code;},}}
             if BACKEND==2 {match ahci.read_sectors(&AHCI,lba,count as usize,data) {ok=>{RESPONSE.words[1]=count;return 0;},err(code)=>{return code;},}}
-            match blk.read_sectors(&STATE,lba,count as usize,data) { ok => { RESPONSE.words[1] = count; return 0; }, err(code) => { return code; }, }
+            match blk.read_sectors_timed(&STATE,lba,count as usize,data,milliseconds) { ok => { RESPONSE.words[1] = count; return 0; }, err(code) => { return code; }, }
         }
         if BACKEND==3 {match nvme.write_sectors(&NVME,lba,count as usize,data) {ok=>{RESPONSE.words[1]=count;return 0;},err(code)=>{return code;},}}
         if BACKEND==2 {match ahci.write_sectors(&AHCI,lba,count as usize,data) {ok=>{RESPONSE.words[1]=count;return 0;},err(code)=>{return code;},}}
-        match blk.write_sectors(&STATE,lba,count as usize,data) { ok => { RESPONSE.words[1] = count; return 0; }, err(code) => { return code; }, }
+        match blk.write_sectors_timed(&STATE,lba,count as usize,data,milliseconds) { ok => { RESPONSE.words[1] = count; return 0; }, err(code) => { return code; }, }
     }
 }
 unsafe fn setup_msi()!void{unsafe{
@@ -321,7 +353,10 @@ export("service_main") fn main() u64 {
             if BACKEND==3 {
                 RESPONSE.words[2]=NVME.info.capacity_sectors;RESPONSE.words[3]=NVME.info.readonly;RESPONSE.words[4]=NVME.info.completed;
             }
-            if BACKEND==4{RESPONSE.words[2]=USB.capacity;RESPONSE.words[3]=USB.readonly;RESPONSE.words[4]=USB.completed;}
+            if BACKEND==4{
+                RESPONSE.words[2]=USB.capacity;if hardware_profile.USB_ONLY {RESPONSE.words[2]=USB_VIEW.capacity;}
+                RESPONSE.words[3]=USB.readonly;RESPONSE.words[4]=USB.completed;
+            }
             status = sys.svc_reply_wait((*BOOT).endpoint,TICKET,&RESPONSE,&REQUEST,&TICKET);
         }
     }

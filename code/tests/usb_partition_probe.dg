@@ -1,0 +1,8 @@
+module usb_partition_probe;
+import drivers.usb_partition as partition;
+export("up_inspect") fn inspect(p:*const u8,n:usize,disk:u64,out:*partition.View)u64 {unsafe {
+    match partition.inspect(slice_from_raw_parts(p,n),disk,out) {ok=>{return 0;},err(code)=>{return code;},}
+}}
+export("up_translate") fn translate(view:*const partition.View,lba:u64,count:u64,out:*u64)u64 {unsafe {
+    match partition.translate(view,lba,count,out) {ok=>{return 0;},err(code)=>{return code;},}
+}}

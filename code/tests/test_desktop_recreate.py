@@ -29,6 +29,9 @@ pub fn staging(id:usize)bool{unsafe{unexpected_gui();}return false;}
 pub unsafe fn gui_resource_aperture(id:usize,old_pa:u64,old_n:u64,pa:u64,n:u64)!void{unsafe{unexpected_gui();}return error.Failed;}
 pub fn processes()*Process{unsafe{return p();}}pub fn generation(id:usize)u64{unsafe{return g(id as u64);}}
 pub unsafe fn map_device(id:usize,va:u64,pa:u64,n:u64)!void{unsafe{if device(id as u64,va,pa,n)!=0{return error.Failed;}}return;}
+// The independent C model checks exact compositor VA/PA/rounded prefix size.
+// Real WC authority and PTEs are covered by test_framebuffer_ledger, not here.
+pub unsafe fn map_framebuffer(id:usize,va:u64,pa:u64,n:u64)!void{unsafe{if device(id as u64,va,pa,n)!=0{return error.Failed;}}return;}
 pub unsafe fn anonymous(id:usize,va:u64)!u64{unsafe{let v=anon(id as u64,va);if v==0{return error.Failed;}return v;}}
 pub unsafe fn share_at(s:usize,t:usize,sv:u64,tv:u64,rw:bool)!void{unsafe{var w:u64=0;if rw{w=1;}if shared(s as u64,t as u64,sv,tv,w)!=0{return error.Failed;}}return;}
 pub unsafe fn share(s:usize,t:usize,v:u64,rw:bool)!void{unsafe{return share_at(s,t,v,v,rw);}}

@@ -5,6 +5,7 @@ default rel
 %ifndef P1_TEST
 %define P1_TEST 0
 %endif
+%include "boot_progress.inc"
 extern dong_smp_begin,dong_smp_report,smp_invalidate_all,parallel_live_begin
 extern dong_smp_large_begin
 extern dong_boot_trace_online
@@ -205,6 +206,7 @@ smp_runtime_begin:
     push r12
     lea rsi,[rel smp_marker_start]
     call serial_write
+    HW_BOOT_STAGE 6
     call dong_smp_begin
     mov rbx,rax
     call dong_smp_report
@@ -212,6 +214,7 @@ smp_runtime_begin:
     call smp_write_report
     test rbx,rbx
     jnz .bad
+    HW_BOOT_STAGE 7
     ; Successful report already proved every logical CPU ONLINE. Derive mask
     ; from actual report, never a user log or assumed four-CPU constant.
     mov rcx,[r12+SmpReport.cpu_count]
@@ -226,6 +229,7 @@ smp_runtime_begin:
 .trace_online_done:
     lea rsi,[rel smp_marker_ready]
     call serial_write
+    HW_BOOT_STAGE 8
     call dong_smp_large_begin
     mov rbx,rax
     test rax,rax
@@ -235,17 +239,31 @@ smp_runtime_begin:
     mov eax,1
     jmp .return
 .parallel:
+    HW_BOOT_STAGE 9
     call parallel_live_begin
     test eax,eax
+%if RUNTIME_LEVEL >= 7
+    jz .parallel_failed
+%else
     jz .return
+%endif
     mov eax,1
     jmp .return
 .bad:
+%if RUNTIME_LEVEL >= 7
+    mov rax,rbx
+    HW_BOOT_ERROR
+%endif
     lea rsi,[rel smp_marker_error]
     call serial_write
     mov rax,rbx
     call serial_hex_line
     xor eax,eax
+%if RUNTIME_LEVEL >= 7
+    jmp .return
+.parallel_failed:
+    HW_BOOT_ERROR
+%endif
 .return:
     pop r12
     pop rbx

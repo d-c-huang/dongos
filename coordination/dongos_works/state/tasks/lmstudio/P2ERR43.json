@@ -1,0 +1,79 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-10-24T08:54:24+00:00",
+      "from_owner": "lmstudio",
+      "note": "用户明确从LM Studio改派给DeepSeek Harness；本项尚未执行。保留任务ID/原授权路径/独立测试及依赖P2VEC42，先完成前项验收再领取本项；交付8种缓存错误码对照，不修改生产或测试。",
+      "previous_claimed_by": null,
+      "to_owner": "deepseek"
+    },
+    {
+      "at": "2026-10-24T10:10:36+00:00",
+      "from_owner": "deepseek",
+      "note": "用户明确授权Codex接手DeepSeek尚未完成的两项任务。本项尚未领取，无外部执行者；保留稳定ID、两声明文件、独立测试及P2VEC42依赖，待前项独立验收后执行。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:lmstudio-works/tests:test_p2_cache_errors.py"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T10:11:20+00:00",
+  "claimed_by": "codex-mcp-5f95564a50c4415d",
+  "completed_at": "2026-10-24T10:12:02+00:00",
+  "complexity": "simple",
+  "created_at": "2026-10-24T08:46:56+00:00",
+  "delivery": "lmstudio-works/deliveries/P2ERR43.md",
+  "depends_on": [
+    "lmstudio:P2VEC42"
+  ],
+  "description": "只生成JSON及交付。fixture严格为schema=1,module='mm.runtime_cache',errors数组。8项，每项严格name,code,meaning字段；code为0x十六进制字符串，meaning为简短准确中文。常量：Invalid=0x06150001(参数/状态无效)、Authority=0x06150002(可信CPU/根/权限前提不满足)、Forest=0x06150003(页表森林与授权别名闭包不符)、HardwareState=0x06150004(PAT/MTRR等硬件状态不符)、Held=0x06150005(事务资源须保持持有)、Deadline=0x06150006(截止期限)、Capacity=0x06150007(容量不足)、Storage=0x06150008(调用方存储范围/别名不合法)。用于后续C/D诊断，不增加枚举、不改数字、不声称真机验证。交付写未运行测试，由Codex读取真实生产源码复验。P2VEC42验收后才执行，LM同一时刻仅一项。",
+  "document": "lmstudio-works/tasks/P2ERR43-board.md",
+  "historical": false,
+  "id": "lmstudio:P2ERR43",
+  "integration_note": "JSON和交付已从独立snapshot真实移交到项目works_root，并在独立验收后逐文件复算与正式9868d94f74e745a38c6bb924ee380ae3指纹一致：JSON84002a95…、交付3d454ce2…。登记本地集成。P2VEC42集成文件亦重验SHA一致；共仅四个任务声明文件交付，未修改测试/生产、未提交推送或执行OS/VM。",
+  "legacy_hash": "6b26635e161cd5be2b62f6545faecc1519bbfa7bc7113c22317644c34908efc9",
+  "number": "P2ERR43",
+  "owner": "codex",
+  "rev": 8,
+  "review_note": "已实际审查JSON与生产kernel/mm/runtime_cache.dg八种pub error及调用处：名称/编码逐项对应0x06150001..08；中文含义涵盖参数状态、可信CPU/根/权限、森林别名闭包、PAT/MTRR、持有、deadline、容量和存储别名，未新增枚举。独立测试直接读取冻结真实生产常量，正式9868d94f74e745a38c6bb924ee380ae3 1项/0skip、source_stable/process_stopped/execution_exited；另4项契约和错误码/重复负控通过。只两声明文件变化，前项已集成后才实施，不宣称真机WC。",
+  "status": "integrated",
+  "title": "P2简单数据：缓存事务八种错误码中文对照",
+  "updated_at": "2026-10-24T10:12:51+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.203,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:lmstudio-works/tests:test_p2_cache_errors.py",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "lmstudio-works/deliveries/P2ERR43.md": "3d454ce28f6957aefd7118675c859450a9783cc774fc511a6ddf5070e141c515",
+      "lmstudio-works/fixtures/p2-cache-errors.json": "84002a953aa5fc1ddf2b627ff0af86a58f2fb1a64ff9421159385ba1c67ac816"
+    },
+    "finished_at": "2026-10-24T10:12:22+00:00",
+    "job": "9868d94f74e745a38c6bb924ee380ae3",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "lmstudio-works/fixtures/p2-cache-errors.json",
+    "lmstudio-works/deliveries/P2ERR43.md"
+  ]
+}

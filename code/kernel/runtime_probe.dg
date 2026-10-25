@@ -17,6 +17,10 @@ pub unsafe fn runtime_flush_root() void { unsafe { devices.runtime_flush_root();
 export("dong_device_prepare") fn device_prepare(state: *const preflight.State, out: *device_policy.Views) u64 {
     unsafe { match devices.prepare(state,out) { ok => { return 0; }, err(code) => { return code; }, } }
 }
+export("dong_device_prepare_diagnostic") fn device_prepare_diagnostic(state:*const preflight.State,out:*device_policy.Views,
+    conflict:*device_policy.Conflict)u64{
+    unsafe{match devices.prepare_diagnostic(state,out,conflict){ok=>{return 0;},err(code)=>{return code;},}}
+}
 export("dong_device_plan") fn device_plan() *const device_policy.Plan { return devices.plan_pointer(); }
 export("dong_platform_init") fn platform_init(inventory: *const acpi.Inventory, views: *const platform.Views, out: *platform.Report) u64 {
     unsafe { match platform.initialize(inventory,views,out) { ok => { return 0; }, err(code) => { return code; }, } }

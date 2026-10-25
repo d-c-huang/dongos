@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "job": "7b55181e05024fdba45198cdcf4858cd",
+  "task": "codex:G6PREP1",
+  "task_rev": 6,
+  "archive": "coordination\\dongos_works\\.local\\runs\\7b55181e05024fdba45198cdcf4858cd\\workspace\\build\\test\\g6-preparation\\run-ee8c2011a5e3",
+  "receipt_sha256": "2486db5ad3648a50336ba31084e4d4d65fa676066ec78654706fda57048fccd5",
+  "artifact_files_checked": 318,
+  "source_groups_checked": {
+    "sources": 445,
+    "harness": 7,
+    "fixture": 4,
+    "profile": 12
+  },
+  "fixture_sources_checked": 49,
+  "layouts": {
+    "compiler": {
+      "sha256": "2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa",
+      "bytes": 2046376,
+      "pages": 500,
+      "segments": [
+        {
+          "flags": 5,
+          "pages": 493
+        },
+        {
+          "flags": 6,
+          "pages": 7
+        }
+      ]
+    },
+    "shell": {
+      "sha256": "c4e1d70c8bef264202432908bcf1b35f8b73856ac00d8d25ad60d67bed965507",
+      "bytes": 154688,
+      "pages": 1172,
+      "segments": [
+        {
+          "flags": 5,
+          "pages": 19
+        },
+        {
+          "flags": 6,
+          "pages": 1153
+        }
+      ]
+    },
+    "fs": {
+      "sha256": "2314aa8c2a0af75df10ac4d50cc133f1d67a020af201a1344d5f5594a4e2b8f7",
+      "bytes": 683224,
+      "pages": 113,
+      "segments": [
+        {
+          "flags": 5,
+          "pages": 82
+        },
+        {
+          "flags": 6,
+          "pages": 31
+        }
+      ]
+    },
+    "block": {
+      "sha256": "c23f24a605b0f847c4564a7a0e02d6398b592d37414873382090db55148a1dbb",
+      "bytes": 501968,
+      "pages": 48,
+      "segments": [
+        {
+          "flags": 5,
+          "pages": 47
+        },
+        {
+          "flags": 6,
+          "pages": 1
+        }
+      ]
+    }
+  },
+  "seed_disk": {
+    "sha256": "bb434e30b8ef8edaaf3fd67321b379d5591acf68b32189756a256a03c3282938",
+    "files": {
+      "SOURCES BIN": {
+        "bytes": 491683,
+        "sha256": "b0765f411038f62f5fde132b6d31f0050d8f144d6695709e39d6b1768cdaa732"
+      },
+      "SEED    ELF": {
+        "bytes": 2046376,
+        "sha256": "2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa"
+      }
+    },
+    "stage_entries_empty": true
+  },
+  "negative_controls": [
+    {
+      "path": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\runs\\7b55181e05024fdba45198cdcf4858cd\\workspace\\build\\test\\g6-preparation\\run-ee8c2011a5e3\\fixture\\stage1.elf",
+      "before_sha256": "2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa",
+      "restored": true,
+      "expected_rejection": "host fixture changed or fixed point unproven",
+      "mutated_sha256": "52e7a9b8f58c5ca5218623bd68e523e7daec885e08e1ecd0e938c91188c6bd88",
+      "rejected": true,
+      "reason": "host fixture changed or fixed point unproven",
+      "restored_sha256": "2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa"
+    },
+    {
+      "path": "D:\\projects\\2026\\dongos\\coordination\\dongos_works\\.local\\runs\\7b55181e05024fdba45198cdcf4858cd\\workspace\\build\\test\\g6-preparation\\run-ee8c2011a5e3\\kernel\\esp\\SERVICES.BIN",
+      "before_sha256": "2c03884366dbfedd43da7754d3ce4c1faccf371b24b1c162550773007d123f96",
+      "restored": true,
+      "expected_rejection": "artifact differs from build manifest",
+      "mutated_sha256": "a87d1fb10a254f8790efa1cf31d75e7b3fc0fe39c821b0387c48c33ea29766f8",
+      "rejected": true,
+      "reason": "compiler profile artifact differs from build manifest",
+      "restored_sha256": "2c03884366dbfedd43da7754d3ce4c1faccf371b24b1c162550773007d123f96"
+    }
+  ],
+  "command_count": 55,
+  "elapsed_seconds": 351.4380000000001,
+  "budgets": {
+    "elf_limit": 2097152,
+    "elf_remaining": 50776,
+    "source_limit": 524288,
+    "source_remaining": 32605,
+    "arena_bytes": 58720256,
+    "arena_pages": 14336,
+    "stack_bytes": 65536,
+    "stack_pages": 16,
+    "metadata_pages": 1,
+    "managed_user_frame_limit": 16384,
+    "dynamic_peak_not_established": true
+  },
+  "guest_executed": false,
+  "dynamic_managed_frames_verified": false,
+  "current_main_changed_since_preparation": [
+    "kernel\\entry.asm",
+    "kernel\\mm\\phys_buddy.dg",
+    "kernel\\sched\\user_boot.dg",
+    "kernel\\sched\\user_bridge.dg",
+    "kernel\\sched\\user_domain.dg",
+    "kernel\\sched\\user_entry.asm",
+    "kernel\\smp\\large_memory.dg",
+    "kernel\\user\\device_host.dg",
+    "kernel\\user\\memory.dg",
+    "kernel\\user\\services.dg",
+    "tools\\build.py",
+    "tools\\kernel_storage_profile.py"
+  ],
+  "next_requirement": "Fresh current-source G6 build and actual same-disk two-boot execution; archive proves historical host preparation only."
+}

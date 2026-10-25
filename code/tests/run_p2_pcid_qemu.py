@@ -210,6 +210,8 @@ class PcidGuest(life.ProcessGuest):
     historical_capture = True
 
     def __init__(self, esp, disk, state, *, accel='tcg', cpu='max,+smep,+smap,+umip', kernel_irqchip=None):
+        self._startup_accel = accel
+        self._startup_wait_pending = True
         self.snapshot_number = 0
         # All source-bound ELF/layout/profile reads precede Popen and the first
         # virtual pause call made by the underlying constructor.
@@ -224,7 +226,7 @@ class PcidGuest(life.ProcessGuest):
         self.contract = elf_contract(esp)
         self.symbols = settings.acpi.validation_symbols(Path(esp).parent / 'kernel.elf')
         self.static_pools = self.contract['static_pools']
-        check(self.static_pools == 1, 'expected actual current runtime7 storage profile')
+        check(self.static_pools == 0, 'expected actual current runtime7 storage profile')
         original_command = settings.builder.qemu_command
         original_nvme = life.nvme.nvme_command
 
@@ -241,6 +243,30 @@ class PcidGuest(life.ProcessGuest):
         with mock.patch.object(settings.builder, 'qemu_command', command), \
                 mock.patch.object(life.nvme, 'nvme_command', device):
             super().__init__(Path(esp), Path(disk), Path(state))
+
+    def wait(self, marker, timeout=90):
+        if (getattr(self, '_startup_accel', None) != 'whpx'
+                or not getattr(self, '_startup_wait_pending', False)
+                or marker != b'DONGOS_P7_DESKTOP_READY'):
+            return settings.Guest.wait(self, marker, timeout)
+        # Consume before attempting either phase: failure never grants a retry
+        # a fresh firmware budget. Guest deadlines and sampling are unchanged.
+        self._startup_wait_pending = False
+        phases = []
+        self.evidence['host_startup_wait'] = dict(accel='whpx', diagnostic_only=True, phases=phases)
+        for required in (b'DONGOS_P1_START', marker):
+            phase = dict(marker=required.decode('ascii'), timeout_seconds=timeout,
+                         started_ns=time.monotonic_ns(), ended_ns=None, complete=False)
+            phases.append(phase)
+            try:
+                settings.Guest.wait(self, required, timeout)
+            except Exception as exc:
+                phase['error'] = type(exc).__name__ + ': ' + str(exc)
+                raise
+            else:
+                phase['complete'] = True
+            finally:
+                phase['ended_ns'] = time.monotonic_ns()
 
     @property
     def current_epoch(self):

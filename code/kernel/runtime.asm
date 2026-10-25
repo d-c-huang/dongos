@@ -10,11 +10,15 @@ default rel
 %ifndef RUNTIME_LEVEL
 %define RUNTIME_LEVEL 0
 %endif
+%include "boot_progress.inc"
 %if RUNTIME_LEVEL >= 6
 extern smp_invalidate_or_fail
 %endif
 
 extern memory_read_controls, dong_acpi_inventory, dong_device_prepare, dong_device_plan
+%if RUNTIME_LEVEL >= 7
+extern dong_device_prepare_diagnostic
+%endif
 extern dong_platform_init, dong_platform_arm, dong_platform_report, platform_diagnostic_word
 extern dong_runtime_guard, platform_timer_stop
 extern sched_start, sched_report, sched_guard_ranges, sched_guard_count
@@ -55,13 +59,19 @@ runtime_begin:
     mov [rel runtime_view], rdi
     cli
     cld
+    HW_BOOT_STAGE 1
     lea rsi, [rel runtime_marker_started]
     call serial_write
     lea rdi, [rel runtime_state]
     call memory_read_controls
     lea rdi, [rel runtime_state]
     lea rsi, [rel runtime_device_views]
+%if RUNTIME_LEVEL >= 7
+    lea rdx, [rel boot_progress_mmio]
+    call dong_device_prepare_diagnostic
+%else
     call dong_device_prepare
+%endif
     test rax, rax
     jnz .error
     call dong_device_plan
@@ -102,11 +112,15 @@ runtime_begin:
     mov rdi, rax
     lea rsi, [rel runtime_device_views]
     lea rdx, [rel runtime_platform_report]
+    HW_BOOT_STAGE 2
     call dong_platform_init
     test rax, rax
     jnz .error
     lea rsi, [rel irq_ready]
     call serial_write
+    ; Drawing ends before the reference timer is armed. No diagnostic work
+    ; may be inserted between arm, sched_start and platform_timer_stop.
+    HW_BOOT_STAGE 3
     mov edi, 10000000              ; 10ms quantum reference interval
     call dong_platform_arm
     test rax, rax
@@ -130,6 +144,7 @@ runtime_begin:
 .bad:
     mov eax, 0x03030006
 .error:
+    HW_BOOT_ERROR
     mov r15, rax
     lea rsi, [rel error_key]
     call serial_write

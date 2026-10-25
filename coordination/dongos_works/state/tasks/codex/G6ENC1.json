@@ -1,0 +1,65 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_compiler_guest_runner"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T06:44:13+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T07:08:20+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T06:37:25+00:00",
+  "delivery": "codex-works/deliveries/G6ENC1.md",
+  "depends_on": [
+    "codex:L3ENC1"
+  ],
+  "description": "L3ENC1源码扩展后，在独立冻结副本fresh运行compiler_job_preparation，核对512KiB源码/2MiB ELF/56MiB arena/64KiB栈预算，实际同盘两启并独立raw/FAT/retirement审计。保留所有失败，不把旧G6用于当前源码。结果留档，正式零skip测试后才验收集成；不上传关机。",
+  "document": "codex-works/tasks/G6ENC1-board.md",
+  "historical": false,
+  "id": "codex:G6ENC1",
+  "integration_note": "三份永久证据已真实落在主目录，逐份SHA256与独立复验fingerprint完全一致；L3ENC1生产文件此前已集成rev6。当前G6编译、同盘两启及独立审计闭环，登记集成。",
+  "legacy_hash": "d4ea874d9e287812c336704881f895530da95a71f1d94a0a7bbc80e3b3b1998d",
+  "number": "G6ENC1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "审查当前编码生产改动及G6原runner契约，fresh固定点1项零skip；实际同盘两启PASS，独立离线965+965 raw/FAT/页退休审计通过，456源与主目录一致。永久证据包含原receipt、审计原文及哈希。独立作业2d01ede4e1f543978a2e999adbec0e13正式15项零skip，source_stable/process_stopped/execution_exited均true。范围限当前G6，不替代全部纯ELF语言矩阵。",
+  "status": "integrated",
+  "title": "扩展纯ELF编码后的当前编译器固定点及G6复验",
+  "updated_at": "2026-10-24T07:08:53+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.813,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_compiler_guest_runner",
+        "tests": 15,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/G6ENC1.md": "051cdd0907de1b723f202a607f9e3992c577af42ecfbb68b000438ec4551939c",
+      "codex-works/reviews/2026-10-24-G6-encoding.json": "f8aa9a5586997c8a487b0798a0010aba3fc8523ec48da086eb3b137a458e0fbd",
+      "codex-works/reviews/2026-10-24-G6-encoding.md": "d66ed331d73a1c2f89a0356d4e2ea5343e55d1ce6d40e3c9b211952ab3c3fea4"
+    },
+    "finished_at": "2026-10-24T07:08:32+00:00",
+    "job": "2d01ede4e1f543978a2e999adbec0e13",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "codex-works/reviews/2026-10-24-G6-encoding.md",
+    "codex-works/reviews/2026-10-24-G6-encoding.json",
+    "codex-works/deliveries/G6ENC1.md"
+  ]
+}

@@ -7,6 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class ProcessCatalogTests(unittest.TestCase):
     def test_exact_catalog_dependencies_scope_generation_and_events(self):
         names=('kernel/user/processes.dg','services/lib/process_abi.dg','tests/process_catalog_probe.dg','tests/process_catalog_probe.c','tests/test_process_catalog.py')
+        names+=('services/lib/hardware_profile.dg',)
         before={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in names}
         out=ROOT/'build/test/process-catalog'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True)
         nasm,cc=tool('nasm','NASM'),tool('gcc','CC');self.assertTrue(nasm and cc);evidence={}

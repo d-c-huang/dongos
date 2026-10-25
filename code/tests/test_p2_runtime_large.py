@@ -107,7 +107,398 @@ def kernel_fixture(negative=False):
     return image, meta, space, held
 
 
+def flush_error_fixture():
+    """Synthetic raw ABI for the real validator; never an actual fault receipt."""
+    before, after = kernel_validation_fixture(pending=False)
+    root, pre, post, address = after['report']['root'], 40, 41, 0xffffd40002001000
+    after['report'].update(complete=0, poison=1, error_code=0x06090004, operation=3, state=3, steps=3,
+        barriers=5, retired=0, reclaimed=0, reader_sequence=1, reader_round=1, expected=runner.TAG | 5, tables_after=76)
+    after['domain'][:10] = [1, 1, 1, 0, 15, post, post, 15, pre, root]
+    after['domain_address'] = address;after['bridge'][1] = 1
+    for cpu in range(4):
+        after['cpus'][cpu][0] = 5 if cpu == 0 else 4
+        after['cpus'][cpu][7:9] = [post, pre]
+        for index in (0, 2, 3):after['metrics'][cpu][index] = 1
+    after['metrics'][1][5] = 1
+    _, readers, _ = reader_fixture()
+    for cpu, reader in enumerate(readers):
+        for phase in ('replaced', 'restored', 'merged'):reader[phase] = dict(cpu=0, root=0, cr4=0, value=0)
+        if cpu < 4:
+            reader['request'] = reader['ack'] = reader['count'] = 1
+            reader['warm']['cr4'] = after['metrics'][cpu][18]
+        else:reader['warm'] = dict(cpu=0, root=0, cr4=0, value=0)
+    after['readers'] = readers
+    failures = [dict.fromkeys(runner.FAILURE_FIELDS, 0) for _ in range(16)]
+    failures[1].update(published=1, version=2, cpu=1, argument_cpu=1, entry=2, stage=5,
+        error_code=0x06090003, clock=1000, domain_available=1, domain=address, sequence=post,
+        owner=0, lock=1, mode=4, requested=post, acknowledged=pre, barrier=post, completed=pre,
+        published_kernel_root=root)
+    after['failures'] = failures
+    after['fault_contract'] = before['fault_contract'] = runner.FAULT_CONTRACT
+    before['fault_receipt'] = dict.fromkeys(runner.RECEIPT_FIELDS, 0)
+    after['fault_receipt'] = dict(zip(runner.RECEIPT_FIELDS,
+        [build.FAULT_MAGIC[runner.FLUSH_ERROR], 2, 1, 1, address, 1, post, post, pre, post, pre,
+         root, after['metrics'][1][18], 2, 0, 1]))
+    contract = dict(fault_contract=runner.FAULT_CONTRACT, fault_case=runner.FLUSH_ERROR)
+    return before, after, contract
+
+
+def omit_failure_fixture():
+    """Synthetic current-contract stale/Failure ABI; never actual guest proof."""
+    before, after, contract = flush_error_fixture()
+    contract['fault_case'] = 'omit-ap-flush'
+    post = after['report']['post_sequence']
+    after['domain'][5:9] = [post, 0, 0, post]
+    after['report'].update(steps=7, barriers=6, reader_round=2, reader_sequence=2, expected=runner.TAG | 6)
+    after['fault_receipt'].update(magic=build.FAULT_MAGIC['omit-ap-flush'], real_result=(1 << 64) - 1, returned_result=0)
+    for cpu in range(4):
+        after['cpus'][cpu][7:9] = [post, post]
+        after['readers'][cpu]['request'] = 2
+        after['metrics'][cpu][5] = 1
+        after['failures'][cpu] = dict(after['failures'][1], cpu=cpu, argument_cpu=cpu,
+            mode=after['cpus'][cpu][0], requested=post, acknowledged=post, completed=post, barrier=0,
+            stage=8 if cpu == 0 else (5 if cpu == 1 else 1),
+            error_code=0x060b0011 if cpu == 0 else (0x06090003 if cpu == 1 else 0x06090004),
+            detail_code=0x06090004 if cpu == 0 else 0)
+    after['readers'][1]['replaced'] = dict(after['readers'][1]['warm'])
+    return before, after, contract
+
+
 class HostOracleTests(unittest.TestCase):
+    def test_fault_receipt_exact_cases_and_every_raw_control_rejects(self):
+        before, after, contract = flush_error_fixture()
+        self.assertFalse(runner.validate_fault_receipt(before, contract)['hit'])
+        for case in build.FAULT_MAGIC:
+            sample = copy.deepcopy(after);selected = dict(contract, fault_case=case)
+            sample['fault_receipt'].update(magic=build.FAULT_MAGIC[case],
+                real_result=(1 << 64) - 1 if case == 'omit-ap-flush' else 0,
+                returned_result=0 if case == 'omit-ap-flush' else 1)
+            self.assertEqual(case, runner.validate_fault_receipt(sample, selected, case=case, require_pcid=True)['case'])
+            corruptions = dict(magic=0, publish=1, argument_cpu=0, actual_cpu=2, domain=1, window=0,
+                sequence=0, barrier=0, completed=0, requested=0, ack_before=0, cr3=sample['report']['root'] | 1,
+                cr4=128, rflags=514, real_result=7, returned_result=7)
+            for field, value in corruptions.items():
+                changed = copy.deepcopy(sample);changed['fault_receipt'][field] = value
+                with self.subTest(case=case, field=field), self.assertRaises(ValueError):
+                    runner.validate_fault_receipt(changed, selected, case=case, require_pcid=True)
+            for state in (0, 3, 4, True):
+                changed = copy.deepcopy(sample);changed['fault_receipt']['publish'] = state
+                with self.assertRaises(ValueError):runner.validate_fault_receipt(changed, selected, case=case)
+        with self.assertRaises(ValueError):runner.validate_fault_receipt(after, contract)
+
+    def test_flush_error_real_validator_keeps_owner_oracles_and_rejects_unrelated_failures(self):
+        before, after, contract = flush_error_fixture()
+        with mock.patch.object(runner, 'digest', return_value=123), \
+             mock.patch.object(runner, 'validate_authority') as authority, \
+             mock.patch.object(runner, 'kernel_forest', return_value={'host_boundary': True}) as forest:
+            seal = runner.validate_flush_return_error(before, after, contract, require_pcid=True)
+            self.assertTrue(seal['passed']);self.assertFalse(seal['stale_load_evidence'])
+            self.assertEqual(runner.FLUSH_ERROR, seal['negative'])
+            authority.assert_called_once_with(after, contract)
+            self.assertTrue(forest.call_args.kwargs['negative'])
+            propagated = copy.deepcopy(after)
+            for cpu in (0, 2, 3):
+                propagated['failures'][cpu] = dict(after['failures'][1], cpu=cpu, argument_cpu=cpu,
+                    mode=after['cpus'][cpu][0], error_code=0x060b0011 if cpu == 0 else 0x06090004,
+                    detail_code=0x06090004 if cpu == 0 else 0, clock=900 + cpu)
+                propagated['metrics'][cpu][5] = 1
+            runner.validate_flush_return_error(before, propagated, contract, require_pcid=True)
+            for cpu in (2, 3):
+                for recorded, current in ((40, 40), (40, 41), (41, 41)):
+                    historical = copy.deepcopy(propagated)
+                    historical['failures'][cpu]['requested'] = recorded
+                    historical['cpus'][cpu][7] = current
+                    runner.validate_flush_return_error(before, historical, contract, require_pcid=True)
+                    historical['failures'][cpu]['published'] = 2;historical['metrics'][cpu][5] = 0
+                    with self.assertRaises(runner.FaultPublicationPending):
+                        runner.validate_flush_return_error(before, historical, contract, require_pcid=True)
+            changes = []
+            for cpu in range(4):
+                for published in (1, 2):
+                    for requested in ((39, 42) if cpu in (2, 3) else (40,)):
+                        bad = copy.deepcopy(propagated);bad['failures'][cpu].update(published=published, requested=requested)
+                        bad['metrics'][cpu][5] = int(published == 1);changes.append(bad)
+            for cpu in (2, 3):
+                for published in (1, 2):
+                    bad = copy.deepcopy(propagated);bad['cpus'][cpu][7] = 40
+                    bad['failures'][cpu]['published'] = published;bad['metrics'][cpu][5] = int(published == 1)
+                    changes.append(bad)
+                    for field, value in [('sequence', 42), ('acknowledged', 41), ('error_code', 0x06090005)]:
+                        bad = copy.deepcopy(propagated);bad['failures'][cpu].update(published=published, requested=40)
+                        bad['failures'][cpu][field] = value;bad['metrics'][cpu][5] = int(published == 1);changes.append(bad)
+            for field, value in [('owner', 3), ('sequence', 42), ('error_code', 0x06090005), ('published', 3)]:
+                bad = copy.deepcopy(after);bad['failures'][1][field] = value;changes.append(bad)
+            for update in ({'complete': 1}, {'state': 0}, {'retired': 1}, {'barriers': 6}, {'steps': 7}):
+                bad = copy.deepcopy(after);bad['report'].update(update);changes.append(bad)
+            bad = copy.deepcopy(after);bad['cpus'][1][8] = 41;changes.append(bad)
+            bad = copy.deepcopy(after);bad['domain'][3] = 3;changes.append(bad)
+            bad = copy.deepcopy(after);bad['readers'][1]['warm']['value'] = runner.TAG | 6;changes.append(bad)
+            bad = copy.deepcopy(after);bad['metrics'][2][5] = 1;changes.append(bad)
+            bad = copy.deepcopy(after);bad['payload'] += b'changed';changes.append(bad)
+            for index, bad in enumerate(changes):
+                with self.subTest(case=index), self.assertRaises(ValueError) as rejected:
+                    runner.validate_flush_return_error(before, bad, contract, require_pcid=True)
+                self.assertNotIsInstance(rejected.exception, runner.FaultPublicationPending)
+            with self.assertRaises(ValueError):runner.validate(before, after, contract, negative=True, require_pcid=True)
+
+    def test_fault_contract_missing_mixed_and_full_elf_symbol_ranges_fail_closed(self):
+        current = dict(fault_contract=runner.FAULT_CONTRACT, boots=[dict(fault_contract=runner.FAULT_CONTRACT)],
+                       seal=dict(fault_contract=runner.FAULT_CONTRACT, boots=[dict(fault_contract=runner.FAULT_CONTRACT)]))
+        runner.saved_fault_contract(current)
+        for layer in ('result', 'boot', 'seal', 'boot-seal'):
+            bad = copy.deepcopy(current)
+            item = {'result': bad, 'boot': bad['boots'][0], 'seal': bad['seal'], 'boot-seal': bad['seal']['boots'][0]}[layer]
+            item.pop('fault_contract')
+            with self.subTest(layer=layer), self.assertRaises(ValueError):runner.saved_fault_contract(bad)
+        with tempfile.TemporaryDirectory() as tmp:
+            esp = Path(tmp) / 'esp';esp.mkdir()
+            elf = bytearray(256)
+            struct.pack_into('<Q', elf, 32, 64);struct.pack_into('<HH', elf, 54, 56, 1)
+            struct.pack_into('<II6Q', elf, 64, 1, 1, 128, 0x1000, 0, 16, 16, 4096)
+            elf[128:144] = bytes(range(16));(esp.parent / 'kernel.elf').write_bytes(elf)
+            contract = dict(esp=str(esp), fault_contract=runner.FAULT_CONTRACT,
+                            symbols={'user_smp_arch_flush': 0x1000})
+            self.assertEqual(bytes(range(16)), runner.resident_code_bytes(contract, 'user_smp_arch_flush', 16))
+            with self.assertRaisesRegex(ValueError, 'crosses/truncates'):
+                runner.resident_code_bytes(contract, 'user_smp_arch_flush', 17)
+            self.assertEqual(bytes(range(16)), runner.elf_bytes(esp, 0x1000, 64))
+
+    def test_current_omit_failed_metrics_require_complete_first_failure_in_actual_routes(self):
+        before, after, contract = omit_failure_fixture()
+        with mock.patch.object(runner, 'digest', return_value=123), \
+             mock.patch.object(runner, 'validate_authority') as authority, \
+             mock.patch.object(runner, 'kernel_forest', return_value={'host_boundary': True}) as forest, \
+             mock.patch.object(runner, 'validate_readers', wraps=runner.validate_readers) as readers:
+            self.assertTrue(runner.validate(before, after, contract, negative=True, require_pcid=True)['passed'])
+            self.assertEqual((1, 1, 1, 1), readers.call_args.kwargs['validated_failed_metrics'])
+            authority.assert_called_once_with(after, contract);self.assertTrue(forest.call_args.kwargs['negative'])
+            for cpu in (0, 2, 3):
+                asynchronous = copy.deepcopy(after);asynchronous['metrics'][cpu][5] = 0
+                asynchronous['failures'][cpu] = dict.fromkeys(runner.FAILURE_FIELDS, 0)
+                runner.validate(before, asynchronous, contract, negative=True, require_pcid=True)
+            published = copy.deepcopy(after)
+            for metric in published['metrics']:metric[5] = 0
+            runner.validate(before, published, contract, negative=True, require_pcid=True)
+            bad_samples = []
+            for cpu in range(4):
+                for field, value in [('sequence', 42), ('owner', 3), ('published_kernel_root', after['report']['root'] + 4096),
+                                     ('acknowledged', 40), ('error_code', 0x06090005), ('published', 2)]:
+                    bad = copy.deepcopy(after);bad['failures'][cpu][field] = value;bad_samples.append(bad)
+                bad = copy.deepcopy(after);bad['failures'][cpu] = dict.fromkeys(runner.FAILURE_FIELDS, 0);bad_samples.append(bad)
+            bad = copy.deepcopy(after);bad.pop('fault_receipt');bad_samples.append(bad)
+            bad = copy.deepcopy(after);bad['readers'][1]['replaced']['value'] = runner.TAG | 6;bad_samples.append(bad)
+            bad = copy.deepcopy(after);bad['cpus'][2][8] = 40;bad_samples.append(bad)
+            bad = copy.deepcopy(after);bad['failures'][4]['clock'] = 1;bad_samples.append(bad)
+            for index, bad in enumerate(bad_samples):
+                with self.subTest(reject=index), self.assertRaises(ValueError):
+                    runner.validate(before, bad, contract, negative=True, require_pcid=True)
+            with mock.patch.object(runner, 'validate_omit_first_failures') as attribution, self.assertRaises(ValueError):
+                runner.validate(before, after, {}, negative=True, require_pcid=True)
+            attribution.assert_not_called()  # Legacy negative still requires failed=0.
+            normal_before, normal = kernel_validation_fixture(pending=False)
+            _, normal['readers'], normal['metrics'] = reader_fixture();normal['metrics'][1][5] = 1
+            with mock.patch.object(runner, 'validate_omit_first_failures') as attribution, self.assertRaises(ValueError):
+                runner.validate(normal_before, normal, {}, require_pcid=True)
+            attribution.assert_not_called()
+        for negative in (False, True):
+            with self.assertRaises(ValueError):
+                runner.validate_readers(after['report'], after['readers'], after['metrics'], negative=negative, require_pcid=True)
+        events, boot, _, _, _ = self.pipeline(negative='omit-ap-flush', fault_samples=[after])
+        self.assertEqual(1, events.count('snapshot-after'));self.assertNotIn('first_failed_checkpoint', boot)
+        self.assertNotIn('pcid', events);self.assertNotIn('resume', events)
+        for bad in bad_samples:
+            capture = {}
+            with self.assertRaises(ValueError):
+                self.pipeline(negative='omit-ap-flush', fault_samples=[bad], capture=capture)
+            self.assertEqual(1, capture['events'].count('snapshot-after'))
+            self.assertIn('first_failed_checkpoint', capture['boot'])
+            self.assertNotIn('first_pending_fault_checkpoint', capture['boot'])
+        self.replay_fault_case('omit-ap-flush')
+
+    def test_real_safe_receipt_publisher_dual_formats_and_wrong_publishers(self):
+        """Actual NASM/C publisher only; no GS/CR3/gate/flush is executed."""
+        from lang.tests.test_dongc import nasm_flags, tool
+        nasm, cc = tool('nasm', 'NASM'), tool('gcc', 'CC')
+        self.assertTrue(nasm and cc, 'required native tools, zero skip')
+        original = (ROOT / 'kernel/sched/runtime_large_reader.asm').read_text(encoding='utf-8')
+        c = r'''
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+extern uint64_t runtime_large_test_receipt[16];
+extern uint64_t __attribute__((sysv_abi)) runtime_large_test_publish(const uint64_t *);
+#define CHECK(x) do { if (!(x)) { fprintf(stderr,"receipt publisher mismatch at %d\n",__LINE__); return 1; } } while(0)
+int main(void) {
+ uint64_t words[16],first[16];
+ for(unsigned i=0;i<16;i++){CHECK(runtime_large_test_receipt[i]==0);words[i]=100+i;}
+ runtime_large_test_publish(words);
+ for(unsigned i=0;i<16;i++){CHECK(runtime_large_test_receipt[i]==(i==1?2:words[i]));first[i]=runtime_large_test_receipt[i];}
+ words[4]=9999;runtime_large_test_publish(words);
+ for(unsigned i=0;i<16;i++){CHECK(runtime_large_test_receipt[i]==(i==1?3:first[i]));}
+ memcpy(runtime_large_test_receipt,first,sizeof(first));runtime_large_test_receipt[1]=1;
+ runtime_large_test_publish(words);
+ for(unsigned i=0;i<16;i++){CHECK(runtime_large_test_receipt[i]==(i==1?3:first[i]));}
+ puts("real safe publisher complete/repeat/partial preserved; no privileged path executed");return 0;
+}
+'''
+        output = ROOT / 'build/test/p2-runtime-large-publisher' / ('run-' + uuid.uuid4().hex[:12])
+        output.mkdir(parents=True)
+        rows = []
+        for variant, old, new in [('actual', None, None), ('ignore-repeat', 'jne .repeat', 'je .repeat'),
+                                  ('partial-completion', 'mov qword [rdx+8],2', 'mov qword [rdx+8],1')]:
+            source = original
+            if old is not None:
+                self.assertEqual(1, source.count(old));source = source.replace(old, new)
+            directory = output / variant;directory.mkdir()
+            assembly = directory / 'reader.asm';assembly.write_text(source)
+            native = directory / 'probe.c';native.write_text(c)
+            def run(argv, label):
+                completed = subprocess.run(list(map(str, argv)), cwd=ROOT, capture_output=True, text=True, timeout=120)
+                row = dict(variant=variant, label=label, argv=list(map(str, argv)), returncode=completed.returncode,
+                           stdout=completed.stdout, stderr=completed.stderr)
+                rows.append(row);build.write(directory / (label + '.json'), row)
+                return completed
+            objects = {}
+            for fmt in ('elf64', 'win64'):
+                objects[fmt] = directory / (fmt + '.o')
+                result = run([nasm, '-f', fmt, *nasm_flags(nasm), '-I', str(ROOT / 'include') + os.sep,
+                              assembly, '-o', objects[fmt]], fmt)
+                self.assertEqual(0, result.returncode, result.stderr)
+            exe = directory / ('probe.exe' if os.name == 'nt' else 'probe')
+            result = run([cc, '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+                          *([] if os.name == 'nt' else ['-no-pie']), native,
+                          objects['win64' if os.name == 'nt' else 'elf64'], '-o', exe], 'link')
+            self.assertEqual(0, result.returncode, result.stderr)
+            result = run([exe], 'native')
+            self.assertEqual(0 if variant == 'actual' else 1, result.returncode, result.stdout + result.stderr)
+            if variant != 'actual':self.assertIn('receipt publisher mismatch', result.stderr)
+        build.write(output / 'result.json', dict(passed=True, rows=rows, actual_guest_executed=False,
+                    privileged_instructions_executed=False, actual_nasm_publisher=True))
+
+    def test_flush_error_collect_real_oracle_and_bounded_same_post_publication(self):
+        before, ready, contract = flush_error_fixture()
+        for cpu in (2, 3):
+            ready['failures'][cpu] = dict(ready['failures'][1], cpu=cpu, argument_cpu=cpu,
+                requested=40, error_code=0x06090004, clock=900 + cpu)
+            ready['metrics'][cpu][5] = 1
+        pending = copy.deepcopy(ready)
+        pending['report'].update(poison=0, error_code=0)
+        pending['failures'][1] = dict.fromkeys(runner.FAILURE_FIELDS, 0);pending['metrics'][1][5] = 0
+        partial = copy.deepcopy(ready);partial['failures'][1]['published'] = 2;partial['metrics'][1][5] = 0
+        historical_partial = copy.deepcopy(ready)
+        historical_partial['failures'][2]['published'] = 2;historical_partial['metrics'][2][5] = 0
+        for sample in (pending, partial, historical_partial):
+            events, boot, _, _, _ = self.pipeline(negative=runner.FLUSH_ERROR, fault_samples=[sample, ready])
+            self.assertEqual(2, events.count('snapshot-after'))
+            self.assertEqual(2, events.count('validate-flush-error'))
+            self.assertNotIn('validate-large', events);self.assertNotIn('pcid', events);self.assertNotIn('resume', events)
+            self.assertNotIn('first_failed_checkpoint', boot)
+            self.assertEqual(2, boot['first_pending_fault_checkpoint']['epoch'])
+            self.assertEqual(3, boot['after']['epoch'])
+        bad_samples = []
+        bad = copy.deepcopy(partial);bad['failures'][1]['error_code'] = 0x06090005;bad_samples.append(bad)
+        bad = copy.deepcopy(pending);bad['fault_receipt']['publish'] = 1;bad_samples.append(bad)
+        bad = copy.deepcopy(pending);bad['domain'][5] += 1;bad_samples.append(bad)
+        for cpu in (2, 3):
+            for published in (1, 2):
+                for requested, current in ((39, 41), (42, 41), (41, 40)):
+                    bad = copy.deepcopy(ready);bad['cpus'][cpu][7] = current
+                    bad['failures'][cpu].update(published=published, requested=requested)
+                    bad['metrics'][cpu][5] = int(published == 1);bad_samples.append(bad)
+        for bad in bad_samples:
+            capture = {}
+            with self.assertRaises(ValueError):self.pipeline(negative=runner.FLUSH_ERROR, fault_samples=[bad], capture=capture)
+            self.assertEqual(1, capture['events'].count('snapshot-after'))
+            self.assertNotIn('first_pending_fault_checkpoint', capture['boot'])
+        capture = {}
+        with mock.patch.object(runner.time, 'monotonic', return_value=0), \
+             mock.patch.object(runner.time, 'sleep') as sleep, self.assertRaises(runner.FaultPublicationPending):
+            self.pipeline(negative=runner.FLUSH_ERROR, fault_samples=[pending], capture=capture)
+        self.assertEqual(3, capture['events'].count('snapshot-after'));self.assertEqual(2, sleep.call_count)
+        self.assertEqual(2, capture['boot']['first_pending_fault_checkpoint']['epoch'])
+        capture = {}
+        with mock.patch.object(runner.time, 'monotonic', side_effect=[0, 0, 2]), \
+             mock.patch.object(runner.time, 'sleep') as sleep, self.assertRaises(runner.FaultPublicationPending):
+            self.pipeline(negative=runner.FLUSH_ERROR, fault_samples=[pending], capture=capture)
+        self.assertEqual(2, capture['events'].count('snapshot-after'));self.assertEqual(1, sleep.call_count)
+
+    def test_flush_error_two_boot_replay_uses_distinct_oracle_and_binds_source_case(self):
+        self.replay_fault_case(runner.FLUSH_ERROR)
+
+    def replay_fault_case(self, case):
+        """Actual replay/oracle, synthetic IO boundaries, never actual VM evidence."""
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp);path = directory / 'result.json'
+            identity = dict(case=case, explicit_host_boundary=True)
+            serial = b'memory_runtime_boot_info=0xffff800000001000\r\n'
+            result = dict(fault_contract=runner.FAULT_CONTRACT, esp='host-boundary', source_identity=identity,
+                execute=True, actual_guest_executed=True, synthetic=False, guest_memory_or_register_writes=False,
+                negative=case, require_pcid=True, accel='tcg', cpu='max', kernel_irqchip=None,
+                tools_before={}, tools_after={}, boots=[])
+            decoded = [];contract = None
+            for index in (1, 2):
+                state = directory / ('boot-' + str(index));state.mkdir()
+                (state / 'serial.log').write_bytes(serial);(state / 'physical-manifest.json').write_text('[]')
+                guest = dict(actual_qemu_executed=True, process_alive=False, cleanup_completed=True, command=['host-adapter'])
+                (state / 'guest.json').write_text(json.dumps(guest))
+                inventory = [{'cpu-index': cpu, 'thread-id': cpu + 10} for cpu in range(4)]
+                (state / 'cpu-inventory.json').write_text(json.dumps(inventory))
+                result['boots'].append(dict(fault_contract=runner.FAULT_CONTRACT, guest=guest,
+                    before={'boot_info_ref': {'physical': 4096}}, after={'boot_info_ref': {'physical': 4096}},
+                    serial_sha256=build.sha(state / 'serial.log'), physical_manifest_sha256=build.sha(state / 'physical-manifest.json'),
+                    cpu_inventory_sha256=build.sha(state / 'cpu-inventory.json')))
+                before, after, contract = (flush_error_fixture if case == runner.FLUSH_ERROR else omit_failure_fixture)()
+                if case == runner.FLUSH_ERROR:
+                    for cpu in (2, 3):
+                        after['failures'][cpu] = dict(after['failures'][1], cpu=cpu, argument_cpu=cpu,
+                            requested=40, error_code=0x06090004, clock=900 + cpu)
+                        after['metrics'][cpu][5] = 1
+                decoded.extend([before, after])
+            (directory / 'data.img').write_bytes(b'synthetic host disk')
+            result['final_disk_sha256'] = build.sha(directory / 'data.img');path.write_text(json.dumps(result))
+            archives = [mock.Mock(), mock.Mock()]
+            actual_owner_validator = runner.validate
+            with mock.patch.object(build, 'identity', return_value=identity), \
+                 mock.patch.object(runner, 'layout_contract', return_value=contract), \
+                 mock.patch.object(runner.pcid, 'verify_launch_command'), \
+                 mock.patch.object(runner, 'verify_capture_record'), \
+                 mock.patch.object(runner.raw, 'Archive', side_effect=archives) as archive_factory, \
+                 mock.patch.object(runner.pcid, 'capture_metadata', return_value={}), \
+                 mock.patch.object(runner, 'decode', side_effect=decoded) as decoder, \
+                 mock.patch.object(runner, 'digest', return_value=123), \
+                 mock.patch.object(runner, 'validate_authority') as authority, \
+                 mock.patch.object(runner, 'kernel_forest', return_value={'host_boundary': True}) as forest, \
+                 mock.patch.object(runner, 'validate_launch_order') as launches, \
+                 mock.patch.object(runner, 'validate', side_effect=(AssertionError('error case used stale oracle')
+                                   if case == runner.FLUSH_ERROR else actual_owner_validator)), \
+                 mock.patch.object(runner.raw, 'validate_snapshot') as pcid, \
+                 mock.patch('subprocess.Popen', side_effect=AssertionError('replay cannot start VM')):
+                seal = runner.replay(path)
+                self.assertEqual(2, authority.call_count);self.assertEqual(2, forest.call_count)
+                for cpu in (2, 3):
+                    for published in (1, 2):
+                        for requested, current in ((39, 41), (42, 41), (41, 40)):
+                            bad = copy.deepcopy(decoded);bad[1]['failures'][cpu].update(published=published, requested=requested)
+                            bad[1]['cpus'][cpu][7] = current;bad[1]['metrics'][cpu][5] = int(published == 1)
+                            decoder.side_effect = bad;archive_factory.side_effect = [mock.Mock(), mock.Mock()]
+                            with self.assertRaisesRegex(ValueError, 'first Failure' if case == runner.FLUSH_ERROR
+                                                       else 'first Failure|barrier acknowledgement'):
+                                runner.replay(path)
+            self.assertEqual(runner.FAULT_CONTRACT, seal['fault_contract'])
+            self.assertEqual(2, len(seal['boots']))
+            if case == runner.FLUSH_ERROR:
+                self.assertTrue(all(b['negative'] == runner.FLUSH_ERROR and not b['stale_load_evidence'] for b in seal['boots']))
+            else:self.assertTrue(all(b['negative'] is True and b['actual_cpu_loads'] for b in seal['boots']))
+            self.assertTrue(all(c.kwargs['negative'] is True for c in launches.call_args_list))
+            for archive in archives:archive.verify_all.assert_called_once_with()
+            pcid.assert_not_called()
+            for wrong_case in ('unknown', None, 'omit-ap-flush' if case == runner.FLUSH_ERROR else runner.FLUSH_ERROR):
+                changed = copy.deepcopy(result);changed['negative'] = wrong_case;path.write_text(json.dumps(changed))
+                with mock.patch.object(build, 'identity', return_value=identity), \
+                     mock.patch.object(runner, 'layout_contract') as layout, self.assertRaisesRegex(ValueError, 'saved negative'):
+                    runner.replay(path)
+                layout.assert_not_called()
+
     def test_boot_info_is_the_exact_twenty_qword_abi(self):
         words = [0x544f4f42474e4f44, 1, 160] + [0x100000000 + i for i in range(17)]
         data = struct.pack('<20Q', *words)
@@ -218,7 +609,7 @@ class HostOracleTests(unittest.TestCase):
                 directory = Path(temporary);path = directory / 'result.json'
                 identity = {'case': None, 'synthetic_host_boundary': True}
                 serial = b'memory_runtime_boot_info=0xffff800000001000\r\n'
-                result = dict(esp='synthetic-host-esp', source_identity=identity, execute=True,
+                result = dict(esp='synthetic-host-esp', fault_contract=runner.FAULT_CONTRACT, source_identity=identity, execute=True,
                               actual_guest_executed=True, synthetic=False, guest_memory_or_register_writes=False,
                               negative=None, require_pcid=True, accel='whpx', cpu='host', kernel_irqchip='off',
                               tools_before={}, tools_after={}, boots=[])
@@ -231,7 +622,7 @@ class HostOracleTests(unittest.TestCase):
                     (state / 'guest.json').write_text(json.dumps(guest))
                     inventory = [{'cpu-index': cpu, 'thread-id': cpu + 10} for cpu in range(4)]
                     (state / 'cpu-inventory.json').write_text(json.dumps(inventory))
-                    result['boots'].append(dict(before={'boot_info_ref': {'physical': 4096}},
+                    result['boots'].append(dict(fault_contract=runner.FAULT_CONTRACT, before={'boot_info_ref': {'physical': 4096}},
                         after={'boot_info_ref': {'physical': 4096}}, guest=guest,
                         physical_manifest_sha256=build.sha(state / 'physical-manifest.json'),
                         serial_sha256=build.sha(state / 'serial.log'),
@@ -343,6 +734,44 @@ class HostOracleTests(unittest.TestCase):
         self.assertEqual(3, boot['after']['epoch'])
         self.assertEqual('pcid', events[-1])
 
+    def test_completed_negative_owner_stops_at_first_checkpoint_with_original_error(self):
+        """Real collect_boot with explicit host data; never stale/guest proof."""
+        capture = {}
+        with mock.patch.object(runner.time, 'sleep', side_effect=AssertionError('completed negative retried')) as sleep, \
+             self.assertRaisesRegex(ValueError, 'negative did not retain exact') as caught:
+            self.pipeline(negative=True, completed_owner=True, capture=capture,
+                          observed_error='negative did not retain exact post-barrier CPU0-held kernel modes')
+        sleep.assert_not_called()
+        self.assertIs(caught.exception, capture['validation_error'])
+        self.assertEqual(dict(attempted=1, complete=1, poison=0), capture['after']['report'])
+        self.assertEqual(1, capture['events'].count('snapshot-after'))
+        self.assertEqual(1, capture['events'].count('validate-large'))
+        self.assertNotIn('resume', capture['events']);self.assertNotIn('pcid', capture['events'])
+        self.assertNotIn('pcid_snapshot', capture['boot'])
+        first = capture['boot']['first_failed_checkpoint']
+        self.assertEqual(2, first['epoch'])
+        self.assertEqual('negative-no-stale-completed-owner', first['classification'])
+        self.assertEqual('undetermined', first['cause'])
+        self.assertEqual('ValueError', first['error_type'])
+        self.assertEqual(str(caught.exception), first['error'])
+        self.assertEqual(dict(owner_poison=False, domain_failed=False, bridge_failed=False), first['terminal'])
+        self.assertEqual(capture['boot']['after'], first['checkpoint'])
+        self.assertIsNot(capture['boot']['after'], first['checkpoint'])
+        capture['boot']['after']['label'] = 'changed host envelope'
+        self.assertEqual('after', first['checkpoint']['label'])
+        # A healthy incomplete negative still retries; the original precise
+        # held/poison negative succeeds through validate before terminal checks.
+        events, boot, _, _, after = self.pipeline(negative=True, pending_checkpoints=1)
+        self.assertEqual(2, events.count('snapshot-after'))
+        self.assertEqual(2, events.count('validate-large'))
+        self.assertEqual(1, after['report']['poison'])
+        self.assertNotIn('first_failed_checkpoint', boot)
+        self.assertNotIn('resume', events);self.assertNotIn('pcid', events)
+        events, boot, _, _, _ = self.pipeline(completed_owner=True)
+        self.assertEqual(1, events.count('snapshot-after'))
+        self.assertEqual('pcid', events[-1])
+        self.assertNotIn('first_failed_checkpoint', boot)
+
     def test_large_snapshot_uses_current_epoch_refs_and_shared_live_archive(self):
         """The production method must cont before any historical assembly."""
         with tempfile.TemporaryDirectory() as tmp:
@@ -350,15 +779,21 @@ class HostOracleTests(unittest.TestCase):
             (state / 'dong_layout.json').write_text(json.dumps({'types': [
                 {'full_name': 'smp.large_memory.Report', 'size': 64}]}), encoding='utf-8')
             names = ['runtime_large_environment', 'runtime_large_load', 'runtime_large_window',
-                     'runtime_large_digest', 'runtime_large_test_omit']
+                     'runtime_large_digest', 'runtime_large_test_omit', 'runtime_large_test_record',
+                     'runtime_large_test_publish', 'user_smp_arch_flush']
             symbols = {name: 0xffffffff80001000 + i * 64 for i, name in enumerate(names)}
+            for name in ('runtime_large_test_omit', 'runtime_large_test_record', 'runtime_large_test_publish'):
+                symbols[name + '_end'] = symbols[name] + 64
+            symbols['user_smp_arch_switch'] = symbols['user_smp_arch_flush'] + 64
+            symbols['runtime_large_test_receipt'] = 0x20000
+            symbols[runner.pcid.storage.symbol('sched.user_bridge', 'FAILURES')] = 0x21000
             for module, name in [('smp.large_memory', 'REPORT'), ('sched.user_bridge', 'ACTIVE'),
                                   ('user.services', 'CATALOG')]:
                 symbols[runner.pcid.storage.symbol(module, name)] = 0x9000
             for name in ['SPACES', 'META', 'PROCESSES', 'POOL_LIMITS', 'DYNAMIC_PHYSICAL',
                          'DYNAMIC_TABLES', 'GENERATIONS', 'PINNED']:
                 symbols[runner.pcid.storage.symbol('user.memory', name)] = 0x9000
-            contract = dict(storage_symbol=1, context_symbol=2, request_symbol=3, kernel_space=4,
+            contract = dict(fault_contract=runner.FAULT_CONTRACT, storage_symbol=1, context_symbol=2, request_symbol=3, kernel_space=4,
                             buddy=5, info_symbol=6, symbols=symbols,
                             types={'user.services.LargeStorage': {'size': 8},
                                    'mm.phys_buddy.Allocator': {'size': 16}, 'mm.phys_buddy.PageMeta': {'size': 8}},
@@ -467,6 +902,10 @@ class HostOracleTests(unittest.TestCase):
             self.assertNotEqual(guest.chunks[0], snapshot['boot_info_ref'])
             self.assertEqual([0, 1, 2, 3], [ref['cpu_index'] for ref in snapshot['registers']])
             self.assertTrue(all(ref['epoch'] == 7 and ref['source_id'] for ref in snapshot['registers']))
+            self.assertEqual(runner.FAULT_CONTRACT, snapshot['fault_contract'])
+            self.assertEqual(bytes(128), snapshot['parts']['fault_receipt']['synthetic_bytes'])
+            self.assertEqual(bytes(16 * 224), snapshot['parts']['bridge_failures']['synthetic_bytes'])
+            self.assertEqual(set(names), set(snapshot['code']))
 
     def test_large_decode_binds_serial_boundary_to_the_sealed_epoch(self):
         """Changing result offsets cannot move the registry's actual boundary."""
@@ -547,6 +986,7 @@ class HostOracleTests(unittest.TestCase):
 
     def pipeline(self, *, negative=False, launch_error=False, oracle_failure=False,
                  terminal_failure=None, observed_error=None, pending_checkpoints=0, capture=None,
+                 completed_owner=False, fault_samples=None,
                  normal_observation_profile=runner.LEGACY_OBSERVATION,
                  pcid_observation_profile=runner.PCID_LOCK_FREE, pcid_record_profile=None):
         """Explicit host adapters test ordering, never manufacture guest proof."""
@@ -556,9 +996,16 @@ class HostOracleTests(unittest.TestCase):
         for cfg in runner.raw.ARGS:
             current['snapshots'][cfg].update(process=521 + cfg, generation=1, state=1, argument=runner.raw.ARGS[cfg])
         before = dict(report={'attempted': 0, 'poison': 0}, requested=False, catalog=old, domain=[1, 0], bridge=[1, 0])
-        after = dict(report={'attempted': int(terminal_failure is None), 'poison': int(negative or oracle_failure)},
-                     requested=True, catalog=current, domain=[1, int(negative or terminal_failure in ('domain', 'both'))],
-                     bridge=[1, int(negative or terminal_failure in ('bridge', 'both'))])
+        after = dict(report={'attempted': int(terminal_failure is None), 'poison': int(bool(negative or oracle_failure))},
+                     requested=True, catalog=current, domain=[1, int(bool(negative or terminal_failure in ('domain', 'both')))],
+                     bridge=[1, int(bool(negative or terminal_failure in ('bridge', 'both')))])
+        if completed_owner:
+            after['report'].update(attempted=1, complete=1, poison=0)
+            after['domain'][1] = after['bridge'][1] = 0
+        contract = {'host_boundary_adapter': True}
+        if negative in (runner.FLUSH_ERROR, 'omit-ap-flush'):
+            before, after, contract = (flush_error_fixture if negative == runner.FLUSH_ERROR else omit_failure_fixture)()
+            before['catalog'] = old;after['catalog'] = current
         before['get'] = lambda name: before['catalog']
         after['get'] = lambda name: after['catalog']
         class Guest:
@@ -572,9 +1019,14 @@ class HostOracleTests(unittest.TestCase):
                 if label == 'before':
                     return record, before
                 self.after_captures += 1
+                if fault_samples is not None:
+                    sample = copy.deepcopy(fault_samples[min(self.after_captures - 1, len(fault_samples) - 1)])
+                    sample['catalog'] = current;sample['get'] = lambda name: sample['catalog']
+                    return record, sample
                 if self.after_captures <= pending_checkpoints:
                     pending = copy.deepcopy(after)
-                    pending['report'] = dict(attempted=0, poison=0)
+                    pending['report'] = dict(attempted=0, complete=0, poison=0)
+                    pending['domain'][1] = pending['bridge'][1] = 0
                     return record, pending
                 return record, after
             def snapshot_archive(self):
@@ -598,10 +1050,12 @@ class HostOracleTests(unittest.TestCase):
         guest = Guest()
         if capture is not None:
             capture.update(events=events, boot=boot, guest=guest, before=before, after=after)
+        actual_owner_validator = runner.validate
         def verify(*args, **kwargs):
             events.append('validate-large')
-            self.assertEqual(negative, kwargs['negative'])
+            self.assertEqual(bool(negative), kwargs['negative'])
             self.assertEqual(normal_observation_profile, kwargs['normal_observation_profile'])
+            if negative == 'omit-ap-flush':return actual_owner_validator(*args, **kwargs)
             if oracle_failure:
                 raise ValueError('exact A/PTE-B missing')
             if terminal_failure is not None or observed_error is not None:
@@ -616,11 +1070,19 @@ class HostOracleTests(unittest.TestCase):
             self.assertEqual(pcid_observation_profile, kwargs['observation_profile'])
             self.assertTrue(kwargs['require_pcid'])
             return ({'separate': True, 'observation_profile': pcid_record_profile or pcid_observation_profile}, {})
+        actual_error_validator = runner.validate_flush_return_error
+        def error_verify(*args, **kwargs):
+            events.append('validate-flush-error')
+            return actual_error_validator(*args, **kwargs)
         with mock.patch.object(runner.pcid.prior, 'close_gui', side_effect=lambda g: events.append('gui')), \
-             mock.patch.object(runner, 'layout_contract', return_value={'host_boundary_adapter': True}), \
+             mock.patch.object(runner, 'layout_contract', return_value=contract), \
              mock.patch.object(runner.raw, 'Archive', side_effect=AssertionError('pipeline must share live registry')), \
               mock.patch.object(runner, 'decode', side_effect=AssertionError('snapshot must return historical decoded data')), \
              mock.patch.object(runner, 'validate', side_effect=verify), \
+             mock.patch.object(runner, 'validate_flush_return_error', side_effect=error_verify), \
+             mock.patch.object(runner, 'digest', return_value=123), \
+             mock.patch.object(runner, 'validate_authority'), \
+             mock.patch.object(runner, 'kernel_forest', return_value={'host_boundary': True}), \
              mock.patch.object(runner.pcid, 'stable_snapshot', side_effect=pcid), \
              mock.patch.object(runner.raw, 'catalog', side_effect=lambda data: data), \
              mock.patch('subprocess.Popen', side_effect=AssertionError('host pipeline started VM')):
@@ -913,7 +1375,7 @@ class HostOracleTests(unittest.TestCase):
                 directory = Path(tmp);path = directory / 'result.json'
                 identity = {'case': None, 'synthetic_host_boundary': True}
                 serial = b'memory_runtime_boot_info=0xffff800000001000\r\n'
-                result = dict(esp='synthetic-host-esp', source_identity=identity, execute=True,
+                result = dict(esp='synthetic-host-esp', fault_contract=runner.FAULT_CONTRACT, source_identity=identity, execute=True,
                               actual_guest_executed=True, synthetic=False, guest_memory_or_register_writes=False,
                               negative=None, require_pcid=True, accel='tcg', cpu='max', kernel_irqchip=None,
                               tools_before={}, tools_after={}, boots=[])
@@ -929,7 +1391,7 @@ class HostOracleTests(unittest.TestCase):
                     (state / 'guest.json').write_text(json.dumps(guest))
                     inventory = [{'cpu-index': cpu, 'thread-id': cpu + 10} for cpu in range(4)]
                     (state / 'cpu-inventory.json').write_text(json.dumps(inventory))
-                    boot = dict(before={'boot_info_ref': {'physical': 4096}},
+                    boot = dict(fault_contract=runner.FAULT_CONTRACT, before={'boot_info_ref': {'physical': 4096}},
                                 after={'boot_info_ref': {'physical': 4096}}, guest=guest, pcid_snapshot={},
                                 physical_manifest_sha256=build.sha(state / 'physical-manifest.json'),
                                 serial_sha256=build.sha(state / 'serial.log'),
@@ -1481,7 +1943,7 @@ class ActualBuildTests(unittest.TestCase):
         # Only the coordinator executes this suite. These are fresh real
         # production OS links, never mocked/stubbed artifacts or VM launches.
         with mock.patch.object(runner, 'LargeGuest', side_effect=AssertionError('host suite cannot boot guest')):
-            for case in [None, 'omit-ap-flush']:
+            for case in build.CASES:
                 path = cls.out / (case or 'normal')
                 cls.records[case] = build.build(path, source_root=ROOT, case=case)
 
@@ -1489,7 +1951,7 @@ class ActualBuildTests(unittest.TestCase):
     def tearDownClass(cls):
         after = build.inputs(ROOT)
         stable = cls.before == after
-        build.write(cls.out / 'host-build-result.json', dict(passed=stable and len(cls.records) == 2,
+        build.write(cls.out / 'host-build-result.json', dict(passed=stable and len(cls.records) == 3,
             source_before=cls.before, source_after=after, source_stable=stable,
             actual_os_links=len(cls.records), actual_guest_executed=False))
         if not stable:
@@ -1507,7 +1969,7 @@ class ActualBuildTests(unittest.TestCase):
                 contract = runner.layout_contract(esp)
                 self.assertLess(contract['types']['mm.runtime_large.Context']['size'], 32 * 4096)
                 self.assertEqual(232, contract['types']['mm.runtime_large.Report']['size'])
-                self.assertEqual(1, contract['static_pools'])
+                self.assertEqual(0, contract['static_pools'])
 
     def test_private_bad_body_changes_only_owner_window_and_ap1_flush(self):
         normal, bad = self.records[None], self.records['omit-ap-flush']
@@ -1521,6 +1983,33 @@ class ActualBuildTests(unittest.TestCase):
         self.assertIn('cmp qword [rel runtime_large_window_active],1', reader)
         self.assertIn('invpcid rax,[rsp]', arch)
         self.assertIn('mov cr3,r8', arch)
+
+    def test_actual_three_build_receipt_symbols_and_full_flush_error_body_are_source_bound(self):
+        self.assertEqual(set(build.CASES), set(self.records))
+        self.assertEqual(3, len(self.records))
+        normal = self.records[None]
+        for case, record in self.records.items():
+            with self.subTest(case=case):
+                self.assertEqual(runner.FAULT_CONTRACT, record['fault_contract'])
+                self.assertEqual(record, build.identity(record['esp']))
+                contract = runner.layout_contract(record['esp'])
+                self.assertEqual(case, contract['fault_case'])
+                self.assertEqual(0, contract['symbols']['runtime_large_test_receipt'] % 64)
+                self.assertEqual(224, contract['types']['sched.user_bridge.Failure']['size'])
+                for name, length in runner.resident_code_ranges(contract).items():
+                    code = runner.resident_code_bytes(contract, name, length)
+                    self.assertGreaterEqual(len(code), 3)
+                    if name in ('runtime_large_test_omit', 'runtime_large_test_record', 'runtime_large_test_publish', 'user_smp_arch_flush'):
+                        self.assertEqual(length, len(code))
+                self.assertLessEqual(record['kernel_bytes'], 2 * 1024 * 1024)
+                if case is not None:
+                    self.assertEqual({'kernel/sched/user_arch.asm', 'kernel/sched/runtime_large_reader.asm'},
+                        set(record['overlay_paths']) - set(normal['overlay_paths']))
+        source = Path(self.records[runner.FLUSH_ERROR]['output']) / 'source/kernel/sched/user_arch.asm'
+        body = source.read_text()
+        self.assertIn('call .actual_flush', body)
+        self.assertIn('jnz .real_error', body)
+        self.assertLess(body.index('call .actual_flush'), body.index('call runtime_large_test_record'))
 
     def test_actual_staged_source_tamper_rejected_and_restored(self):
         record = self.records[None]

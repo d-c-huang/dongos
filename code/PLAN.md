@@ -1,3 +1,9 @@
+2026-10-24 L3完成：L3ELFMATRIX1 已独立验收并集成本地主线 main 工作树（integrated rev6）。正式作业 ed37c79515f94c87a488e538ea6ba20d：51项/27组全部通过、零skip，963.657秒，source_stable及进程停止/退出均确认。148份目标ELF、166次实际观察运行和六类错误源码通过独立产物审计；157主目录源码与复验一致，G6的456源仍逐字绑定已验收的2,062,984字节编译器。因此L3/L3A剩余纯ELF矩阵门关闭，整体状态更新为complete。
+
+详见[完整纯ELF与L3完成回执](docs/l3-pure-elf-matrix.md)。以下保留历史检查点。
+
+2026-10-24 最新：L3ENC1、G6ENC1 均 integrated rev6。编码扩展正式4项零skip（486.25秒），G6正式15项零skip（0.813秒），源码稳定且进程退出。XMM/movdqu、32/64位原子和后端受限asm编码已实现；1017条字节对照及两模式真实纯ELF执行通过。新编译器2,062,984字节、源码494,247字节，fresh固定点与实际同盘两启通过；独立965+965原始转储、FAT/退休页审计通过，主目录456源与运行冻结输入一致。L3仍partial：剩完整语言矩阵通过纯ELF路径的覆盖验证，不再将上述编码缺口或新版G6列为待开发。证据见 coordination/dongos_works/codex-works/reviews/2026-10-24-G6-encoding.md/json；下方旧状态保留为历史。
+
 2026-10-23 09:40 +08:00 有界检查点（P2SYNC40，尚待独立文档门）：**P2软件仍partial，P5本轮未实施**。
 OBS36 submitted rev12：正式71项零skip；历史R5仅诊断observations_completed，acceptance/passed均false。
 B R8正式44项零skip、两份fresh各1109source/staged与286产物、kernel1966480B；
@@ -420,7 +426,7 @@ pub fn alloc_page() !*Page {
 | L0 语言规格 | 语法、类型、调用约定、标准库范围 | 规格覆盖内核需要的全部写法 | 与 P0–P1 并行 |
 | L1 编译器 v1 | Python 实现，生成 NASM 汇编 | 测试集全部通过，编译出的内核模块能启动 | P2 开始前完成 |
 | L2 编译器 v2 | 优化与调试信息 | 关键基准与手写汇编的差距在 20% 以内，gdb 能按源码单步 | 与 P3–P6 并行 |
-| L3 自举 | 用 Dong 重写编译器 | 在 DongOS 上编译自身，产物与宿主版一致 | P5 之后 |
+| L3 自举 | 用 Dong 重写编译器 | 当前纯ELF矩阵及DongOS同源自编译固定点已验收 | 已完成（专用compiler_job profile） |
 
 - [x] L0：写首版语言规格 `lang/spec.md`（后续需 L1 的 ABI 探针和编译测试反馈）
 - [x] L1：dongc v1 词法与语法分析
@@ -437,7 +443,9 @@ BootInfo 的唯一字段定义在共享模块 `lang/examples/boot/abi.dg`，编�
 
 - [x] L2：SSA 中间表示、寄存器分配、常见优化（2026-10-18 受控标量/指针后端：循环phi合并/并行复制、比较分支、常量提升、有序内存地址/读取合并；388项语言回归、16项O1原生ABI及17服务叶构建通过；原固定五项安静性能均≤1.20，见docs/language-l2-l3.md。未支持函数保留L1，不声明所有函数均优化或新OS客体回归已通过）
 - [x] L2：调试信息与 gdb 源码级调试（DWARF4；18项宿主/真实GDB验证源码断点、单步、变量、跨调用/Win64/高对齐展开与遮蔽；ELF调试节非ALLOC且text逐字不变，见 docs/language-l2-l3.md。未据此声明客体内核源码调试已复验）
-- [ ] L3：用Dong重写dongc并在DongOS上自举（C29及CR16～CR19已集成、主线16+2组合共18项0skip通过，C29/CR16待修已闭，CR19门禁另派Claude C31，见docs/bootstrap-backend-components.md；C26～C28已集成、主线12+1真实移位/条件选择/间接调用组合共13项通过0skip，C29后续已真实复验并集成，见docs/bootstrap-backend-components.md；CR11～CR15已集成，主线15+1栈帧/内存组合共16项通过0skip、来源稳定，历史CR11/12/13返修闭合，见docs/bootstrap-backend-components.md；C22～C24已集成并完成真实算术组合、主线13项通过0skip，见docs/bootstrap-backend-components.md；追加try/orelse/控制转移语义，96个案例两模式、相关7项通过0skip，见docs/l3-tagged-flow.md；CR8～CR10独立后端模块已集成、主线9项通过0skip，D20已集成、正式/主线同4项通过0skip；CR11端点补交已在本轮真实复验并集成，见docs/bootstrap-backend-components.md；追加原生内存内建语义，85个案例两模式、相关6项通过0skip，见docs/l3-memory-intrinsics.md；2026-10-18追加原生切片语义，37个正反案例两模式、相关语义定向9项通过0skip，见docs/l3-slice-semantics.md；L3已接入原生运行时类型与流程语义子集；此前443项语言回归通过、0skip及当时源码hash稳定属于历史回执，本轮未重跑完整回归。Claude C1～C12、DeepSeek D1～D13及Cursor CR1已独立验收；C7～C12/CR1已接入主线模块和永久测试，并完成两模式原生组合验证，见docs/bootstrap-backend-components.md。完整标签/方法/错误码语义、目标I/O、后端/CLI及真正自举仍待完成，见 docs/language-l2-l3.md）
+- [x] L3：用Dong重写dongc并在DongOS上自举。当前完整纯ELF矩阵51项/27组独立通过，G4/G6同源闭环已完成，见[完成回执](docs/l3-pure-elf-matrix.md)。
+
+历史组件说明（原文为当时状态，非当前待办）：L3：用Dong重写dongc并在DongOS上自举（C29及CR16～CR19已集成、主线16+2组合共18项0skip通过，C29/CR16待修已闭，CR19门禁另派Claude C31，见docs/bootstrap-backend-components.md；C26～C28已集成、主线12+1真实移位/条件选择/间接调用组合共13项通过0skip，C29后续已真实复验并集成，见docs/bootstrap-backend-components.md；CR11～CR15已集成，主线15+1栈帧/内存组合共16项通过0skip、来源稳定，历史CR11/12/13返修闭合，见docs/bootstrap-backend-components.md；C22～C24已集成并完成真实算术组合、主线13项通过0skip，见docs/bootstrap-backend-components.md；追加try/orelse/控制转移语义，96个案例两模式、相关7项通过0skip，见docs/l3-tagged-flow.md；CR8～CR10独立后端模块已集成、主线9项通过0skip，D20已集成、正式/主线同4项通过0skip；CR11端点补交已在本轮真实复验并集成，见docs/bootstrap-backend-components.md；追加原生内存内建语义，85个案例两模式、相关6项通过0skip，见docs/l3-memory-intrinsics.md；2026-10-18追加原生切片语义，37个正反案例两模式、相关语义定向9项通过0skip，见docs/l3-slice-semantics.md；L3已接入原生运行时类型与流程语义子集；此前443项语言回归通过、0skip及当时源码hash稳定属于历史回执，本轮未重跑完整回归。Claude C1～C12、DeepSeek D1～D13及Cursor CR1已独立验收；C7～C12/CR1已接入主线模块和永久测试，并完成两模式原生组合验证，见docs/bootstrap-backend-components.md。完整标签/方法/错误码语义、目标I/O、后端/CLI及真正自举仍待完成，见 docs/language-l2-l3.md）
 - [x] 工具：`dongfmt`、VS Code 语法高亮；正式目录15项测试通过，161个DG文件语义/token/注释保留及幂等性、实际TextMate/Oniguruma和离线VSIX验证通过，见 docs/dongfmt.md
 
 ### P0 工具链与 UEFI 入口

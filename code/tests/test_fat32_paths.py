@@ -25,6 +25,7 @@ from tools.make_fat32_disk import create, SEED
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = [ROOT / p for p in (
     "services/fs/fat32.dg", "services/fs/errors.dg", "services/fs/path.dg", "services/fs/lfn.dg",
+    "services/lib/hardware_profile.dg",
     "tests/fat32_paths_probe.dg", "tests/fat32_paths_probe.c", "tests/fat32_disk_oracle.py",
     "tests/test_fat32_paths.py", "tools/make_fat32_disk.py")]
 
@@ -74,6 +75,8 @@ class Fat32PathTests(unittest.TestCase):
             (services / "fs").mkdir(parents=True)
             for name in ("fat32.dg", "errors.dg", "path.dg", "lfn.dg"):
                 shutil.copyfile(ROOT / "services/fs" / name, services / "fs" / name)
+            (services / "lib").mkdir()
+            shutil.copyfile(ROOT / "services/lib/hardware_profile.dg", services / "lib/hardware_profile.dg")
             target = services / "fs/lfn.dg"
             source = target.read_text()
             needle = "if entries[base+13]!=sum {return error.Corrupt;}"

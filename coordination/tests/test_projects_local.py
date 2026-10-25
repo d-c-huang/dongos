@@ -139,6 +139,22 @@ class ProjectTests(unittest.TestCase):
 
 
 class LocalModelTests(unittest.TestCase):
+    def test_native_larger_delivery_budget_still_rejects_truncation_and_tools(self):
+        info=dict(base_url='http://localhost:1234/v1',model='local',wire_api='native')
+        reply={'output':[dict(type='message',content='{"files":[]}')],
+               'stats':{'total_output_tokens':1500}}
+        with patch.object(local_model,'request',return_value=reply) as post:
+            self.assertEqual(json.loads(local_model.complete(info,[],tokens=4096,timeout=900)),{'files':[]})
+            self.assertEqual(post.call_args.args[2]['max_output_tokens'],4096)
+            self.assertEqual(post.call_args.args[3],900)
+        for bad in (
+            dict(output=reply['output'],stats={'total_output_tokens':4096}),
+            dict(output=reply['output']+[dict(type='tool_call')],stats={'total_output_tokens':1500}),
+            dict(output=reply['output']),
+        ):
+            with self.subTest(reply=bad),patch.object(local_model,'request',return_value=bad),self.assertRaises(ValueError):
+                local_model.complete(info,[],tokens=4096,timeout=900)
+
     def test_local_endpoint_rejects_remote_proxy_redirect_targets_and_credentials(self):
         self.assertEqual(local_model.endpoint('http://127.0.0.1:1234/v1/'),'http://127.0.0.1:1234/v1')
         for value in ('https://example.com/v1','http://127.0.0.1.evil/v1','http://user:pw@localhost/v1','http://localhost/v1?x=y','http://localhost/path'):

@@ -6,9 +6,10 @@
   "checks": [
     "module:tests.test_compiler_guest_runner"
   ],
-  "claimed_at": null,
-  "claimed_by": null,
-  "completed_at": null,
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-23T14:01:16+00:00",
+  "claimed_by": "codex-mcp-839d838dd7b04cc5",
+  "completed_at": "2026-10-23T14:04:28+00:00",
   "complexity": "standard",
   "created_at": "2026-10-22T18:17:13+00:00",
   "delivery": "codex-works/deliveries/G6DOC1.md",
@@ -19,17 +20,43 @@
   "document": "codex-works/tasks/G6DOC1-board.md",
   "historical": false,
   "id": "codex:G6DOC1",
+  "integration_note": "三项审查/交付文件已真实落入本地主线协调工作区，并与正式复验指纹逐项相同；优先级已同步progress-map/ALLOCATION/roadmap。独立验收后单独登记本地集成；新G6客体和更广纯ELF仍待完成，未提交推送。",
   "legacy_hash": "3c27d771370d611a78005140013555cf61e99ecd5cfe1dc755ade7f1f3d48257",
   "number": "G6DOC1",
   "owner": "codex",
-  "pause_control": "confirmed",
-  "resume_status": "todo",
-  "rev": 2,
-  "review_note": "",
-  "status": "paused",
+  "rev": 8,
+  "review_note": "已实际审阅host-ready md/json与原test_compiler_job_preparation源码；stdlib独立复算318产物、445/7/4/12输入、49源码、真实ELF段页数、双FAT/链/源码SEED及空stage、负控SHA恢复和命令日志。明确12当前源码差异、历史host-only且动态峰值/新G6未证。正式5279fdea41ba4447b776fdf4416206ec通过15/0skip/0.61s/source_stable/process_stopped/execution_exited。三文件主目录SHA匹配，文档JSON链接存在，未运行VM或放宽阶段结论。",
+  "status": "integrated",
   "title": "新G6宿主准备的独立证据审查与进度同步",
-  "updated_at": "2026-10-22T18:19:10+00:00",
-  "verification": null,
+  "updated_at": "2026-10-23T14:05:42+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.61,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_compiler_guest_runner",
+        "tests": 15,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/G6DOC1.md": "7555965ff47578c1224cf26bd99c70cd3a1683c817e91f980370c3ace778a22c",
+      "codex-works/reviews/2026-10-23-G6-host-ready.json": "abfce90798cbdfc57d139df36572bc17724367171ea31d36c2cf20a0fd8333dd",
+      "codex-works/reviews/2026-10-23-G6-host-ready.md": "7a5e48d8d709c0706724c72aec38abcbed25bcfe729a07b19ae1c495c3d79060"
+    },
+    "finished_at": "2026-10-23T14:05:05+00:00",
+    "job": "5279fdea41ba4447b776fdf4416206ec",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
   "write_paths": [
     "codex-works/reviews/2026-10-23-G6-host-ready.md",
     "codex-works/reviews/2026-10-23-G6-host-ready.json",

@@ -179,3 +179,67 @@ root 的 diagnostic5 仅修改 VARS 一个启动参数：真实 query-block 观�
 R11 只修改本测试、本文档和交付三路径，其余15个 B 声明路径冻结；生产 owner、runner、overlay、两个独立 observation profile 默认值和精确 AP1 stale-A/PTE-B held 门均不变。作者仅作静态检查，未编译、运行测试、OS link、VM、任务状态或 Git 操作。OBS/B 新源仍须 root 独立预检、完整正式 checks/fresh 双构建、正常与精确负控各两 fresh boots、strict final replay/raw 独核及稳定/退出证明；P2 仍 partial，物理 WC 待真机，P5 未实施、未上传或关机。
 
 首次 root 宿主预检实际运行145项、12.762秒、errors=5、退出1；五个错误均为新 replay 方法的子例缺少 `after.boot_info_ref`，在原 BootInfo 串口门先抛 KeyError，尚未到达 argv 门。独立静审也发现同一问题。确认预检进程退出后，仅补每 boot 的 synthetic after 引用，其 physical=4096 与 before 和本地串口记录一致，保留真实 BootInfo/argv 门及合法路径的 ReachedCapture 主动终止；没有跳过门或生成通过证据。修复后作者仍未运行测试，等待 root 新独立预检，首次失败事实保留。
+
+## R12：负控 owner 已正常完成时立即保留失败（待独立复验）
+
+后续 OBS R8 正式110项与 B `5b4b8c1e64da4a0ead8e4569f81f8b10` 完整56项均零 skip、source stable、进程停止退出。该冻结源的正常实际双 boot runner 已通过，result SHA `07d56741d3c61428117bcc5b4e9f996c7dabd073606096a29208141e7a6ad89b`；root 随后独立 strict replay 返回0，两个 boot 的 stdlib scoped raw audit 亦通过，报告 `build/test/p2-historical36-review/b-r11-obs-r8-normal-scoped-raw.json`。owned QEMU 23708/37924 均退出0，无 PFLASH 错误。这些事实属于该旧冻结源，不能替代 R12 新源复验或原精确负控。
+
+同源 `omit-r11-obs-r8-wire1` 在五次 ordinary launch 后，B 已 `attempted=complete=1`、`poison=0`、`steps=127`；AP1 实际 warm 读页5，replaced 读页6，原漏刷负控没有观察到目标 stale。随后继续采集，epoch21 暂停1078ms，epoch22 CPU0/2 出现 `0x06090005` Timeout、owner=3，与原 replacement post 的 CPU0-held 故障不同。整体失败 result SHA `858d3677177f6416351e3e5cdf2246c57a923212c719ddab0a5d105866b4a885`、1376个原始文件闭合审计和解码摘要均保留；未出现 stale 或后来的 Timeout 都不能计为原负控通过。Intel 官方 SDM Vol3A §5.10.2.2 允许处理器随时丢弃 TLB 条目，软件不能依赖条目保留；warm 后读新值不能独自证明 guest flush 正确或 WHPX 进行了额外刷新。[Intel 官方手册](https://cdrdv2-public.intel.com/835754/253668-sdm-vol-3a.pdf)
+
+R12 只在原严格 `validate` 已抛出 ValueError 的分支，检查负控的一次性 owner 是否已 attempted=complete=1 且 poison=0。此时它不会再运行来产生缺失的 stale，立即保存首 epoch、深拷贝 checkpoint、原异常类型/原文、原三个 terminal flags 和 cause=undetermined，classification 为 `negative-no-stale-completed-owner`，并 bare raise 原异常。不再 sleep/重试、额外 resume、采下一 after 或进入 PCID；结果继续失败，没有新通过或 seal。原精确负控若通过原验证，仍先 break；健康尚未完成轮继续原有界重试，normal 行为、两个独立 profile、原所有 oracle、ACK、客体期限和采样上限不变。
+
+新增一个 synthetic Host 方法调用实际 `collect_boot`，验证全生命周期完成而严格负控失败时只采一次 after、不 sleep、不 resume/no-PCID、原异常对象和独立首 checkpoint 保留；同一方法还验证未完成负控继续重试并让原精确负控成功，以及 normal 完成后照常进入后期 PCID。原49个测试方法全部保留；静态 Host41/RequestGate1/ActualBuild8 不是执行通过数。
+
+本轮仅 runner/test/docs/delivery 四路径，原其它14个 B 声明路径冻结。作者未编译、运行测试、VM、改状态或 Git 操作，仍待 root 独立预检和正式验证。动态 skip receipt 与独立 flush-return-error 负控仅为后续方案，本轮未实现；二者不能代替原实际 stale 门。P2 仍未全部完成或验收，用户已取消关机。
+
+R12 首次 root 独立宿主预检实际151项、9.961秒、errors=1、退出1；新方法中“未完成负控可重试”的 fixture 虽清零 poison，却仍继承最终负控的 Domain/Bridge.failed=1，真实终态门因此正确拒绝。只修这份独立 deep copy 的暂态：attempted=complete=poison=0、Domain/Bridge.failed=0；最终负控 after 仍保留 poison/failed=1，retry 断言和生产终态门不变，runner 指纹保持。首次失败保留，作者未复测，等待 root 重跑。
+
+## R13：动态故障回执与独立 flush-return-error 负控（待正式复验）
+
+R12 随后正式 `e4ee7de582284b38b40e504e5d7f1e6e` 完整57项、零 skip，source stable、进程停止退出。旧冻结源正常实际双 boot、独立 strict replay 和 scoped raw audit 的通过事实保留；旧 omit 未出现 stale 和后续无关 Timeout 的失败事实也保留。R13 增加真实分支命中的动态证据，并另设 `flush-return-error` 软件负控；它不能替代或宣称原 omit-stale 门通过，旧归档须使用其 immutable 原 runner/source 回放。
+
+`runtime_large_test_receipt` 为64字节对齐的128字节原始区，16个 QWORD 按顺序为 `magic, publish, argument_cpu, actual_cpu, domain, window, sequence, barrier, completed, requested, ack_before, cr3, cr4, rflags, real_result, returned_result`。omit magic 为 `0x524c465200010001`，error magic 为 `0x524c465200010002`。normal 和 before 必须全零；`publish=1` 表示发布中，完整载荷写入并执行 fence 后最后写2，重复命中或已有半发布只写3并保留首载荷，不允许重写第一份证据为正常。宿主只接受完整2，所有字段必须为精确 uint64。
+
+原 omit 的目标仍是 AP1、实际 GS CPU1、owner window1、同一 Domain 的 `sequence=barrier=requested=completed+1` 且 `ack_before=completed`。命中后记录实际 Domain/Cpu、raw CR3/CR4 和采样时 RFLAGS，跳过原 actual flush，回执 `real_result=UINT64_MAX`、`returned_result=0`。RFLAGS 只证明记录时 IF=0，不将包装器 cmp/test 后的算术标志解释为调用入口标志。normal 不调用记录器或新增热路径读写；正常和新 error 的 receipt 不可冒充 omit。旧真实 stale-A/PTE-B/第二轮 reader 未 ACK、全核 post flush ACK 已闭合及 CPU0 永久 held 的全部门继续保留，R12 的 `negative-no-stale-completed-owner` 仍立即保存失败、停止重试。
+
+新 `flush-return-error` 只在同一精确目标上先调用完整原 `user_smp_arch_flush`。原 flush 返回非零时原样保留，不强写成功或伪造完成回执；实际返回0时才记录 `real_result=0/returned_result=1`，将1送回原生产调用者。它验证的是真实生产失败传播，不是 stale load。`user_domain.poll` 因返回错误设置 Domain.failed、产生 Hardware `0x06090003`，未更新 Seen 或目标 ACK；owner 的 barrier wait 传播 Held `0x06090004` 并 poison。独立 oracle 要求 AP1 首个真实 Failure 为 Hardware、同一 post/owner0/kernel root，目标 requested=post、ACK=pre；CPU0 保持 LOCKED、完整旧2MiB仍保留，operation3/state3/steps3/barriers5、未完成、未退休或回收，只有首轮四核实际 warm-A。完整 forest/PTE-B/全部 alias/reader 原始记录和源绑定门仍执行。
+
+Failure 按真实224字节、28 QWORD 布局读取16项；不得用 report 或 metrics 合成。CPU0 可记录真实 Protocol `0x060b0011`、detail Held；其它非目标 CPU 只允许源码支持的 Held，或尚未发布的全零记录，不能假设其它 AP 已全部 ACK post 或 metrics.failed 全1。已发布记录必须绑定当前事务且不可为 Timeout、其它 owner 或更晚 sequence。pub2 的半发布只允许本事务可证明的前缀，未知错误、异事务和缺完整 receipt 直接失败。
+
+Domain.failed 可能先于 AP1 Failure 发布和 owner poison。只有新 error oracle 已核所有稳定门且精确同事务证据尚在发布时才抛 `FaultPublicationPending`，collect 保留首 `first_pending_fault_checkpoint`，最多再补采2次；1秒只限制 pending 处理和下一次补采安排，成功的下一份完整快照不冒称整次采集硬1秒。任何泛 terminal/Timeout/错误 Fault 仍沿原首失败停止，客体1秒/2秒期限和 ACK 不改。
+
+新 build 合同为 `p2-runtime-large-current-fault-v2`，`fault_contract=p2-runtime-large-fault-v1` 显式绑定 source identity、snapshot、result、每 boot 和各 seal。execute/replay 的 case 必须属于 normal/omit/error 且与实际 build identity 相等，缺字段或混档拒绝。新 `fault_receipt` 和 `bridge_failures` 都取同一封存 epoch 的原始物理字节；layout 必须核真实 Domain120/Cpu120/Failure224。除原64字节代码预览外，`runtime_large_test_omit`、`runtime_large_test_record`、`runtime_large_test_publish` 和完整 `user_smp_arch_flush` 均按实际结束符号逐字节绑定 ELF 与 guest RX 代码，跨段或截断失败。两个 observation profile 默认和选择仍各自独立，负控不采后期 PCID。
+
+原50个测试方法全部保留；新增6个 Host 方法覆盖实际 receipt/parser/独立 oracle/collect/replay 调用、每字段破坏、真实 Failure 异步传播与两次补采边界、混档/错 case、完整 ELF 范围截断，以及实际 safe publisher 和两份真坏 publisher。safe publisher 控制分别汇编 ELF/COFF，并只在宿主执行无特权 publisher，验证全零→完整2、重复3/半发布3和首载荷保留；它不是特权记录器、flush 或 TLB 的执行证据。新增1个 ActualBuild 方法及原构建组改为 normal/omit/error 三次 fresh source-bound production build，检查真实符号、完整 body、私有覆盖和原2MiB/4096B预算。静态 Host47/RequestGate1/ActualBuild9，共57方法；完整原六模块预计64项，实际以新正式回执为准。
+
+root 的早期隔离预检仅完成三case×reader/arch×ELF/COFF共12个 NASM 对象，`-Wall -Werror`、输入稳定；另独立 C/sysv_abi probe 只执行真实 safe publisher，返回0。证据位于 `build/test/p2-r13-assembly/run-0de53a38f6f3/`，未进行 OS link 或 VM。首次 OBS+B Host 独立预检157项、零skip，但有1 error和1 failure：本项新 fixture 的 `int(negative or ...)` 对字符串 error case 转换失败，已只改为 `int(bool(...))`；OBS 原 queued 反控在 Windows 时间相等时没有实际破坏，由 root 在其归属文件改为 sealed-1。首次日志 `build/test/p2-historical36-review/b-r13-host-precheck.log` 保留。修后 root 重跑157项、7.306秒、零错误/失败/skip，四源码前后 SHA 一致，见 `b-r13-host-precheck-r2.log` 和 `b-r13-host-precheck-result.json`；这仍是宿主兼容预检。
+
+本轮仅六个授权路径，原其它12个 B 声明路径冻结。实现者只编辑和做静态 AST/源布局/指纹检查，未自行编译、运行测试、OS link、VM、Git 或任务状态操作。正式64项、三份新镜像、实际 normal/omit/error 各双 fresh boot、strict final replay、原始独立审计和 owned cleanup 均尚待 root 执行。P2 尚未全部完成或验收；物理 WC 和 omit-stale 的硬件依赖证据仍须独立留档，用户取消关机的指令保持有效。
+
+## R14：非目标 AP 首 Failure 的同事务 requested 单调关系（待独立复验）
+
+R13 随后正式作业 `cd564952ad754918b1e70d44693da265` 完整64项、零 skip、source_stable 通过。实际 `flush-error-r13-wire1` 仍失败，result SHA `cf7eb93c627d15247e9d6ae655a50971ccb4f1369e6b89b564344d7b953f0a99`；owned QEMU17364退出0、输入稳定、无PFLASH错误。root 独立 stdlib raw 审计978文件闭合，报告 `build/test/p2-historical36-review/b-r13-flush-error-wire1-independent-raw.json` SHA `e42f69fabb3cd268124ac278fa048ed970472f1e903404387427632aec9029fc`。完整AP1动态receipt为seq33636/pre33635、实际flush返回0后强制返回1、IF0，AP1首Hardware精确，CPU0 poison/Held且旧块保留、state3/steps3/barriers5/零退休回收；这些是该失败实际轮的分项证据，不能改称整轮或双boot通过。
+
+R13 oracle 误把首 Failure 的历史 requested 必须等于采集时 current requested。实际 AP2/3 首记录 requested=33635，而当前已为33636，ACK均33635；Failure.sequence/barrier仍绑定同一post33636。生产 `user_domain.barrier_begin` 逐CPU写requested后kick，中途没有重新检查failed：AP1可先失败，AP2/3在当前requested尚为pre时先记录Held，CPU0随后继续将其requested发布为post。因此历史pre→当前post合法，不代表Failure来自更早事务。
+
+R14 只对非目标AP2/3允许 `Failure.requested ∈ {pre,post}` 且 `Failure.requested <= current.requested`；CPU0/AP1仍精确等于各自当前requested，AP1仍必须requested=post、ACK=pre及首Hardware。所有CPU当前req/ACK仍只准pre/post且ACK<=req，Failure.ACK必须精确当前ACK，sequence/barrier/post、owner0/lock1/kernel root、真实receipt及其它门保持。pub2在尚未写该字段时可为0，写后遵循同一单调关系；拒绝pre以前、post以后、历史post而当前pre、异事务、错误ACK及Timeout，不因它们进入pending补采。
+
+只扩展原三个Host方法，实际调用独立validator、collect和双boot replay：合法pre/pre、pre/post、post/post及pub2前缀；非法regress/future/current回退、CPU0/AP1旧requested、异事务/ACK/Timeout直接拒绝。collect合法半发布仍只按原2次/1秒pending处理窗补采；replay合法两个boot保留distinct error seal，坏记录不得产生seal。原57方法保留，Host47/RequestGate1/ActualBuild9、完整预计64项不变。全部数据为明确synthetic边界，不冒充实际客体证据。
+
+本轮仅runner/test/docs/delivery四路径，ASM/build及原其它14个B声明路径冻结，未改guest协议、期限、ACK或原omit-stale门。作者仅静态源码/AST/指纹检查，未编译、测试、VM、Git或状态操作；R14须重新独立正式复验及新源实际双boot/raw replay。R13实际失败原件和全部旧结论保留，不以新oracle重标为通过。
+
+## R15：当前 omit 合同的 failed 指标须逐核归因（待独立复验）
+
+R14仅静态交付，未先行复验；本轮保留其AP2/3同事务requested单调修正。随后root在R13 immutable镜像实际运行 `omit-r13-wire1`，result仍false，SHA `6c8fc7a9c0ab6dc0c3dcd9089e435ec0902609625fc528c9f8244f4ddd9d3b98`；owned556退出0、输入稳定、无PFLASH错误。独立978文件闭合审计SHA `b6c0b52383d9d2f235c6be99f65f0a57d5521181ff7702e96adc207cd3f479b1`，进一步 scoped raw报告 `build/test/p2-historical36-review/b-r13-omit-wire1-stale-scoped-raw.json` SHA `c75dc19e4fb093c0f8d57ae89e3d7d102772b664a6f7da926410b60a900b5d09` 证明动态omit命中、AP1实际stale-A、实际PTE指向B值、reader ACK缺失及旧2MiB逐字节不变。报告为diagnostic_only/acceptance=false，旧result不改，不是新源或双boot验收。
+
+该轮真实receipt为AP1/完整publish2/seq32976/pre32975/UINT64_MAX→0；Domain sequence=completed=post32976、barrier=expected=0、四核requested=ACK=post，CPU0LOCKED。report为complete0/poison1/Held、operation3/state3/steps7/barriers6、reader round=sequence2/expected TAG|6、零退休回收。AP1 request2/ack=count1、warm和replaced均为TAG|5，首Failure是同completed post的Hardware；BSP为Protocol/detailHeld，AP2/3为Held。实际四核metrics.failed均1、原switch/timer/entry进展均正，旧 `validate_readers` 的无条件failed0门因此错误拒绝这个已进入永久失败路径的负控。
+
+R15只为当前 `p2-runtime-large-fault-v1` 的 `omit-ap-flush` 增加严格原始首Failure归因。进入原reader门前，先核完整omit receipt、上述精确report、同completed post/闭合barrier/全核post ACK/CPU0held；16项Failure必须为精确uint64字段，offline全零。AP1必须完整pub1/Hardware、实际bridge entry1或2/POLL4或ACQUIRE5；其它pub1只允许Held，CPU0还可为PROJECT8的Protocol/detailHeld。每份完整记录都须绑定同CPU/Domain/post、owner0/lock1/当前mode/kernel root和精确当前req/ACK；未观测raw root字段不得伪造硬件证据。非目标pub0只可全零且对应metric0，pub2拒绝；任何failed1都必须有本核完整匹配的首Failure，Timeout/异事务/错误owner/root/ACK均拒绝。
+
+严格helper返回已核逐核failed元组，只有production `validate` 的当前omit路径将其显式传给 `validate_readers`，后者仍逐核匹配实际指标及原AP进展门。默认未传时继续要求全0，normal和legacy negative不调用归因helper，不能用negative布尔值放宽。原stale-A/PTE-B/reader未ACK、全tag ACK、硬件CR3/CR4/PCID、完整forest/alias/旧块及永久held门全部继续执行；无receipt或未出现stale仍失败，旧R12 fail-fast与error独立负控不变。
+
+新增1个Host方法，原57方法全保留；真实validator/collect控制覆盖完整四核failed1、合法非目标pub0/metric0与完整pub1/metric0窗口，以及每核缺/半Failure、Timeout、异seq/owner/root/ACK、offline发布、缺receipt、无stale和全tag ACK破坏。坏collect只保留首失败、不进入pending/no-PCID/no-resume；共用双boot replay夹具同时保留原error与R14控制，并验证当前omit的真实oracle和错误记录拒绝。normal/legacy/direct-reader的默认failed0另有控制。数据均为明确synthetic边界，不能替代实际客体证据。静态Host48/RequestGate1/ActualBuild9，共58方法、完整预计65项，原三case构建不变。
+
+本轮仍仅runner/test/docs/delivery四路径，ASM/build等其它14路径冻结。作者未编译、运行测试、OS link、VM、Git或任务状态操作，只做静态检查。新R15独立正式65项、fresh三构建、actual各双boot、strict replay/raw审计仍须root执行；不将R13正常通过、两份失败actual的分项证据或旧正式64改称R15通过。
+
+R15 root独立验证更新：兼容预检158项、7.523秒、零skip/错误/失败、四源码前后SHA一致，日志 `build/test/p2-historical36-review/b-r15-host-precheck.log`。root使用R13 immutable decoder读取两份真实raw，再调用冻结R15 candidate oracle作只读诊断：error和omit均通过candidate判定，原result仍false且SHA不变，见 `b-r15-on-r13-raw-diagnostic.json`。诊断不是R15新源replay或完整验收。原实现者在文档收尾时受额度限制退出，root完成验证事实补记和协调提交；runner/test保持已独立预检的冻结SHA。正式65项、新镜像与实际双启动仍待执行。

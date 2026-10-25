@@ -1,3 +1,12 @@
+2026-10-24T17:25:08+08:00 P2接续完成一个组件：P2LEDGER44已独立验收并集成rev9；正式六组9tests/0skip，source_stable且进程停止/退出。真实memory+paging账本在debug/release合计20正常场景与10真坏Dong拒绝；R1完整runtime7 release构建339输入、99暂存内核源、7产物SHA一致，kernel=1,978,768B，2MiB窗口余118,384B。P2REG45亦integrated6，旧启动/桌面回归夹具正式2tests/0skip。未执行新镜像客体运行，P2整体仍partial：下一步C/D实际接线及客体正负证据，另有暖PCID实际复用和无真机条件下的物理WC待验。DeepSeek继续本人P2VEC42，P2ERR43依赖前项验收。
+证据：coordination/dongos_works/reviews/2026-10-24-P2-ledger-verification.json、2026-10-24-P2-ledger-native.json、2026-10-24-P2-ledger-build.json；契约：code/docs/p2-framebuffer-ledger.md。以下为历史检查点。
+
+2026-10-24 17:17 +08:00 P2：P2REG45已integrated rev6（两项旧回归夹具独立2tests/0skip）。P2LEDGER44已实现独立授权账本并submitted rev6，R1补HHDM溢出前置拒绝，正式冻结作业85481e0d327745dab512a9a646576cf5运行中，尚未验收/集成。前轮本机18正常+10真坏源通过；原正式作业主动取消，不算通过。R1前runtime7构建成功（kernel 1,978,768B），R1同源构建进行中。DeepSeek已领取P2VEC42 rev7，P2ERR43待前项验收；不抢占其文件。P2整体仍partial，C/D实际接线、warm-PCID与真机WC保持待验。
+
+2026-10-24 最新改派：按用户要求，LM Studio运行已取消并停止；P2VEC42（rev6）与P2ERR43（rev2）负责人均已改为DeepSeek，状态todo待Harness领取。保留稳定ID lmstudio:P2VEC42/lmstudio:P2ERR43及原write_paths，前缀不代表当前负责人；先完成P2VEC42独立验收，再执行依赖项P2ERR43。独立测试仍由Codex维护。P2LEDGER44保留Codex负责，尚未实施。
+
+2026-10-24 P2接续：L3/L3A完整纯ELF矩阵已完成。P2仍partial；ROOT13/PCID12/WC14/EXEC19/CACHE20/RAW38/OBS36/LARGE16均已集成。当前剩独立GOP授权账本（P2LEDGER44已发布未实施）、C/D实际接线、暖PCID实际复用证据及真机WC。LM Studio按单并发执行P2VEC42边界向量，随后P2ERR43错误码对照；Codex编写的独立校验门P2LMTEST41已integrated rev6（4tests/0skip）。数据交付不能替代生产/客体验收。以下均为历史检查点，状态以协调器最新rev为准。
+
 2026-10-23 09:40 +08:00 有界检查点（P2SYNC40，尚待独立文档门）：**P2软件仍partial，P5本轮未实施**。
 OBS36 submitted rev12：正式71项零skip；历史R5仅诊断observations_completed，acceptance/passed均false。
 B R8正式44项零skip、两份fresh各1109source/staged与286产物、kernel1966480B；

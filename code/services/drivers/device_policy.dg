@@ -2,11 +2,13 @@
 // hardware; class fields received from a caller never confer authority.
 module drivers.device_policy;
 import lib.device_abi as abi;
+import lib.hardware_profile as hardware_profile;
 pub unsafe fn rank(d:*const abi.Device,role:u64)u64 {unsafe {
     if d==null||(*d).version!=1 {return 0;}
     if role==abi.PS2 {if (*d).kind==abi.I8042 {return 1;}return 0;}
     if (*d).kind!=abi.PCI||((*d).header&127)!=0 {return 0;}
     if role==abi.BLOCK {
+        if hardware_profile.USB_ONLY {return 0;}
         if (*d).vendor==0x1af4&&(*d).device_id==0x1042 {return 3;}
         if (*d).class_code==0x010802 {return 2;}
         if (*d).class_code==0x010601 {return 1;}

@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-24",
+  "scope": "P2 continuation and serial local LM fixture delegation",
+  "components": [
+    {
+      "id": "codex:P2ROOT13",
+      "status": "integrated",
+      "rev": 15
+    },
+    {
+      "id": "codex:P2PCID12",
+      "status": "integrated",
+      "rev": 13
+    },
+    {
+      "id": "codex:P2WC14",
+      "status": "integrated",
+      "rev": 10
+    },
+    {
+      "id": "codex:P2EXEC19",
+      "status": "integrated",
+      "rev": 12
+    },
+    {
+      "id": "codex:P2CACHE20",
+      "status": "integrated",
+      "rev": 9
+    },
+    {
+      "id": "codex:P2RAW38",
+      "status": "integrated",
+      "rev": 6
+    },
+    {
+      "id": "codex:P2OBS36",
+      "status": "integrated",
+      "rev": 37
+    },
+    {
+      "id": "codex:P2LARGE16",
+      "status": "integrated",
+      "rev": 68
+    }
+  ],
+  "independent_fixture_gate": {
+    "id": "codex:P2LMTEST41",
+    "status": "integrated",
+    "rev": 6,
+    "job": "1cbbfce655d34c37be29e227fe53fce7",
+    "tests": 4,
+    "skip": 0
+  },
+  "local_model": {
+    "model": "qwen/qwen3.8-27b",
+    "endpoint": "loopback LM Studio",
+    "max_concurrent": 1,
+    "first_failed_job": "4520fbf7e3114ce4b1da6d7833d62dc2",
+    "failure": "1024-token output truncated; rejected before candidate writes",
+    "retry_job": "c618694b7753410aa624ddac20c9317e",
+    "worker_budget": {
+      "tokens": 4096,
+      "timeout_seconds": 900,
+      "byte_limit_unchanged": 24000
+    },
+    "adapter_tests": {
+      "tests": 17,
+      "skip": 0,
+      "seconds": 5.426
+    },
+    "retry_status": "cancelled by user reassignment"
+  },
+  "ledger": {
+    "id": "codex:P2LEDGER44",
+    "status": "todo",
+    "rev": 1,
+    "implemented": false
+  },
+  "remaining": [
+    "framebuffer independent authority and lifecycle",
+    "C/D actual wiring and independent positive/negative runs",
+    "warm PCID actual reuse and all-reader invalidation",
+    "physical WC performance awaiting hardware"
+  ],
+  "roadmap_tests": {
+    "tests": 10,
+    "skip": 0,
+    "seconds": 11.756
+  },
+  "handoff": {
+    "owner": "deepseek",
+    "client": "DeepSeek Harness",
+    "tasks": [
+      {
+        "id": "lmstudio:P2VEC42",
+        "rev": 6,
+        "status": "todo"
+      },
+      {
+        "id": "lmstudio:P2ERR43",
+        "rev": 2,
+        "status": "todo"
+      }
+    ],
+    "lm_job": "c618694b7753410aa624ddac20c9317e",
+    "job_status": "cancelled",
+    "execution_started_in_harness": false
+  }
+}

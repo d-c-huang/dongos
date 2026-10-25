@@ -1,5 +1,7 @@
 # G5 完整语言差分门禁
 
+2026-10-24：原完整矩阵已新增纯ELF执行并独立通过51项/27组、零skip，L3ELFMATRIX1 integrated rev6。见[纯ELF及L3完成回执](l3-pure-elf-matrix.md)。以下保留原G5各阶段证据范围。
+
 G5 验证 Dong 原生 frontend → lower_program → nasm_program 对 v0.1
 语言及 ABI 的实际执行。Python seed 仅用于构建被测编译器和独立同源对照；
 被测程序不能回退到 seed，不在宿主构造目标 AST/IR，也不启动 OS/VM。

@@ -1,0 +1,67 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:lang.tests.test_l3_extended_encoding"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-24T06:24:52+00:00",
+  "claimed_by": "codex-mcp-14ca67a3341042c4",
+  "completed_at": "2026-10-24T06:35:19+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-24T06:24:33+00:00",
+  "delivery": "codex-works/deliveries/L3ENC1.md",
+  "depends_on": [
+    "codex:G6RUN2"
+  ],
+  "description": "继续L3，补齐现有nasm_program实际生成的movdqu、lock cmpxchg/xadd、pause/int3/lfence/sfence/mfence到内建assembler与x86 encoder。保持严格操作数/输出原子性，debug/release真实编译执行、NASM独立字节对照和错误操作数负控。仅关闭本编码差集，不外推全L3或新G6。",
+  "document": "codex-works/tasks/L3ENC1-board.md",
+  "historical": false,
+  "id": "codex:L3ENC1",
+  "integration_note": "声明的四个真实主目录文件指纹c35f1f32/0bd6de7b/9e9eb135/2daf7f78与正式独立复验一致，实际文件集成完成。G6ENC1接续新版自举及客体门，旧结果不外推。",
+  "legacy_hash": "f44d83bde00222cd3903ce5c0461d968515b2c3e0d9897374d75a9b6e812536b",
+  "number": "L3ENC1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查两生产模块：XMM独立kind仅movdqu内存双向允许；LOCK/XCHG限定32/64位STORE，REX/ModRM和RIP修补保留；特权指令零操作数，既有输出原子性未改变。独立job e1c4412f3d2944efb5a85cf9d4d148f8 全4tests/0skip/486.25s，源码稳定且进程已退出。1017条NASM字节对照、错误形式/容量与57别名预检、实际ELF原子内存/CAS成功失败，真正Dong两模式Win64桥接→native ELF执行37通过。只验收编码差集，新G6单独验证。",
+  "status": "integrated",
+  "title": "L3A纯ELF补齐XMM原子及受限无操作数指令",
+  "updated_at": "2026-10-24T06:44:11+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 486.25,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:lang.tests.test_l3_extended_encoding",
+        "tests": 4,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/L3ENC1.md": "2daf7f782280ad054a80200870fad8e900bd7ed494c3efd353c3ab93a04fb51a",
+      "lang/bootstrap/native_assembler.dg": "0bd6de7b97707f089cd70ed6219ae87f9d10464be4344069abd13080d712b59f",
+      "lang/bootstrap/x86_encode.dg": "c35f1f32e4412acc0fd7d0a7085e0ef94f643a4cc19908f5fc182d6e66c3821b",
+      "lang/tests/test_l3_extended_encoding.py": "9e9eb13527a3c3ce6b6e98dba36e6c6e70332f66a670dda4e257b592b055cf53"
+    },
+    "finished_at": "2026-10-24T06:43:47+00:00",
+    "job": "e1c4412f3d2944efb5a85cf9d4d148f8",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "lang/bootstrap/x86_encode.dg",
+    "lang/bootstrap/native_assembler.dg",
+    "lang/tests/test_l3_extended_encoding.py",
+    "codex-works/deliveries/L3ENC1.md"
+  ]
+}

@@ -1,0 +1,4 @@
+// Default desktop/storage policy. Explicit USB builds override this module.
+module lib.hardware_profile;
+pub const USB_ONLY:bool=false;
+pub const FAT_AUDIT_BYTES:usize=32768;

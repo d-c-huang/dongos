@@ -1,0 +1,82 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_loader_console",
+    "module:tests.test_image"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T09:06:12+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T09:12:41+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T09:06:07+00:00",
+  "delivery": "codex-works/deliveries/P8BOOTDIAG1.md",
+  "depends_on": [],
+  "description": "用户Intel真机从H盘runtime0启动后黑屏有信号。仅补引导器可见诊断，不推断实际根因或放宽4GiB/映像校验/内存规则。EFI入口在串口前显示版本/S00；读盘、校验、GOP、ACPI等阶段与早期原错误码上屏。首次最终GetMemoryMap/ExitBootServices序列前永久关闭固件打印，包括失败重试和fatal，后续不得调用固件控制台。Microsoft x64 ABI、有限长度ASCII→UTF16、空控制台与错误返回需实际原生执行验证。当前无存储runtime0重建与正常、损坏/缺失映像客体验证；准备新介质但需用户插回H盘后才更新。真实硬件门保持待验。只改声明六文件，build输出另存，原第一次镜像/失败保留。",
+  "document": "codex-works/tasks/P8BOOTDIAG1-board.md",
+  "historical": false,
+  "id": "codex:P8BOOTDIAG1",
+  "integration_note": "六声明文件真实位于code/及coordination/dongos_works中，已独立通过15项零skip正式复验并逐SHA核对与fingerprint完全一致，accept后单独登记本地文件集成。正常与两类拒绝客体绑定EFI972dc5a5…，当前R2可见诊断介质候选位于code/build/hardware/bootdiag-20261025-r3/source/esp；已准备同一SanDisk身份/旧SHA预检、原件备份与读回验证脚本。H盘当前不在开发机，未执行写回，真实硬件仍黑屏待定位；新观察前不将P2/P8标通过。原失败全部保留，无commit/push。",
+  "legacy_hash": "0266921396873e824e0a1efe9bc3582c82ad70d7a4a0bcccf1fa77ccf1f58946",
+  "number": "P8BOOTDIAG1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查两生产ASM、独立C/原生测试及契约：Microsoft x64对齐/shadow与非易失状态正确；ASCII有限长度且UTF16/ASCII缓冲与callee shadow分离；固件调用在首个最终GetMemoryMap之前封存，重试/fatal后仅串口，未放宽4GiB/BootInfo/映像拒绝。独立3e65aa9682154e548f8a928f3310ee69共2+13=15tests/0skip通过，source_stable/stopped/exited。正常、真实篡改和缺失镜像三个当前EFI客体分别原PASS/E08/E04，完整串口精确一次并有真实截图；根已目视正常与E08画面。最终EFI972dc5a5…绑定三运行，内核与首轮U盘逐字一致且独立解包核对。六主目录文件逐SHA与正式fingerprint一致。仅验收可见诊断能力；真机黑屏根因/阶段门仍待新物理观察，U盘未插回，未登记介质已更新。",
+  "status": "integrated",
+  "title": "真机黑屏的UEFI屏幕阶段与错误诊断",
+  "updated_at": "2026-10-25T09:14:43+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 6.938,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_loader_console",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 2.235,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_image",
+        "tests": 13,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "boot/efi_main.asm": "5142c36bb33ef37fb8194cebec14774c1a740519b70228f613fba5571fc9dab4",
+      "boot/loader_console.asm": "1f8a8ea3fc5e48752314d67c11afe0d9f609249341cad9cdcc2bc76d6fbbf1b4",
+      "codex-works/deliveries/P8BOOTDIAG1.md": "e299357fb727a395c27c2ceda530e97491f01571178880e3da1dd387a68b5b8b",
+      "docs/loader-console.md": "9dd708225c4eabbda1b22fc8e57a59ccd17a117e94029d04d7b96212a7cd7222",
+      "tests/loader_console_probe.c": "75594a5f0433fab605f9e493c195bf284c764d3ef2a9985f304807bb0eecbfa7",
+      "tests/test_loader_console.py": "e42aa947e84ed3c303daba572d51bdb412d103eb9ba5fca918c59a9fd5d7785a"
+    },
+    "finished_at": "2026-10-25T09:13:08+00:00",
+    "job": "3e65aa9682154e548f8a928f3310ee69",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "boot/efi_main.asm",
+    "boot/loader_console.asm",
+    "tests/test_loader_console.py",
+    "tests/loader_console_probe.c",
+    "docs/loader-console.md",
+    "codex-works/deliveries/P8BOOTDIAG1.md"
+  ]
+}

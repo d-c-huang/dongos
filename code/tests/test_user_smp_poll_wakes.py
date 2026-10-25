@@ -78,6 +78,7 @@ class Tests(unittest.TestCase):
   actual='\n'.join(block(text,n)for n in ('unsafe fn process(','unsafe fn managed(','unsafe fn owner_key(','unsafe fn authority(','unsafe fn wake_waiters(','unsafe fn wake_irqs(','unsafe fn runnable(','pub unsafe fn enable_smp(','export("dong_user_smp_project")'))
   perform='unsafe fn perform(frame:*abi.Frame)!usize{unsafe{let code=(*frame).rax;'+block(text,'if code==3 {')+block(block(text,'unsafe fn device_call('),'if code==dev.IRQ_WAIT{')+'}return error.Protocol;}'
   source=(ROOT/'tests/user_current_entry_probe.dg').read_text()+prefix+globals+actual+perform+TAIL
+  source+=old.dormant_wiring(text)
   memory=old.MEMORY+'''pub error Invalid=0x1111;
 unsafe extern "sysv64" fn pw_check(slot:u64,va:u64,size:u64,write:u64)u64;unsafe extern "sysv64" fn pw_copy(slot:u64,va:u64,ptr:u64,size:u64)u64;
 pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{if pw_check(slot as u64,va,size as u64,write as u64)!=1{return error.Invalid;}}return;}
@@ -87,6 +88,8 @@ pub unsafe fn copy_out(slot:usize,va:u64,source:[]const u8)!void{unsafe{if pw_co
   arch='module arch.x86_64;unsafe extern "sysv64" fn arch_read_tsc()u64;pub unsafe fn read_tsc()u64{unsafe{return arch_read_tsc();}}'
   c=(ROOT/'tests/user_current_entry_probe.c').read_text().replace(block((ROOT/'tests/user_current_entry_probe.c').read_text(),'U ABI dong_user_smp_project('),'');c=c[:c.index('int main(void)')]+CMAIN
   controls={'yield-does-not-wake':('try wake_waiters();try wake_irqs();',''), 'IRQ-wakes-do-not-publish':('STATES[id].waiting=0;(*process(id)).frame.rax=0;',''), 'event-wake-omits-output':('if found{try memory.copy_out(id,WAIT_POINTER[id],slice_from_raw_parts((&EVENT) as *const u8,sizeof(proc.Event)));}',''), 'wakes-ignore-output-failure':('try memory.copy_out(id,WAIT_POINTER[id],slice_from_raw_parts((&EVENT) as *const u8,sizeof(proc.Event)));','let ignored=memory.copy_out(id,WAIT_POINTER[id],slice_from_raw_parts((&EVENT) as *const u8,sizeof(proc.Event)));')}
+  memory+=old.dormant_memory()
+  c+=old.DORMANT_C
   candidate={}
   files=[BASE/'kernel/user/services.dg',BASE/'kernel/user/device_host.dg',Path(__file__)];before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in files}
   out=ROOT/'build/test/p6-poll-wakes-native'/('run-'+uuid.uuid4().hex[:12]);out.mkdir(parents=True);nasm,cc=tool('nasm','NASM'),tool('gcc','CC');evidence={}
@@ -94,7 +97,7 @@ pub unsafe fn copy_out(slot:usize,va:u64,source:[]const u8)!void{unsafe{if pw_co
    for variant in ('normal',*controls):
     d=out/(mode+'-'+variant);stage=d/'kernel';s=source
     if variant!='normal':a,b=controls[variant];self.assertEqual(1,s.count(a));s=s.replace(a,b)
-    copy_graph(stage,['user_current_entry_probe'],{**candidate,'user_current_entry_probe':s,'user.memory':memory,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':host,'arch.x86_64':arch})
+    copy_graph(stage,['user_current_entry_probe'],{**candidate,'boot.service_memory':old.dormant_resources(),'user_current_entry_probe':s,'user.memory':memory,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':host,'arch.x86_64':arch})
     result=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(result.assembly);(d/'probe.c').write_text(c)
     def run(args,label):
      r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60);(d/(label+'.json')).write_text(json.dumps(dict(command=list(map(str,args)),returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r

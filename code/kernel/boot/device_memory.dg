@@ -8,6 +8,7 @@ import boot.acpi_startup as acpi;
 import boot.preflight as preflight;
 import boot.memory_resources as resources;
 import mm.paging as paging;
+import boot.runtime_view as runtime;
 
 pub unsafe extern "sysv64" fn runtime_invalidate(virtual: u64) void;
 
@@ -19,6 +20,27 @@ var READY: bool = false;
 var PLAN: policy.Plan = policy.EMPTY_PLAN;
 
 pub unsafe fn prepare(state: *const preflight.State, out: *policy.Views) !void {
+    unsafe{return prepare_core(state,out,null);}
+}
+pub unsafe fn prepare_diagnostic(state:*const preflight.State,out:*policy.Views,conflict:*policy.Conflict)!void{unsafe{
+    if conflict!=null{
+        var state_bytes:u64=0;if state!=null{state_bytes=sizeof(preflight.State) as u64;}
+        var views_bytes:u64=0;if out!=null{views_bytes=sizeof(policy.Views) as u64;}
+        if !policy.conflict_disjoint(conflict,state as u64,state_bytes)
+            ||!policy.conflict_disjoint(conflict,out as u64,views_bytes){return error.policy.InvalidInput;}
+        let view=startup.runtime_pointer();let space=startup.space_pointer();let topology=acpi.inventory_pointer();
+        var raw:[]const u8=slice_from_raw_parts(null as *const u8,0);
+        if view!=null{
+            if !policy.conflict_disjoint(conflict,view as u64,sizeof(runtime.View) as u64){return error.policy.InvalidInput;}
+            raw=slice_from_raw_parts((*view).raw_map as *const u8,(*view).raw_size as usize);
+        }
+        if space!=null&&!policy.conflict_disjoint(conflict,space as u64,sizeof(paging.Space) as u64){return error.policy.InvalidInput;}
+        let kept=slice_from_raw_parts(startup.manifest_pointer(),resources.COUNT+2);
+        try policy.clear_conflict(topology,raw,kept,&PLAN,conflict);
+    }
+    return prepare_core(state,out,conflict);
+}}
+unsafe fn prepare_core(state:*const preflight.State,out:*policy.Views,conflict:*policy.Conflict)!void{
     unsafe {
         if ATTEMPTED { return error.AlreadyAttempted; }
         ATTEMPTED = true;
@@ -34,7 +56,7 @@ pub unsafe fn prepare(state: *const preflight.State, out: *policy.Views) !void {
         }
         let raw = slice_from_raw_parts((*view).raw_map as *const u8,(*view).raw_size as usize);
         let kept = slice_from_raw_parts(startup.manifest_pointer(),resources.COUNT + 2);
-        try policy.plan(topology,raw,(*view).descriptor_size as usize,kept,&PLAN);
+        try policy.plan_diagnostic(topology,raw,(*view).descriptor_size as usize,kept,&PLAN,conflict);
         var slot: usize = 0;
         while slot < policy.SLOTS {
             if PLAN.physical[slot] != 0 {

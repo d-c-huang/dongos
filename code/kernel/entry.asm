@@ -19,6 +19,8 @@ default rel
 %ifndef RUNTIME_LEVEL
 %define RUNTIME_LEVEL 0
 %endif
+%define HW_BOOT_PROGRESS_OWNER 1
+%include "boot_progress.inc"
 %if RUNTIME_LEVEL
 extern sched_xstate_init, runtime_begin
 %endif
@@ -592,21 +594,40 @@ memory_activation_entry:
     call screen_draw
     test eax, eax
     jz kernel_fail
+%if RUNTIME_LEVEL >= 7
+    ; Arm only the immutable RuntimeView whose initial GOP draw succeeded.
+    mov [rel boot_progress_view],r12
+    mov rax,[rel p3_acpi_report + AcpiReport.cpu_count]
+    mov [rel boot_progress_cpus],rax
+%endif
 %if RUNTIME_LEVEL
+    HW_BOOT_STAGE 1
     call dong_memory_runtime
     mov rdi, rax
     call runtime_begin
     cmp rax, 1
     jne kernel_fail
+    HW_BOOT_STAGE 4
+%if RUNTIME_LEVEL == 3
+    ; The first screen precedes real IRQ/preemption. Only successful completion
+    ; may replace its title with PASS for a machine without a serial console.
+    mov byte [rel runtime_diagnostic_complete], 1
+    call screen_draw
+    test eax, eax
+    jz kernel_fail
+%endif
 %endif
 %if RUNTIME_LEVEL >= 6
 %if RUNTIME_LEVEL >= 7
+    HW_BOOT_STAGE 5
     call sched_xstate_enable_avx
 %endif
     call dong_boot_trace_prepared
+    HW_BOOT_STAGE 6
     call smp_runtime_begin
     cmp rax,1
     jne kernel_fail
+    HW_BOOT_STAGE 10
 %endif
 %if RUNTIME_LEVEL == 4
     call user_runtime_begin
@@ -615,8 +636,10 @@ memory_activation_entry:
 %endif
 %if RUNTIME_LEVEL >= 5
 %if RUNTIME_LEVEL >= 7
+    HW_BOOT_STAGE 11
     call dong_desktop_enable
 %endif
+    HW_BOOT_STAGE 12
     call service_runtime_begin
     cmp rax,1
     jne kernel_fail
@@ -966,6 +989,7 @@ memory_report_write:
 ; 破坏：rax、rdx、rsi、r8、标志。
 ; 中断/锁：仅启动时调用，中断关闭，无需持锁。
 kernel_fail:
+    HW_BOOT_ERROR
     and rsp, -16
     lea rsi, [rel failed]
     call serial_write
@@ -1076,6 +1100,9 @@ framebuffer_gate_leave:
 ; FRAMEBUFFER_GATE_TEXT_END
 
 ; FRAMEBUFFER_RENDER_TEXT_BEGIN
+%ifndef RUNTIME_LEVEL
+%define RUNTIME_LEVEL 0
+%endif
 ; 功能：直接向 GOP 帧缓冲绘制独立内核的背景和文字。
 ; 输入：r12=RuntimeDisplay*（高半区地址）。
 ; 输出：eax=1 成功，0 表示不支持/不合法的 GOP 几何。
@@ -1135,9 +1162,34 @@ screen_draw:
     cmp rbx, r14
     jb .row
     lea rsi, [rel title]
+%if RUNTIME_LEVEL >= 7
+    cmp byte [rel boot_progress_failed],0
+    jne .progress_failed_title
+    cmp byte [rel boot_progress_phase],0
+    je .draw_title
+    call boot_progress_title
+    jmp .draw_title
+.progress_failed_title:
+    lea rsi,[rel boot_progress_failure_title]
+.draw_title:
+%endif
+%ifdef RUNTIME_LEVEL
+%if RUNTIME_LEVEL == 3
+    cmp byte [rel runtime_diagnostic_complete], 0
+    je .draw_title
+    lea rsi, [rel runtime_diagnostic_pass_title]
+.draw_title:
+%endif
+%endif
     mov edi, 56
     mov edx, 48
     call text_draw
+%if RUNTIME_LEVEL >= 7
+    cmp byte [rel boot_progress_phase],0
+    jne .progress_body
+    cmp byte [rel boot_progress_failed],0
+    jne .progress_body
+%endif
     lea rsi, [rel subtitle]
     mov edi, 56
     mov edx, 84
@@ -1182,6 +1234,79 @@ screen_draw:
     mov edi,56
     mov edx,444
     call text_draw
+%if RUNTIME_LEVEL >= 7
+    jmp .painted
+.progress_body:
+    lea rsi,[rel boot_progress_subtitle]
+    cmp byte [rel boot_progress_failed],0
+    je .progress_subtitle
+    call boot_progress_title
+.progress_subtitle:
+    mov edi,56
+    mov edx,84
+    call text_draw
+    ; Only the exact first S01 RamConflict may expose its owned raw context.
+    ; These are static BSS values, never a firmware or caller-provided pointer.
+    cmp byte [rel boot_progress_phase],1
+    jne .progress_regular
+    cmp byte [rel boot_progress_failed],1
+    jne .progress_regular
+    cmp qword [rel boot_progress_error],0x03030002
+    jne .progress_regular
+    cmp qword [rel boot_progress_mmio + BootProgressMmio.version],1
+    jne .progress_regular
+    cmp qword [rel boot_progress_mmio + BootProgressMmio.valid],1
+    jne .progress_regular
+    cmp qword [rel boot_progress_mmio + BootProgressMmio.error],0x03030002
+    jne .progress_regular
+%macro BOOT_MMIO_LINE 3
+    lea rsi,[rel %1]
+    mov edi,56
+    mov edx,%2
+    call text_draw
+    mov rax,%3
+    mov edi,238
+    mov edx,%2
+    call screen_hex_draw
+%endmacro
+    BOOT_MMIO_LINE boot_progress_stage_label,120,1
+    BOOT_MMIO_LINE boot_progress_cpu_label,148,[rel boot_progress_cpus]
+    BOOT_MMIO_LINE boot_progress_error_label,176,[rel boot_progress_error]
+    BOOT_MMIO_LINE boot_progress_slot_label,204,[rel boot_progress_mmio + BootProgressMmio.slot]
+    BOOT_MMIO_LINE boot_progress_address_label,232,[rel boot_progress_mmio + BootProgressMmio.address]
+    BOOT_MMIO_LINE boot_progress_kind_label,260,[rel boot_progress_mmio + BootProgressMmio.kind]
+    BOOT_MMIO_LINE boot_progress_base_label,288,[rel boot_progress_mmio + BootProgressMmio.base]
+    BOOT_MMIO_LINE boot_progress_pages_label,316,[rel boot_progress_mmio + BootProgressMmio.pages]
+    BOOT_MMIO_LINE boot_progress_attributes_label,344,[rel boot_progress_mmio + BootProgressMmio.attributes]
+%unmacro BOOT_MMIO_LINE 3
+    jmp .painted
+.progress_regular:
+    lea rsi,[rel boot_progress_stage_label]
+    mov edi,56
+    mov edx,120
+    call text_draw
+    movzx eax,byte [rel boot_progress_phase]
+    mov edi,56
+    mov edx,156
+    call screen_hex_draw
+    lea rsi,[rel boot_progress_cpu_label]
+    mov edi,56
+    mov edx,192
+    call text_draw
+    mov rax,[rel boot_progress_cpus]
+    mov edi,56
+    mov edx,228
+    call screen_hex_draw
+    lea rsi,[rel boot_progress_error_label]
+    mov edi,56
+    mov edx,264
+    call text_draw
+    mov rax,[rel boot_progress_error]
+    mov edi,56
+    mov edx,300
+    call screen_hex_draw
+.painted:
+%endif
     mov eax, 1
     jmp .done
 .bad:
@@ -1200,6 +1325,20 @@ screen_draw:
     pop rbx
     pop rbp
     ret
+
+%if RUNTIME_LEVEL >= 7
+; RAM-only title selection, called solely inside screen_draw's outer writer.
+boot_progress_title:
+    movzx ecx,byte [rel boot_progress_phase]
+    lea rsi,[rel boot_progress_unknown_title]
+    cmp ecx,14
+    ja .done
+    lea rax,[rel boot_progress_titles]
+    movsxd rcx,dword [rax+rcx*4]
+    lea rsi,[rax+rcx]
+.done:
+    ret
+%endif
 
 ; Fatal exception display. rdi=context, rsi=validated RuntimeDisplay or zero.
 ; Uses only bounded GOP geometry and the panic module's checked frame list.
@@ -1414,6 +1553,10 @@ text_draw:
     pop rbx
     ret
 ; FRAMEBUFFER_RENDER_TEXT_END
+
+%if RUNTIME_LEVEL >= 7
+%include "kernel/boot_progress.asm"
+%endif
 
 section .rodata
 entered: db "DONGOS_P1_KERNEL_HIGH_OK",13,10,0
@@ -1654,6 +1797,55 @@ memory_layout:
 passed: db "DONGOS_P1_PASS",13,10,0
 failed: db "DONGOS_P1_KERNEL_FAIL",13,10,0
 title: db "DONGOS P3 ACPI READY",0
+%if RUNTIME_LEVEL >= 7
+boot_progress_titles:
+    dd title-boot_progress_titles
+    dd boot_progress_irq_prepare-boot_progress_titles
+    dd boot_progress_irq_platform-boot_progress_titles
+    dd boot_progress_threads_test-boot_progress_titles
+    dd boot_progress_threads_pass-boot_progress_titles
+    dd boot_progress_avx_check-boot_progress_titles
+    dd boot_progress_smp_start-boot_progress_titles
+    dd boot_progress_smp_aps_ready-boot_progress_titles
+    dd boot_progress_smp_large_test-boot_progress_titles
+    dd boot_progress_smp_parallel_test-boot_progress_titles
+    dd boot_progress_smp_pass-boot_progress_titles
+    dd boot_progress_desktop_enable-boot_progress_titles
+    dd boot_progress_services_prepare-boot_progress_titles
+    dd boot_progress_elf_ready-boot_progress_titles
+    dd boot_progress_cpl3_start-boot_progress_titles
+boot_progress_irq_prepare: db "DONGOS S01 IRQ PREPARE",0
+boot_progress_irq_platform: db "DONGOS S02 IRQ PLATFORM",0
+boot_progress_threads_test: db "DONGOS S03 THREADS TEST",0
+boot_progress_threads_pass: db "DONGOS S04 THREADS PASS",0
+boot_progress_avx_check: db "DONGOS S05 AVX CHECK",0
+boot_progress_smp_start: db "DONGOS S06 SMP START",0
+boot_progress_smp_aps_ready: db "DONGOS S07 SMP APS READY",0
+boot_progress_smp_large_test: db "DONGOS S08 SMP LARGE TEST",0
+boot_progress_smp_parallel_test: db "DONGOS S09 SMP PARALLEL TEST",0
+boot_progress_smp_pass: db "DONGOS S10 SMP PASS",0
+boot_progress_desktop_enable: db "DONGOS S11 DESKTOP ENABLE",0
+boot_progress_services_prepare: db "DONGOS S12 SERVICES PREPARE",0
+boot_progress_elf_ready: db "DONGOS S13 ELF READY",0
+boot_progress_cpl3_start: db "DONGOS S14 CPL3 START",0
+boot_progress_unknown_title: db "DONGOS P7 BOOT STAGE",0
+boot_progress_failure_title: db "DONGOS BOOT FAILED",0
+boot_progress_subtitle: db "BSP BOOT PROGRESS",0
+boot_progress_stage_label: db "STAGE",0
+boot_progress_cpu_label: db "CPU COUNT",0
+boot_progress_error_label: db "FIRST ERROR",0
+boot_progress_slot_label: db "DEVICE SLOT",0
+boot_progress_address_label: db "DEV ADDRESS",0
+boot_progress_kind_label: db "UEFI TYPE",0
+boot_progress_base_label: db "DESC BASE",0
+boot_progress_pages_label: db "DESC PAGES",0
+boot_progress_attributes_label: db "EFI ATTR",0
+%endif
+%ifdef RUNTIME_LEVEL
+%if RUNTIME_LEVEL == 3
+runtime_diagnostic_pass_title: db "DONGOS P3 THREADS PASS",0
+%endif
+%endif
 subtitle: db "UEFI OFF GDT TSS IDT OK",0
 mappings: db "HIGH HALF AND HHDM OK",0
 compiler: db "DONGC RESULT 42",0
@@ -1771,6 +1963,21 @@ align 64, resb 1
 framebuffer_gate: resq 4
 framebuffer_gate_end:
 ; FRAMEBUFFER_GATE_STORAGE_END
+; BOOT_PROGRESS_STORAGE_BEGIN
+%if RUNTIME_LEVEL >= 7
+align 8, resb 1
+boot_progress_view: resq 1
+boot_progress_cpus: resq 1
+boot_progress_error: resq 1
+boot_progress_phase: resb 1
+boot_progress_failed: resb 1
+align 8, resb 1
+boot_progress_mmio: resb BootProgressMmio_size
+%endif
+; BOOT_PROGRESS_STORAGE_END
+%if RUNTIME_LEVEL == 3
+runtime_diagnostic_complete: resb 1
+%endif
 align 8, resb 1
 memory_report: resb MemoryReport_size
 memory_info_physical: resq 1

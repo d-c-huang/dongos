@@ -1,0 +1,65 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_runtime_qemu_result"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-25T09:43:26+00:00",
+  "claimed_by": "codex-mcp-14619bbd432c41a6",
+  "completed_at": "2026-10-25T09:50:46+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-25T09:43:26+00:00",
+  "delivery": "codex-works/deliveries/P8THREAD1.md",
+  "depends_on": [
+    "codex:P8HIGH1"
+  ],
+  "description": "用户报告R3 runtime0已显示DONGOS P3 ACPI READY，只记录基础引导/CPU内存/ACPI/GOP用户观察，不外推P3中断线程或完整P8。准备正常runtime3无存储测试：仅当runtime_begin真实成功返回后设置完成状态并重新绘制THREADS PASS画面；尚未完成或失败不得显示PASS。原129ticks/65switches/两worker/GPR-xstate/guard时钟算法门保持，其他runtime级别预处理输出不改。仅三个声明文件，使用已集成高地址EFI交接；实际6GiB高载入客体验证完整原runtime串口oracle并目视新画面，坏体漏调runtime不得出现PASS。H介质待插回，测试版无块服务/FS/桌面/输入，不触内置盘。通过独立复验及主目录实物审查后分accept/integrate。",
+  "document": "codex-works/tasks/P8THREAD1-board.md",
+  "historical": false,
+  "id": "codex:P8THREAD1",
+  "integration_note": "三声明文件已真实位于主目录，独立复验后逐SHA匹配正式fingerprint，候选冻结源/同生产runner ESP一致，accept与integrate单独登记。无磁盘runtime3线程诊断包及R3旧EFI/内核hash预检、原件备份/flush/读回脚本位于code/build/hardware/p3-threads-20261025-r1/；EFI8f77ffe3…、IMGd5b0504b…由实际正常/漏调反控和原生产硬件观察绑定。H未插回，尚未执行新介质写入；用户报告runtime0基础画面通过有单独user-observation，新的线程/USB/暖PCID/WC物理门保持待验。未提交推送。",
+  "legacy_hash": "3830fe6ab8d889821b632ba0ff4a5a22542c7f4c9614590fc4b748ab111a3fae",
+  "number": "P8THREAD1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "实际审查仅runtime3成功返回后标志/重画，初始ACPI标题保留；嵌套宏兼容旧renderer提取，完成字节在Gate存储外，原enter/leave/所有边界及其它runtime保持。正式b5fbb6268a394c98865545bfd2d50fca协议3tests/0skip稳定并退出；额外实际renderer/Gate组与协议共4tests/16.543s/0skip，完整所有级别入口汇编。未修改production runner实际过原129ticks/65switches/两worker64ticks/失败0、98物理读/4guard/3MMIO；额外全boot ASM/source绑定闭合，候选ESP与runner逐SHA相同。当前5GiB正常与实际漏runtime坏体真实执行：物理完成字节1/0，正常完整协议与THREADS PASS；坏体原kernel fail并保持ACPI READY，根已目视两屏无假PASS。三主文件与正式fp及候选冻结源一致。仅验收诊断显示；用户硬件仅已报告runtime0成功，runtime3物理待验，H未插回。",
+  "status": "integrated",
+  "title": "无磁盘真机中断线程诊断的完成画面",
+  "updated_at": "2026-10-25T09:52:19+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.407,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_runtime_qemu_result",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8THREAD1.md": "29782b89e0fc64b7998808f5d4a1188ea0ff051b4e21b31494cdfa8a6712e747",
+      "docs/hardware-runtime-diagnostic.md": "9aad75d0d8d89d97cb7b42262ac6fa7a2be33e018e1592ac88ed4d3a0e2d40c2",
+      "kernel/entry.asm": "929085de440197b24b102d0ec47b92b6aa23a92a5213fd9131f8a31e7b53e295"
+    },
+    "finished_at": "2026-10-25T09:51:43+00:00",
+    "job": "b5fbb6268a394c98865545bfd2d50fca",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/entry.asm",
+    "docs/hardware-runtime-diagnostic.md",
+    "codex-works/deliveries/P8THREAD1.md"
+  ]
+}

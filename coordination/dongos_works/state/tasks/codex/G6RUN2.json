@@ -1,0 +1,66 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_compiler_guest_runner"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-23T14:06:05+00:00",
+  "claimed_by": "codex-mcp-839d838dd7b04cc5",
+  "completed_at": "2026-10-23T15:14:27+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-23T14:06:05+00:00",
+  "delivery": "codex-works/deliveries/G6RUN2.md",
+  "depends_on": [
+    "codex:G6DOC1",
+    "codex:G5INT1"
+  ],
+  "description": "用户改优先先完成L3。G6DOC1已证明旧PREP1归档有效但当前12内核/构建输入变化，不沿用旧镜像。先通过协调器冻结当前源码，在隔离workspace实际运行既有test_compiler_job_preparation获得fresh release完整固定点及production runtime5/compiler_job镜像，逐项load_inputs/verify_frozen、ELF/源/预算与FAT核对。随后root协调者按用户授权执行既有run_compiler_job_qemu原流程，真实单BSP客体编译、FLUSH、同盘双启、物理隔离/guard/无能力以及128页退休闭合，原始归档和独立raw审查齐全才可验收。编译器56MiB/64KiB/2MiB预算、原guest期限不放宽，失败保留；不声称更广纯ELF已完成。实现者仅记录证据/文档，不擅改生产源；若定位源缺陷另行明确返修范围。独立检查通过并实际文件集成后登记；不提交/推送/关机。",
+  "document": "codex-works/tasks/G6RUN2-board.md",
+  "historical": false,
+  "id": "codex:G6RUN2",
+  "integration_note": "主目录三个实际交付文件SHA bf2cf712…/8efaa49a…/843710f4…与独立复验指纹一致；实现修复G6WAIT2/G6POOL1已真实主目录集成，生产源与实跑冻结输入逐文件一致。登记当前G6闭环；L3A更广纯ELF保留未完成。",
+  "legacy_hash": "247271a58cf902a94c77498385c33a0cea55ee42367b3bd4ef72fa15c4aca0f3",
+  "number": "G6RUN2",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查fresh生产源码、VirtIO计时契约、池归属检查及G6原runner路径；同盘两启run-b54a8a8d615b原结果PASS，owned QEMU各退出0。独立离线审计961+961原始文件、所有冻结输入、精确FAT固定点、128页退休全零及请求状态通过（audit SHA086c1523…），主目录生产源与实跑一致。正式job812d5b622b2148c6848cb00511879302 15tests/0skip、source_stable且进程退出。只验收当前G6，不关闭广义L3A。",
+  "status": "integrated",
+  "title": "[L3] 当前主线扩大编译器的全新G6构建及同盘双启独立验收",
+  "updated_at": "2026-10-23T15:15:08+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 1.984,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_compiler_guest_runner",
+        "tests": 15,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/G6RUN2.md": "843710f481ee2709c99a6b71a12bca45c9f3522fd2751d64bb21f17b75a42094",
+      "codex-works/reviews/2026-10-23-G6-current-run.json": "8efaa49aa0d8906cc6621f56b52b241d4a5314daa968ecfaa45b3764f14cad12",
+      "codex-works/reviews/2026-10-23-G6-current-run.md": "bf2cf71237003b868783c7bbf0497e998149a710086ddf84ff157387fd329889"
+    },
+    "finished_at": "2026-10-23T15:14:45+00:00",
+    "job": "812d5b622b2148c6848cb00511879302",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "codex-works/reviews/2026-10-23-G6-current-run.md",
+    "codex-works/reviews/2026-10-23-G6-current-run.json",
+    "codex-works/deliveries/G6RUN2.md"
+  ]
+}

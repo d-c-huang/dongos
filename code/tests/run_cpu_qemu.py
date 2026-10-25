@@ -74,12 +74,16 @@ def read_elf_symbols(path: Path) -> dict[str, int]:
         span(offset, size)
         strings = span(sections[link][4], sections[link][5])
         for cursor in range(offset, offset + size, stride):
-            name, _, _, index, value, _ = struct.unpack_from("<IBBHQQ", data, cursor)
+            name, info, _, index, value, _ = struct.unpack_from("<IBBHQQ", data, cursor)
             if not name or not index:
                 continue
             if name >= len(strings) or b"\0" not in strings[name:]:
                 raise ValueError("invalid ELF symbol name")
             text = strings[name:strings.index(0, name)].decode("utf-8")
+            # NASM %% macro labels are private to each translation unit. ELF
+            # permits their repeated STB_LOCAL/STT_NOTYPE names after linking.
+            if text.startswith("..@") and info == 0:
+                continue
             if text in symbols and symbols[text] != value:
                 raise ValueError(f"ambiguous ELF symbol {text!r}")
             symbols[text] = value
