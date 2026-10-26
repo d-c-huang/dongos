@@ -3,6 +3,8 @@
 ; A nonzero view is published only after the first successful screen_draw.
 ; All call-site arguments, return values, flags (including DF) and XMM survive.
 ; One named function in the owning entry TU avoids cross-object %% labels.
+; The BSP user-boot wrappers keep drawing outside AP/BKL deadline windows.
+; After AP publication, ordinary progress only marks RAM until view retirement.
 boot_progress_record_error:
     pushfq
     cmp byte [rel boot_progress_failed],0

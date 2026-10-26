@@ -1331,7 +1331,7 @@ screen_draw:
 boot_progress_title:
     movzx ecx,byte [rel boot_progress_phase]
     lea rsi,[rel boot_progress_unknown_title]
-    cmp ecx,14
+    cmp ecx,23
     ja .done
     lea rax,[rel boot_progress_titles]
     movsxd rcx,dword [rax+rcx*4]
@@ -1814,6 +1814,15 @@ boot_progress_titles:
     dd boot_progress_services_prepare-boot_progress_titles
     dd boot_progress_elf_ready-boot_progress_titles
     dd boot_progress_cpl3_start-boot_progress_titles
+    dd boot_progress_pci_discovery-boot_progress_titles
+    dd boot_progress_user_domain-boot_progress_titles
+    dd boot_progress_user_cpu_config-boot_progress_titles
+    dd boot_progress_bsp_activate-boot_progress_titles
+    dd boot_progress_user_domain_lock-boot_progress_titles
+    dd boot_progress_user_services-boot_progress_titles
+    dd boot_progress_user_ap_start-boot_progress_titles
+    dd boot_progress_user_queues-boot_progress_titles
+    dd boot_progress_user_dispatch-boot_progress_titles
 boot_progress_irq_prepare: db "DONGOS S01 IRQ PREPARE",0
 boot_progress_irq_platform: db "DONGOS S02 IRQ PLATFORM",0
 boot_progress_threads_test: db "DONGOS S03 THREADS TEST",0
@@ -1828,6 +1837,15 @@ boot_progress_desktop_enable: db "DONGOS S11 DESKTOP ENABLE",0
 boot_progress_services_prepare: db "DONGOS S12 SERVICES PREPARE",0
 boot_progress_elf_ready: db "DONGOS S13 ELF READY",0
 boot_progress_cpl3_start: db "DONGOS S14 CPL3 START",0
+boot_progress_pci_discovery: db "DONGOS S15 PCI DISCOVERY",0
+boot_progress_user_domain: db "DONGOS S16 USER DOMAIN",0
+boot_progress_user_cpu_config: db "DONGOS S17 USER CPU CONFIG",0
+boot_progress_bsp_activate: db "DONGOS S18 BSP ACTIVATE",0
+boot_progress_user_domain_lock: db "DONGOS S19 USER DOMAIN LOCK",0
+boot_progress_user_services: db "DONGOS S20 USER SERVICES",0
+boot_progress_user_ap_start: db "DONGOS S21 USER AP START",0
+boot_progress_user_queues: db "DONGOS S22 USER QUEUES",0
+boot_progress_user_dispatch: db "DONGOS S23 USER DISPATCH",0
 boot_progress_unknown_title: db "DONGOS P7 BOOT STAGE",0
 boot_progress_failure_title: db "DONGOS BOOT FAILED",0
 boot_progress_subtitle: db "BSP BOOT PROGRESS",0

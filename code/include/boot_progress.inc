@@ -40,6 +40,14 @@ extern boot_progress_mmio
 %endif
 %endmacro
 
+; Timed AP handoff may advance the observation without drawing a framebuffer.
+; MOV preserves every GPR, flags and XMM, including a live return value.
+%macro HW_BOOT_MARK 1
+%if RUNTIME_LEVEL >= 7
+    mov byte [rel boot_progress_phase],%1
+%endif
+%endmacro
+
 %macro HW_BOOT_ERROR 0
 %if RUNTIME_LEVEL >= 7
     call boot_progress_record_error

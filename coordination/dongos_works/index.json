@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-25T16:19:46+00:00",
+  "generated_at": "2026-10-26T11:25:13+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -12815,6 +12815,187 @@
       "legacy_hash": "f4bfc1c6220aa3cb79dbce8969cef6143d6cca6c569b95a688b126daef48a70c",
       "claim_from_status": "todo",
       "integration_note": "8项实现/测试/交付已实际落到主code与正确works目录，与独立复验指纹相同，登记集成，不执行Git提交推送。"
+    },
+    {
+      "id": "codex:P8USERDIAG1",
+      "number": "P8USERDIAG1",
+      "owner": "codex",
+      "title": "S14后BSP用户态准备分段及真实失败显示",
+      "description": "用户真机Intel8CPU停S14 CPL3 START/FIRST ERROR0超过2分钟；用户最新明确修改，上一轮10分钟只读限制已结束。当前services_run在user_smp_boot_begin前HW_BOOT_DISABLE，prepare PCI/arena/context错误不可见，publish失败直接user_smp_fail吞原返回码。添加S15PCI/S16USERDOMAIN/S17CPUCONFIG/S18BSPACTIVATE/S19DOMAINLOCK/S20SERVICES/S21APSTART/S22QUEUES/S23DISPATCH，保留旧1..14。prepare中安全段可画；publish开始在until创建前画S19，之后所有正常阶段仅mark不draw，成功在ud.unlock前store-only retire view；legacy仍user_run前disable。BSP专用publish失败先记录原RAX并画一次再原user_smp_fail，保留metrics/停机；不改通用AP/IRQ故障入口。GPR flags DF XMM及SysV栈/Gate四qword/几何/首次error64/源稳定保留。纯诊断及失败传播修复，不把scratchpad/BIOShandoff/PCI Runtime门禁等未证根因盲改，不改安全限制/deadline/EFI/USB-only/allocator。native原宏helpers renderer全阶段像素与mark-only/retire门测试、hook时序及错误传播独立检查，实际坏体正常oracle拒绝，独立0skip。root正常USB-only两boot完整HID/FS/CPU强gate，以及私有真实PCI preflight失败S15错误原值/像素的实际VM取证；候选不发布。正常版本通过才备份更新原SanDisk H+fsync/readback/readonlyFAT。只修诊断盲区，真实Intel最终卡点需要下一次反馈，不能宣称桌面修好。沿原用户授权代码/记录推GitHub，公开JSON去claim_token保持本机状态不变。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "include/boot_progress.inc",
+        "kernel/boot_progress.asm",
+        "kernel/entry.asm",
+        "kernel/services_run.asm",
+        "kernel/sched/user_boot.asm",
+        "kernel/sched/user_boot.dg",
+        "tests/test_boot_progress.py",
+        "tests/boot_progress_probe.c",
+        "docs/hardware-user-startup.md",
+        "codex-works/deliveries/P8USERDIAG1.md"
+      ],
+      "depends_on": [
+        "codex:P8TIMER1"
+      ],
+      "checks": [
+        "module:tests.test_boot_progress",
+        "module:tests.test_framebuffer_gate",
+        "module:tests.test_user_smp_integration",
+        "module:tests.test_user_smp_normal_activation"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-26T11:06:25+00:00",
+      "updated_at": "2026-10-26T11:25:12+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USERDIAG1-board.md",
+      "delivery": "codex-works/deliveries/P8USERDIAG1.md",
+      "claimed_at": "2026-10-26T11:06:26+00:00",
+      "completed_at": "2026-10-26T11:17:47+00:00",
+      "claimed_by": "codex-mcp-918a30d10dd649bf",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_boot_progress",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 18.203
+          },
+          {
+            "spec": "module:tests.test_framebuffer_gate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 17.437
+          },
+          {
+            "spec": "module:tests.test_user_smp_integration",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 12.172
+          },
+          {
+            "spec": "module:tests.test_user_smp_normal_activation",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 6.672
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "include/boot_progress.inc": "bfb8757987df7e37351bda958a078e668436f3c3fa6078d876c51e16edb8bd53",
+          "kernel/boot_progress.asm": "1a37065d23968c600c2da386d7e8c1af5a3b99913728db304bf9e1bff5150348",
+          "kernel/entry.asm": "4ce80077b047549446915d08df02df04c78a23603e9c7616ff2f90a0c590ac94",
+          "kernel/services_run.asm": "3ba642fd0ef0f8de2639182bd6c28ec6aded9a7acb57e2f1ac06673454068af7",
+          "kernel/sched/user_boot.asm": "1e930f98512b368143fb5f6cd8a6b7d7009a5e2b3fff0123264384ba8faf276c",
+          "kernel/sched/user_boot.dg": "ffa26c35ffb8507eeff9890f6dac143fc1590942e688128ea6910e59305717fd",
+          "tests/test_boot_progress.py": "aaad4c1cccd5e655ceec666d366e81d21122edbbbd1870e6fe51e6eae6070a63",
+          "tests/boot_progress_probe.c": "635aa8e1af264b8425937e2e2b5be847bb61373a516c78d5be8f74061103beb9",
+          "docs/hardware-user-startup.md": "5f42adb0f1d29bc7e87cbaacad8d2c47ebb79662e5ae4b1af88e87927f445c6f",
+          "codex-works/deliveries/P8USERDIAG1.md": "37eb047d6edf19af71b1500d3012a62fba4c695531e389f11201c76f17d69f30"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-26T11:19:15+00:00",
+        "job": "4550eb16bebf48169445f5b100109046"
+      },
+      "review_note": "已实际审查10授权文件及BSP/AP所有权/计时时序。保留原1..14，新增15..19只在BSP安全准备段绘图；DG19在until创建前，20..23仅HW_BOOT_MARK/store，retire在unlock前，legacy关闭点不变，AP/IRQ通用入口不改。BSP专用publish返回错误先原64bit RAX HW_BOOT_ERROR再原fail-stop，完整ABI helper沿用Gate四qword/几何保护，未改安全门/xHCI/PCI Runtime/deadline。NASM7次ELFCOFF runtime0通过；native原宏/renderer/实际stage mark retire包装O0O2各236场景3706检查、全GPR flags DF XMM/SysV对齐/guard/Gate及7真实坏体×2被oracle正常拒绝，4实际hook坏体拒绝；首负例缺锚点异常已明确断言且失败历史保留。P8USERTEST1仅修旧路由测试与冻结source合同，已独立3项验收集成rev6，未放宽生产。正式job4550eb16bebf48169445f5b100109046 四模块6测试0skip/source稳定/所有进程退出，10指纹一致。root实际normal USB-only runtime7构建source稳定、live-full两次完整GUI/HID/F12pwd/文件write append rm cat syncFLUSH/全部CPU及代码/页表/pool强gate PASS；两boot phase23 failed0 error0 view0 ctx88零，完整USB SHA均f0ed9c703c72f8b91c200b9f0ae969fe9a74b633db26986a394852bade2e5785。root8CPU preflight-proof实际VM PASS：只私有真实user.device_host.preflight_discovery入口6字节mov eax,真实Denied050a0002;ret；其余ELF/materialized全部不变，真实directcall/site/所有阶段代码均未改，无早期guard变更；完整EFI重放两个manifest消费者hash绑定/服务bundle原样。实际先完成IRQ/threads/SMP/ELF原markers，再S15 failed1/error050a0002/view有效/cpu8/context零，服务串口原错误码一致，全kernel executablebytes及实际屏幕每glyph像素验证通过，未放行用户服务。三VM均停、normal objects/受控USB/三可写内盘全SHA不变。纯诊断盲区修复已证，Intel真实停滞根因未证且不能宣称桌面修好；view退休后的unlock故障/activate内部直接fatal/后续用户态仍不保证新屏显，不unsafe恢复。可发布正常成品到已确认原SanDisk H，须备份fsync/readback/FAT审计。",
+      "legacy_hash": "42e04d29f4907610e5f34037c7de567433dc5fc4c6f81244d4857845bf5e97de",
+      "claim_from_status": "todo",
+      "integration_note": "10授权文件已在主code/与coordination交付目录真实集成，正式job4550eb16bebf48169445f5b100109046指纹一致，四模块6测试0skip/source稳定/进程退出；路由测试维护P8USERTEST1已独立3项验收并集成rev6。实际正常USB-only两boot完整HID/FS/CPU强gate及8CPU私有S15真实PCI preflight Denied050a0002错误/像素/全codebytes取证均通过，细节见accept；三个VM全停。原SanDisk H disk2序列4C530000010320109015 USB7798784000B/非systemboot/单FAT32 offset131072前后身份不变，旧四SHA核对一致。完整备份code/build/hardware/usb-user-diag-20261026-r1/usb-publish/before；仅正常非故障候选成品+说明已flush/fsync并全SHA读回：EFI6a09f9d1ca037ee62ba7f8c3870ee7d58f83f77c0143003f2b2d29d566e19b1f；IMG6a3acb39fd30744a7a98527a800076880c02dfca9f8f2563f2a94e9efc5a91e4；SERVICES3198b7b4f312b9b9ab9b06822eb616426422d8e8d1f5f3faf68c7aa4f5f5f185。receipt绑定manifest/normal两boot/preflight失败proof/四readback。原卷native rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，不修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk改动。已证本次诊断盲区修复，不宣称真实Intel桌面停滞根因修好；需要用户拍新阶段/原error反馈，退休后unlock/activate内部fatal/用户态仍有已说明边界。继续沿用户既有授权提交推GitHub，公开JSON去claim_token保留本机权威原件。"
+    },
+    {
+      "id": "codex:P8USERTEST1",
+      "number": "P8USERTEST1",
+      "owner": "codex",
+      "title": "用户态SMP路由测试适配已生效内核源码快照",
+      "description": "P8USERDIAG1必要复验发现现存tests.test_user_smp_integration路由断言过期：runtime6/7实际builder早已使用kernel-profile-src/smp_probe.dg完整冻结快照，而测试仍硬编码原kernel/smp_probe.dg路径，报单项失败；实际全图编译/ELFCOFF和其它两项已经通过。仅适配测试断言：核真实入口等于output/kernel-profile-src/smp_probe.dg，字节与当前源一致；对生成完整kernel_storage_profile使用已有verify_profile核全图/sha/0静态表合同；保留真实程序集链接/normalselector/no kernel.elf/builtfalse等原断言。属于用户授权修复的必需测试维护，不改生产builder/内核/期限，不删测试。独立tests.test_user_smp_integration零skip/source稳定、实际源审查后验收集成。旧失败logs保留。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/test_user_smp_integration.py",
+        "codex-works/deliveries/P8USERTEST1.md"
+      ],
+      "depends_on": [
+        "codex:P8TIMER1"
+      ],
+      "checks": [
+        "module:tests.test_user_smp_integration"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-26T11:14:48+00:00",
+      "updated_at": "2026-10-26T11:20:05+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8USERTEST1-board.md",
+      "delivery": "codex-works/deliveries/P8USERTEST1.md",
+      "claimed_at": "2026-10-26T11:14:49+00:00",
+      "completed_at": "2026-10-26T11:17:46+00:00",
+      "claimed_by": "codex-mcp-918a30d10dd649bf",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_user_smp_integration",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.109
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/test_user_smp_integration.py": "36c43931f6858628cce9cd7e94e7fd2e973dd3e16a8fff5318687383a61cb1b3",
+          "codex-works/deliveries/P8USERTEST1.md": "c03c12012da11b8964b5fa3a6bb423add9db9f4ac670a3e9bc08c5853dc8a830"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-26T11:18:10+00:00",
+        "job": "6fcc5634de4d451ca0c96164bca1963d"
+      },
+      "review_note": "已实际审查单测试变更：旧断言原ROOT/kernel/smp_probe.dg与已生效storage_profile完整冻结源路由不符；改为精确output/kernel-profile-src/smp_probe.dg及当前源逐字节相等，核kernel DG source_before/after一致，并调用现有verify_profile校验全部生成源集合/hash及0静态表合同，原normal selector/链接object/未build/无ELF等断言均保留。无生产变更。最终native3项PASS；独立job6fcc5634de4d451ca0c96164bca1963d 3项0skip/source稳定/进程全退出，测试指纹36c43931f6858628cce9cd7e94e7fd2e973dd3e16a8fff5318687383a61cb1b3一致。两轮旧路径/缺source_boundary失败记录真实保留，未重标。",
+      "legacy_hash": "f4affc243c2c5d144f54a48ae25db319901b75ca951ccba97899857b38537334",
+      "claim_from_status": "todo",
+      "integration_note": "tests/test_user_smp_integration.py及本交付已在主目录真实集成，指纹与独立3项0skip/source稳定复验一致。仅维护真实冻结源码路由断言，无生产代码/VM行为修改，旧失败保留。"
     },
     {
       "assignment_owner": "codex",

@@ -1,6 +1,7 @@
 bits 64
 default rel
 %include "user_entry.inc"
+%include "boot_progress.inc"
 extern dong_user_smp_boot_prepare,dong_user_smp_boot_publish,dong_user_smp_boot_report
 extern dong_user_entry_mapped,dong_user_entry_guard
 extern dong_parallel_live_report,parallel_live_rate,dong_user_smp_project
@@ -10,7 +11,23 @@ global user_smp_boot_begin,user_smp_try_handoff
 global user_entry_mapped,user_entry_guard
 global user_boot_live_report,user_boot_rate,user_boot_publish,user_boot_pause,user_boot_project
 global user_smp_handoff_headers,user_smp_handoff_count
+global user_boot_stage,user_boot_mark,user_boot_retire
 section .text
+; BSP-only SysV callbacks. Save one unchanged GPR to align the nested CALL;
+; the existing drawing helper preserves every register, flags/DF and XMM.
+user_boot_stage:
+%if RUNTIME_LEVEL >= 7
+    push rax
+    HW_BOOT_STAGE dil
+    pop rax
+%endif
+    ret
+user_boot_mark:
+    HW_BOOT_MARK dil
+    ret
+user_boot_retire:
+    HW_BOOT_DISABLE
+    ret
 user_entry_mapped: jmp dong_user_entry_mapped
 user_entry_guard: jmp dong_user_entry_guard
 user_boot_live_report: jmp dong_parallel_live_report
@@ -88,6 +105,7 @@ user_smp_boot_begin:
     call dong_user_smp_boot_prepare
     test eax,eax
     jnz .error
+    HW_BOOT_STAGE 18
     call dong_user_smp_boot_report
     mov rax,[rax+48]               ; checked Report.headers layout
     mov rdi,[rax]
@@ -96,8 +114,13 @@ user_smp_boot_begin:
     jnz .error
     call dong_user_smp_boot_publish
     test eax,eax
-    jnz user_smp_fail
+    jnz .publish_error
     jmp user_smp_idle
+.publish_error:
+    ; This BSP-only return precedes user admission/unlock on every failure.
+    ; Keep the real 64-bit return value before the unchanged fail-stop path.
+    HW_BOOT_ERROR
+    jmp user_smp_fail
 .error:
     add rsp,8
     ret

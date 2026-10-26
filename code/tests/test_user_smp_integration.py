@@ -43,11 +43,20 @@ class Tests(unittest.TestCase):
  def test_current_production_selector_and_architecture_routing(self):
   b=builder()
   for level in (6,7):
+   source_before={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'kernel').rglob('*.dg')}
    out=ROOT/'build/test/current-cpl3-routing'/('run-'+uuid.uuid4().hex[:12]);plan=b.production_plan(out,runtime_level=level,test=False)
    names={Path(a['source']).name:a for a in plan['assemblies']}
    for name in ('services_run','user_entry','user_arch','user_bridge_arch','user_legacy','user_boot'):
     record=names[name+'.asm'];self.assertEqual(int(level==7),record['defines']['P6_USER_SMP']);self.assertIn(record['output'],plan['commands'][-1])
-   self.assertIn(str(ROOT/'kernel/smp_probe.dg'),plan['commands'][0]);self.assertFalse(plan['built']);self.assertFalse((out/'kernel.elf').exists())
+   from tools import kernel_storage_profile as profile
+   entry=out/'kernel-profile-src/smp_probe.dg'
+   self.assertEqual(str(entry),plan['commands'][0][-1]);self.assertEqual((ROOT/'kernel/smp_probe.dg').read_bytes(),entry.read_bytes())
+   current={p.relative_to(ROOT/'kernel').as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'kernel').rglob('*.dg') if p.relative_to(ROOT/'kernel').as_posix()!='build/storage_profile.dg'}
+   expected=dict(source=profile.PROFILE_SOURCE,sha256=hashlib.sha256(profile.module_bytes(level)).hexdigest(),static_user_pools=0,runtime_level=level,default_static_user_pools=3,kernel_sources=current)
+   source_after={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'kernel').rglob('*.dg')}
+   self.assertEqual(source_before,source_after)
+   self.assertEqual(0,profile.verify_profile(out,dict(runtime_level=level,kernel_storage_profile=expected,source_sha256=source_after,source_unchanged=source_before==source_after),expected_runtime=level,source_root=ROOT))
+   self.assertFalse(plan['built']);self.assertFalse((out/'kernel.elf').exists())
  def test_workload_source_and_negative_object_routing(self):
   from tests import current_user_smp_workload as workload
   expected={7:78117,8:88219,9:99323,10:104729,11:115249}

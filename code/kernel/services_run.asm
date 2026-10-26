@@ -135,7 +135,6 @@ service_runtime_begin:
     test rax,rax
     jz .legacy_user
     HW_BOOT_STAGE 14
-    HW_BOOT_DISABLE
     call user_smp_boot_begin
     test eax,eax
     jnz .error

@@ -1,0 +1,63 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_user_smp_integration"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-26T11:14:49+00:00",
+  "claimed_by": "codex-mcp-918a30d10dd649bf",
+  "completed_at": "2026-10-26T11:17:46+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-26T11:14:48+00:00",
+  "delivery": "codex-works/deliveries/P8USERTEST1.md",
+  "depends_on": [
+    "codex:P8TIMER1"
+  ],
+  "description": "P8USERDIAG1必要复验发现现存tests.test_user_smp_integration路由断言过期：runtime6/7实际builder早已使用kernel-profile-src/smp_probe.dg完整冻结快照，而测试仍硬编码原kernel/smp_probe.dg路径，报单项失败；实际全图编译/ELFCOFF和其它两项已经通过。仅适配测试断言：核真实入口等于output/kernel-profile-src/smp_probe.dg，字节与当前源一致；对生成完整kernel_storage_profile使用已有verify_profile核全图/sha/0静态表合同；保留真实程序集链接/normalselector/no kernel.elf/builtfalse等原断言。属于用户授权修复的必需测试维护，不改生产builder/内核/期限，不删测试。独立tests.test_user_smp_integration零skip/source稳定、实际源审查后验收集成。旧失败logs保留。",
+  "document": "codex-works/tasks/P8USERTEST1-board.md",
+  "historical": false,
+  "id": "codex:P8USERTEST1",
+  "integration_note": "tests/test_user_smp_integration.py及本交付已在主目录真实集成，指纹与独立3项0skip/source稳定复验一致。仅维护真实冻结源码路由断言，无生产代码/VM行为修改，旧失败保留。",
+  "legacy_hash": "f4affc243c2c5d144f54a48ae25db319901b75ca951ccba97899857b38537334",
+  "number": "P8USERTEST1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查单测试变更：旧断言原ROOT/kernel/smp_probe.dg与已生效storage_profile完整冻结源路由不符；改为精确output/kernel-profile-src/smp_probe.dg及当前源逐字节相等，核kernel DG source_before/after一致，并调用现有verify_profile校验全部生成源集合/hash及0静态表合同，原normal selector/链接object/未build/无ELF等断言均保留。无生产变更。最终native3项PASS；独立job6fcc5634de4d451ca0c96164bca1963d 3项0skip/source稳定/进程全退出，测试指纹36c43931f6858628cce9cd7e94e7fd2e973dd3e16a8fff5318687383a61cb1b3一致。两轮旧路径/缺source_boundary失败记录真实保留，未重标。",
+  "status": "integrated",
+  "title": "用户态SMP路由测试适配已生效内核源码快照",
+  "updated_at": "2026-10-26T11:20:05+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 9.109,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_smp_integration",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8USERTEST1.md": "c03c12012da11b8964b5fa3a6bb423add9db9f4ac670a3e9bc08c5853dc8a830",
+      "tests/test_user_smp_integration.py": "36c43931f6858628cce9cd7e94e7fd2e973dd3e16a8fff5318687383a61cb1b3"
+    },
+    "finished_at": "2026-10-26T11:18:10+00:00",
+    "job": "6fcc5634de4d451ca0c96164bca1963d",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/test_user_smp_integration.py",
+    "codex-works/deliveries/P8USERTEST1.md"
+  ]
+}

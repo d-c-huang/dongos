@@ -96,15 +96,18 @@ def native_bridge():
     out=['bits 64','default rel','%define RUNTIME_LEVEL 7','%define HW_BOOT_PROGRESS_OWNER 1',
          '%include "cpu.inc"','%include "runtime_display.inc"','%include "runtime_view.inc"',
          '%include "boot_progress.inc"','extern panic_saved_frames,panic_saved_frame_count',
-         '%include "production.inc"','section .text','%include "helper.asm"','section .text',
+         '%include "production.inc"','section .text','%include "helper.asm"','%include "user_boot_hooks.inc"','section .text',
          'global probe_invoke,probe_gate']
     # Only instrument the renderer entry's stack alignment. Its production
     # instructions remain a verbatim body under a private label.
     out+=['screen_draw:','pushfq','push rax','lea rax,[rsp+16]','and eax,15','cmp eax,8',
           'je .aligned','mov qword [rel probe_bad_align],1','.aligned:','pop rax','popfq','jmp production_screen_draw',
           'probe_gate:','lea rax,[rel framebuffer_gate]','ret']
-    for phase in range(1,15):out+=[f'probe_stage_{phase}:',f'HW_BOOT_STAGE {phase}','ret']
-    out+=['probe_error:','HW_BOOT_ERROR','ret','probe_disable:','HW_BOOT_DISABLE','ret','probe_invoke:',
+    for phase in range(1,24):out+=[f'probe_stage_{phase}:',f'HW_BOOT_STAGE {phase}','ret']
+    out+=['probe_error:','HW_BOOT_ERROR','ret','probe_disable:','HW_BOOT_DISABLE','ret']
+    for phase in range(20,24):out+=[f'probe_mark_{phase}:',f'HW_BOOT_MARK {phase}','ret']
+    out+=['probe_user_stage:','push rdi','mov edi,18','call user_boot_stage','pop rdi','ret',
+          'probe_user_mark:','push rdi','mov edi,23','call user_boot_mark','pop rdi','ret','probe_invoke:',
           'pushfq']+['push '+r for r in REGISTERS]
     # Before CALL the stack is aligned. Save caller XMMs and use distinct
     # snapshots to inspect every GPR before the checker clobbers any of them.
@@ -134,29 +137,65 @@ def native_bridge():
     # Saved caller RAX is the last pop; substitute the explicit oracle result.
     out+=['mov [rsp+664],r10','add rsp,552']+['pop '+r for r in reversed(REGISTERS)]
     out+=['popfq','ret','section .data','align 8','probe_bad_align:dq 0','probe_targets:dq boot_progress_draw']
-    out+=['dq probe_stage_'+str(i) for i in range(1,15)]
-    out+=['dq probe_error,probe_disable','section .rodata','align 16',
+    out+=['dq probe_stage_'+str(i) for i in range(1,24)]
+    out+=['dq probe_error,probe_disable']
+    out+=['dq probe_mark_'+str(i) for i in range(20,24)]
+    out+=['dq probe_user_stage,probe_user_mark,user_boot_retire','section .rodata','align 16',
           'probe_xmm_canary:dq 0x0123456789abcdef,0xfedcba9876543210',
           '%ifidn __OUTPUT_FORMAT__,elf64','section .note.GNU-stack noalloc noexec nowrite','%endif']
     return '\n'.join(out)+'\n'
 
 
-def ordered_hooks():
-    entry=(ROOT/'kernel/entry.asm').read_text(encoding='utf-8');runtime=(ROOT/'kernel/runtime.asm').read_text(encoding='utf-8')
-    smp=(ROOT/'kernel/smp_runtime.asm').read_text(encoding='utf-8');services=(ROOT/'kernel/services_run.asm').read_text(encoding='utf-8')
+def ordered_hooks(overrides=None):
+    files={'entry':'kernel/entry.asm','runtime':'kernel/runtime.asm','smp':'kernel/smp_runtime.asm',
+           'services':'kernel/services_run.asm','boot':'kernel/sched/user_boot.asm','dg':'kernel/sched/user_boot.dg'}
+    contents={name:(ROOT/path).read_text(encoding='utf-8') for name,path in files.items()}
+    contents.update(overrides or {})
+    entry,runtime,smp,services,boot,dg=(contents[n] for n in ('entry','runtime','smp','services','boot','dg'))
     arm=runtime.index('call dong_platform_arm');stop=runtime.index('call platform_timer_stop',arm)
     if re.search(r'HW_BOOT_STAGE',runtime[arm:stop]):raise AssertionError('rendering entered active scheduler timer interval')
     prepared=runtime.index('HW_BOOT_STAGE 2')
     if not(runtime.rfind('mov rdi, rax',0,prepared)<prepared<runtime.index('call dong_platform_init',prepared)):
         raise AssertionError('platform parameters/checkpoint ordering')
-    for transition in ('call user_smp_boot_begin','call user_run'):
-        at=services.index(transition);prefix=services[:at].rsplit('HW_BOOT_STAGE 14',1)
-        if len(prefix)!=2 or not re.fullmatch(r'\s*HW_BOOT_DISABLE\s*',prefix[1]):
-            raise AssertionError('first CPL3 transition must follow final stage and disable')
+    at=services.index('call user_smp_boot_begin');prefix=services[:at].rsplit('HW_BOOT_STAGE 14',1)
+    if len(prefix)!=2 or not re.fullmatch(r'\s*',prefix[1]):
+        raise AssertionError('SMP preparation retired observation before preflight')
+    at=services.index('call user_run');prefix=services[:at].rsplit('HW_BOOT_STAGE 14',1)
+    if len(prefix)!=2 or not re.fullmatch(r'\s*HW_BOOT_DISABLE\s*',prefix[1]):
+        raise AssertionError('legacy CPL3 transition must disable final diagnostic')
+    if not (dg.index('user_boot_stage(15);')<dg.index('try device_host.preflight_discovery();')
+            <dg.index('user_boot_stage(16);')<dg.index('var meta=resources.Block')):
+        raise AssertionError('PCI/domain checkpoints do not bracket actual work')
+    if not(dg.index('user_boot_stage(17);')<dg.index('id=0;while id<count')):
+        raise AssertionError('CPU checkpoint follows actual CPU preparation')
+    begin=boot.index('user_smp_boot_begin:');publication=boot.index('call dong_user_smp_boot_publish',begin)
+    prepare=boot.index('call dong_user_smp_boot_prepare',begin);activate=boot.index('call user_smp_activate',begin)
+    if not(prepare<boot.index('HW_BOOT_STAGE 18',begin)<activate<publication):
+        raise AssertionError('BSP activation checkpoint ordering')
+    if re.search(r'HW_BOOT_(?:STAGE|MARK|ERROR|DISABLE)',boot[boot.index('user_smp_try_handoff:'):begin]):
+        raise AssertionError('AP handoff unexpectedly draws or retires BSP diagnostics')
+    error=boot[boot.index('.publish_error:',publication):boot.index('.error:',publication)]
+    if not re.fullmatch(r'\s*(?:;[^\n]*\n\s*)*HW_BOOT_ERROR\s+jmp user_smp_fail\s*',error.split(':',1)[1]):
+        raise AssertionError('BSP publish failure must preserve original RAX before existing fail-stop')
+    if not re.search(r'call dong_user_smp_boot_publish\s+test eax,eax\s+jnz \.publish_error',boot[publication:]):
+        raise AssertionError('BSP publish error route bypasses actual error recorder')
+    publish=dg[dg.index('fn publish()'):dg.index('unsafe extern "sysv64" fn user_boot_project')]
+    until=publish.index('let until=arch.read_tsc()')
+    if publish.index('user_boot_stage(19);')>=until or re.search(r'user_boot_stage\s*\(',publish[until:]):
+        raise AssertionError('timed AP/domain publication contains framebuffer drawing')
+    ordered=('user_boot_mark(20);','services.enable_smp()','user_boot_mark(21);','if user_boot_publish(',
+             'user_boot_mark(22);','let projected=user_boot_project();','user_boot_mark(23);','user_boot_retire();','ud.unlock(d,0)')
+    if any(value not in publish for value in ordered):
+        raise AssertionError('required store-only publication checkpoint/retirement is absent')
+    positions=[publish.index(value) for value in ordered]
+    if positions!=sorted(positions) or publish.count('user_boot_retire();')!=1:
+        raise AssertionError('store-only publication phases/retirement must precede user unlock')
     if smp.index('HW_BOOT_STAGE 6')>smp.index('call dong_smp_begin'):raise AssertionError('SMP START too late')
     if entry.index('call screen_draw')>entry.index('mov [rel boot_progress_view],r12'):
         raise AssertionError('view armed before first validated renderer')
-    return dict(timer_interval_has_no_checkpoint=True,first_cpl3_final_stage_then_disable=True,
+    return dict(timer_interval_has_no_checkpoint=True,legacy_cpl3_final_stage_then_disable=True,
+                smp_prepare_observation_retained=True,ap_deadline_updates_are_store_only=True,
+                user_dispatch_retires_before_unlock=True,bsp_publish_preserves_original_error=True,
                 fresh_view_after_first_validated_draw=True,source_census=source_census(entry))
 
 
@@ -179,6 +218,20 @@ class BootProgressTests(unittest.TestCase):
             self.assertEqual(expected,r.returncode,r.stdout+r.stderr);return r
         try:
             save(state/'hook-order.json',ordered_hooks())
+            services=(ROOT/'kernel/services_run.asm').read_text(encoding='utf-8')
+            dg=(ROOT/'kernel/sched/user_boot.dg').read_text(encoding='utf-8')
+            boot=(ROOT/'kernel/sched/user_boot.asm').read_text(encoding='utf-8')
+            bad_hooks={
+                'old-early-retire':{'services':services.replace('HW_BOOT_STAGE 14\n    call user_smp_boot_begin','HW_BOOT_STAGE 14\n    HW_BOOT_DISABLE\n    call user_smp_boot_begin',1)},
+                'draw-inside-ap-deadline':{'dg':dg.replace('user_boot_mark(21);','user_boot_stage(21);',1)},
+                'omit-before-unlock-retire':{'dg':dg.replace('user_boot_retire();','',1)},
+                'discard-publish-error':{'boot':boot.replace('    HW_BOOT_ERROR\n    jmp user_smp_fail','    jmp user_smp_fail',1)},
+            }
+            hook_rejections=[]
+            for name,override in bad_hooks.items():
+                with self.assertRaises(AssertionError):ordered_hooks(override)
+                hook_rejections.append(name)
+            save(state/'hook-bad-sources.json',dict(rejected=hook_rejections))
             compiled=compile_file(ROOT/'kernel/memory_probe.dg',roots=[ROOT/'kernel',ROOT/'lang/std',ROOT/'lang/examples'],mode='debug')
             layout=compiled.layout_manifest;save(state/'layout.json',layout)
             view=next(t for t in layout['types'] if t['full_name']=='boot.runtime_view.View')
@@ -211,21 +264,29 @@ class BootProgressTests(unittest.TestCase):
             native=production_include(entry)+'\nsection .bss\n'+fragment(entry,'BOOT_PROGRESS_STORAGE')
             self.assertEqual(native.count('\nscreen_draw:'),1)
             native=native.replace('\nscreen_draw:','\nproduction_screen_draw:',1)
-            variants={'production':(header,helper,native)}
+            boot=(ROOT/'kernel/sched/user_boot.asm').read_text(encoding='utf-8')
+            hooks=boot[boot.index('user_boot_stage:'):boot.index('user_entry_mapped:')]
+            self.assertIn('HW_BOOT_MARK dil',hooks);self.assertIn('HW_BOOT_DISABLE',hooks)
+            variants={'production':(header,helper,native,hooks)}
             trunc='mov [rel boot_progress_error],rax';disable='mov qword [rel boot_progress_view],0'
             self.assertEqual(helper.count(trunc),1);self.assertEqual(header.count(disable),1)
-            variants['truncate-first-error']=(header,helper.replace(trunc,'mov [rel boot_progress_error],eax',1),native)
-            variants['omit-disable']=(header.replace(disable,'; actual bad source does not retire boot framebuffer access',1),helper,native)
+            variants['truncate-first-error']=(header,helper.replace(trunc,'mov [rel boot_progress_error],eax',1),native,hooks)
+            variants['omit-disable']=(header.replace(disable,'; actual bad source does not retire boot framebuffer access',1),helper,native,hooks)
             wrong_offset='BOOT_MMIO_LINE boot_progress_kind_label,260,[rel boot_progress_mmio + BootProgressMmio.kind]'
             truncate_values='    mov rax,%3\n'
             truncate_valid='cmp qword [rel boot_progress_mmio + BootProgressMmio.valid],1'
             for needle in (wrong_offset,truncate_values,truncate_valid):self.assertEqual(1,native.count(needle))
-            variants['mmio-wrong-kind-offset']=(header,helper,native.replace(wrong_offset,wrong_offset.replace('BootProgressMmio.kind','BootProgressMmio.base'),1))
-            variants['mmio-truncate-values']=(header,helper,native.replace(truncate_values,'    mov eax,%3\n',1))
-            variants['mmio-truncate-valid']=(header,helper,native.replace(truncate_valid,truncate_valid.replace('qword','dword'),1))
-            for name,(selected_header,selected_helper,selected_native) in variants.items():
+            variants['mmio-wrong-kind-offset']=(header,helper,native.replace(wrong_offset,wrong_offset.replace('BootProgressMmio.kind','BootProgressMmio.base'),1),hooks)
+            variants['mmio-truncate-values']=(header,helper,native.replace(truncate_values,'    mov eax,%3\n',1),hooks)
+            variants['mmio-truncate-valid']=(header,helper,native.replace(truncate_valid,truncate_valid.replace('qword','dword'),1),hooks)
+            mark=re.search(r'%macro HW_BOOT_MARK 1\n.*?%endmacro',header,re.S)
+            self.assertIsNotNone(mark)
+            marked_draw=header[:mark.start()]+'%macro HW_BOOT_MARK 1\n    HW_BOOT_STAGE %1\n%endmacro'+header[mark.end():]
+            variants['mark-draws-in-timed-window']=(marked_draw,helper,native,hooks)
+            variants['omit-retire-wrapper']=(header,helper,native,hooks.replace('    HW_BOOT_DISABLE','    ; actual bad wrapper skips retirement',1))
+            for name,(selected_header,selected_helper,selected_native,selected_hooks) in variants.items():
                 d=state/name;d.mkdir();(d/'production.inc').write_text(selected_native,encoding='utf-8')
-                (d/'boot_progress.inc').write_text(selected_header,encoding='utf-8');(d/'helper.asm').write_text(selected_helper,encoding='utf-8')
+                (d/'boot_progress.inc').write_text(selected_header,encoding='utf-8');(d/'helper.asm').write_text(selected_helper,encoding='utf-8');(d/'user_boot_hooks.inc').write_text(selected_hooks,encoding='utf-8')
                 asm=d/'probe.asm';asm.write_text(native_bridge(),encoding='ascii');objects={}
                 for fmt in ('elf64','win64'):
                     obj=d/(fmt+'.o');run([nasm,*nasm_flags(nasm),'-f',fmt,'-I',str(d)+os.sep,
@@ -248,7 +309,7 @@ class BootProgressTests(unittest.TestCase):
         finally:
             save(state/'source-after.json',fingerprint());save(state/'commands.json',commands)
             save(state/'result.json',dict(source_stable=before==fingerprint(),results=results,actual_renderer_and_helper=True,
-                 real_macros_executed=True,assembled_formats=['elf64','win64'],vm_executed=False,physical_devices_accessed=False))
+                 real_macros_executed=True,actual_user_boot_callbacks_executed=True,mark_only_and_retirement_verified=True,assembled_formats=['elf64','win64'],vm_executed=False,physical_devices_accessed=False))
         print('BOOT_PROGRESS_EVIDENCE '+str(state))
 
 

@@ -23,6 +23,11 @@ unsafe extern "sysv64" fn user_boot_live_report()*const live.Report;
 unsafe extern "sysv64" fn user_boot_rate(lapic:u64,frequency:u64)u64;
 unsafe extern "sysv64" fn user_boot_publish(headers:u64,count:u64)u64;
 unsafe extern "sysv64" fn user_boot_pause()void;
+// Only BSP preparation may draw. Publication marks RAM without drawing, then
+// retires the immutable view before unlock can admit any userspace writer.
+unsafe extern "sysv64" fn user_boot_stage(phase:u64)void;
+unsafe extern "sysv64" fn user_boot_mark(phase:u64)void;
+unsafe extern "sysv64" fn user_boot_retire()void;
 unsafe fn guard(address:u64)!void{unsafe{
  var retired=paging.EMPTY_RETIRED;try paging.unmap_live(startup.space_pointer(),address,&retired);
  runtime.runtime_flush_root();try paging.reclaim(startup.space_pointer(),&retired);
@@ -47,7 +52,9 @@ unsafe fn prepare()!void{unsafe{
  // Full PCI discovery must not occupy the BKL while activated APs wait for
  // it. The original online readers still ACK the real per-page TLB barriers.
  // A failed preflight propagates before any new INFO/domain/bridge exists.
+ user_boot_stage(15);
  try device_host.preflight_discovery();
+ user_boot_stage(16);
  var meta=resources.Block{physical:0,virtual:0,pages:0};try resources.allocate(1,1,&meta);INFO=meta.virtual as *Report;
  (*INFO).ready=0;(*INFO).failed=0;(*INFO).published=0;(*INFO).count=count as u64;(*INFO).online=(1<<count as u64)-1;
  (*INFO).headers=meta.virtual+256;(*INFO).contexts=contexts as u64;(*INFO).tsc_hz=platform.tsc_hz;
@@ -55,6 +62,7 @@ unsafe fn prepare()!void{unsafe{
  var arena=meta;try resources.allocate(((ud.required_bytes()+4095)/4096) as usize,1,&arena);
  var d:*ud.Domain=null;try ud.initialize(arena.virtual,arena.pages as u64*4096,(*INFO).online,(*INFO).root,&d);(*INFO).domain=d as u64;
  var b=meta;try resources.allocate(1,1,&b);try bridge.initialize(b.virtual,4096,d,(*INFO).headers as *u64);
+ user_boot_stage(17);
  id=0;while id<count{
   let context=contexts+id;if (*context).self!=context as u64||(*context).logical_id!=id as u64||(*context).state!=sc.ONLINE{return error.Invalid;}
   var storage=meta;try resources.allocate(2,1,&storage);
@@ -71,16 +79,21 @@ pub export("dong_user_smp_boot_prepare") fn build()u64{unsafe{
 // Called after BSP activation installs its Header GS but before AP publication.
 pub export("dong_user_smp_boot_publish") fn publish()u64{unsafe{
  if INFO==null||(*INFO).ready!=1||(*INFO).failed!=0||(*INFO).published!=0{return 0x060b_0020;}
+ user_boot_stage(19);
  let d=(*INFO).domain as *ud.Domain;let until=arch.read_tsc()+(*INFO).tsc_hz*2;
  let acquired=ud.acquire(d,0,until);match acquired{ok=>{},err(e)=>{return e;},}
+ user_boot_mark(20);
  let enabled=services.enable_smp();match enabled{ok=>{},err(e)=>{return e;},}
  // No user is admitted until all AP GDT/TSS/MSR installations are complete.
+ user_boot_mark(21);
  if user_boot_publish((*INFO).headers,(*INFO).count)!=0{(*INFO).failed=0x060b_0021;return 0x060b_0021;}(*INFO).published=1;
  var id:usize=1;while id<(*INFO).count as usize{
   let h=(*((*INFO).headers as *u64+id)) as *ep.Cpu;
   while atomic_load(&(*h).ready)!=2{if arch.read_tsc()>=until{(*INFO).failed=0x060b_0021;return 0x060b_0021;}user_boot_pause();}id+=1;
  }
+ user_boot_mark(22);
  let projected=user_boot_project();if projected!=0{(*INFO).failed=projected;return projected;}
+ user_boot_mark(23);user_boot_retire();
  let unlocked=ud.unlock(d,0);match unlocked{ok=>{},err(e)=>{return e;},}return 0;
 }}
 unsafe extern "sysv64" fn user_boot_project()u64;
