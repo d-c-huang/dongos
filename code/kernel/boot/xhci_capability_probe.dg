@@ -1,0 +1,153 @@
+// Isolated capability observation. Every controller read is a 32-bit read
+// through the private first-page UC/NX guard. No ownership or enable writes.
+module boot.xhci_capability_probe;
+import boot.usb_preflight as inventory;
+import user.devices as devices;
+
+pub error Invalid=0x0b02_0001;
+const MAX:u64=0xffff_ffff_ffff_ffff;
+pub struct Report {
+ pub version:u64,pub done:u64,pub error_code:u64,pub flags:u64,
+ pub bar_physical:u64,pub pci_command:u64,pub cap0:u64,pub hcs1:u64,pub hcs2:u64,
+ pub hcc1:u64,pub db_off:u64,pub rt_off:u64,pub hcc2:u64,pub operational:u64,
+ pub pagesize:u64,pub usbcmd:u64,pub usbsts:u64,pub extended_first:u64,pub extended_count:u64,
+ pub legacy_offset:u64,pub legacy_support:u64,pub legacy_control:u64,
+ pub protocols2:u64,pub protocols3:u64,pub unsupported_first:u64,
+ pub scratchpads:u64,pub context_bytes:u64,pub ac64:u64,pub reject_mask:u64,
+ pub inventory_error:u64,pub read_count:u64,pub reserved:u64,
+}
+pub const EMPTY:Report=Report {version:0,done:0,error_code:0,flags:0,
+ bar_physical:0,pci_command:0,cap0:0,hcs1:0,hcs2:0,hcc1:0,db_off:0,rt_off:0,hcc2:0,
+ operational:0,pagesize:0,usbcmd:0,usbsts:0,extended_first:0,extended_count:0,
+ legacy_offset:0,legacy_support:0,legacy_control:0,protocols2:0,protocols3:0,unsupported_first:0,
+ scratchpads:0,context_bytes:0,ac64:0,reject_mask:0,inventory_error:0,read_count:0,reserved:0};
+var STATE:Report=EMPTY;
+
+unsafe fn read(offset:u64)!u64 {unsafe{
+ if (offset&3)!=0||offset>4092{return error.Invalid;}
+ let result=devices.usb_capability_read32(STATE.bar_physical,offset);
+ match result{
+  ok(value)=>{STATE.read_count+=1;STATE.flags|=4;},
+  err(e)=>{STATE.flags|=2048;},
+ }
+ return (try result) as u64;
+}}
+fn overlap(a:u64,bytes:u64,b:u64,other:u64)bool{return a<b+other&&b<a+bytes;}
+
+// Only predicates observable from these snapshots are reported. The BAR's
+// total size, DMA addresses and the future stopped/run state are not guessed.
+unsafe fn features()void {unsafe{
+ let version=STATE.cap0>>16;let op=STATE.cap0&255;
+ if (version!=0x100&&version!=0x110&&version!=0x120)||(STATE.cap0&0xff00)!=0
+  ||op<32||(op&3)!=0{STATE.reject_mask|=1;}
+ let ports=STATE.hcs1>>24;let interrupts=(STATE.hcs1>>8)&2047;let slots=STATE.hcs1&255;
+ if slots==0||ports==0||ports>32||interrupts==0||interrupts>1024||(STATE.hcs1&0x00f8_0000)!=0{
+  STATE.reject_mask|=2;
+ }
+ let operational_bytes=0x400+ports*16;let runtime_bytes=0x20+interrupts*0x20;let doorbell_bytes=(slots+1)*4;
+ if (STATE.db_off&3)!=0||(STATE.rt_off&31)!=0||STATE.rt_off<op||STATE.db_off<op
+  ||overlap(op,operational_bytes,STATE.rt_off,runtime_bytes)
+  ||overlap(op,operational_bytes,STATE.db_off,doorbell_bytes)
+  ||overlap(STATE.rt_off,runtime_bytes,STATE.db_off,doorbell_bytes){STATE.reject_mask|=2;}
+ STATE.scratchpads=((STATE.hcs2>>27)&31)|(((STATE.hcs2>>21)&31)<<5);
+ if STATE.scratchpads!=0{STATE.reject_mask|=4;}
+ if (STATE.hcs2&(1<<26))!=0{STATE.reject_mask|=8;}
+ STATE.context_bytes=32;if (STATE.hcc1&4)!=0{STATE.context_bytes=64;}
+ STATE.ac64=STATE.hcc1&1;
+}return;}
+
+unsafe fn extensions()!void {unsafe{
+ var offset=STATE.extended_first;var covered:u64=0;let ports=STATE.hcs1>>24;
+ if offset!=0&&offset<32{STATE.reject_mask|=1;return error.Invalid;}
+ while offset!=0{
+  if offset>4092{STATE.flags|=256;return;}
+  if STATE.extended_count==64{STATE.flags|=8192;return;}
+  let header=try read(offset);STATE.extended_count+=1;
+  let kind=header&255;let next=(header>>8)&255;var bytes:u64=4;
+  if kind==1{
+   bytes=8;
+   if (STATE.flags&32)!=0{STATE.flags|=4096;STATE.reject_mask|=32;}
+   else{STATE.flags|=32;STATE.legacy_offset=offset;STATE.legacy_support=header;}
+   if (header&0xfeff_0000)!=0||(header&0x0100_0000)==0{STATE.reject_mask|=32;}
+  }else if kind==2{
+   bytes=16;let major=header>>24;
+   if major==2{STATE.protocols2+=1;STATE.flags|=64;}
+   else if major==3{STATE.protocols3+=1;STATE.flags|=128;}
+   else{STATE.reject_mask|=256;}
+  }else{
+   if (STATE.flags&16384)==0{STATE.unsupported_first=header;}
+   STATE.flags|=16384;STATE.reject_mask|=128;
+  }
+  // Do not read a partial known structure, even if its header fit the page.
+  if offset>4096-bytes{STATE.flags|=256;return;}
+  if kind==1{
+   let control=try read(offset+4);
+   if STATE.legacy_offset==offset{STATE.legacy_control=control;}
+   if control!=0{STATE.reject_mask|=64;}
+  }else if kind==2{
+   let name=try read(offset+4);let range=try read(offset+8);let slot=try read(offset+12);
+   let first=range&255;let count=(range>>8)&255;let major=header>>24;
+   let valid=(major==2||major==3)&&name==0x2042_5355&&(range&0xf000_0000)==0&&slot==0
+    &&first!=0&&first<=ports+1&&count<=ports+1-first;
+   if !valid{STATE.reject_mask|=256;}
+   else if ports>0&&ports<=32{
+    let mask=(((1 as u64)<<count)-1)<<(first-1);
+    if (covered&mask)!=0{STATE.flags|=32768;STATE.reject_mask|=256;}
+    covered|=mask;
+   }
+  }
+  if next==0{offset=0;}
+  else{
+   if next*4<bytes{
+    if kind==1{STATE.reject_mask|=32;}else if kind==2{STATE.reject_mask|=256;}
+    return error.Invalid;
+   }
+   offset+=next*4;
+   if STATE.extended_count==64{
+    STATE.flags|=8192;if offset>4092{STATE.flags|=256;}return;
+   }
+  }
+ }
+ STATE.flags|=16;
+ // Incomplete chains never imply absent protocols or missing port coverage.
+ if ports>0&&ports<=32&&covered!=((1 as u64)<<ports)-1{STATE.reject_mask|=256;}
+}return;}
+
+unsafe fn observe()!void {unsafe{
+ let seed=inventory.run();
+ if seed==null||((seed as u64)&7)!=0||(seed as u64)>MAX-232{return error.Invalid;}
+ if (*seed).version!=1||(*seed).done!=1{return error.Invalid;}
+ STATE.flags|=1;STATE.inventory_error=(*seed).error_code;
+ if STATE.inventory_error!=0{STATE.error_code=STATE.inventory_error;return;}
+ if ((*seed).flags&256)==0{return error.Invalid;}
+ if ((*seed).flags&1)==0{STATE.flags|=512;return;}
+ STATE.bar_physical=(*seed).bar_physical;
+ if ((*seed).flags&(64|8192))!=0||((*seed).flags&2)==0||STATE.bar_physical==0
+  ||(STATE.bar_physical&4095)!=0||STATE.bar_physical>MAX-4096{
+  STATE.flags|=65536;return;
+ }
+ let ecam=(*seed).ecam;
+ if ecam==0||ecam>=0x1_0000_0000||(ecam&4095)!=0{return error.Invalid;}
+ STATE.pci_command=((try devices.configuration_read(ecam+4))&65535) as u64;
+ if (STATE.pci_command&2)==0{STATE.flags|=1024;return;}
+ STATE.flags|=2;
+ STATE.cap0=try read(0);STATE.hcs1=try read(4);STATE.hcs2=try read(8);
+ STATE.hcc1=try read(16);STATE.db_off=try read(20);STATE.rt_off=try read(24);
+ if (STATE.cap0>>16)>=0x110{STATE.hcc2=try read(28);}
+ features();
+ STATE.operational=STATE.cap0&255;STATE.extended_first=(STATE.hcc1>>16)*4;
+ if STATE.operational<32||(STATE.operational&3)!=0||STATE.operational>4084{return error.Invalid;}
+ if (STATE.reject_mask&1)==0{STATE.flags|=8;}
+ STATE.pagesize=try read(STATE.operational+8);
+ if (STATE.pagesize&1)==0{STATE.reject_mask|=16;}
+ STATE.usbcmd=try read(STATE.operational);STATE.usbsts=try read(STATE.operational+4);
+ try extensions();
+}return;}
+
+pub export("dong_xhci_caps_pointer") fn pointer()*const Report {unsafe{return &STATE;}}
+pub export("dong_xhci_caps_run") fn run()*const Report {unsafe{
+ if STATE.version!=0{return &STATE;}
+ STATE.version=1;
+ match observe(){ok=>{},err(e)=>{STATE.error_code=e;},}
+ compiler_fence();STATE.done=1;return &STATE;
+}}

@@ -1,0 +1,71 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_xhci_capability_probe"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-26T14:46:09+00:00",
+  "claimed_by": "codex-mcp-918a30d10dd649bf",
+  "completed_at": "2026-10-26T15:19:18+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-26T14:46:08+00:00",
+  "delivery": "codex-works/deliveries/P8XHCICAP1.md",
+  "depends_on": [
+    "codex:P8USBINFO1"
+  ],
+  "description": "用户真机USB INFO页扫描成功/X1/E-O-U0/Intel8086:A12F/ECAM E00A0000/BAR0 DF510004 BAR1 0/PA DF510000/FLAGS1103，首页无UEFI描述符，不可归因Runtime BAR拒绝。原U盘已插回H。下一明确主动停止版只读xHCI首4KiB能力/状态和页内扩展cap，定位现authority/controller的scratchpad/BIOS-owned/unsupported gates，未证根因不盲改正常门禁。新cap模块先复用原usb_preflight.run可信配置普查、读取PCI command，拒invalid/unaligned或不decode地址，不启用MEM/BME、不reset/ack/write任何控制器/PCI寄存器。private user.devices只append受guard的只读32b读取函数：原mmio_range(PA,4096,false)逐调用先guard、readonly supervisor UC/NX WINDOW，原map/replace+invlpg/TLB逻辑，私有cache确认RO；配置/CPU物理限制/RAM Runtime FB门保留，无用户cap/DMA。只读firstpage，CAPLENGTH/op bounds与extended64/相对next/8或16长度受限；跨页显式incomplete，绝不猜BAR总大小或map其他页。固定Report32u64/256B，once/done-last，原error原样。raw cap0/hcs1/hcs2/hcc1/pagesize/usbcmd/usbsts/legacy support/control/首未知cap、解码scratch/context/AC64。reject_mask仅当前代码可观测特征条件的对照，不冒充真实驱动错误或完整admission结论。工具strict复用前工具正常命令计划，private overlay增原usbinfo+新capmodule、private devices append、root import；三obj重编/真实link/双manifest/EFI单banner。正常所有源/默认策略/17服务不变。stage24新title DONGOS XHCI CAPS和15rows，marker后cli/hlt前无用户态，仍既有Gate/geometry；明确xhci-capability-probe.json无normal metadata。native真实新cap模块和真实append guard/map/load体（只hardware boundaries stub）debug/release/真实坏体验证，0skip正式独立。root8CPU真实首cap页PCI/MMIO/RO PTE/实际Report/15行pixels+code、无控制器写/新授权/用户态，wholeUSB/internal不变，通过后备份写原H/fsync/readback/readonlyFAT。用户下次拍全部字段，根因仍待真实cap数据。沿既有授权上传GitHub。",
+  "document": "codex-works/tasks/P8XHCICAP1-board.md",
+  "historical": false,
+  "id": "codex:P8XHCICAP1",
+  "integration_note": "六个已验收声明文件已实际集成到主工作区，正式复验源指纹未变。实际接受候选builder-preflight-r1/esp写入用户已确认的原SanDisk H（disk2 serial4C530000010320109015；USB/FAT32/offset131072/partition7798652928保持），先备份原4文件，再各flush+fsync及SHA回读。最终receipt SHA256 52c4f82e1c988f0211ccd45270d9d5bdb514a9a9d6d8c7d5e9101db6fdc7ef52；EFI2d43c1e95e9e53383bf6d0b1e6d027f325e74064b9b3b46d9e0a82da6de7f601，IMGd6ea90158ce60fd61215b626874d9916ac7c2be84faba56d4e0dfeb335061397，SERVICES原hash保持。native rb volume进程exit0，mount_error0/ready1/dirty0/clusters1899872、canaries1、writes0/flushes0/bad_io0、未repair，之后4文件再次SHA回读一致。无格式化、分区或rawdisk写；仅显式CAPS R1首page只读诊断停机版，normal默认/服务未改。真实硬件能力和固件占用仍待照片，未登记桌面/HID通过。Root真实VM及正式独立2tests0skip/source-stable证据见验收note。",
+  "legacy_hash": "fa1696c0d0910e9fa45a2a98a4fd0c96f0327fb68d0dd946ed189c02b688a473",
+  "number": "P8XHCICAP1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查完整cap decoder、builder私有reader/entry/renderer、原始mmio_range和两类native oracle及文档契约；另有builder agent只读独立审查PASS。每次先参数边界/原门禁，再UC仅内核RO NX映射，首次同页强制RO；无PCI/controller写、新ownership/DMA，normal512及17服务保留。首4K/64节点/已知完整结构前置界限、unknown header-only、partial明确且仅完整链推断coverage，reject_mask仅当前可观察谓词。正式job5c5453174be9493c97717a4970e4aba3：2tests28.562s、零skip、源稳定；真实14类坏体×debug/release fail oracle、ABI256B/相邻BSS/call顺序/零副作用有效。Root实际8CPU WHPX单USB三可写内盘sentinel、实Report/首page/15行78792pixels/CR0.WP/四级有效USER拒绝/leaf UC RO NX/noalias/noauthority及整盘hash不变，vm-r3 SHA fae66cdc2f13c398c804bb11919e2ada1265630f49c86419e24b02ca41852610。早两轮只纠正observer marker/有效权限误判，候选未变。验收为显式只读诊断停机，真机根因/desktop/HID仍未通过，发布前核验原SanDisk并备份/flush/readback/native rb零写。",
+  "status": "integrated",
+  "title": "Intel xHCI首寄存器页能力与固件占用只读诊断",
+  "updated_at": "2026-10-26T15:23:50+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 28.562,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_capability_probe",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8XHCICAP1.md": "9b7b6bc6e3dbd5ac40e8e4d967eb9b823cdc26f51e72a8a193a3dfd9cc56bc81",
+      "docs/hardware-xhci-capability-probe.md": "12b902dc8bc071fe7e54fecac46655f2e8d021f0108c58e41b94f472dbd28fda",
+      "kernel/boot/xhci_capability_probe.dg": "42cdeeefed33e66ca23e788bd772633e840d4410b99baa0ee688e2cc8ae6b27a",
+      "tests/test_xhci_capability_probe.py": "b26175cd9d6eeb13483bf457f6abf7eb961cc7c9ce46ad4772f7deb66dcb86ab",
+      "tests/xhci_capability_probe.c": "4e6917faeceb48cfa111c338c32951317441978eb9af8a84c20cbb67d41a7f3c",
+      "tools/build_xhci_capability_probe.py": "0641c735bc10bc7a183d4f4942e3081cb6355eb1a9c682148d03f5dab406dee6"
+    },
+    "finished_at": "2026-10-26T15:19:57+00:00",
+    "job": "5c5453174be9493c97717a4970e4aba3",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/boot/xhci_capability_probe.dg",
+    "tools/build_xhci_capability_probe.py",
+    "tests/test_xhci_capability_probe.py",
+    "tests/xhci_capability_probe.c",
+    "docs/hardware-xhci-capability-probe.md",
+    "codex-works/deliveries/P8XHCICAP1.md"
+  ]
+}
