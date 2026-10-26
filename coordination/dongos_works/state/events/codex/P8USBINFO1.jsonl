@@ -1,0 +1,9 @@
+{"at":"2026-10-26T13:56:02+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T13:56:02+00:00","data":{"claimed_at":"2026-10-26T13:56:02+00:00","claimed_by":"codex-mcp-918a30d10dd649bf","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:21:11+00:00","data":{"claimed_at":"2026-10-26T13:56:02+00:00","claimed_by":"codex-mcp-918a30d10dd649bf","completed_at":"2026-10-26T14:21:11+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:21:11+00:00","data":{"job":"61732d32357f410ebe890dcddcf665cf","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:21:11+00:00","data":{"job":"61732d32357f410ebe890dcddcf665cf"},"kind":"verification_started","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:21:41+00:00","data":{"rev":4,"status":"submitted"},"kind":"verified","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:21:41+00:00","data":{"job":"61732d32357f410ebe890dcddcf665cf","status":"completed"},"kind":"job_finished","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:25:41+00:00","data":{"rev":5,"status":"accepted"},"kind":"accept","task_id":"codex:P8USBINFO1"}
+{"at":"2026-10-26T14:29:53+00:00","data":{"rev":6,"status":"integrated"},"kind":"integrate","task_id":"codex:P8USBINFO1"}

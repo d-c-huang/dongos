@@ -1,0 +1,153 @@
+// Isolated, once-only USB inventory. PCI configuration reads never size or
+// write a BAR, access controller registers, or grant an ownership capability.
+module boot.usb_preflight;
+import user.devices as devices;
+import boot.memory_startup as startup;
+import boot.runtime_view as runtime;
+
+pub error Invalid = 0x0b01_0001;
+const MAX:u64=0xffff_ffff_ffff_ffff;
+const LIMIT:u64=0x1_0000_0000;
+const HHDM:u64=0xffff_8000_0000_0000;
+pub struct Report {
+ pub version:u64,pub done:u64,pub error_code:u64,pub flags:u64,
+ pub xhci_count:u64,pub ehci_count:u64,pub ohci_count:u64,pub uhci_count:u64,
+ pub other_count:u64,pub pci_count:u64,pub usb_counts:u64,
+ pub ecam:u64,pub identity:u64,pub class_code:u64,pub header:u64,
+ pub bar0:u64,pub bar1:u64,pub bar_physical:u64,
+ pub descriptor_found:u64,pub descriptor_index:u64,pub descriptor_type:u64,
+ pub descriptor_base:u64,pub descriptor_pages:u64,pub descriptor_attributes:u64,
+ pub framebuffer_base:u64,pub framebuffer_bytes:u64,
+ pub mcfg_base:u64,pub mcfg_first:u64,pub mcfg_last:u64,
+}
+pub const EMPTY:Report=Report {version:0,done:0,error_code:0,flags:0,
+ xhci_count:0,ehci_count:0,ohci_count:0,uhci_count:0,other_count:0,pci_count:0,usb_counts:0,
+ ecam:0,identity:0,class_code:0,header:0,bar0:0,bar1:0,bar_physical:0,
+ descriptor_found:0,descriptor_index:0,descriptor_type:0,descriptor_base:0,descriptor_pages:0,descriptor_attributes:0,
+ framebuffer_base:0,framebuffer_bytes:0,mcfg_base:0,mcfg_first:0,mcfg_last:0};
+var STATE:Report=EMPTY;
+
+fn readable_span(base:u64,bytes:u64)bool {
+ if base==0||bytes==0||base>MAX-bytes{return false;}
+ let end=base+bytes-1;
+ return (base<=0x0000_7fff_ffff_ffff&&end<=0x0000_7fff_ffff_ffff)
+  ||(base>=HHDM&&end>=HHDM);
+}
+unsafe fn raw64(raw:*const u8,offset:usize)u64 {unsafe{
+ return read_unaligned((raw+offset) as *const u64);
+}}
+// RuntimeView storage is trusted to be readable by its caller. Validate all
+// arithmetic/geometry before using a descriptor or starting ECAM operations.
+unsafe fn view_ready(v:*const runtime.View)!void {unsafe{
+ let address=v as u64;
+ if v==null||(address&7)!=0||!readable_span(address,160){return error.Invalid;}
+ let raw=(*v).raw_map;let bytes=(*v).raw_size;let stride=(*v).descriptor_size;
+ if !readable_span(raw,bytes)||(raw&7)!=0||bytes>65536||stride<40||stride>256
+  ||(stride&7)!=0||bytes%stride!=0{return error.Invalid;}
+ let output=(&STATE) as u64;
+ if (raw<output+232&&output<raw+bytes)||(address<output+232&&output<address+160)
+  ||(raw<address+160&&address<raw+bytes){return error.Invalid;}
+ let fb=(*v).display.framebuffer_base;let fb_bytes=(*v).display.framebuffer_size;
+ let width=(*v).display.width;let height=(*v).display.height;let pitch=(*v).display.stride;
+ if fb<HHDM||fb-HHDM==0||fb-HHDM>=LIMIT||fb_bytes==0||fb_bytes>LIMIT-(fb-HHDM)
+  ||width==0||width>8192||height==0||height>8192||pitch<width||pitch>16384
+  ||(*v).display.pixel_format>1||pitch*height*4>fb_bytes{return error.Invalid;}
+ STATE.framebuffer_base=fb-HHDM;STATE.framebuffer_bytes=fb_bytes;
+ let pointer=raw as *const u8;var at:usize=0;
+ while at<bytes as usize{
+  let base=raw64(pointer,at+8);let pages=raw64(pointer,at+24);
+  if (base&4095)!=0||pages==0||pages>(MAX-base)/4096{return error.Invalid;}
+  at+=stride as usize;
+ }
+}return;}
+
+// Return zero for an absent function, otherwise its header plus 256. Matching
+// the trusted host's function-zero/multifunction order preserves first ties.
+unsafe fn inspect(ecam:u64)!u64 {unsafe{
+ let identity=try devices.configuration_read(ecam);
+ if (identity&65535)==0||(identity&65535)==65535{return 0;}
+ let class_code=((try devices.configuration_read(ecam+8))>>8) as u64;
+ let header=(((try devices.configuration_read(ecam+12))>>16)&255) as u64;
+ STATE.pci_count+=1;
+ if (class_code&0xffff00)==0x0c0300{
+  let interface=class_code&255;
+  if interface==0x30{
+   STATE.xhci_count+=1;
+   if (header&127)==0&&(STATE.flags&1)==0{
+    STATE.flags|=1;STATE.ecam=ecam;STATE.identity=identity as u64;
+    STATE.class_code=class_code;STATE.header=header;
+   }
+  }else if interface==0x20{STATE.ehci_count+=1;}
+  else if interface==0x10{STATE.ohci_count+=1;}
+  else if interface==0{STATE.uhci_count+=1;}
+  else{STATE.other_count+=1;STATE.flags|=1024;}
+ }
+ return header+256;
+}}
+
+unsafe fn bar(v:*const runtime.View)!void {unsafe{
+ STATE.bar0=(try devices.configuration_read(STATE.ecam+0x10)) as u64;
+ STATE.bar1=(try devices.configuration_read(STATE.ecam+0x14)) as u64;
+ if (STATE.bar0&1)!=0{STATE.flags|=64;return;}
+ STATE.flags|=2;
+ let kind=(STATE.bar0>>1)&3;
+ if kind!=0&&kind!=2{STATE.flags|=64;return;}
+ var physical=STATE.bar0&0xffff_fff0;
+ if kind==2{STATE.flags|=4096;physical|=STATE.bar1<<32;}
+ STATE.bar_physical=physical;
+ if (physical&4095)!=0{STATE.flags|=8192;}
+ let page=physical&~4095;
+ if physical==0||page>MAX-4096{STATE.flags|=64;return;}
+ let raw=(*v).raw_map as *const u8;
+ let bytes=(*v).raw_size;let stride=(*v).descriptor_size;
+ var at:usize=0;
+ while at<bytes as usize{
+  let base=raw64(raw,at+8);let pages=raw64(raw,at+24);let end=base+pages*4096;
+  if base<=page&&page+4096<=end{
+   if STATE.descriptor_found==0{
+    let typ=read_unaligned((raw+at) as *const u32);let attrs=raw64(raw,at+32);
+    STATE.descriptor_found=1;STATE.descriptor_index=(at as u64)/stride;
+    STATE.descriptor_type=typ as u64;STATE.descriptor_base=base;
+    STATE.descriptor_pages=pages;STATE.descriptor_attributes=attrs;STATE.flags|=4;
+    if typ!=11{STATE.flags|=16;}if (attrs&0x8000_0000_0000_0000)!=0{STATE.flags|=8;}
+   }else{STATE.flags|=512;}
+  }
+  at+=stride as usize;
+ }
+ if page<STATE.framebuffer_base+STATE.framebuffer_bytes&&STATE.framebuffer_base<page+4096{
+  STATE.flags|=32;
+ }
+}return;}
+
+unsafe fn scan()!void {unsafe{
+ let base=devices.region_base();let first=devices.region_first();let last=devices.region_last();
+ STATE.mcfg_base=base;STATE.mcfg_first=first;STATE.mcfg_last=last;
+ if base==0||base>=LIMIT||(base&0xfffff)!=0||first>last||last>255
+  ||(last+1)*0x10_0000>LIMIT-base{return error.Invalid;}
+ let view=startup.runtime_pointer();try view_ready(view);
+ var bus=first;while bus<=last{
+  var device:u64=0;while device<32{
+   let ecam=base+(bus<<20)+(device<<15);let found=try inspect(ecam);
+   if found!=0&&(found&128)!=0{
+    var function:u64=1;while function<8{let ignored=try inspect(ecam+(function<<12));function+=1;}
+   }
+   device+=1;
+  }
+  bus+=1;
+ }
+ if (STATE.flags&1)==0{STATE.flags|=128;}else{try bar(view);}
+ STATE.flags|=256;
+}return;}
+
+unsafe fn count_lane(value:u64)u64 {unsafe{
+ if value>65535{STATE.flags|=2048;return 65535;}return value;
+}}
+pub export("dong_usb_preflight_pointer") fn pointer()*const Report {unsafe{return &STATE;}}
+pub export("dong_usb_preflight_run") fn run()*const Report {unsafe{
+ if STATE.version!=0{return &STATE;}
+ STATE.version=1;
+ match scan(){ok=>{},err(e)=>{STATE.error_code=e;},}
+ STATE.usb_counts=count_lane(STATE.xhci_count)|(count_lane(STATE.ehci_count)<<16)
+  |(count_lane(STATE.ohci_count)<<32)|(count_lane(STATE.uhci_count)<<48);
+ compiler_fence();STATE.done=1;return &STATE;
+}}
