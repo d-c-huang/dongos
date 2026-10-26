@@ -10,6 +10,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/ahci_broker_fixtures'
+HARDWARE_PROFILE = ROOT / 'services/lib/hardware_profile.dg'
 sys.path.insert(0, str(ROOT))
 from lang.dongc import compile_file
 from lang.tests.test_dongc import nasm_flags, tool
@@ -31,7 +32,7 @@ class AhciBrokerTests(unittest.TestCase):
         end = cls.raw.index(b'pub fn granted_bars(', start)
         cls.body = cls.raw[start:end]
         cls.before = {str(p.relative_to(ROOT)): sha(p.read_bytes()) for p in
-                      [cls.formal, FIXTURES / 'harness-prefix.dg.in', FIXTURES / 'harness-suffix.dg.in',
+                      [cls.formal, HARDWARE_PROFILE, FIXTURES / 'harness-prefix.dg.in', FIXTURES / 'harness-suffix.dg.in',
                        ROOT / 'tests/ahci_broker_probe.c', Path(__file__), *sorted((FIXTURES / 'stubs').rglob('*.dg')),
                        *sorted((ROOT / 'lang/dongc').glob('*.py'))]}
         (cls.directory / 'grant.original.dg').write_bytes(cls.body)
@@ -61,6 +62,12 @@ class AhciBrokerTests(unittest.TestCase):
             self.assertEqual(1, body.count(needle))
             body = body.replace(needle, b'negative_hit(1); // deliberately omitted initial readback')
         prefix = (FIXTURES / 'harness-prefix.dg.in').read_bytes()
+        self.assertEqual(1, prefix.count(b'module broker_probe;'))
+        prefix = prefix.replace(b'module broker_probe;', b'module broker_probe;\nimport lib.hardware_profile as hardware_profile;')
+        profile = where / 'lib/hardware_profile.dg'
+        profile.parent.mkdir(parents=True, exist_ok=True)
+        profile.write_bytes(HARDWARE_PROFILE.read_bytes())
+        self.assertEqual(HARDWARE_PROFILE.read_bytes(), profile.read_bytes())
         capwalk = self.raw[self.raw.index(b'unsafe fn interrupt_caps('):self.raw.index(b'pub unsafe fn grant(')]
         stub = b'unsafe fn interrupt_caps(ecam:u64,disable:bool)!u64 {return error.Invalid;}'
         self.assertEqual(1, prefix.count(stub))

@@ -4,10 +4,22 @@ from pathlib import Path
 from lang.dongc import compile_file
 from lang.tests.test_dongc import tool,nasm_flags
 from tests.test_service_ipc_cancellation import block
-from tests.test_service_gui_wiring import copy_graph
+from tests.test_service_gui_wiring import modules
 from tests import test_user_smp_services as old
 from tests.test_user_smp_services import current_files
 ROOT=Path(__file__).resolve().parents[1];BASE=ROOT;ARCH=ROOT
+
+def copy_graph(stage,names,overrides):
+ # The source graph contains UTF-8 comments; Windows' default text encoding
+ # must not turn an unchanged dependency into a non-UTF-8 staged source.
+ paths=modules();seen=set()
+ def visit(name):
+  if name in seen:return
+  seen.add(name);text=overrides[name] if name in overrides else paths[name].read_text(encoding='utf-8')
+  path=stage/(name.replace('.','/')+'.dg');path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
+  for imported in re.findall(r'\bimport\s+([\w.]+)\s+as\s+',text):visit(imported)
+ for name in names:visit(name)
+
 TAIL='''
 export("ro_setup") fn setup()u64{unsafe{
  CATALOG=smp_service_catalog_storage() as *procs.Catalog;try procs.initialize(CATALOG,1000000);
@@ -62,12 +74,15 @@ int main(void){setup();cpu=0;C(!ue_lock(0));C(!ro_setup());C(!ue_unlock(0));star
 '''
 class Tests(unittest.TestCase):
  def test_same_page_preflight_uses_actual_pte_flags(self):
-  source=(BASE/'kernel/user/devices.dg').read_text();helper=block(source,'pub unsafe fn configuration_read_stable(').replace('startup.space_pointer()','&S')
+  source=(BASE/'kernel/user/devices.dg').read_text(encoding='utf-8');helper=block(source,'pub unsafe fn configuration_read_stable(').replace('startup.space_pointer()','&S')
+  # configuration_address now records the first denied access. Keep its real
+  # scalar context and recording helper alongside the unchanged bounds check.
+  context=source[source.index('pub struct ConfigurationConflict '):source.index('pub const CONFIGURATION_OBJECT:')]
   entry='''module ecam_readonly_probe;import mm.paging as paging;
 pub error Denied=0x1111;const WINDOW:u64=0xffff_c000_0008_0000;
 var REGION_BASE:u64=0xe0000000;var REGION_FIRST:u64=0;var REGION_LAST:u64=255;var CURRENT_PAGE:u64=0;
 var S:paging.Space=paging.EMPTY_SPACE;var TABLES:[8]paging.Table=[paging.Table{entries:[0;512]};8];var META:[8]u8=[0;8];
-'''+block(source,'unsafe fn configuration_address(')+helper+'''
+'''+context+block(source,'unsafe fn configuration_address(')+helper+'''
 unsafe fn setup(flags:u64,pa:u64,current:u64)!u64{unsafe{
  S=paging.EMPTY_SPACE;try paging.init(&S,TABLES[..],0x100000,META[..],48,true);
  try paging.map_live(&S,WINDOW,pa,flags&~paging.USER);CURRENT_PAGE=current;
@@ -99,7 +114,7 @@ int main(void){
    for variant in ('normal',*controls):
     d=out/(mode+'-'+variant);d.mkdir();s=entry
     if variant!='normal':a,b=controls[variant];self.assertEqual(1,s.count(a));s=s.replace(a,b)
-    p=d/'ecam_readonly_probe.dg';p.write_text(s);(d/'probe.c').write_text(c);compiled=compile_file(p,roots=[d,ROOT/'kernel'],mode=mode);(d/'probe.asm').write_text(compiled.assembly)
+    p=d/'ecam_readonly_probe.dg';p.write_text(s,encoding='utf-8');(d/'probe.c').write_text(c,encoding='utf-8');compiled=compile_file(p,roots=[d,ROOT/'kernel'],mode=mode);(d/'probe.asm').write_text(compiled.assembly,encoding='utf-8')
     def run(args,label):
      r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60);(d/(label+'.json')).write_text(json.dumps(dict(returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r
     obj=d/'probe.o';r=run([nasm,'-f','win64'if os.name=='nt'else'elf64',*nasm_flags(nasm),d/'probe.asm','-o',obj],'assemble');self.assertEqual(0,r.returncode,r.stderr)
@@ -109,12 +124,12 @@ int main(void){
  def test_actual_policy_bridge_and_real_bad_controls(self):
   files=current_files()+[Path(__file__),ROOT/'tests/user_current_entry_probe.dg',ROOT/'tests/user_current_entry_probe.c',ROOT/'kernel/user/processes.dg',ROOT/'kernel/ipc/handles.dg']
   before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in files}
-  text=(BASE/'kernel/user/services.dg').read_text();actual='\n'.join(block(text,n)for n in ('unsafe fn process(', 'unsafe fn managed(', 'pub unsafe fn enable_smp(', 'export("dong_user_smp_project")','export("dong_user_smp_service_policy")','export("dong_user_smp_service")'))
+  text=(BASE/'kernel/user/services.dg').read_text(encoding='utf-8');actual='\n'.join(block(text,n)for n in ('unsafe fn process(', 'unsafe fn managed(', 'pub unsafe fn enable_smp(', 'export("dong_user_smp_project")','export("dong_user_smp_service_policy")','export("dong_user_smp_service")'))
   prefix=old.PREFIX.replace('import user.device_host as device_host;','import user.device_host as device_host;import user.devices as devices;import ipc.handles as handles;import lib.device_abi as dev;')
   prefix=prefix.replace('struct State{waiting:u64,started:u64}','struct State{table:handles.Table,waiting:u64,started:u64}').replace('State{waiting:0,started:0}','State{table:handles.EMPTY_TABLE,waiting:0,started:0}')
   prefix=prefix.replace('var LAUNCH_FAILED:bool=false;','var LAUNCH_FAILED:bool=false;var GRAPHICS:bool=true;')
   prefix=prefix.replace('try retire_one(id,state,status);','').replace('try retire_one(CURRENT,proc.EXITED,73);','')
-  entry=(ROOT/'tests/user_current_entry_probe.dg').read_text()+prefix+actual+TAIL
+  entry=(ROOT/'tests/user_current_entry_probe.dg').read_text(encoding='utf-8')+prefix+actual+TAIL
   # setup uses ! operations inside an ordinary exported result wrapper.
   entry=entry.replace('export("ro_setup") fn setup()u64{unsafe{','unsafe fn setup_inner()!u64{unsafe{')+'\nexport("ro_setup") fn setup()u64{unsafe{match setup_inner(){ok(v)=>{return v;},err(e)=>{return e;},}}}\n'
   entry+=old.dormant_wiring(text)
@@ -122,7 +137,7 @@ int main(void){
 pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{if ro_output(slot as u64,va,size as u64,write as u64)!=1{return error.Invalid;}}return;}pub error Invalid=0x1111;
 '''
   devices='''module user.devices;pub const CONFIGURATION_OBJECT:u64=0x1234;unsafe extern "sysv64" fn ro_stable(physical:u64)u64;pub unsafe fn configuration_read_stable(physical:u64)bool{unsafe{return ro_stable(physical)==1;}}'''
-  c=(ROOT/'tests/user_current_entry_probe.c').read_text()
+  c=(ROOT/'tests/user_current_entry_probe.c').read_text(encoding='utf-8')
   for needle in ('U ABI user_bridge_service(', 'U ABI user_bridge_project(', 'U ABI dong_user_smp_service(', 'U ABI dong_user_smp_project('):c=c.replace(block(c,needle),'')
   c=c[:c.index('int main(void)')]+CMAIN
   controls={
@@ -140,7 +155,7 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
   memory+=old.dormant_memory()
   c+=old.DORMANT_C
   candidate={}
-  bridge=(BASE/'kernel/sched/user_bridge.dg').read_text();candidate['sched.user_bridge']=bridge
+  bridge=(BASE/'kernel/sched/user_bridge.dg').read_text(encoding='utf-8');candidate['sched.user_bridge']=bridge
   for mode in ('debug','release'):
    for variant in ('normal',*controls):
     d=out/(mode+'-'+variant);stage=d/'kernel';s=entry;b=bridge
@@ -152,7 +167,7 @@ pub unsafe fn check_range(slot:usize,va:u64,size:usize,write:bool)!void{unsafe{i
       policy=block(s,'export("dong_user_smp_service_policy")');self.assertEqual(1,policy.count(old_s));s=s.replace(policy,policy.replace(old_s,new_s))
      else:self.assertEqual(1,b.count(old_s));b=b.replace(old_s,new_s)
     overrides={**candidate,'boot.service_memory':old.dormant_resources(),'sched.user_bridge':b,'user_current_entry_probe':s,'user.memory':memory,'user.devices':devices,'boot.trace_runtime':'module boot.trace_runtime;pub unsafe fn event(a:u64,b:u64,c:u64,d:u64)void{return;}','user.window_broker':old.WINDOWS,'user.device_host':old.DEVICE+'pub unsafe fn irq_poll_readonly(token:u64,owner:u64,after:u64)bool{return false;}'}
-    copy_graph(stage,['user_current_entry_probe'],overrides);compiled=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(compiled.assembly);(d/'probe.c').write_text(c)
+    copy_graph(stage,['user_current_entry_probe'],overrides);compiled=compile_file(stage/'user_current_entry_probe.dg',roots=[stage],mode=mode);(d/'probe.asm').write_text(compiled.assembly,encoding='utf-8');(d/'probe.c').write_text(c,encoding='utf-8')
     objects=[]
     def run(args,label):
      r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60);(d/(label+'.json')).write_text(json.dumps(dict(command=list(map(str,args)),returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r

@@ -20,6 +20,28 @@ import cpu.capabilities as cpu;
 pub error Invalid = 0x050a_0001;
 pub error Denied = 0x050a_0002;
 pub error Busy = 0x050a_0003;
+// BSP-only first denied configuration access. Observation grants no authority.
+// Each field is a scalar; framebuffer/descriptor values are never dereferenced.
+pub struct ConfigurationConflict {pub version:u64,pub valid:u64,pub reason:u64,pub error_code:u64,
+    pub physical:u64,pub bytes:u64,pub ecam:u64,pub descriptor_index:u64,pub kind:u64,
+    pub base:u64,pub pages:u64,pub attributes:u64,pub mcfg_first:u64,pub mcfg_end:u64,
+    pub framebuffer_base:u64,pub framebuffer_bytes:u64}
+pub const EMPTY_CONFIGURATION_CONFLICT:ConfigurationConflict=ConfigurationConflict {
+    version:0,valid:0,reason:0,error_code:0,physical:0,bytes:0,ecam:0,descriptor_index:0,
+    kind:0,base:0,pages:0,attributes:0,mcfg_first:0,mcfg_end:0,framebuffer_base:0,framebuffer_bytes:0};
+pub var PCI_CONFLICT:ConfigurationConflict=EMPTY_CONFIGURATION_CONFLICT;
+// Pure fixed-BSS address bridge; no View, hardware, allocation or external call.
+pub export("dong_configuration_conflict") fn configuration_conflict()*const ConfigurationConflict {unsafe{return &PCI_CONFLICT;}}
+unsafe fn record_configuration_denied(reason:u64,physical:u64,bytes:u64,descriptor_index:u64,
+    kind:u64,base:u64,pages:u64,attributes:u64,mcfg_first:u64,mcfg_end:u64,
+    framebuffer_base:u64,framebuffer_bytes:u64)void{unsafe{
+    if PCI_CONFLICT.valid!=0{return;}
+    PCI_CONFLICT=ConfigurationConflict{version:1,valid:0,reason:reason,error_code:0x050a_0002,
+        physical:physical,bytes:bytes,ecam:1,descriptor_index:descriptor_index,kind:kind,
+        base:base,pages:pages,attributes:attributes,mcfg_first:mcfg_first,mcfg_end:mcfg_end,
+        framebuffer_base:framebuffer_base,framebuffer_bytes:framebuffer_bytes};
+    compiler_fence();PCI_CONFLICT.valid=1;
+}}
 pub const CONFIGURATION_OBJECT: u64 = 10;
 pub const DMA_OBJECT: u64 = 20;
 pub const CONSOLE_OBJECT: u64 = 30;
@@ -180,6 +202,10 @@ unsafe fn mmio_range(physical: u64,bytes: u64,ecam: bool) !void {
         let view = startup.runtime_pointer();
         if view == null { return error.Invalid; }
         let raw = (*view).raw_map as *const u8; let stride=(*view).descriptor_size as usize;
+        let cfg_first=REGION_BASE+REGION_FIRST*0x10_0000;
+        let cfg_end=REGION_BASE+(REGION_LAST+1)*0x10_0000;
+        let fb=(*view).display.framebuffer_base-0xffff_8000_0000_0000;
+        let fb_bytes=(*view).display.framebuffer_size;
         var offset: usize = 0;
         while offset < (*view).raw_size as usize {
             let start=raw64(raw,offset+8); let pages=raw64(raw,offset+24); let stop=start+pages*4096;
@@ -188,21 +214,30 @@ unsafe fn mmio_range(physical: u64,bytes: u64,ecam: bool) !void {
                 // EDK II reserves MCFG's ECAM aperture as ReservedMemoryType,
                 // rather than MemoryMappedIO. Only the trusted MCFG window
                 // may use that exception; user BAR grants cannot acquire it.
-                let cfg_first=REGION_BASE+REGION_FIRST*0x10_0000;
-                let cfg_end=REGION_BASE+(REGION_LAST+1)*0x10_0000;
                 let reserved_ecam=ecam && kind==0 && physical>=cfg_first && physical+bytes<=cfg_end;
+                // Only configuration pages inside the trusted MCFG may carry
+                // Runtime MMIO metadata. No BAR/DMA or Runtime RAM is admitted.
+                let runtime_ecam=ecam && kind==11 && physical>=cfg_first && physical+bytes<=cfg_end;
+                let attributes=raw64(raw,offset+32);
                 // Firmware may describe the assigned high PCI aperture as
                 // reserved UC space. This exception is reached only through
                 // sizing the selected hardware BAR; callers cannot choose PA.
                 let reserved_pci=!ecam && kind==0 && start>=0x1_0000_0000 && stop<=PHYSICAL_LIMIT
                     && (raw64(raw,offset+32)&6)==0;
-                if (kind != 11 && !reserved_ecam && !reserved_pci) || (raw64(raw,offset+32)&0x8000_0000_0000_0000)!=0 { return error.Denied; }
+                if (kind != 11 && !reserved_ecam && !reserved_pci)
+                    || ((attributes&0x8000_0000_0000_0000)!=0 && !runtime_ecam) {
+                    if ecam{record_configuration_denied(1,physical,bytes,(offset/stride) as u64,
+                        kind as u64,start,pages,attributes,cfg_first,cfg_end,fb,fb_bytes);}
+                    return error.Denied;
+                }
             }
             offset += stride;
         }
         // Explicit retained display may occupy an otherwise undescribed hole.
-        let fb=(*view).display.framebuffer_base-0xffff_8000_0000_0000;
-        if physical < fb+(*view).display.framebuffer_size && fb < physical+bytes { return error.Denied; }
+        if physical < fb+fb_bytes && fb < physical+bytes {
+            if ecam{record_configuration_denied(2,physical,bytes,0,0,0,0,0,cfg_first,cfg_end,fb,fb_bytes);}
+            return error.Denied;
+        }
     }
     return;
 }
@@ -210,7 +245,10 @@ unsafe fn configuration_address(physical: u64,bytes: u64) !void {
     unsafe {
         let first=REGION_BASE+REGION_FIRST*0x10_0000;
         let end=REGION_BASE+(REGION_LAST+1)*0x10_0000;
-        if REGION_BASE==0 || physical<first || physical>=end || bytes>end-physical { return error.Denied; }
+        if REGION_BASE==0 || physical<first || physical>=end || bytes>end-physical {
+            record_configuration_denied(3,physical,bytes,0,0,0,0,0,first,end,0,0);
+            return error.Denied;
+        }
     }
     return;
 }

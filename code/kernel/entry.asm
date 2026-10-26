@@ -1248,7 +1248,7 @@ screen_draw:
     ; Only the exact first S01 RamConflict may expose its owned raw context.
     ; These are static BSS values, never a firmware or caller-provided pointer.
     cmp byte [rel boot_progress_phase],1
-    jne .progress_regular
+    jne .progress_pci
     cmp byte [rel boot_progress_failed],1
     jne .progress_regular
     cmp qword [rel boot_progress_error],0x03030002
@@ -1279,6 +1279,55 @@ screen_draw:
     BOOT_MMIO_LINE boot_progress_pages_label,316,[rel boot_progress_mmio + BootProgressMmio.pages]
     BOOT_MMIO_LINE boot_progress_attributes_label,344,[rel boot_progress_mmio + BootProgressMmio.attributes]
 %unmacro BOOT_MMIO_LINE 3
+    jmp .painted
+.progress_pci:
+    ; Only a matching S15 ECAM denial may display the fixed versioned BSS.
+    ; Every value is printed as a scalar; no descriptor field is dereferenced.
+    cmp byte [rel boot_progress_phase],15
+    jne .progress_regular
+    cmp byte [rel boot_progress_failed],1
+    jne .progress_regular
+    cmp qword [rel boot_progress_error],0x050a0002
+    jne .progress_regular
+    ; The pure exported getter returns only the actual compiler-owned BSS.
+    ; RBX survives every text/hex draw; fields themselves are scalar values.
+    call BOOT_PCI_CONFLICT_GETTER
+    mov rbx,rax
+    test rbx,rbx
+    jz .progress_regular
+    cmp qword [rbx + BootPciConflict.version],1
+    jne .progress_regular
+    cmp qword [rbx + BootPciConflict.valid],1
+    jne .progress_regular
+    cmp qword [rbx + BootPciConflict.ecam],1
+    jne .progress_regular
+    cmp qword [rbx + BootPciConflict.error],0x050a0002
+    jne .progress_regular
+%macro BOOT_PCI_LINE 3
+    lea rsi,[rel %1]
+    mov edi,56
+    mov edx,%2
+    call text_draw
+    mov rax,%3
+    mov edi,238
+    mov edx,%2
+    call screen_hex_draw
+%endmacro
+    BOOT_PCI_LINE boot_progress_stage_label,120,15
+    BOOT_PCI_LINE boot_progress_cpu_label,144,[rel boot_progress_cpus]
+    BOOT_PCI_LINE boot_progress_error_label,168,[rel boot_progress_error]
+    BOOT_PCI_LINE boot_progress_pci_reason_label,192,[rbx + BootPciConflict.reason]
+    BOOT_PCI_LINE boot_progress_pci_physical_label,216,[rbx + BootPciConflict.physical]
+    BOOT_PCI_LINE boot_progress_pci_bytes_label,240,[rbx + BootPciConflict.bytes]
+    BOOT_PCI_LINE boot_progress_kind_label,264,[rbx + BootPciConflict.kind]
+    BOOT_PCI_LINE boot_progress_base_label,288,[rbx + BootPciConflict.base]
+    BOOT_PCI_LINE boot_progress_pages_label,312,[rbx + BootPciConflict.pages]
+    BOOT_PCI_LINE boot_progress_attributes_label,336,[rbx + BootPciConflict.attributes]
+    BOOT_PCI_LINE boot_progress_mcfg_first_label,360,[rbx + BootPciConflict.mcfg_first]
+    BOOT_PCI_LINE boot_progress_mcfg_end_label,384,[rbx + BootPciConflict.mcfg_end]
+    BOOT_PCI_LINE boot_progress_fb_base_label,408,[rbx + BootPciConflict.framebuffer_base]
+    BOOT_PCI_LINE boot_progress_fb_bytes_label,432,[rbx + BootPciConflict.framebuffer_bytes]
+%unmacro BOOT_PCI_LINE 3
     jmp .painted
 .progress_regular:
     lea rsi,[rel boot_progress_stage_label]
@@ -1858,6 +1907,13 @@ boot_progress_kind_label: db "UEFI TYPE",0
 boot_progress_base_label: db "DESC BASE",0
 boot_progress_pages_label: db "DESC PAGES",0
 boot_progress_attributes_label: db "EFI ATTR",0
+boot_progress_pci_reason_label: db "PCI REASON",0
+boot_progress_pci_physical_label: db "PCI PHYSICAL",0
+boot_progress_pci_bytes_label: db "PCI BYTES",0
+boot_progress_mcfg_first_label: db "MCFG FIRST",0
+boot_progress_mcfg_end_label: db "MCFG END",0
+boot_progress_fb_base_label: db "FB BASE",0
+boot_progress_fb_bytes_label: db "FB BYTES",0
 %endif
 %ifdef RUNTIME_LEVEL
 %if RUNTIME_LEVEL == 3

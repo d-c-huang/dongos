@@ -18,6 +18,17 @@ typedef uint64_t U;
 typedef struct {U word,epoch,drained,opened;} Gate;
 typedef struct {U framebuffer_base,framebuffer_size,width,height,stride,pixel_format;} Display;
 typedef struct {U version,valid,error,slot,address,page,descriptor_index,kind,base,pages,attributes;} Conflict;
+typedef struct {U version,valid,reason,error,physical,bytes,ecam,descriptor_index,kind,base,pages,attributes,mcfg_first,mcfg_end,framebuffer_base,framebuffer_bytes;} PciConflict;
+typedef struct {U low[4];PciConflict value;U high[4];} PciGuard;
+_Static_assert(sizeof(PciConflict)==128&&PCI_CONTEXT_BYTES==sizeof(PciConflict),"actual compiled ConfigurationConflict size");
+_Static_assert(offsetof(PciConflict,version)==0&&offsetof(PciConflict,valid)==8&&offsetof(PciConflict,reason)==16&&offsetof(PciConflict,error)==24,"PCI status ABI");
+_Static_assert(offsetof(PciConflict,physical)==32&&offsetof(PciConflict,bytes)==40&&offsetof(PciConflict,ecam)==48&&offsetof(PciConflict,descriptor_index)==56,"PCI request ABI");
+_Static_assert(offsetof(PciConflict,kind)==64&&offsetof(PciConflict,base)==72&&offsetof(PciConflict,pages)==80&&offsetof(PciConflict,attributes)==88,"PCI raw descriptor ABI");
+_Static_assert(offsetof(PciConflict,mcfg_first)==96&&offsetof(PciConflict,mcfg_end)==104&&offsetof(PciConflict,framebuffer_base)==112&&offsetof(PciConflict,framebuffer_bytes)==120,"PCI exclusion ABI");
+_Static_assert(offsetof(PciGuard,value)==32&&sizeof(PciGuard)==192,"independent PCI input canaries");
+extern PciGuard probe_pci_guard;
+extern const PciConflict *DG dong_configuration_conflict(void);
+
 _Static_assert(sizeof(Gate)==32&&offsetof(Gate,opened)==24,"independent existing Gate ABI");
 _Static_assert(sizeof(Display)==48&&offsetof(Display,pixel_format)==40,"independent RuntimeView display prefix");
 _Static_assert(RUNTIME_VIEW_BYTES>=sizeof(Display),"actual compiled complete RuntimeView");
@@ -38,6 +49,7 @@ U panic_saved_frames[16],panic_saved_frame_count;
 #define SENTINEL UINT32_C(0xa5a5a5a5)
 #define WHITE UINT32_C(0x00f4f4f4)
 #define RAM_CONFLICT UINT64_C(0x03030002)
+#define PCI_DENIED UINT64_C(0x050a0002)
 static const U FLAG_BITS=UINT64_C(0xcd5);
 static const char *scenario="setup";
 static unsigned checks,cases;
@@ -116,11 +128,13 @@ static void reset(U format,U gate_word){
  *gate=(Gate){gate_word,UINT64_C(0x1122334455667788),UINT64_C(0x2233445566778899),UINT64_C(0x33445566778899aa)};
  boot_progress_phase=0;boot_progress_failed=0;boot_progress_error=0;boot_progress_cpus=UINT64_C(0x0123456789abcdef);
  memset(&boot_progress_mmio,0,sizeof boot_progress_mmio);
+ memset(probe_pci_guard.low,0x6b,sizeof probe_pci_guard.low);memset(&probe_pci_guard.value,0,sizeof probe_pci_guard.value);memset(probe_pci_guard.high,0xb6,sizeof probe_pci_guard.high);
+
  boot_progress_view=(U)(uintptr_t)view;
 }
 static int invoke(U action,U rax,U flags){
- Gate saved=*gate;Conflict saved_context=boot_progress_mmio;REQUIRE(probe_invoke(action,rax,flags)==0);
- REQUIRE(!memcmp(gate,&saved,sizeof saved));REQUIRE(!memcmp(&boot_progress_mmio,&saved_context,sizeof saved_context));return view_guards();
+ Gate saved=*gate;Conflict saved_context=boot_progress_mmio;PciGuard pci_saved=probe_pci_guard;REQUIRE(dong_configuration_conflict()==&probe_pci_guard.value);REQUIRE(probe_invoke(action,rax,flags)==0);
+ REQUIRE(!memcmp(gate,&saved,sizeof saved));REQUIRE(!memcmp(&boot_progress_mmio,&saved_context,sizeof saved_context));REQUIRE(!memcmp(&probe_pci_guard,&pci_saved,sizeof pci_saved));return view_guards();
 }
 static int progress_pixels(unsigned phase,unsigned failed,U error,U cpus){
  const char *stage=phase<=23?titles[phase]:"DONGOS P7 BOOT STAGE";
@@ -267,6 +281,78 @@ static int protected_mmio_contexts(void){
  }
  return 0;
 }
+static void pci_context(U reason){
+ boot_progress_phase=15;boot_progress_failed=1;boot_progress_error=PCI_DENIED;
+ probe_pci_guard.value=(PciConflict){1,1,reason,PCI_DENIED,
+  UINT64_C(0xfedcba9876543000),UINT64_C(0x100000001000),1,UINT64_C(0x1234567887654321),
+  UINT64_C(0x0102030405060708),UINT64_C(0x13579bdf2468a000),UINT64_C(0x12345678abcdef01),UINT64_C(0x8000000000000001),
+  UINT64_C(0x1122334400000000),UINT64_C(0x55667788ffffffff),UINT64_C(0x8877665544332000),UINT64_C(0xfedcba9876543210)};
+}
+static int pci_pixels(void){
+ static const char *const labels[]={"STAGE","CPU COUNT","FIRST ERROR","PCI REASON","PCI PHYSICAL","PCI BYTES","UEFI TYPE","DESC BASE","DESC PAGES","EFI ATTR","MCFG FIRST","MCFG END","FB BASE","FB BYTES"};
+ const PciConflict *c=&probe_pci_guard.value;
+ const U values[]={15,boot_progress_cpus,PCI_DENIED,c->reason,c->physical,c->bytes,c->kind,c->base,c->pages,c->attributes,c->mcfg_first,c->mcfg_end,c->framebuffer_base,c->framebuffer_bytes};
+ REQUIRE(edges());REQUIRE(text(56,48,"DONGOS BOOT FAILED")&&text(56,84,titles[15]));
+ for(unsigned i=0;i<14;i++){unsigned y=120+i*24;REQUIRE(text(56,y,labels[i])&&hex(238,y,values[i]));}
+ return 0;
+}
+static int valid_pci_contexts(void){
+ for(U format=0;format<2;format++)for(U active=0;active<2;active++)for(U reason=1;reason<=3;reason++){
+  scenario="S15 PCI denial renders complete immutable request descriptor MCFG and FB context";reset(format,active);pci_context(reason);
+  if(invoke(24,PCI_DENIED,reason&1?FLAG_BITS:0)||pci_pixels())return 1;
+  REQUIRE(boot_progress_phase==15&&boot_progress_failed==1&&boot_progress_error==PCI_DENIED);++cases;
+ }
+ return 0;
+}
+static int rejected_pci_contexts(void){
+ for(U format=0;format<2;format++)for(unsigned variant=0;variant<24;variant++){
+  scenario="PCI diagnostic requires exact phase first error version valid and ECAM receipt";reset(format,0);pci_context(1);
+  switch(variant){
+   case 0:probe_pci_guard.value.version=0;break;case 1:probe_pci_guard.value.version=2;break;
+   case 2:probe_pci_guard.value.version=UINT64_C(0x100000001);break;
+   case 3:probe_pci_guard.value.valid=0;break;case 4:probe_pci_guard.value.valid=2;break;
+   case 5:probe_pci_guard.value.valid=UINT64_C(0x100000001);break;
+   case 6:probe_pci_guard.value.error=0;break;case 7:probe_pci_guard.value.error=PCI_DENIED+1;break;
+   case 8:probe_pci_guard.value.error=UINT64_C(0x100000000)|PCI_DENIED;break;
+   case 9:probe_pci_guard.value.ecam=0;break;case 10:probe_pci_guard.value.ecam=2;break;
+   case 11:probe_pci_guard.value.ecam=UINT64_C(0x100000001);break;
+   case 12:boot_progress_error=PCI_DENIED+1;break;
+   case 13:boot_progress_error=UINT64_C(0x100000000)|PCI_DENIED;break;
+   case 14:boot_progress_phase=0;break;case 15:boot_progress_phase=1;break;
+   case 16:boot_progress_phase=14;break;case 17:boot_progress_phase=16;break;
+   case 18:boot_progress_phase=23;break;case 19:boot_progress_phase=255;break;
+   case 20:boot_progress_failed=0;break;case 21:boot_progress_failed=2;break;
+   case 22:probe_pci_guard.value.valid=UINT64_MAX;break;default:probe_pci_guard.value.version=UINT64_MAX;break;
+  }
+  if(invoke(0,UINT64_MAX,FLAG_BITS)||progress_pixels(boot_progress_phase,boot_progress_failed,boot_progress_error,boot_progress_cpus))return 1;
+  ++cases;
+ }
+ return 0;
+}
+static int protected_pci_contexts(void){
+ static const U denied[]={CLOSED,CLOSING,CLOSED|CLOSING,UINT64_C(1)<<32,UINT64_C(0xffffffff),CLOSED|7,CLOSING|9};
+ for(U format=0;format<2;format++)for(unsigned i=0;i<sizeof denied/sizeof denied[0];i++){
+  scenario="PCI context respects existing Gate and poison caller View";reset(format,denied[i]);pci_context(i%3+1);
+  memcpy(pixels_before,pixels,fb_size);if(invoke(0,0,FLAG_BITS))return 1;REQUIRE(!memcmp(pixels_before,pixels,fb_size));
+  boot_progress_view=1;if(invoke(24,PCI_DENIED,0))return 1;REQUIRE(!memcmp(pixels_before,pixels,fb_size));++cases;
+ }
+ for(U format=0;format<2;format++){
+  scenario="unarmed PCI receipt is RAM only";reset(format,0);pci_context(3);boot_progress_view=0;
+  memcpy(pixels_before,pixels,fb_size);if(invoke(0,0,FLAG_BITS)||invoke(24,PCI_DENIED,0))return 1;
+  REQUIRE(!memcmp(pixels_before,pixels,fb_size));++cases;
+  scenario="retired PCI diagnostic cannot repaint after user admission";reset(format,0);pci_context(2);
+  if(invoke(0,0,FLAG_BITS)||pci_pixels()||invoke(25,0,0))return 1;
+  memcpy(pixels_before,pixels,fb_size);if(invoke(15,0,FLAG_BITS)||invoke(24,PCI_DENIED,0))return 1;
+  REQUIRE(boot_progress_view==0&&!memcmp(pixels_before,pixels,fb_size));++cases;
+  scenario="PCI context does not bypass framebuffer geometry";reset(format,0);pci_context(1);display->width=639;
+  memcpy(view_before,view,RUNTIME_VIEW_BYTES);memcpy(pixels_before,pixels,fb_size);if(invoke(0,0,FLAG_BITS))return 1;
+  REQUIRE(!memcmp(pixels_before,pixels,fb_size));++cases;
+  scenario="S01 retains its independent MMIO renderer while PCI receipt exists";reset(format,0);pci_context(1);mmio_context(9);
+  if(invoke(0,0,FLAG_BITS)||mmio_pixels())return 1;
+  ++cases;
+ }
+ return 0;
+}
 static int mark_only_and_callbacks(void){
  for(U format=0;format<2;format++)for(U active=0;active<2;active++)for(unsigned phase=20;phase<=23;phase++){
   scenario="timed handoff mark preserves pixels until explicit terminal error";reset(format,active);
@@ -325,6 +411,8 @@ int main(void){
  REQUIRE(cases==218);
  if(mark_only_and_callbacks())return 1;
  REQUIRE(cases==236);
+ if(valid_pci_contexts()||rejected_pci_contexts()||protected_pci_contexts())return 1;
+ REQUIRE(cases==318);
  free(view_before);free(view_allocation);free(pixels_before);
 #ifdef _WIN32
  (void)VirtualFree(fb_mapping,0,MEM_RELEASE);

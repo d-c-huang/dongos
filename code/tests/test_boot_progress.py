@@ -18,6 +18,8 @@ from tools.build import find_tool
 from tools.elf_symbols import read_elf_symbols
 
 ROOT=Path(__file__).resolve().parents[1]
+PCI_SYMBOL='__dg_m757365722e64657669636573_g5043495f434f4e464c494354'
+PCI_GETTER='dong_configuration_conflict'
 REGISTERS=('rax','rbx','rcx','rdx','rsi','rdi','rbp','r8','r9','r10','r11','r12','r13','r14','r15')
 
 
@@ -25,7 +27,7 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def save(path,value):Path(path).write_text(json.dumps(value,indent=2)+'\n',encoding='utf-8')
 
 
-def elf_bindings(path):
+def elf_bindings(path,global_only=False):
     raw=Path(path).read_bytes();at=struct.unpack_from('<Q',raw,40)[0]
     stride,count=struct.unpack_from('<HH',raw,58)
     sections=[struct.unpack_from('<IIQQQQIIQQ',raw,at+i*stride) for i in range(count)]
@@ -34,14 +36,15 @@ def elf_bindings(path):
         if section[1]!=2:continue
         strings=sections[section[6]];names=raw[strings[4]:strings[4]+strings[5]]
         for offset in range(section[4],section[4]+section[5],section[9]):
-            name,_,_,index,_,_=struct.unpack_from('<IBBHQQ',raw,offset)
+            name,info,_,index,_,_=struct.unpack_from('<IBBHQQ',raw,offset)
             if not name:continue
+            if global_only and info>>4 not in (1,2):continue
             value=names[name:names.index(0,name)].decode()
             (defined if index else undefined).add(value)
     return defined,undefined
 
 
-def linked_symbol_contract(state,nasm,run,header):
+def linked_symbol_contract(state,nasm,run,header,pci_provider):
     """Real whole-entry object + real macro callers; never execute this ELF."""
     linker=find_tool('ld.lld','LD_LLD');d=state/'linked-entry';d.mkdir()
     entry=d/'entry.o'
@@ -64,13 +67,16 @@ def linked_symbol_contract(state,nasm,run,header):
     reports=[]
     for variant,contents in [('production',header),('old-cross-tu-local-label',header[:macro.start()]+old+header[macro.end():])]:
         target=d/variant;target.mkdir();(target/'boot_progress.inc').write_text(contents,encoding='utf-8')
-        objects=[entry]
+        objects=[entry,pci_provider]
         for caller in ('a','b'):
             asm=target/(caller+'.asm');asm.write_text('bits 64\ndefault rel\n%define RUNTIME_LEVEL 7\n%include "boot_progress.inc"\nsection .text\nglobal boot_probe_'+caller+'\nboot_probe_'+caller+':\nHW_BOOT_ERROR\nret\n',encoding='ascii')
             obj=target/(caller+'.o');run([nasm,*nasm_flags(nasm),'-f','elf64','-I',str(target)+os.sep,asm,'-o',obj],target,'assemble-caller-'+caller);objects.append(obj)
         definitions,references=set(),set()
         for obj in objects:
-            defined,undefined=elf_bindings(obj);definitions|=defined;references|=undefined
+            defined,undefined=elf_bindings(obj,global_only=True);definitions|=defined;references|=undefined
+        if PCI_SYMBOL not in elf_bindings(pci_provider)[0] or PCI_GETTER not in definitions:
+            raise AssertionError('PCI getter and local BSS are not provided by the actual compiled DG object')
+        if PCI_GETTER in references-definitions:raise AssertionError('PCI getter would be replaced by a fake function stub')
         stubs=target/'stubs.asm';stubs.write_text('bits 64\nsection .text\n'+'\n'.join(
             'global '+name+'\n'+name+':\nret' for name in sorted(references-definitions))+'\n',encoding='ascii')
         stub=target/'stubs.o';run([nasm,*nasm_flags(nasm),'-f','elf64',stubs,'-o',stub],target,'assemble-unexecuted-extern-stubs')
@@ -78,9 +84,9 @@ def linked_symbol_contract(state,nasm,run,header):
         run([linker,'-nostdlib','-e','kernel_entry','-Ttext=0xffffffff80000000','-o',elf,*objects,stub],target,'link-actual-entry')
         if variant=='production':
             symbols=read_elf_symbols(elf)
-            for name in ('kernel_entry','boot_progress_draw','boot_progress_record_error','boot_probe_a','boot_probe_b'):
+            for name in ('kernel_entry','boot_progress_draw','boot_progress_record_error','boot_probe_a','boot_probe_b',PCI_SYMBOL,PCI_GETTER):
                 if name not in symbols:raise AssertionError('missing actual linked entry symbol '+name)
-            result=dict(variant=variant,reader_accepted=True,symbol_count=len(symbols),named_error_helper=symbols['boot_progress_record_error'])
+            result=dict(variant=variant,reader_accepted=True,symbol_count=len(symbols),named_error_helper=symbols['boot_progress_record_error'],actual_pci_bss_symbol=PCI_SYMBOL,actual_pci_bss_address=symbols[PCI_SYMBOL],actual_pci_getter=symbols[PCI_GETTER])
         else:
             try:read_elf_symbols(elf)
             except ValueError as error:
@@ -89,7 +95,33 @@ def linked_symbol_contract(state,nasm,run,header):
             else:raise AssertionError('actual repeated macro-local label regression escaped unchanged ELF observer')
         reports.append(result);save(target/'symbols.json',result)
     save(d/'result.json',dict(results=reports,actual_entry_object=True,actual_macro_callers=2,
-         existing_reader='tools.elf_symbols.read_elf_symbols',linked_elf_executed=False,externs_stubbed_for_link_only=True))
+         existing_reader='tools.elf_symbols.read_elf_symbols',linked_elf_executed=False,externs_stubbed_for_link_only=True,pci_bss_actual_dg_provider=True,pci_getter_actual_dg_provider=True,pci_bss_never_function_stubbed=True))
+
+
+def native_pci_provider(assembly):
+    """Execute the real exported getter and its local BSS, with RAM canaries."""
+    marker='$'+PCI_GETTER+':'
+    if assembly.count(marker)!=1:raise AssertionError('one actual exported PCI getter')
+    start=assembly.index(marker)
+    following=re.search(r'\n(?:align |section |global |\$[^\n]+:)',assembly[start+len(marker):])
+    if not following:raise AssertionError('actual getter function boundary')
+    getter=assembly[start:start+len(marker)+following.start()]+'\n'
+    # The getter must be a scalar address operation. No helpers, SIMD, loads
+    # from caller-controlled addresses, or publication writes may hide here.
+    instructions=[]
+    for line in getter.splitlines()[1:]:
+        value=line.split(';',1)[0].strip()
+        if not value or value.endswith(':'):continue
+        if not re.fullmatch(r'(?:push rbp|mov rbp, rsp|cld|lea rax, \[rel \$'+PCI_SYMBOL+r'\]|mov rsp, rbp|pop rbp|ret|jmp \.L_return_\d+)',value):
+            raise AssertionError('PCI getter is not pure scalar address return: '+value)
+        instructions.append(value)
+    if len([i for i in instructions if i.startswith('lea rax,')])!=1 or instructions[-1]!='ret':
+        raise AssertionError('actual getter does not return its fixed local context')
+    declaration=re.search(r'^\$'+PCI_SYMBOL+r':\n[ \t]+resb 128\n',assembly,re.M)
+    if not declaration:raise AssertionError('actual compiled 128-byte PCI BSS declaration')
+    return ('bits 64\ndefault rel\nsection .text\nglobal $'+PCI_GETTER+'\n'+getter+
+            'section .bss align=8\nglobal probe_pci_guard\nprobe_pci_guard:\n    resb 32\n'+
+            declaration.group(0)+'    resb 32\n')
 
 
 def native_bridge():
@@ -243,6 +275,26 @@ class BootProgressTests(unittest.TestCase):
             self.assertEqual((88,8),(conflict['size'],conflict['alignment']))
             self.assertEqual([(name,8*i,'u64',8) for i,name in enumerate(fields)],
                 [(f['name'],f['offset'],f['type'],f['size']) for f in conflict['fields']])
+            pci_compiled=compile_file(ROOT/'kernel/user/devices.dg',roots=[ROOT/'kernel',ROOT/'services',ROOT/'lang/std',ROOT/'lang/examples'],mode='release')
+            save(state/'pci-context-layout.json',pci_compiled.layout_manifest)
+            pci=next(t for t in pci_compiled.layout_manifest['types'] if t['full_name']=='user.devices.ConfigurationConflict')
+            pci_fields=('version','valid','reason','error_code','physical','bytes','ecam','descriptor_index','kind','base','pages','attributes','mcfg_first','mcfg_end','framebuffer_base','framebuffer_bytes')
+            self.assertEqual((128,8),(pci['size'],pci['alignment']))
+            self.assertEqual([(name,8*i,'u64',8) for i,name in enumerate(pci_fields)],[(f['name'],f['offset'],f['type'],f['size']) for f in pci['fields']])
+            pci_asm=state/'actual-pci-provider.asm';pci_asm.write_text(pci_compiled.assembly,encoding='utf-8')
+            self.assertIn('$'+PCI_SYMBOL+':',pci_compiled.assembly)
+            pci_provider=state/'actual-pci-provider.o'
+            run([nasm,*nasm_flags(nasm),'-f','elf64',pci_asm,'-o',pci_provider],state,'assemble-actual-pci-provider')
+            self.assertIn(PCI_SYMBOL,elf_bindings(pci_provider)[0])
+            provider_globals=elf_bindings(pci_provider,global_only=True)[0]
+            self.assertIn(PCI_GETTER,provider_globals);self.assertNotIn(PCI_SYMBOL,provider_globals)
+            provider_native=state/'actual-pci-native-provider.asm'
+            provider_native.write_text(native_pci_provider(pci_compiled.assembly),encoding='ascii')
+            native_providers={}
+            for fmt in ('elf64','win64'):
+                obj=state/('actual-pci-native-provider-'+fmt+'.o')
+                run([nasm,*nasm_flags(nasm),'-f',fmt,provider_native,'-o',obj],state,'assemble-pci-native-provider-'+fmt)
+                native_providers[fmt]=obj
             for name,typ,alias in [
                     ('bootinfo_layout.inc','boot.abi.BootInfo',None),
                     ('memory_layout.inc','boot.memory_resources.Layout','MemoryLayout'),
@@ -260,7 +312,8 @@ class BootProgressTests(unittest.TestCase):
                 (state/name).write_text(generate(layout,typ,alias),encoding='ascii')
             entry=(ROOT/'kernel/entry.asm').read_text(encoding='utf-8');header=(ROOT/'include/boot_progress.inc').read_text(encoding='utf-8')
             helper=(ROOT/'kernel/boot_progress.asm').read_text(encoding='utf-8')
-            linked_symbol_contract(state,nasm,run,header)
+            self.assertIn("%define BOOT_PCI_CONFLICT_GETTER "+PCI_GETTER,header)
+            linked_symbol_contract(state,nasm,run,header,pci_provider)
             native=production_include(entry)+'\nsection .bss\n'+fragment(entry,'BOOT_PROGRESS_STORAGE')
             self.assertEqual(native.count('\nscreen_draw:'),1)
             native=native.replace('\nscreen_draw:','\nproduction_screen_draw:',1)
@@ -275,10 +328,28 @@ class BootProgressTests(unittest.TestCase):
             wrong_offset='BOOT_MMIO_LINE boot_progress_kind_label,260,[rel boot_progress_mmio + BootProgressMmio.kind]'
             truncate_values='    mov rax,%3\n'
             truncate_valid='cmp qword [rel boot_progress_mmio + BootProgressMmio.valid],1'
-            for needle in (wrong_offset,truncate_values,truncate_valid):self.assertEqual(1,native.count(needle))
+            for needle in (wrong_offset,truncate_valid):self.assertEqual(1,native.count(needle))
+            self.assertEqual(2,native.count(truncate_values))
             variants['mmio-wrong-kind-offset']=(header,helper,native.replace(wrong_offset,wrong_offset.replace('BootProgressMmio.kind','BootProgressMmio.base'),1),hooks)
             variants['mmio-truncate-values']=(header,helper,native.replace(truncate_values,'    mov eax,%3\n',1),hooks)
             variants['mmio-truncate-valid']=(header,helper,native.replace(truncate_valid,truncate_valid.replace('qword','dword'),1),hooks)
+            pci_offset='BOOT_PCI_LINE boot_progress_kind_label,264,[rbx + BootPciConflict.kind]'
+            pci_valid='cmp qword [rbx + BootPciConflict.valid],1'
+            pci_error='cmp qword [rbx + BootPciConflict.error],0x050a0002'
+            pci_ecam='cmp qword [rbx + BootPciConflict.ecam],1'
+            pci_values='    mov rax,%3\n'
+            for needle in (pci_offset,pci_valid,pci_error,pci_ecam):self.assertEqual(1,native.count(needle))
+            variants['pci-wrong-type-offset']=(header,helper,native.replace(pci_offset,pci_offset.replace('BootPciConflict.kind','BootPciConflict.base'),1),hooks)
+            variants['pci-truncate-valid']=(header,helper,native.replace(pci_valid,pci_valid.replace('qword','dword'),1),hooks)
+            variants['pci-ignore-valid']=(header,helper,native.replace(pci_valid,pci_valid+'\n    ; predicate is deliberately overridden\n    cmp eax,eax',1),hooks)
+            variants['pci-ignore-error']=(header,helper,native.replace(pci_error,pci_error+'\n    ; predicate is deliberately overridden\n    cmp eax,eax',1),hooks)
+            variants['pci-truncate-ecam']=(header,helper,native.replace(pci_ecam,pci_ecam.replace('qword','dword'),1),hooks)
+            pci_start=native.index('%macro BOOT_PCI_LINE')
+            pci_end=native.index('%unmacro BOOT_PCI_LINE',pci_start)
+            selected=native[pci_start:pci_end];self.assertEqual(1,selected.count(pci_values))
+            variants['pci-truncate-values']=(header,helper,native[:pci_start]+selected.replace(pci_values,'    mov eax,%3\n',1)+native[pci_end:],hooks)
+            attributes_only=pci_values+'%ifidni %1,boot_progress_attributes_label\n    mov eax,eax\n%endif\n'
+            variants['pci-truncate-attributes']=(header,helper,native[:pci_start]+selected.replace(pci_values,attributes_only,1)+native[pci_end:],hooks)
             mark=re.search(r'%macro HW_BOOT_MARK 1\n.*?%endmacro',header,re.S)
             self.assertIsNotNone(mark)
             marked_draw=header[:mark.start()]+'%macro HW_BOOT_MARK 1\n    HW_BOOT_STAGE %1\n%endmacro'+header[mark.end():]
@@ -296,11 +367,15 @@ class BootProgressTests(unittest.TestCase):
                 for field in conflict['fields']:
                     asm_name='error' if field['name']=='error_code' else field['name']
                     self.assertEqual(field['offset'],symbols['BootProgressMmio.'+asm_name])
+                self.assertEqual(pci['size'],symbols['BootPciConflict_size'])
+                for field in pci['fields']:
+                    asm_name='error' if field['name']=='error_code' else field['name']
+                    self.assertEqual(field['offset'],symbols['BootPciConflict.'+asm_name])
                 for optimization in ('O0','O2'):
                     exe=d/(optimization+('.exe' if os.name=='nt' else ''))
                     run([cc,'-std=c11','-'+optimization,'-Wall','-Wextra','-Werror','-D__USE_MINGW_ANSI_STDIO=1',
-                         '-DRUNTIME_VIEW_BYTES='+str(view['size']),'-DMMIO_CONTEXT_BYTES='+str(conflict['size']),*([] if os.name=='nt' else ['-no-pie']),
-                         ROOT/'tests/boot_progress_probe.c',objects['win64' if os.name=='nt' else 'elf64'],'-o',exe],d,'link-'+optimization)
+                         '-DRUNTIME_VIEW_BYTES='+str(view['size']),'-DMMIO_CONTEXT_BYTES='+str(conflict['size']),'-DPCI_CONTEXT_BYTES='+str(pci['size']),*([] if os.name=='nt' else ['-no-pie']),
+                         ROOT/'tests/boot_progress_probe.c',objects['win64' if os.name=='nt' else 'elf64'],native_providers['win64' if os.name=='nt' else 'elf64'],'-o',exe],d,'link-'+optimization)
                     r=run([exe],d,'native-'+optimization,0 if name=='production' else 1)
                     self.assertIn('returned normally',r.stdout+r.stderr)
                     self.assertIn('boot progress oracle passed' if name=='production' else 'boot progress oracle failed',r.stdout+r.stderr)
@@ -309,7 +384,7 @@ class BootProgressTests(unittest.TestCase):
         finally:
             save(state/'source-after.json',fingerprint());save(state/'commands.json',commands)
             save(state/'result.json',dict(source_stable=before==fingerprint(),results=results,actual_renderer_and_helper=True,
-                 real_macros_executed=True,actual_user_boot_callbacks_executed=True,mark_only_and_retirement_verified=True,assembled_formats=['elf64','win64'],vm_executed=False,physical_devices_accessed=False))
+                 real_macros_executed=True,actual_user_boot_callbacks_executed=True,mark_only_and_retirement_verified=True,actual_pci_provider_linked=True,pci_context_full_width_pixels_and_guards_verified=True,assembled_formats=['elf64','win64'],vm_executed=False,physical_devices_accessed=False))
         print('BOOT_PROGRESS_EVIDENCE '+str(state))
 
 

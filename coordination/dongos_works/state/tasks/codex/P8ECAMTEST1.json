@@ -1,0 +1,108 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_user_smp_readonly",
+    "module:tests.test_xhci_kernel",
+    "module:tests.test_ahci_broker",
+    "module:tests.test_nvme_broker"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-26T12:08:08+00:00",
+  "claimed_by": "codex-mcp-918a30d10dd649bf",
+  "completed_at": "2026-10-26T12:27:31+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-26T12:08:08+00:00",
+  "delivery": "codex-works/deliveries/P8ECAMTEST1.md",
+  "depends_on": [
+    "codex:P8USERDIAG1"
+  ],
+  "description": "P8ECAM1必要旧回归实际8测试中6错误，保留native-regression.log：readonly旧源副本UTF8/新增configuration_address记录helper缺失、xhci stub memory.DmaLease缺失、AHCI/NVMe native片段硬件profile import缺失。只修4测试夹具依赖，不改生产策略/删除断言/坏体/0副作用及原BAR DMA合同。显式UTF8构建source、真实ConfigurationConflict和helper/或硬件边界等效隔离、DmaLease新ABI和纯getter等接口采用真实定义，hardware_profile默认模块原样复制；保留实际原函数/实际坏体正常执行拒绝，标清没执行硬件的边界。独立4模块定向0skip/source稳定，审查实际assert/原函数不被替换偷放权限后验收集成；旧失败保留。",
+  "document": "codex-works/tasks/P8ECAMTEST1-board.md",
+  "historical": false,
+  "id": "codex:P8ECAMTEST1",
+  "integration_note": "五个声明文件已实际集成主目录，等于正式独立作业dfa4160b806a4a349f0f95e3d0925caa的五指纹；7tests全通过、零skip、source稳定、所有执行退出。真实生产guard与native oracle/坏体未弱化，UTF8/当前ABI/profile依赖适配完成。P8ECAM1已integrated rev6并发布正常SanDisk H:，本任务仅维护测试，不另写USB。保留原首轮错误日志及尚未验证8CPU Intel实机的限制，GitHub完整源码/交付/正式审查记录随后提交。",
+  "legacy_hash": "e5e7511177ebf31d117b318a36bb8508781d49bc5ca98fa2c6f713509ce584e4",
+  "number": "P8ECAMTEST1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审阅四源码diff/生产依赖/现有probe和oracle，改动仅UTF-8 staging、真实128B拒绝context纯依赖、真实DmaLease/Process/generation/dma_snapshot ABI与默认hardware_profile逐字复制；未删原正常/坏体断言或弱化BAR/DMA/零effects门。首轮6ERROR及预加载旧xHCI两错误日志保留，冻结新源预验四模块7唯一tests全部实际通过：50executables/80native invocations(40rc0/40真实坏体rc1)，源码hash稳定。正式独立作业dfa4160b806a4a349f0f95e3d0925caa四模块7tests全PASS/0skip/timeout0，source_stable/process_stopped/execution_exited全true，四源+delivery五指纹等于主目录。另A独立作业08773772212f4c199c2a583d3f3c76d2同四模块亦全通过。接受测试夹具维护，不把此结果等同于8CPU物理Intel桌面/USB测试通过。",
+  "status": "integrated",
+  "title": "ECAM相关既有只读与BAR/DMA探针适配当前依赖ABI",
+  "updated_at": "2026-10-26T12:43:03+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 233.735,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_smp_readonly",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 326.328,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_kernel",
+        "tests": 3,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 3.437,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_ahci_broker",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 9.109,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_nvme_broker",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8ECAMTEST1.md": "40e9f83ee4ccd284d8ee798e6e3de6cab3e8419fcc0d6ec7d1c4d7d4c61c0a53",
+      "tests/test_ahci_broker.py": "61740f435652b0bcac7e97d7e03a8d2eeb338da0d3294e9ed6672a3128dbc410",
+      "tests/test_nvme_broker.py": "ee0ff50278fb6259b586538bcdd116e896318628bfdaeb6d6f21c3eae87af17e",
+      "tests/test_user_smp_readonly.py": "3f94c28c534d9af1ae82c41213b3fe6e6472d8d8096fb1fe94db60ff1cdba8cb",
+      "tests/test_xhci_kernel.py": "319a87c1cd9ba11fc4c363e60cc08592ca12b98add94a85d1cc192ec0e2ede7a"
+    },
+    "finished_at": "2026-10-26T12:42:02+00:00",
+    "job": "dfa4160b806a4a349f0f95e3d0925caa",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/test_user_smp_readonly.py",
+    "tests/test_xhci_kernel.py",
+    "tests/test_ahci_broker.py",
+    "tests/test_nvme_broker.py",
+    "codex-works/deliveries/P8ECAMTEST1.md"
+  ]
+}

@@ -20,7 +20,29 @@ struc BootProgressMmio
     .pages: resq 1
     .attributes: resq 1
 endstruc
+; ABI cross-checked against user.devices.ConfigurationConflict (16 qwords).
+; A fixed compiler-owned BSS object, never an address supplied in a field.
+struc BootPciConflict
+    .version: resq 1
+    .valid: resq 1
+    .reason: resq 1
+    .error: resq 1
+    .physical: resq 1
+    .bytes: resq 1
+    .ecam: resq 1
+    .descriptor_index: resq 1
+    .kind: resq 1
+    .base: resq 1
+    .pages: resq 1
+    .attributes: resq 1
+    .mcfg_first: resq 1
+    .mcfg_end: resq 1
+    .framebuffer_base: resq 1
+    .framebuffer_bytes: resq 1
+endstruc
+%define BOOT_PCI_CONFLICT_GETTER dong_configuration_conflict
 %ifdef HW_BOOT_PROGRESS_OWNER
+extern BOOT_PCI_CONFLICT_GETTER
 global boot_progress_draw, boot_progress_record_error
 global boot_progress_phase, boot_progress_failed, boot_progress_error
 global boot_progress_view, boot_progress_cpus

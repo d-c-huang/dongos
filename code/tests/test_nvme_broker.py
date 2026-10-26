@@ -11,6 +11,7 @@ from lang.tests.test_dongc import nasm_flags, tool
 from tests.test_input import command
 ROOT=Path(__file__).resolve().parents[1]
 FIXTURES=ROOT/'tests/ahci_broker_fixtures'
+HARDWARE_PROFILE=ROOT/'services/lib/hardware_profile.dg'
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 class NvmeBrokerTests(unittest.TestCase):
@@ -20,13 +21,15 @@ class NvmeBrokerTests(unittest.TestCase):
         first=raw.index(b'unsafe fn interrupt_caps(');middle=raw.index(b'pub unsafe fn grant(',first)
         end=raw.index(b'pub fn granted_bars(',middle)
         capwalk,grant=raw[first:middle],raw[middle:end]
-        names=[formal,FIXTURES/'harness-prefix.dg.in',FIXTURES/'harness-suffix.dg.in',ROOT/'tests/nvme_broker_probe.c',
+        names=[formal,HARDWARE_PROFILE,FIXTURES/'harness-prefix.dg.in',FIXTURES/'harness-suffix.dg.in',ROOT/'tests/nvme_broker_probe.c',
                Path(__file__),*sorted((FIXTURES/'stubs').rglob('*.dg')),*sorted((ROOT/'lang/dongc').glob('*.py'))]
         before={str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in names}
         extraction=dict(source_sha256=sha(raw),capwalk_start=first,capwalk_end=middle,grant_end=end,
                         capwalk_sha256=sha(capwalk),grant_sha256=sha(grant),capwalk_bytes=len(capwalk),grant_bytes=len(grant),original_bytes_preserved=True)
         (directory/'capwalk.original.dg.in').write_bytes(capwalk);(directory/'grant.original.dg.in').write_bytes(grant)
         prefix=(FIXTURES/'harness-prefix.dg.in').read_bytes()
+        self.assertEqual(1,prefix.count(b'module broker_probe;'))
+        prefix=prefix.replace(b'module broker_probe;',b'module broker_probe;\nimport lib.hardware_profile as hardware_profile;')
         stub=b'unsafe fn interrupt_caps(ecam:u64,disable:bool)!u64 {return error.Invalid;}'
         self.assertEqual(1,prefix.count(stub))
         prefix=prefix.replace(stub,b'''unsafe extern "sysv64" ("broker_control16") fn host_control16(address:u64,value:u16)u64;
@@ -53,6 +56,9 @@ export("broker_caps") fn caps(ecam:u64,disable:u64,out:*u64)u64 {unsafe {
             evidence[kind]={}
             for mode in ('debug','release'):
                 where=directory/kind/mode;where.mkdir(parents=True)
+                profile=where/'lib/hardware_profile.dg';profile.parent.mkdir(parents=True,exist_ok=True)
+                profile.write_bytes(HARDWARE_PROFILE.read_bytes())
+                self.assertEqual(HARDWARE_PROFILE.read_bytes(),profile.read_bytes())
                 body=capwalk+grant
                 if kind!='normal':
                     old,new,_=controls[kind];self.assertEqual(2 if kind in ('no-cap-readback','wrong-control-width') else 1,body.count(old));body=body.replace(old,new)

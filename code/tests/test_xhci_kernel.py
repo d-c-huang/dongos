@@ -11,6 +11,7 @@ import hashlib,json,os,re,subprocess,unittest,uuid
 from pathlib import Path
 from lang.dongc import compile_file
 from lang.tests.test_dongc import nasm_flags,tool
+from tests.test_service_ipc_cancellation import block
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE_ROOT=ROOT
 
@@ -40,7 +41,15 @@ def dependencies(stage,names,overrides=None):
  for name in names:copy(name)
 
 def stubs():
- return {
+ memory=(SOURCE_ROOT/'kernel/user/memory.dg').read_text(encoding='utf-8')
+ # Use the current trusted-memory ABI and its real, fail-closed getters. This
+ # grant fixture does not publish a process or a DMA-retirement lease.
+ declarations=('pub const LIMIT:', 'pub error InvalidState =', 'pub struct Process ',
+               'const EMPTY_PROCESS:', 'var PROCESSES:', 'var GENERATIONS:')
+ memory_abi='\n'.join(next(line for line in memory.splitlines() if line.startswith(name)) for name in declarations)+'\n'
+ memory_abi+=memory[memory.index('pub struct DmaLease '):memory.index('// One exclusive BSP loader transaction.')]
+ memory_abi+=block(memory,'pub fn processes(')+'\n'+block(memory,'pub fn generation(')+'\n'
+ result={
  'boot.memory_startup':'''module boot.memory_startup;import mm.paging as paging;
  pub struct View {pub raw_map:u64,pub descriptor_size:u64,pub raw_size:u64,pub framebuffer_physical:u64,pub framebuffer_bytes:u64}
  pub fn runtime_pointer()*const View{return null;}pub fn space_pointer()*paging.Space{return null;}
@@ -91,6 +100,9 @@ pub unsafe fn describe(out:*Report)!void{return error.Unmodeled;}
  pub unsafe fn route_isa(irq:u64,masked:bool,out:*Route)!void{unsafe{(*out).gsi=irq;}return;}
  pub unsafe fn mask_isa(irq:u64,masked:bool)!void{return;}pub unsafe fn device_eoi()!void{return;}''',
  }
+ result['user.memory']=result['user.memory'].replace('module user.memory;',
+  'module user.memory;\nimport user.abi as abi;\nimport exec.elf as elf;\n')+memory_abi
+ return result
 
 def lowered(source):
  hooks='''
@@ -116,7 +128,7 @@ class XhciKernelTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
   cls.out=ROOT/'build/test/p8-xhci-kernel'/('run-'+uuid.uuid4().hex[:12]);cls.out.mkdir(parents=True)
-  cls.inputs=[SOURCE_ROOT/'kernel/user/devices.dg',SOURCE_ROOT/'kernel/user/device_host.dg',SOURCE_ROOT/'kernel/user/virtio_quiesce.dg',SOURCE_ROOT/'services/drivers/virtio_pci.dg',SOURCE_ROOT/'services/drivers/pci.dg',SOURCE_ROOT/'services/drivers/device_manager.dg',SOURCE_ROOT/'services/drivers/xhci_authority.dg',ROOT/'tests/xhci_kernel_probe.dg',ROOT/'tests/xhci_kernel_probe.c',Path(__file__)]
+  cls.inputs=[SOURCE_ROOT/'kernel/user/devices.dg',SOURCE_ROOT/'kernel/user/device_host.dg',SOURCE_ROOT/'kernel/user/memory.dg',SOURCE_ROOT/'kernel/user/virtio_quiesce.dg',SOURCE_ROOT/'services/drivers/virtio_pci.dg',SOURCE_ROOT/'services/drivers/pci.dg',SOURCE_ROOT/'services/drivers/device_manager.dg',SOURCE_ROOT/'services/drivers/xhci_authority.dg',ROOT/'tests/xhci_kernel_probe.dg',ROOT/'tests/xhci_kernel_probe.c',Path(__file__)]
   cls.before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.inputs};(cls.out/'source-before.json').write_text(json.dumps(cls.before,indent=2)+'\n')
  @classmethod
  def tearDownClass(cls):
@@ -126,7 +138,7 @@ class XhciKernelTests(unittest.TestCase):
   r=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=90);(d/(name+'.json')).write_text(json.dumps(dict(command=args,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r
  def native(self,mutation=None):
   for mode in ('debug','release'):
-   d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();stage=d/'source';override=stubs();original=(SOURCE_ROOT/'kernel/user/devices.dg').read_text()
+   d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();stage=d/'source';override=stubs();original=(SOURCE_ROOT/'kernel/user/devices.dg').read_text(encoding='utf-8')
    if mutation:
     needle,replacement={
      'wrong-device':('((try read32(XHCI_ADMITTED))!=XHCI_IDENTITY)','false'),
@@ -135,7 +147,7 @@ class XhciKernelTests(unittest.TestCase):
      'reuse-quarantine':('XHCI_QUARANTINED=true;ecam=XHCI_ADMITTED;','ecam=XHCI_ADMITTED;'),
     }[mutation];self.assertEqual(1,original.count(needle));original=original.replace(needle,replacement)
    override['user.devices']=lowered(original);dependencies(stage,['user.devices','user.device_host'],override)
-   c=compile_file(ROOT/'tests/xhci_kernel_probe.dg',roots=[ROOT/'tests',stage],mode=mode);(d/'probe.asm').write_text(c.assembly)
+   c=compile_file(ROOT/'tests/xhci_kernel_probe.dg',roots=[ROOT/'tests',stage],mode=mode);(d/'probe.asm').write_text(c.assembly,encoding='utf-8')
    obj=d/'probe.o';nasm=tool('nasm','NASM');cc=tool('gcc','CC');self.assertTrue(nasm and cc)
    r=self.command([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),'-o',str(obj),str(d/'probe.asm')],d,'assemble');self.assertEqual(0,r.returncode,r.stderr)
    exe=d/('probe.exe' if os.name=='nt' else 'probe');r=self.command([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing',*(['-mno-sse'] if os.name=='nt' else ['-no-pie']),str(ROOT/'tests/xhci_kernel_probe.c'),str(obj),'-o',str(exe)],d,'link');self.assertEqual(0,r.returncode,r.stderr)
@@ -149,7 +161,7 @@ class XhciKernelTests(unittest.TestCase):
   stage=self.out/'unmodified-source';dependencies(stage,['user.devices','user.device_host','drivers.device_manager'])
   for mode in ('debug','release'):
    for name in ('user.devices','user.device_host','drivers.device_manager'):
-    c=compile_file(stage/(name.replace('.','/')+'.dg'),roots=[stage],mode=mode);p=self.out/(name+'-'+mode+'.asm');p.write_text(c.assembly)
+    c=compile_file(stage/(name.replace('.','/')+'.dg'),roots=[stage],mode=mode);p=self.out/(name+'-'+mode+'.asm');p.write_text(c.assembly,encoding='utf-8')
     nasm=tool('nasm','NASM');r=self.command([nasm,'-f','elf64',*nasm_flags(nasm),'-o',str(p.with_suffix('.o')),str(p)],self.out,name+'-'+mode);self.assertEqual(0,r.returncode,r.stderr)
  def test_actual_kernel_grant_gate_and_quarantine(self):self.native()
  def test_actual_bad_kernel_sources_are_rejected(self):

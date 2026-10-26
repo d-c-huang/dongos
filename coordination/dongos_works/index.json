@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-26T11:25:13+00:00",
+  "generated_at": "2026-10-26T12:43:03+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -11270,6 +11270,269 @@
       "legacy_hash": "0266921396873e824e0a1efe9bc3582c82ad70d7a4a0bcccf1fa77ccf1f58946",
       "claim_from_status": "todo",
       "integration_note": "六声明文件真实位于code/及coordination/dongos_works中，已独立通过15项零skip正式复验并逐SHA核对与fingerprint完全一致，accept后单独登记本地文件集成。正常与两类拒绝客体绑定EFI972dc5a5…，当前R2可见诊断介质候选位于code/build/hardware/bootdiag-20261025-r3/source/esp；已准备同一SanDisk身份/旧SHA预检、原件备份与读回验证脚本。H盘当前不在开发机，未执行写回，真实硬件仍黑屏待定位；新观察前不将P2/P8标通过。原失败全部保留，无commit/push。"
+    },
+    {
+      "id": "codex:P8ECAM1",
+      "number": "P8ECAM1",
+      "owner": "codex",
+      "title": "可信MCFG Runtime type11 ECAM兼容与S15拒绝上下文",
+      "description": "新真机S15 PCI DISCOVERY FIRST ERROR050A0002 CPU8，真实链preflight_discovery/discover/hardware/configuration_read/read32/configuration_address/window/mmio_range，仅读ECAM vendor/class/header，无BAR/角色绑定/DMA授予。Denied可能descriptor type/Runtime、retained framebuffer或MCFG边界，Runtime很可疑但尚无原descriptor不能冒称实机根因确诊。仅增加ecam&&kind11&&完整请求位于可信MCFG范围的Runtime兼容，Reserved0 Runtime仍拒，所有BAR ecam=false Runtime仍拒/非11-RAM/MCFG边界/FB排除/权限9及map前guard不变。当前无EFI runtime调用、allocator只非runtime7、新root无Runtime宽WB alias，原WINDOW supervisor WRITE|UC/NX不变，不改EFI服务/安全/DMA/deadline。纯DG BSS新增versioned128B PCI_CONFLICT(first-Denied sticky)16q：version valid reason error physical bytes ecam descriptor_index kind base pages attrs mcfg_first mcfg_end framebuffer_base framebuffer_bytes；reason1descriptor 2FB 3bounds，仅ecam路径记录，valid最后发布，无外调/分配/硬件效果。ASM entry通过真实编译器pub var全局符号读取此固定BSS，S15/error050a2/version1/valid1/ecam1且error相等才显示紧凑14行原因物理范围/UEFI/MCFG/FB，绝不解引用字段地址，低分辨率安全原Gate/ABI/首次error不变。新增真实raw64/mmio_range/configuration_address/window/read32 native harness，只隔离startup/paging/invlpg/最终volatile_load等硬件边界，覆盖12mask类型两用途/非0首bus/边界FB/0副作用/raw只读/context原值及坏体正常oracle拒绝；扩展原bootprogress实际renderer像素守卫。独立新ECAM/bootprogress/framebuffer/stable-readonly/xhci/AHCI/NVMe定向复验0skip/source稳定。root正常USB-only两boot原完整HID/FS/CPU gate及私有EFI真实MCFG Runtime type11描述符兼容实际发现后正常boot，旧拒绝私有kernel反控S15/versionedcontext/屏幕原始descriptor逐字一致，normal objects/磁盘不变/全部VM停。原SanDisk H已确认插回，验证后备份fsync全readback/readonlyFAT正常成品发布，private不发布，任务验收集成与Git沿既有授权。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/user/devices.dg",
+        "include/boot_progress.inc",
+        "kernel/entry.asm",
+        "tests/test_ecam_mmio.py",
+        "tests/ecam_mmio_probe.c",
+        "tests/test_boot_progress.py",
+        "tests/boot_progress_probe.c",
+        "docs/hardware-ecam-runtime.md",
+        "codex-works/deliveries/P8ECAM1.md"
+      ],
+      "depends_on": [
+        "codex:P8USERDIAG1"
+      ],
+      "checks": [
+        "module:tests.test_ecam_mmio",
+        "module:tests.test_boot_progress",
+        "module:tests.test_framebuffer_gate",
+        "module:tests.test_user_smp_readonly",
+        "module:tests.test_xhci_kernel",
+        "module:tests.test_ahci_broker",
+        "module:tests.test_nvme_broker"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-26T11:43:09+00:00",
+      "updated_at": "2026-10-26T12:38:40+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8ECAM1-board.md",
+      "delivery": "codex-works/deliveries/P8ECAM1.md",
+      "claimed_at": "2026-10-26T11:43:10+00:00",
+      "completed_at": "2026-10-26T12:18:28+00:00",
+      "claimed_by": "codex-mcp-918a30d10dd649bf",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_ecam_mmio",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 19.422
+          },
+          {
+            "spec": "module:tests.test_boot_progress",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 80.016
+          },
+          {
+            "spec": "module:tests.test_framebuffer_gate",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 17.421
+          },
+          {
+            "spec": "module:tests.test_user_smp_readonly",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 233.875
+          },
+          {
+            "spec": "module:tests.test_xhci_kernel",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 328.812
+          },
+          {
+            "spec": "module:tests.test_ahci_broker",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 3.64
+          },
+          {
+            "spec": "module:tests.test_nvme_broker",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.359
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/user/devices.dg": "894db7f3db26ddb2e018ce3619e34ad628abbd8186a4bdda7c46f074f96c22dc",
+          "include/boot_progress.inc": "6c918beb2e5df5c3a02c1a7a0143faf2822d7e71593eb8685828c5fdf2745be3",
+          "kernel/entry.asm": "1700afe0a3873109eb032677ac6cb5f2da3beca0e38549e08c783f155fbb4d17",
+          "tests/test_ecam_mmio.py": "13dd55ca6ed6f1cd334e5c772951ee8dcda685d71db5d9e96ad1d1dc0a6d43fc",
+          "tests/ecam_mmio_probe.c": "1d4c96a57445e396c4362adae9f538118856c5f0fea3d2982beede4c365fbdb2",
+          "tests/test_boot_progress.py": "421d7436fdcbaa1924a5ac64757016ed37b10b528dcf87a30a4cebe4edb6df45",
+          "tests/boot_progress_probe.c": "7b78aa75c1d7d34b991aa57fb09dfca03ab108f8b3d3afa99cad0d01a0c46552",
+          "docs/hardware-ecam-runtime.md": "18a718da78b741f9e6c61a3ee20cb39cc7d4c0ab7c6ef53b456045627fd0ddf4",
+          "codex-works/deliveries/P8ECAM1.md": "94f0021b4087ddd9f3e531ea028a1fe7c5d3f45c25748169ffdad8a4fa4f840d"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-26T12:32:20+00:00",
+        "job": "08773772212f4c199c2a583d3f3c76d2"
+      },
+      "review_note": "源码/契约/测试有效性已实审：只放可信MCFG完整配置请求的Runtime type11，BAR/DMA及Runtime Reserved/RAM仍拒，FB与先guard后map不变。128B首拒绝valid-last、纯固定BSS getter真实ELF链接和14行640×480/ABI守卫有效；原生214cases×4、10实际坏体及屏幕318cases/5743checks×2、14坏体×2保留真实生产函数。正式作业08773772212f4c199c2a583d3f3c76d2七模块10tests全PASS，0skip，source_stable/进程停止退出均true，9文件指纹一致。正常USB-only双启PASS、phase23/failed0/error0/view0/cpus4且两context零，result SHA18395e702938cced79ecc29516120c081a27ab2b54e5f90296833ddd48476eae。Runtime真实MCFG positive完整桌面/HID/FS PASS SHA305430b9ada4e3a551cd9f4b2a23bc144eb21cf95f20fd694323529a53625ce7；旧规则negative真实编译内核S15/050a0002+128B+14行像素PASS SHA8fe8a35affa82bae741c6e16c9160bf35458dd9f8f5b6bf0acfe7b51e2a22521。独立原始审计521输入、17服务、执行segment、checksummedMCFG一致，6000B原图仅type/Runtime两字节改变；实际PTE80000000e00fb01b，HHDM两alias均0；反例非假stub，76636像素一致。两VM stopped/rc0，内部三whole盘不变。实机照片仅证明Denial，Runtime根因仍待新屏幕/真机验证；此次VM4CPU/Q35/OVMF，未声称8CPU真机桌面完成。接受软件修复，接下来仅发布正常payload至原H。",
+      "legacy_hash": "fbe35a452197f05c39a9b25dbf3096796fa0e2aa88ada7cee1eb576a28505160",
+      "claim_from_status": "todo",
+      "integration_note": "真实9文件已位于主目录并逐项等于正式复验指纹；软件和4CPU QEMU正/反例均已验收。原SanDisk H: disk2/serial4C530000010320109015/7798784000B/offset131072/FAT32身份复核一致，先备份旧4文件后仅更新正常BOOTX64.EFI(29696B,SHA5a0199ad5e19a3e7b1cc106fb0d13ea223acc134801587efb1d3e0ec2e42d4aa)、DONGOS.IMG(2011282B,SHA8743d0dcd9472834db83a6e5c65e4a2a67578207f2af83651d75064c23ee564b)、SERVICES.BIN(33333248B,SHA47a43ef79daee271dc934804e68eaccedc6385054f2343a2294f22356974188a)和DONGTEST.TXT。全部flush/fsync/完整SHA读回一致，未格式化/改分区/裸磁盘写，私有fixture未发布。实际原生只读volume探针rb/无repair返回0，mount_error0 ready1 dirty0 clusters=BPB1899872 reads53264 writes0 flushes0 bad_io0 canaries1。回执build/hardware/usb-ecam-20261026-r1/usb-publish/receipt.json SHAd77f3fc1d54d8643cd395e6664f33c46245083171e71a9e23e8bcc60e530e2b1。已告知可安全弹出；8CPU Intel真机是否越过S15/桌面/USB键鼠仍待用户验证，不以QEMU通过代替。GitHub上传随后完成。"
+    },
+    {
+      "id": "codex:P8ECAMTEST1",
+      "number": "P8ECAMTEST1",
+      "owner": "codex",
+      "title": "ECAM相关既有只读与BAR/DMA探针适配当前依赖ABI",
+      "description": "P8ECAM1必要旧回归实际8测试中6错误，保留native-regression.log：readonly旧源副本UTF8/新增configuration_address记录helper缺失、xhci stub memory.DmaLease缺失、AHCI/NVMe native片段硬件profile import缺失。只修4测试夹具依赖，不改生产策略/删除断言/坏体/0副作用及原BAR DMA合同。显式UTF8构建source、真实ConfigurationConflict和helper/或硬件边界等效隔离、DmaLease新ABI和纯getter等接口采用真实定义，hardware_profile默认模块原样复制；保留实际原函数/实际坏体正常执行拒绝，标清没执行硬件的边界。独立4模块定向0skip/source稳定，审查实际assert/原函数不被替换偷放权限后验收集成；旧失败保留。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "tests/test_user_smp_readonly.py",
+        "tests/test_xhci_kernel.py",
+        "tests/test_ahci_broker.py",
+        "tests/test_nvme_broker.py",
+        "codex-works/deliveries/P8ECAMTEST1.md"
+      ],
+      "depends_on": [
+        "codex:P8USERDIAG1"
+      ],
+      "checks": [
+        "module:tests.test_user_smp_readonly",
+        "module:tests.test_xhci_kernel",
+        "module:tests.test_ahci_broker",
+        "module:tests.test_nvme_broker"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-26T12:08:08+00:00",
+      "updated_at": "2026-10-26T12:43:03+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8ECAMTEST1-board.md",
+      "delivery": "codex-works/deliveries/P8ECAMTEST1.md",
+      "claimed_at": "2026-10-26T12:08:08+00:00",
+      "completed_at": "2026-10-26T12:27:31+00:00",
+      "claimed_by": "codex-mcp-918a30d10dd649bf",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_user_smp_readonly",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 233.735
+          },
+          {
+            "spec": "module:tests.test_xhci_kernel",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 326.328
+          },
+          {
+            "spec": "module:tests.test_ahci_broker",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 3.437
+          },
+          {
+            "spec": "module:tests.test_nvme_broker",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.109
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/test_user_smp_readonly.py": "3f94c28c534d9af1ae82c41213b3fe6e6472d8d8096fb1fe94db60ff1cdba8cb",
+          "tests/test_xhci_kernel.py": "319a87c1cd9ba11fc4c363e60cc08592ca12b98add94a85d1cc192ec0e2ede7a",
+          "tests/test_ahci_broker.py": "61740f435652b0bcac7e97d7e03a8d2eeb338da0d3294e9ed6672a3128dbc410",
+          "tests/test_nvme_broker.py": "ee0ff50278fb6259b586538bcdd116e896318628bfdaeb6d6f21c3eae87af17e",
+          "codex-works/deliveries/P8ECAMTEST1.md": "40e9f83ee4ccd284d8ee798e6e3de6cab3e8419fcc0d6ec7d1c4d7d4c61c0a53"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-26T12:42:02+00:00",
+        "job": "dfa4160b806a4a349f0f95e3d0925caa"
+      },
+      "review_note": "已实际审阅四源码diff/生产依赖/现有probe和oracle，改动仅UTF-8 staging、真实128B拒绝context纯依赖、真实DmaLease/Process/generation/dma_snapshot ABI与默认hardware_profile逐字复制；未删原正常/坏体断言或弱化BAR/DMA/零effects门。首轮6ERROR及预加载旧xHCI两错误日志保留，冻结新源预验四模块7唯一tests全部实际通过：50executables/80native invocations(40rc0/40真实坏体rc1)，源码hash稳定。正式独立作业dfa4160b806a4a349f0f95e3d0925caa四模块7tests全PASS/0skip/timeout0，source_stable/process_stopped/execution_exited全true，四源+delivery五指纹等于主目录。另A独立作业08773772212f4c199c2a583d3f3c76d2同四模块亦全通过。接受测试夹具维护，不把此结果等同于8CPU物理Intel桌面/USB测试通过。",
+      "legacy_hash": "e5e7511177ebf31d117b318a36bb8508781d49bc5ca98fa2c6f713509ce584e4",
+      "claim_from_status": "todo",
+      "integration_note": "五个声明文件已实际集成主目录，等于正式独立作业dfa4160b806a4a349f0f95e3d0925caa的五指纹；7tests全通过、零skip、source稳定、所有执行退出。真实生产guard与native oracle/坏体未弱化，UTF8/当前ABI/profile依赖适配完成。P8ECAM1已integrated rev6并发布正常SanDisk H:，本任务仅维护测试，不另写USB。保留原首轮错误日志及尚未验证8CPU Intel实机的限制，GitHub完整源码/交付/正式审查记录随后提交。"
     },
     {
       "id": "codex:P8GOP1",
