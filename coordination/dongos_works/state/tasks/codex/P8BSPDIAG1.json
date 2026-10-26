@@ -1,0 +1,67 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_bsp_diagnostic"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-26T13:14:38+00:00",
+  "claimed_by": "codex-mcp-918a30d10dd649bf",
+  "completed_at": "2026-10-26T13:31:15+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-26T13:14:16+00:00",
+  "delivery": "codex-works/deliveries/P8BSPDIAG1.md",
+  "depends_on": [
+    "codex:P8ECAM1"
+  ],
+  "description": "用户8CPU Intel新照片S19 USER DOMAIN LOCK/0停留>2min，源码确认S19是最后正常绘屏，不能认定BKL死锁。仅增加显式BSP用户态隔离构建工具及验证/文档，不修改正常kernel/services/EFI生产默认/安全门/超时。复用已完成正常USB-only source，校验完整来源与对象，使用既有services_run.asm -DP6_USER_SMP=0重汇编仅该kernel对象并真实链接/IMG/manifest双消费者EFI。私有EFI源码唯一banner替换为明确BSP DIAG/USER SMP OFF，无地图/策略/错误注入；保留17服务原字节、8CPU平台/SMP自检，legacy CPL3仅BSP用于区分用户SMP交接与共用USB/GUI，不宣称正常多核已修复。输出专门bsp-diagnostic.json并verify，不伪装normal verify_build，不发布故障fixture；原normal无修改。构建命令来自受检正常日志只作数据，严格验证工具/参数/对象来源，不任意执行日志命令。新工具测试真实NASM/链接/有效诊断构建及manifest/单对象差异/原输入稳定，实际坏profile/篡改来源/改变对象/服务字节应拒绝，0skip正式独立。root先实际8CPU原normal完整gate观察，再实际BSP8CPU完整桌面/HID/FS/code/singleUSB/wholeinternal不变，并证明无用户SMP domain、所有8CPU仍存在；root通过后明确仅诊断版备份写原H+fsync/readback/readonlyFAT。用户已将原SanDisk插回H；下次实机成功仅缩窄范围，不代替SMP正常验收。沿既有授权代码/记录推GitHub。",
+  "document": "codex-works/tasks/P8BSPDIAG1-board.md",
+  "historical": false,
+  "id": "codex:P8BSPDIAG1",
+  "integration_note": "4声明文件已实际集成主目录并等于正式独立复验四指纹；正式1test/23拒绝控制/0skip和真实正常8CPU、BSP8CPU完整gate通过。额外只读独立审计重hash512项normal+346源码、17ELF/SVC原字节，实际kernel各2执行段dump等于ELF(normal1503395B/BSP1503331B)，BSP7块inactive全0、8Context/state4/epoch1/online_epoch1/error0、7AP原GS/root/CR4和PCIDE关、平台count/online8 steps31 ping7/parallelphase6、legacyPCID真实和7条文件/键鼠响应均核对，三whole内盘一致，VM8CPU/WHPX/单finalstop/rc0。诊断profile明确，Intel物理根因及BSP桌面仍待复测。原SanDisk H disk2/serial4C530000010320109015/7798784000B/offset131072 FAT32身份及旧4SHA匹配，备份后仅写明确BSP诊断payload+README，未格式化/改分区/裸写/写内盘。EFI29696B SHA ff12324cf45b6497d575672f9b7ac48248df77d23395518ef9a13fb9e91a0f46；IMG2011282B SHA9e959c475c49bfd2313df92c617086387e703168da7a191eb2e3609049ec0fcf；原SERVICES33333248B SHA47a43ef79daee271dc934804e68eaccedc6385054f2343a2294f22356974188a。4文件flush/fsync及最终完整读回一致；原生volume rb无repair/exit0，mount0 ready1 dirty0 clusters=BPB1899872 reads53264 writes0 flushes0 bad_io0 canaries1。回执build/hardware/usb-s19-20261026-r1/usb-publish/receipt.json SHA4ad3eb34e5a65a14ecc74b7e8ecd41120512cef9e70c01fef5958ea9773159dd。用户需核BSP DIAG R1 USER SMP OFF入口；S14为该模式预期，未桌面60秒按F12观察并拍照。源码/记录随后推GitHub。",
+  "legacy_hash": "a1c3282e225be3026ff38f7bf1f242d2ccfb3fc9b77772f1ef215275a9aa62ca",
+  "number": "P8BSPDIAG1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实审工具完整源码/4文件契约及真实便携测试：仅新工具显式services_run.o P6_USER_SMP=0，正常生产源/默认策略/安全期限不改。日志只校验已知33内核+7加载器对象模板，非shell/任意argv执行；normal完整来源、17原ELF/SVC、唯一selector/banner、IMG/两manifest消费者及输出目录/派生绑定有效。23个真实篡改/拒绝/不执行控制（含重算hash后的normal selector/旧manifest/banner/服务）保留；synthetic provider仅pipeline明确不冒充OS。正式独立d37a7e95f33a49f783dc2a43f818ad12 1test118.641s PASS/0skip/source_stable，4文件指纹一致，进程全部停止退出。root正式工具实际构建diagnostic五命令rc0。正常8CPU真实完整gate eight-live-r2 PASS SHAbf12fe6fbce93b1828896962d44035d6eec68bc48fdc4b8cda8b563766d2da60，r1末尾旧trace4CPU断言失败原件保留；不改guest仅8CPU/mask适配。BSP实际8CPU完整desktop/HID/WRITE/APPEND/CAT/SYNC/代码/内盘隔离gate bsp-live-r1 PASS SHA3c638c015ab60bb711f73154295562e1724a14f3cbe8b2288be3ed22e3b95299。真实平台8CPU/steps31/旧AP GS+root、phase6 gate保留；userBoot.INFO/bridge.ACTIVE/SMP_ENABLED/handoff全零，legacy PCID实际硬件/软件门一致；最终phase14/failed0/error0/view0/cpus8，88B+128B context零。全部normal/diagnostic/source/observer稳定、VM rc0停止、三whole内部盘不变。接受显式诊断版，仅用于区分用户SMP与共用路径，不宣称真机S19已修好或具体AP/锁根因；下一步备份更新原SanDisk H并只读FAT校验。",
+  "status": "integrated",
+  "title": "S19停留的显式BSP用户态隔离诊断版",
+  "updated_at": "2026-10-26T13:42:51+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 118.641,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_bsp_diagnostic",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8BSPDIAG1.md": "d523db3b23e25b354f23e444763ea684add6efc3fe926a3b680a6d7eacacf98e",
+      "docs/hardware-bsp-diagnostic.md": "a3cd710c70799b431923a7e83ac8a2443c5a663b42ed03467a9bd7abc104960d",
+      "tests/test_bsp_diagnostic.py": "aec77008d1556c5ad8e82111d07a8b55a110dc80deea8966fa7c23e45f0a378f",
+      "tools/build_bsp_diagnostic.py": "560d1626cb6b64c792d186d8c4a11b54b6d573a133debec9e6c4e909c96363b1"
+    },
+    "finished_at": "2026-10-26T13:33:53+00:00",
+    "job": "d37a7e95f33a49f783dc2a43f818ad12",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tools/build_bsp_diagnostic.py",
+    "tests/test_bsp_diagnostic.py",
+    "docs/hardware-bsp-diagnostic.md",
+    "codex-works/deliveries/P8BSPDIAG1.md"
+  ]
+}
