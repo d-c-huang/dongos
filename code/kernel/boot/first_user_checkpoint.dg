@@ -1,0 +1,52 @@
+// Opt-in first captured user event / trusted BSP fail-stop observation.
+module boot.first_user_checkpoint;
+import sched.user_boot as ub;
+import sched.user_domain as ud;
+import sched.user_bridge as bridge;
+import sched.user_entry_plan as ep;
+import user.abi as abi;
+pub const INVALID:u64=0x0b05_0001;
+pub struct Report{pub version:u64,pub done:u64,pub error_code:u64,pub reason:u64,pub cpu:u64,pub cpus:u64,
+ pub vector:u64,pub operation:u64,pub rip:u64,pub rsp:u64,pub frame_root:u64,pub raw_root:u64,
+ pub mode:u64,pub slot:u64,pub token:u64,pub captured:u64,pub syscalls:u64,pub user_entries:u64,
+ pub header_error:u64,pub bridge_stage:u64,pub first_error:u64,pub domain_failed:u64,pub bridge_failed:u64,pub frame_kind:u64}
+const EMPTY:Report=Report{version:0,done:0,error_code:0,reason:0,cpu:0,cpus:0,vector:0,operation:0,rip:0,rsp:0,
+ frame_root:0,raw_root:0,mode:0,slot:0,token:0,captured:0,syscalls:0,user_entries:0,header_error:0,
+ bridge_stage:0,first_error:0,domain_failed:0,bridge_failed:0,frame_kind:0};
+var STATE:Report=EMPTY;
+pub export("dong_first_user_checkpoint_pointer") fn pointer()*const Report{unsafe{return &STATE;}}
+pub export("dong_first_user_checkpoint_run") fn run(cpu:usize,frame:u64,vector:u64,reason:u64,raw_root:u64)*const Report{unsafe{
+ if STATE.version!=0{return &STATE;}STATE.version=1;STATE.reason=reason;STATE.cpu=cpu as u64;STATE.vector=vector;STATE.raw_root=raw_root;STATE.slot=16;
+ let info=ub.report();let b=bridge.pointer();
+ if cpu!=0||reason>1||info==null||b==null{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ STATE.cpus=(*info).count;
+ if STATE.cpus<3||STATE.cpus>16||(*info).domain==0||(*info).headers==0{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ let d=(*info).domain as *const ud.Domain;
+ if (*d).cpus==null||(*d).processes==null||(*b).domain!=d as *ud.Domain||(*b).headers!=(*info).headers as *u64{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ let c=(*d).cpus+cpu;let address=*(((*info).headers as *const u64)+cpu);
+ if address==0{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ let h=address as *const ep.Cpu;
+ if (*h).ready!=2||(*h).logical_id!=cpu as u64||(*h).domain!=(*info).domain||(*h).kernel_xstate==0
+  ||((*h).kernel_xstate&63)!=0||(*h).kernel_xstate>0xffff_ffff_ffff_ffff-1024-sizeof(ep.Metrics) as u64{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ STATE.mode=(*c).mode;STATE.slot=(*c).slot;STATE.token=(*c).token;STATE.captured=(*c).captured;
+ STATE.syscalls=(*h).syscalls;STATE.header_error=(*h).last_error;
+ let metrics=((*h).kernel_xstate+1024) as *const ep.Metrics;STATE.user_entries=(*metrics).user_entries;
+ STATE.domain_failed=atomic_load(&(*d).failed);STATE.bridge_failed=(*b).failed;STATE.bridge_stage=bridge.PROGRESS[cpu].stage;
+ STATE.first_error=STATE.header_error;
+ if atomic_load(&bridge.FAILURES[cpu].published)==1{STATE.first_error=bridge.FAILURES[cpu].error_code;}
+ var selected:u64=0;
+ if reason==0{
+  if (*info).published!=1||(*b).calls!=0||frame==0||frame!=(*h).raw_frame||STATE.slot!=5||STATE.token==0
+   ||STATE.mode!=ud.KERNEL||STATE.captured!=1||(*c).capture==0||(*c).captured_token!=STATE.token
+   ||(*c).captured_incarnation!=(*c).incarnation||raw_root!=(*d).kernel_root||STATE.user_entries==0{STATE.error_code=INVALID;}
+  else{
+   var word:usize=0;while word<25{if *((frame as *const u64)+word)!=*(((*c).capture as *const u64)+word){STATE.error_code=INVALID;}word+=1;}
+   let p=(*d).processes+STATE.slot as usize;
+   let f=(*c).capture as *const abi.Frame;
+   if (*p).token!=STATE.token||(*p).incarnation!=(*c).incarnation||(*p).root!=(*f).cr3||(*c).return_root!=(*f).cr3{STATE.error_code=INVALID;}
+   selected=(*c).capture;STATE.frame_kind=1;
+  }
+ }else if STATE.token!=0&&STATE.slot<16&&(*c).returned!=0&&(*c).return_root!=0{selected=(*c).returned;STATE.frame_kind=2;}
+ if selected!=0{let f=selected as *const abi.Frame;STATE.operation=(*f).rax;STATE.rip=(*f).rip;STATE.rsp=(*f).rsp;STATE.frame_root=(*f).cr3;}
+ compiler_fence();STATE.done=1;return &STATE;
+}}

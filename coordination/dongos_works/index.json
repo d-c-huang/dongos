@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T12:46:14+00:00",
+  "generated_at": "2026-10-27T13:36:11+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -11671,6 +11671,77 @@
       "legacy_hash": "e5e7511177ebf31d117b318a36bb8508781d49bc5ca98fa2c6f713509ce584e4",
       "claim_from_status": "todo",
       "integration_note": "五个声明文件已实际集成主目录，等于正式独立作业dfa4160b806a4a349f0f95e3d0925caa的五指纹；7tests全通过、零skip、source稳定、所有执行退出。真实生产guard与native oracle/坏体未弱化，UTF8/当前ABI/profile依赖适配完成。P8ECAM1已integrated rev6并发布正常SanDisk H:，本任务仅维护测试，不另写USB。保留原首轮错误日志及尚未验证8CPU Intel实机的限制，GitHub完整源码/交付/正式审查记录随后提交。"
+    },
+    {
+      "id": "codex:P8FIRSTENTRY1",
+      "number": "P8FIRSTENTRY1",
+      "owner": "codex",
+      "title": "正常AP调度后的首次CPL3捕获与BSP首错诊断",
+      "description": "真机AP CHECK全通过，继续正常AP idle/BKL/首次INIT用户入口。新增explicit FIRST USER R1私有profile，取消前卡APpark，保留normal AP/boot/unlock/entry路径；只在user_boot最后retire前保留view并验证唯一初始INIT slot5且affinity1/enginecount1，正常BSP调度后在真实user_bridge.capture完成checked/begin_entry/copy/complete_entry(含XSAVE)并恢复kernel_xstate后、deadline/poll/acquire/service前hook单次停机。无初始服务callback执行，因此无其他进程可启动，无compositor执行，虽既有FB映射仍存在但没有第二实际写者。成功不重置RSP避免覆盖rawFrame，kernel根/xstate已安全；BSP-only原可信user_smp_fail路径在原last_error/metricsfailed后先在已映射user_entry代码切回kernelroot再转诊断，保存rawCR3并恢复kernelxstate，reason1不冒充捕获异常帧；untrusted GS/所有AP fail路径保持fail-stop。记录192B/24scalar首次reason/vector/op/slot5 token/rip/rsp/roots/captured/mode/syscalls/entries/Bridge Progress/Failure/headererror，15行原Gate/geometry，完整normal services/默认/deadline保持。actualnative正负/ABI/BSS/once/只读输入/精确hook与fail边界，9真实命令+4对象/严格overlay与17服务，Root8CPU actual初始INIT/CPL3事件/CS或savedframe/CR3/xstate/capture/normalAP(无park)/无服务callback及新硬件authority/代码/像素/全USB+三内盘未变。独立实审后备份回读写原H。此卡不宣称syscall服务成功或桌面通过，所有诊断改变及局限明确。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/boot/first_user_checkpoint.dg",
+        "tools/build_first_user_checkpoint.py",
+        "tests/test_first_user_checkpoint.py",
+        "tests/first_user_checkpoint_probe.c",
+        "docs/hardware-first-user-checkpoint.md",
+        "codex-works/deliveries/P8FIRSTENTRY1.md"
+      ],
+      "depends_on": [
+        "codex:P8APCHECK1"
+      ],
+      "checks": [
+        "module:tests.test_first_user_checkpoint"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-27T13:09:18+00:00",
+      "updated_at": "2026-10-27T13:36:10+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8FIRSTENTRY1-board.md",
+      "delivery": "codex-works/deliveries/P8FIRSTENTRY1.md",
+      "claimed_at": "2026-10-27T13:09:18+00:00",
+      "completed_at": "2026-10-27T13:32:04+00:00",
+      "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_first_user_checkpoint",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 12.188
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/boot/first_user_checkpoint.dg": "90528623296027aa73cbea5c9496303af758f4951d393b67faa5cf97f5ac91f5",
+          "tools/build_first_user_checkpoint.py": "530b1bb17b5afbe9b9f657916f80b23a38946eaa64ffb6cfc60dd4431d8363b1",
+          "tests/test_first_user_checkpoint.py": "16b9bc1942727f915074ab1bce660217b86a64311bad74b6a422967386e0b60b",
+          "tests/first_user_checkpoint_probe.c": "8ca8f9344cfd4c305e7796b2068ac19b3c26255e9fbdf905d70f8fe33a2e2043",
+          "docs/hardware-first-user-checkpoint.md": "2bd01eccb3979d6860c92cc1a9184006018083d5e150d0bffdb065eac0120276",
+          "codex-works/deliveries/P8FIRSTENTRY1.md": "d9afe17d6dd576151b2168cfab2932bef7839748768b514ababc85aaad898152"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-27T13:32:37+00:00",
+        "job": "5409bb7d3c584f9c82d1b87d75dfa222"
+      },
+      "review_note": "已实际审查6文件及正常源契约：capture钩子在checked/begin_entry/200B copy/complete_entry XSAVE/kernel-xstate恢复后、DEADLINE和callback前，成功深栈保留；可信BSP失败先原Header/metrics写，再mapped user_entry切kernelroot，只有失败重置栈，untrusted/AP原路径保持。sole INIT5/affinity1/其余token0断言保证无compositor执行，保留正常APidle。Report192B BSS全零once/done-last，frame/root/token/incarnation/25word及reason1 framekind有真实检查。独立formal job5409bb7d3c584f9c82d1b87d75dfa222：2tests11.930s,0skip,stable，8坏体debug/release均C断言有效。Root实际8CPU WHPX VM-r2通过：F4真实首用户IRQ，actual Frame200B/roots/INIT ELF executable页/Bridge.calls0，1515171B kernel executable与77812像素15行一致，整USB和三可写内盘未变、单stop/cleanup；只证明首次CPL3事件捕获，不宣称syscall/desktop或Intel修复。另一个只读审查agent无阻断项。验收仅此诊断profile，真机结果待回传。",
+      "legacy_hash": "7574c2bab0238183c19fa8de3e932793c2bf4022d2b810900b944f6a2711af5c",
+      "claim_from_status": "todo",
+      "integration_note": "六个授权文件已实际集成当前code/与works目录，全部验收指纹保持。formal job5409bb7d3c584f9c82d1b87d75dfa222通过2tests0skip/stable；root实审和第二只读审查无阻断；九命令build/strict verify与实际8CPU VM-r2（真实首用户F4捕获/INIT ELF页/Bridge.calls0/15行像素/整USB与三模拟内盘未变）均通过。已核对原SanDisk serial4C530000010320109015/disk2/H及旧AP CHECK R1四文件SHA，备份后仅替换4文件，逐文件flush/fsync和回读一致；native FAT32 rb exit0,mount_error0,ready1,dirty0,1899872clusters,writes0,flushes0,bad_io0,canaries1/no repair，最终四文件再回读一致。发布receipt SHA9ca961e28afdfd6ec219ca92bc619c7b490b69bbcfff256af3668a504482629c。无format/rawdisk写。该版主动首事件停，正常桌面和Intel下一张照片仍待验证，非物理故障已解决声明。"
     },
     {
       "id": "codex:P8GOP1",
