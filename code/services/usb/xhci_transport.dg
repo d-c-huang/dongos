@@ -3,6 +3,7 @@
 // the service owner must exit into kernel quarantine, never reset this State.
 module usb.xhci_transport;
 import usb.xhci_controller as hc;
+import usb.xhci_dma as dma_layout;
 import usb.xhci_ring as ring;
 import usb.xhci_trb as wire;
 import usb.transport as io;
@@ -370,7 +371,7 @@ unsafe fn barrier(context:u64)u64 {unsafe {
 }}
 pub unsafe fn initialize(s:*State,c:*hc.State)!void {unsafe {
     if s==null||c==null||(*s).held!=0||(*c).busy!=0||(*c).info.held!=1||(*c).info.ready!=1||(*c).info.fault!=0||(*c).enabled!=1||(*c).ops==null
-        ||(*c).setup.bytes!=131072||(*c).setup.pointer==null||(*c).setup.epoch==0||(*c).setup.lease_token==0
+        ||!dma_layout.valid_bytes((*c).setup.bytes)||(*c).setup.pointer==null||(*c).setup.epoch==0||(*c).setup.lease_token==0
         ||(*c).caps.enabled_slots==0||(*c).caps.enabled_slots>8||(*c).caps.ports==0||(*c).caps.ports>32
         ||(*c).command.pending!=0||(*c).command.fault!=0||(*c).events.fault!=0 {return error.Invalid;}
     if (*c).command.physical!=(*c).setup.physical+4096||(*c).command.pointer!=(*c).setup.pointer+4096||(*c).command.epoch!=(*c).setup.epoch

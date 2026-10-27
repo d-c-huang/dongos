@@ -3,6 +3,7 @@
 module usb.xhci_controller;
 import usb.xhci_trb as wire;
 import usb.xhci_ring as ring;
+import usb.xhci_dma as dma;
 pub const DMA_BYTES:u64=131072;
 pub const COMMAND_OFFSET:u64=4096;
 pub const EVENT_OFFSET:u64=8192;
@@ -69,10 +70,10 @@ unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {un
     if ops==null||s==null||out==null||(*s).bar==0||(*s).bar_bytes<4096||(*s).bar_bytes>0x1000_0000
         ||(*s).lease_token==0||(*s).device_token==0||(*s).exclusive!=1||(*s).interrupts_off!=3
         ||((*s).pci_command&0x407)!=0x402||(*s).epoch==0||(*s).pointer==null||((*s).pointer as u64&4095)!=0
-        ||(*s).bytes!=DMA_BYTES||((*s).physical&4095)!=0||(*s).tsc_hz<1000000||(*s).tsc_hz>16000000000
-        ||(*s).timeout_ms==0||(*s).timeout_ms>5000||((*s).pointer as u64)>MAX-DMA_BYTES {return error.Invalid;}
+        ||!dma.valid_bytes((*s).bytes)||((*s).physical&4095)!=0||(*s).tsc_hz<1000000||(*s).tsc_hz>16000000000
+        ||(*s).timeout_ms==0||(*s).timeout_ms>5000||((*s).pointer as u64)>MAX-(*s).bytes {return error.Invalid;}
     let region=wire.Region {physical:(*s).physical,bytes:(*s).bytes,physical_bits:(*s).physical_bits};
-    match wire.span(&region,(*s).physical,DMA_BYTES,4096) {ok=>{},err(e)=>{return error.Invalid;},}
+    match wire.span(&region,(*s).physical,(*s).bytes,4096) {ok=>{},err(e)=>{return error.Invalid;},}
     var c=EMPTY_CAPS;let first=try read_raw(ops,context,s,0);c.version=(first>>16) as u64;c.operational=(first&255) as u64;
     if (first&0xff00)!=0||c.operational<32||(c.operational&3)!=0
         ||(c.version!=0x100&&c.version!=0x110&&c.version!=0x120) {return error.Unsupported;}
@@ -80,9 +81,10 @@ unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {un
     c.maximum_slots=(hcs1&255) as u64;c.enabled_slots=c.maximum_slots;if c.enabled_slots>8 {c.enabled_slots=8;}
     c.ports=(hcs1>>24) as u64;c.ac64=(hcc&1) as u64;c.context_bytes=32;if (hcc&4)!=0 {c.context_bytes=64;}
     let scratch=((hcs2>>27)&31)|(((hcs2>>21)&31)<<5);
-    if c.maximum_slots==0||((hcs1>>8)&2047)==0||c.ports==0||c.ports>32||scratch!=0
-        ||(hcs1&0x00f8_0000)!=0||((hcs2>>26)&1)!=0 {return error.Unsupported;}
-    if c.ac64==0&&(*s).physical+DMA_BYTES>0x1_0000_0000 {return error.Unsupported;}
+    if c.maximum_slots==0||((hcs1>>8)&2047)==0||c.ports==0||c.ports>32||scratch as u64>dma.MAX_SCRATCH
+        ||(hcs1&0x00f8_0000)!=0 {return error.Unsupported;}
+    if (*s).bytes!=dma.bytes(hcs2 as u64){return error.Unsupported;}
+    if c.ac64==0&&(*s).physical+(*s).bytes>0x1_0000_0000 {return error.Unsupported;}
     c.doorbells=(try read_raw(ops,context,s,20)) as u64;c.runtime=(try read_raw(ops,context,s,24)) as u64;
     let operational_bytes=0x400+c.ports*16;let runtime_bytes:u64=64;let doorbell_bytes=(c.enabled_slots+1)*4;
     if (c.doorbells&3)!=0||(c.runtime&31)!=0||c.runtime<c.operational||c.doorbells<c.operational
@@ -166,17 +168,27 @@ unsafe fn noop_inner(s:*State)!void {unsafe {
     }
 }return error.Timeout;}
 unsafe fn initialize_inner(s:*State)!void {unsafe {
+    let hcs2=try read(s,8);let scratch=dma.count(hcs2 as u64);
+    if (*s).setup.bytes!=dma.bytes(hcs2 as u64)||scratch as u64>dma.MAX_SCRATCH{return error.Unsupported;}
     let op=(*s).caps.operational;let runtime=(*s).caps.runtime;(*s).info.phase=2;
     try write(s,op,0);try wait(s,op+4,1,1);(*s).info.phase=3;
     try write(s,op,2);try wait(s,op,2,0);try wait(s,op+4,0x800,0);
     if ((try read(s,op+4))&1)==0 {return error.BadRegisters;}(*s).info.phase=4;
-    var i:u64=0;while i<DMA_BYTES/8 {volatile_store(((*s).setup.pointer+(i*8) as usize) as *u64,0);i+=1;}
+    var i:u64=0;while i<(*s).setup.bytes/8 {volatile_store(((*s).setup.pointer+(i*8) as usize) as *u64,0);i+=1;}
     var setup=ring.Setup {physical:(*s).setup.physical+COMMAND_OFFSET,pointer:(*s).setup.pointer+COMMAND_OFFSET as usize,
         entries:256,physical_bits:(*s).setup.physical_bits,epoch:(*s).setup.epoch,kind:ring.COMMAND,slot:0,endpoint:0};
     match ring.producer_initialize(&(*s).command,&setup) {ok=>{},err(e)=>{return error.Invalid;},}
     setup.physical=(*s).setup.physical+EVENT_OFFSET;setup.pointer=(*s).setup.pointer+EVENT_OFFSET as usize;setup.kind=0;
     match ring.consumer_initialize(&(*s).events,&setup) {ok=>{},err(e)=>{return error.Invalid;},}
     match ring.erst(&setup,slice_from_raw_parts((*s).setup.pointer+ERST_OFFSET as usize,16)) {ok=>{},err(e)=>{return error.Invalid;},}
+    if scratch!=0 {
+        volatile_store((*s).setup.pointer as *u64,(*s).setup.physical+dma.TABLE);
+        i=0;while i<scratch {
+            volatile_store(((*s).setup.pointer+(dma.TABLE+i*8) as usize) as *u64,(*s).setup.physical+dma.BUFFERS+i*4096);i+=1;
+        }
+    }
+    // Restore is an advertised capability, not a request to issue CSS/CRS.
+    // Fresh reset uses fully initialized pages; no saved-state operation runs.
     try fence(s,4);(*s).info.phase=5;
     try write(s,runtime+0x20,1);try write(s,runtime+0x24,0);try write(s,runtime+0x28,1);
     try write64(s,runtime+0x38,(*s).setup.physical+EVENT_OFFSET);

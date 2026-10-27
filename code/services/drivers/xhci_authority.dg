@@ -1,5 +1,6 @@
 // Trusted kernel snapshots only. No MMIO, PCI write, DMA start or lease release.
 module drivers.xhci_authority;
+import usb.xhci_dma as dma_layout;
 pub error Denied=0x0818_0001;
 pub struct Header {
     pub owner:u64,pub incarnation:u64,pub binding_owner:u64,pub binding_incarnation:u64,
@@ -26,12 +27,12 @@ pub unsafe fn shape(header:*const Header,out:*Bounds)!void {unsafe {
     let limit=(1 as u64)<<h.physical_bits;
     if h.bar_physical==0||(h.bar_physical&4095)!=0||h.bar_bytes<4096||h.bar_bytes>0x1000_0000||(h.bar_bytes&(h.bar_bytes-1))!=0
         ||h.bar_physical>=limit||h.bar_bytes>limit-h.bar_physical||h.lease_physical==0||(h.lease_physical&4095)!=0||h.lease_physical>=limit
-        ||h.lease_bytes!=131072||h.lease_bytes>limit-h.lease_physical||overlap(h.bar_physical,h.bar_bytes,h.lease_physical,h.lease_bytes) {return error.Denied;}
+        ||h.lease_bytes!=dma_layout.bytes(h.hcs2)||!dma_layout.valid_bytes(h.lease_bytes)||h.lease_bytes>limit-h.lease_physical||overlap(h.bar_physical,h.bar_bytes,h.lease_physical,h.lease_bytes) {return error.Denied;}
     if h.cap0>0xffff_ffff||h.hcs1>0xffff_ffff||h.hcs2>0xffff_ffff||h.hcc1>0xffff_ffff||h.dboff>0xffff_ffff||h.rtsoff>0xffff_ffff||h.pagesize>0xffff_ffff {return error.Denied;}
     let version=h.cap0>>16;let op=h.cap0&255;let ports=h.hcs1>>24;let interrupts=(h.hcs1>>8)&2047;let maximum=h.hcs1&255;
     let scratch=((h.hcs2>>27)&31)|(((h.hcs2>>21)&31)<<5);
     if (version!=0x100&&version!=0x110&&version!=0x120)||(h.cap0&0xff00)!=0||op<32||(op&3)!=0||maximum==0||ports==0||ports>32
-        ||interrupts==0||interrupts>1024||(h.hcs1&0x00f8_0000)!=0||scratch!=0||(h.hcs2&(1<<26))!=0||(h.pagesize&1)==0 {return error.Denied;}
+        ||interrupts==0||interrupts>1024||(h.hcs1&0x00f8_0000)!=0||scratch>dma_layout.MAX_SCRATCH||(h.pagesize&1)==0 {return error.Denied;}
     if (h.hcc1&1)==0&&(h.lease_physical>=0x1_0000_0000||h.lease_bytes>0x1_0000_0000-h.lease_physical) {return error.Denied;}
     let operational_bytes=0x400+ports*16;let runtime_bytes=0x20+interrupts*0x20;let doorbell_bytes=(maximum+1)*4;
     if (h.dboff&3)!=0||(h.rtsoff&31)!=0||!bound(op,operational_bytes,h.bar_bytes)||!bound(h.rtsoff,runtime_bytes,h.bar_bytes)||!bound(h.dboff,doorbell_bytes,h.bar_bytes)
@@ -60,7 +61,7 @@ unsafe fn extensions(header:*const Header,b:*const Bounds,items:[]const Extensio
     if expected!=0||covered!=((1 as u64)<<(*b).ports)-1 {return error.Denied;}
 }return;}
 pub unsafe fn permit(header:*const Header,registers:*const Registers,interrupts:[]const Interrupter,ext:[]const Extension,dma:[]const u8)!u16 {unsafe {
-    if registers==null||interrupts.ptr==null||dma.ptr==null||dma.len!=131072 {return error.Denied;}
+    if header==null||registers==null||interrupts.ptr==null||dma.ptr==null||dma.len!=(*header).lease_bytes as usize {return error.Denied;}
     var b=Bounds {operational:0,runtime:0,doorbells:0,ports:0,interrupters:0,slots:0,extended_first:0,context_bytes:0};try shape(header,&b);
     if interrupts.len!=b.interrupters as usize {return error.Denied;}try extensions(header,&b,ext);
     let h=*header;let r=*registers;
@@ -80,7 +81,16 @@ pub unsafe fn permit(header:*const Header,registers:*const Registers,interrupts:
     var offset:usize=0;while offset<16384 {
         var expected:u64=0;if offset==8176 {expected=h.lease_physical+4096;}
         if offset==8184 {expected=(6<<10|2)<<32;}if offset==12288 {expected=h.lease_physical+8192;}if offset==12296 {expected=256;}
+        if offset==0&&dma_layout.count(h.hcs2)!=0{expected=h.lease_physical+dma_layout.TABLE;}
         if read_unaligned((dma.ptr+offset) as *const u64)!=expected {return error.Denied;}offset+=8;
+    }
+    // Validate the entire scratch table, buffers and rounded suffix before
+    // BME. Every pointer is exactly one private aligned page in this lease.
+    let scratch=dma_layout.count(h.hcs2);offset=dma_layout.BASE_BYTES as usize;
+    while offset<dma.len {
+        var expected:u64=0;let at=offset as u64;
+        if at<dma_layout.TABLE+scratch*8 {expected=h.lease_physical+dma_layout.BUFFERS+(at-dma_layout.TABLE)/8*4096;}
+        if read_unaligned((dma.ptr+offset) as *const u64)!=expected{return error.Denied;}offset+=8;
     }
     return (h.pci_command|4) as u16;
 }}

@@ -1,0 +1,15 @@
+{"at":"2026-10-27T10:55:43+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T10:56:16+00:00","data":{"claimed_at":"2026-10-27T10:56:16+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:08:29+00:00","data":{"claimed_at":"2026-10-27T10:56:16+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":"2026-10-27T11:08:29+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:08:30+00:00","data":{"job":"835cee8808874d40910ab7b2da47f3ba","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:08:30+00:00","data":{"job":"835cee8808874d40910ab7b2da47f3ba"},"kind":"verification_started","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:15:43+00:00","data":{"rev":4,"status":"rework"},"kind":"verified","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:15:43+00:00","data":{"job":"835cee8808874d40910ab7b2da47f3ba","status":"failed"},"kind":"job_finished","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:17:29+00:00","data":{"claimed_at":"2026-10-27T11:17:29+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":null,"owner":"codex","resume_status":null,"rev":5,"status":"in_progress"},"kind":"claim","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:17:57+00:00","data":{"claimed_at":"2026-10-27T11:17:29+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":"2026-10-27T11:17:57+00:00","owner":"codex","resume_status":null,"rev":6,"status":"submitted"},"kind":"submit","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:17:58+00:00","data":{"job":"290640f6671042c8943e76935cf8446f","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:17:58+00:00","data":{"job":"290640f6671042c8943e76935cf8446f"},"kind":"verification_started","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:25:13+00:00","data":{"rev":7,"status":"submitted"},"kind":"verified","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:25:13+00:00","data":{"job":"290640f6671042c8943e76935cf8446f","status":"completed"},"kind":"job_finished","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:25:56+00:00","data":{"rev":8,"status":"accepted"},"kind":"accept","task_id":"codex:P8SCRATCH1"}
+{"at":"2026-10-27T11:27:53+00:00","data":{"rev":9,"status":"integrated"},"kind":"integrate","task_id":"codex:P8SCRATCH1"}

@@ -15,6 +15,7 @@ import lib.pci_inventory_abi as pci_inventory_abi;
 import drivers.virtio_pci as vp;
 import drivers.virtio_blk as dma;
 import usb.xhci_controller as controller;
+import usb.xhci_dma as dma_layout;
 import usb.xhci_transport as transport;
 import usb.xhci_trb as wire;
 import usb.transport as io;
@@ -77,7 +78,7 @@ unsafe fn describe(s:*const enumerator.State)void {unsafe {
     else if binding.kind==descriptor.STORAGE {let logged=sys.log("DONGOS_XHCI_BOT_ENUMERATED\r\n");}
 }return;}
 unsafe fn enumerate_root()!void {unsafe {
-    if sizeof(enumerator.State)!=1784||sizeof([223]u64)!=1784||STATE.setup.bytes!=131072 {return error.Setup;}
+    if sizeof(enumerator.State)!=1784||sizeof([223]u64)!=1784||!dma_layout.valid_bytes(STATE.setup.bytes) {return error.Setup;}
     try transport.initialize(&TRANSPORT,&STATE);var port:u64=1;
     while port<=STATE.caps.ports {
         var present=io.Port {connected:0,speed:0};
@@ -245,7 +246,9 @@ unsafe fn start()!void {unsafe {
     }
     if !found||sys.svc_call(0x61,(*BOOT).configuration,device.ecam,&BARS[0] as u64,0,0,0)!=0||BARS[0].handle==0||BARS[0].length<4096 {return error.Setup;}
     VIRTUAL=sys.svc_call(0x62,BARS[0].handle,0,0,0,0,0);if VIRTUAL<0x6000_0000||VIRTUAL>=0x6800_0000 {return error.Setup;}
-    if sys.svc_call(0x63,(*BOOT).dma,controller.DMA_BYTES,4096,&LEASE as u64,0,0)!=0||LEASE.length!=controller.DMA_BYTES {return error.Setup;}
+    var hcs2:u32=0;if read32(0,BARS[0].handle,8,&hcs2)!=0{return error.Setup;}
+    let dma_bytes=dma_layout.bytes(hcs2 as u64);if dma_bytes==0{return error.Setup;}
+    if sys.svc_call(0x63,(*BOOT).dma,dma_bytes,4096,&LEASE as u64,0,0)!=0||LEASE.length!=dma_bytes {return error.Setup;}
     var command:u32=0;if configuration((*BOOT).configuration,device.ecam+4,&command)!=0 {return error.Setup;}
     let epoch=sys.incarnation((*BOOT).endpoint);if epoch==0||epoch>0x0fff_ffff {return error.Setup;}
     // Kernel grants are authoritative. These values describe their checked

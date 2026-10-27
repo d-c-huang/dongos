@@ -7,7 +7,7 @@ from pathlib import Path
 from lang.dongc import compile_file
 from lang.tests.test_dongc import nasm_flags,tool
 ROOT=Path(__file__).resolve().parents[1]
-NAMES=('xhci_trb.dg','xhci_ring.dg','xhci_context.dg','xhci_controller.dg')
+NAMES=('xhci_dma.dg','xhci_trb.dg','xhci_ring.dg','xhci_context.dg','xhci_controller.dg')
 
 def source_root():
     override=os.environ.get('DONGOS_XHCI_CONTROLLER_ROOT')

@@ -1138,6 +1138,46 @@ pub unsafe fn contiguous(id: usize, virtual: u64, requested: usize) !u64 {
     }
 }
 
+// Trusted xHCI broker only: up to 128 pinned pages for bounded scratch storage.
+pub unsafe fn contiguous_xhci(id: usize, virtual: u64, requested: usize) !u64 {
+    unsafe {
+        if id >= LIMIT || PROCESSES[id].ready == 0 || PINNED[id] || DMA_LEASES[id].state!=0
+            || PROCESSES[id].root==0 || GENERATIONS[id]==0 || requested == 0 || requested > 128
+            || virtual < elf.USER_MIN || virtual >= elf.USER_LIMIT || (virtual & 4095) != 0 {
+            return error.InvalidAddress;
+        }
+        var order: usize = 0; var pages: usize = 1;
+        while pages < requested { pages *= 2; order += 1; }
+        if FRAME_COUNT>capacity() || pages > capacity() - FRAME_COUNT || (pages as u64) * 4096 > elf.USER_LIMIT - virtual { return error.Capacity; }
+        // Reserve metadata and pin before any allocator side effect. Even an
+        // allocation failure is retained; a retry must not overwrite evidence.
+        DMA_LEASES[id]=DmaLease {physical:0,virtual:virtual,pages:pages,root:PROCESSES[id].root,
+            generation:GENERATIONS[id],attempted:0,mapped:0,state:DMA_HELD};
+        PINNED[id]=true;
+        var physical:u64=0;
+        if EXTENDED!=null {
+            var held=resources.Block { physical:0,virtual:0,pages:0 };
+            try resources.reserve(pages,pages,&held);physical=held.physical;
+        } else { physical=try buddy.alloc(startup.allocator_pointer(),order); }
+        DMA_LEASES[id].physical=physical;
+        var offset: usize = 0;
+        while offset < pages {
+            // own_frame itself can fail after publishing supervisor metadata.
+            // Record the attempted page before entering it, not just successes.
+            DMA_LEASES[id].attempted=offset+1;
+            let index = try own_frame(physical + offset as u64 * 4096);
+            *recycled(index)=2;
+            try paging.map_live(&SPACES[id],virtual + offset as u64 * 4096,(*record(index)).physical,paging.USER | paging.WRITE);
+            DMA_LEASES[id].mapped=offset+1;
+            devices.runtime_invalidate(virtual + offset as u64 * 4096);
+            offset += 1;
+        }
+        user_pcid_invalidate_root(PROCESSES[id].root);
+        DMA_LEASES[id].state=DMA_COMPLETE;
+        return physical;
+    }
+}
+
 pub unsafe fn readonly_data(id: usize,virtual: u64) !void {
     unsafe {
         if id>=LIMIT || PROCESSES[id].ready==0 || (virtual&4095)!=0 { return error.InvalidState; }

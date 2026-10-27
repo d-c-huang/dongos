@@ -16,6 +16,7 @@ import user.virtio_quiesce as virtio_quiesce;
 import drivers.ahci_authority as ahci;
 import drivers.nvme_authority as nvme;
 import drivers.xhci_authority as xhci;
+import usb.xhci_dma as xhci_dma;
 import cpu.capabilities as cpu;
 pub error Invalid = 0x050a_0001;
 pub error Denied = 0x050a_0002;
@@ -95,7 +96,7 @@ var XHCI_LEASE:blk.Lease=blk.EMPTY_LEASE;
 // Kernel-only trusted pre-BME snapshots. These pages are monotonically
 // reserved and zeroed by service_memory.allocate, never given to a process or
 // recycled after a failed allocation, malformed snapshot or controller exit.
-// 10 pages of Interrupters, one page of Extensions, 32 pages of DMA bytes.
+// 10 pages of Interrupters, one page of Extensions, and the full checked DMA lease.
 var XHCI_INTERRUPTS:*xhci.Interrupter=null;
 var XHCI_EXTENSIONS:*xhci.Extension=null;
 var XHCI_DMA_SNAPSHOT:*u8=null;
@@ -406,12 +407,14 @@ pub unsafe fn dma_acquire(id: usize,bytes: u64,alignment: u64) !void {
         if (id==2&&BLOCK_QUARANTINED)||(id==4&&INPUT_QUARANTINED){return error.Denied;}
         if id==ADMITTED_XHCI {
             if XHCI_SELECTED==0||XHCI_OWNER==0||XHCI_INCARNATION==0||XHCI_QUARANTINED||XHCI_DMA_ATTEMPTED
-                ||bytes!=131072||alignment!=4096{return error.Denied;}
+                ||alignment!=4096{return error.Denied;}
+            let required=xhci_dma.bytes(try xhci_word(8));
+            if required==0||bytes!=required{return error.Denied;}
             XHCI_DMA_ATTEMPTED=true;
-            let physical=try memory.contiguous(id,DMA_BASE,32);
+            let physical=try memory.contiguous_xhci(id,DMA_BASE,(required/4096) as usize);
             // The allocator creates pinned, exclusive USER|WRITE (NX) pages.
             // No share operation or caller-selected PA is exposed by this ABI.
-            XHCI_LEASE=blk.Lease {token:3,physical:physical,pointer:DMA_BASE as *u8,length:131072};return;
+            XHCI_LEASE=blk.Lease {token:3,physical:physical,pointer:DMA_BASE as *u8,length:required as usize};return;
         }
         if id==4 {
             if INPUT_SELECTED==0 || INPUT_LEASE.token!=0 || bytes!=16384 || alignment!=4096 { return error.Denied; }
@@ -550,20 +553,21 @@ unsafe fn xhci_qword(offset:u64)!u64 {unsafe {
     return (try xhci_word(offset))|((try xhci_word(offset+4))<<32);
 }}
 unsafe fn xhci_snapshot()!void {unsafe {
+    let pages:usize=11+XHCI_LEASE.length/4096;
     if XHCI_SNAPSHOT_ATTEMPTED {
         if XHCI_INTERRUPTS==null||XHCI_EXTENSIONS==null||XHCI_DMA_SNAPSHOT==null
-            ||XHCI_SNAPSHOT_BLOCK.pages!=43 {return error.Denied;}return;
+            ||XHCI_SNAPSHOT_BLOCK.pages!=pages {return error.Denied;}return;
     }
     // Mark before any reserve/map side effect. A partially mapped allocation
     // is held by the arena and must never be retried or published piecemeal.
     XHCI_SNAPSHOT_ATTEMPTED=true;
     if sizeof(xhci.Interrupter)!=40||sizeof(xhci.Extension)!=48 {return error.Invalid;}
     var held=resources.Block {physical:0,virtual:0,pages:0};
-    try resources.allocate(43,1,&held);
+    try resources.allocate(pages as usize,1,&held);
     let arena=(*resources.plan_pointer()).arena;
-    if held.pages!=43||held.physical==0||(held.physical&4095)!=0||(held.virtual&4095)!=0
+    if held.pages!=pages||held.physical==0||(held.physical&4095)!=0||(held.virtual&4095)!=0
         ||held.physical<arena.physical||held.physical-arena.physical>arena.length
-        ||43*4096>arena.length-(held.physical-arena.physical)
+        ||pages as u64*4096>arena.length-(held.physical-arena.physical)
         ||held.virtual!=resources.ARENA_BASE+held.physical-arena.physical {return error.Denied;}
     // The producer established WB/RW/NX supervisor mappings and cleared every
     // byte. Publish the complete disjoint views only after all checks pass.
@@ -594,7 +598,7 @@ unsafe fn xhci_extensions(first:u64)!usize {unsafe {
 // The BSP keeps this owner stopped throughout the snapshot and PCI commit.
 pub unsafe fn xhci_enable(id:usize,owner:u64,incarnation:u64)!void {unsafe {
     if id!=ADMITTED_XHCI||owner!=XHCI_OWNER||incarnation!=XHCI_INCARNATION||XHCI_SELECTED==0
-        ||XHCI_ENABLE_ATTEMPTED||XHCI_LEASE.token!=3||XHCI_LEASE.length!=131072 {return error.Denied;}
+        ||XHCI_ENABLE_ATTEMPTED||XHCI_LEASE.token!=3||!xhci_dma.valid_bytes(XHCI_LEASE.length as u64) {return error.Denied;}
     try xhci_identity();let interrupts=try interrupt_caps(XHCI_SELECTED,false);if interrupts!=3 {return error.Denied;}
     let identity=try read32(XHCI_SELECTED+8);let header=try read32(XHCI_SELECTED+12);
     // Read only fixed capability offsets before validating the derived spans.
@@ -620,15 +624,15 @@ pub unsafe fn xhci_enable(id:usize,owner:u64,incarnation:u64)!void {unsafe {
     // Validate every fixed lease page through the allocator's owned aliases,
     // including physical identity. Contiguous() is the sole producer and pins
     // USER|WRITE/NX pages; privileged setup never shares this driver lease.
-    i=0;while i<32 {
+    i=0;while i<XHCI_LEASE.length/4096 {
         let alias=try memory.owned_alias(id,DMA_BASE+i as u64*4096,true);var found=false;var f:usize=0;
         while f<memory.frame_count() {let frame=*(memory.frames()+f);
             if frame.physical==XHCI_LEASE.physical+i as u64*4096&&frame.virtual==alias&&frame.writable==1 {found=true;break;}f+=1;
         }if !found {return error.Denied;}i+=1;
     }
-    try memory.copy_in(id,DMA_BASE,slice_from_raw_parts(XHCI_DMA_SNAPSHOT,131072));
+    try memory.copy_in(id,DMA_BASE,slice_from_raw_parts(XHCI_DMA_SNAPSHOT,XHCI_LEASE.length));
     let planned=try xhci.permit(&h,&r,slice_from_raw_parts(XHCI_INTERRUPTS,b.interrupters as usize),
-        slice_from_raw_parts(XHCI_EXTENSIONS,count),slice_from_raw_parts(XHCI_DMA_SNAPSHOT,131072));
+        slice_from_raw_parts(XHCI_EXTENSIONS,count),slice_from_raw_parts(XHCI_DMA_SNAPSHOT,XHCI_LEASE.length));
     XHCI_ENABLE_ATTEMPTED=true;compiler_fence();
     // Even a failed write/readback retires this gate permanently. The outer
     // driver failure path quarantines BME/MSI/INTx and retains all RAM.

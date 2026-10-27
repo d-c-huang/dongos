@@ -1,0 +1,14 @@
+// Shared bounded layout. The original 128KiB is reserved for DCBAA/rings and
+// three retained device scopes. Scratch storage never overlaps those scopes.
+module usb.xhci_dma;
+pub const BASE_BYTES:u64=131072;
+pub const MAX_SCRATCH:u64=64;
+pub const TABLE:u64=131072;
+pub const BUFFERS:u64=135168;
+pub fn count(hcs2:u64)u64{return ((hcs2>>27)&31)|(((hcs2>>21)&31)<<5);}
+pub fn bytes(hcs2:u64)u64 {
+ let n=count(hcs2);if n>MAX_SCRATCH{return 0;}
+ if n==0{return BASE_BYTES;}
+ var pages:u64=32;while pages<33+n{pages*=2;}return pages*4096;
+}
+pub fn valid_bytes(length:u64)bool{return length==131072||length==262144||length==524288;}

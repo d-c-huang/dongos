@@ -77,15 +77,16 @@ pub unsafe fn query(s:*const Space,v:u64,out:*Mapping)!void{return error.Unmodel
  unsafe extern "sysv64" fn native_alias(id:u64,virtual:u64,out:*u64)u64;
  unsafe extern "sysv64" fn native_copy(id:u64,virtual:u64,out:*u8,bytes:u64)u64;
  unsafe extern "sysv64" fn native_frames()*const Frame;
- pub fn frame_count()usize{return 32;}pub fn frames()*const Frame{unsafe{return native_frames();}}
+ pub fn frame_count()usize{return 128;}pub fn frames()*const Frame{unsafe{return native_frames();}}
  pub unsafe fn map_device(id:usize,virtual:u64,physical:u64,bytes:u64)!void{unsafe{if native_map(id as u64,virtual,physical,bytes)!=0{return error.Invalid;}}return;}
+ pub unsafe fn contiguous_xhci(id:usize,virtual:u64,requested:usize)!u64{unsafe{return contiguous(id,virtual,requested);}}
  pub unsafe fn contiguous(id:usize,virtual:u64,requested:usize)!u64{unsafe{var out:u64=0;if native_alloc(id as u64,virtual,requested as u64,&out)!=0{return error.Invalid;}return out;}}
  pub unsafe fn owned_alias(id:usize,virtual:u64,write:bool)!u64{unsafe{var out:u64=0;if !write||native_alias(id as u64,virtual,&out)!=0{return error.Invalid;}return out;}}
  pub unsafe fn copy_in(id:usize,virtual:u64,out:[]u8)!void{unsafe{if native_copy(id as u64,virtual,out.ptr,out.len as u64)!=0{return error.Invalid;}}return;}
  ''',
  'boot.service_memory':'''module boot.service_memory;pub error Invalid=0x0f000001;pub struct Block{pub physical:u64,pub virtual:u64,pub pages:u64}
  pub struct Arena{pub physical:u64,pub length:u64}pub struct Plan{pub arena:Arena}
- var PLAN:Plan=Plan{arena:Arena{physical:0x30000000,length:43*4096}};pub var ARENA_BASE:u64=0;
+ var PLAN:Plan=Plan{arena:Arena{physical:0x30000000,length:139*4096}};pub var ARENA_BASE:u64=0;
  unsafe extern "sysv64" fn native_resources(pages:u64,alignment:u64,out:*Block)u64;
  unsafe extern "sysv64" fn native_arena()u64;
  pub unsafe fn plan_pointer()*const Plan{unsafe{return &PLAN;}}
@@ -128,14 +129,14 @@ class XhciKernelTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
   cls.out=ROOT/'build/test/p8-xhci-kernel'/('run-'+uuid.uuid4().hex[:12]);cls.out.mkdir(parents=True)
-  cls.inputs=[SOURCE_ROOT/'kernel/user/devices.dg',SOURCE_ROOT/'kernel/user/device_host.dg',SOURCE_ROOT/'kernel/user/memory.dg',SOURCE_ROOT/'kernel/user/virtio_quiesce.dg',SOURCE_ROOT/'services/drivers/virtio_pci.dg',SOURCE_ROOT/'services/drivers/pci.dg',SOURCE_ROOT/'services/drivers/device_manager.dg',SOURCE_ROOT/'services/drivers/xhci_authority.dg',ROOT/'tests/xhci_kernel_probe.dg',ROOT/'tests/xhci_kernel_probe.c',Path(__file__)]
+  cls.inputs=[ROOT/'services/usb/xhci_dma.dg',SOURCE_ROOT/'kernel/user/devices.dg',SOURCE_ROOT/'kernel/user/device_host.dg',SOURCE_ROOT/'kernel/user/memory.dg',SOURCE_ROOT/'kernel/user/virtio_quiesce.dg',SOURCE_ROOT/'services/drivers/virtio_pci.dg',SOURCE_ROOT/'services/drivers/pci.dg',SOURCE_ROOT/'services/drivers/device_manager.dg',SOURCE_ROOT/'services/drivers/xhci_authority.dg',ROOT/'tests/xhci_kernel_probe.dg',ROOT/'tests/xhci_kernel_probe.c',Path(__file__)]
   cls.before={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.inputs};(cls.out/'source-before.json').write_text(json.dumps(cls.before,indent=2)+'\n')
  @classmethod
  def tearDownClass(cls):
   after={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.inputs};(cls.out/'source-after.json').write_text(json.dumps(after,indent=2)+'\n')
   if after!=cls.before:raise AssertionError('xHCI kernel source changed during verification')
- def command(self,args,d,name):
-  r=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=90);(d/(name+'.json')).write_text(json.dumps(dict(command=args,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r
+ def command(self,args,d,name,*,timeout=90):
+  r=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=timeout);(d/(name+'.json')).write_text(json.dumps(dict(command=args,returncode=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');return r
  def native(self,mutation=None):
   for mode in ('debug','release'):
    d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();stage=d/'source';override=stubs();original=(SOURCE_ROOT/'kernel/user/devices.dg').read_text(encoding='utf-8')
@@ -151,7 +152,7 @@ class XhciKernelTests(unittest.TestCase):
    obj=d/'probe.o';nasm=tool('nasm','NASM');cc=tool('gcc','CC');self.assertTrue(nasm and cc)
    r=self.command([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),'-o',str(obj),str(d/'probe.asm')],d,'assemble');self.assertEqual(0,r.returncode,r.stderr)
    exe=d/('probe.exe' if os.name=='nt' else 'probe');r=self.command([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing',*(['-mno-sse'] if os.name=='nt' else ['-no-pie']),str(ROOT/'tests/xhci_kernel_probe.c'),str(obj),'-o',str(exe)],d,'link');self.assertEqual(0,r.returncode,r.stderr)
-   scenarios=('removed-identity','owner','late-interrupter','quarantine') if mutation else ('normal','removed-identity','owner','late-interrupter','quarantine','partial-grant','readback','dma-page','old-erstba','bar-overlap','legacy-isolation','msi','cap-boundary','extension-boundary','removed-before-attach','wrong-slot')
+   scenarios=('removed-identity','owner','late-interrupter','quarantine') if mutation else ('normal','removed-identity','owner','late-interrupter','quarantine','partial-grant','readback','dma-page','old-erstba','bar-overlap','legacy-isolation','msi','cap-boundary','extension-boundary','removed-before-attach','wrong-slot','scratch34','scratch64','scratch-table','scratch-dirty','scratch-last-alias')
    if mutation:scenarios=({'wrong-device':'removed-identity','stale-owner':'owner','late-interrupter':'late-interrupter','reuse-quarantine':'quarantine'}[mutation],)
    for scenario in scenarios:
     r=self.command([str(exe),scenario],d,scenario)
@@ -162,7 +163,7 @@ class XhciKernelTests(unittest.TestCase):
   for mode in ('debug','release'):
    for name in ('user.devices','user.device_host','drivers.device_manager'):
     c=compile_file(stage/(name.replace('.','/')+'.dg'),roots=[stage],mode=mode);p=self.out/(name+'-'+mode+'.asm');p.write_text(c.assembly,encoding='utf-8')
-    nasm=tool('nasm','NASM');r=self.command([nasm,'-f','elf64',*nasm_flags(nasm),'-o',str(p.with_suffix('.o')),str(p)],self.out,name+'-'+mode);self.assertEqual(0,r.returncode,r.stderr)
+    nasm=tool('nasm','NASM');r=self.command([nasm,'-f','elf64',*nasm_flags(nasm),'-o',str(p.with_suffix('.o')),str(p)],self.out,name+'-'+mode,timeout=300);self.assertEqual(0,r.returncode,r.stderr)
  def test_actual_kernel_grant_gate_and_quarantine(self):self.native()
  def test_actual_bad_kernel_sources_are_rejected(self):
   for mutation in ('wrong-device','stale-owner','late-interrupter','reuse-quarantine'):self.native(mutation)

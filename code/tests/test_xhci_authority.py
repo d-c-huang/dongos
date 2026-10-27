@@ -32,7 +32,7 @@ def direct_stack(assembly):
 class XhciAuthorityTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
-  cls.source=Path(os.environ.get('DONGOS_XHCI_AUTHORITY_ROOT',str(ROOT/'services'))).resolve();cls.inputs=[cls.source/'drivers/xhci_authority.dg',ROOT/'services/usb/xhci_controller.dg',ROOT/'tests/xhci_authority_probe.dg',ROOT/'tests/xhci_authority_probe.c',Path(__file__)]
+  cls.source=Path(os.environ.get('DONGOS_XHCI_AUTHORITY_ROOT',str(ROOT/'services'))).resolve();cls.inputs=[ROOT/'services/usb/xhci_dma.dg',cls.source/'drivers/xhci_authority.dg',ROOT/'services/usb/xhci_controller.dg',ROOT/'tests/xhci_authority_probe.dg',ROOT/'tests/xhci_authority_probe.c',Path(__file__)]
   controller=(ROOT/'services/usb/xhci_controller.dg').read_text()
   for name,expected in {'DMA_BYTES':131072,'COMMAND_OFFSET':4096,'EVENT_OFFSET':8192,'ERST_OFFSET':12288}.items():
    found=re.findall(r'pub\s+const\s+'+name+r'\s*:\s*u64\s*=\s*([0-9a-fA-F_x]+)\s*;',controller)
@@ -49,7 +49,7 @@ class XhciAuthorityTests(unittest.TestCase):
    with self.subTest(mode=mode,mutation=mutation):
     d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();source=self.source
     if mutation:
-     source=d/'services';(source/'drivers').mkdir(parents=True);p=source/'drivers/xhci_authority.dg';s=(self.source/'drivers/xhci_authority.dg').read_text();needle,replacement={
+     source=d/'services';(source/'drivers').mkdir(parents=True);(source/'usb').mkdir();(source/'usb/xhci_dma.dg').write_bytes((ROOT/'services/usb/xhci_dma.dg').read_bytes());p=source/'drivers/xhci_authority.dg';s=(self.source/'drivers/xhci_authority.dg').read_text();needle,replacement={
       'old-erstba':('p.erstsz!=1||p.erstba!=0||','p.erstsz!=1||'),
       'binding-owner':('h.binding_owner!=h.owner||',''),
       'dma-pointer':('expected=h.lease_physical+4096;','expected=h.lease_physical+4096+8;'),
