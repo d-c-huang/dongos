@@ -1,0 +1,71 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_user_boot_checkpoint"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-27T11:52:30+00:00",
+  "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
+  "completed_at": "2026-10-27T12:00:45+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-27T11:51:38+00:00",
+  "delivery": "codex-works/deliveries/P8USERCHECK1.md",
+  "depends_on": [
+    "codex:P8SCRATCH1"
+  ],
+  "description": "真机新版仍显示S19/8CPU/error0。S20-S23只mark不draw，不能猜锁死。显式私有diagnostic保持normal source/services/SMP=1，只在真实ud.acquire成功且services.enable_smp成功后、user_boot_publish及AP新Header发布前捕获Report并屏幕主动停止；无用户程序、USB DMA或桌面，不伪称运行成功。固定15scalar行展示INFO/domain真实状态及原call边界；原失败仍走HW_BOOT_ERROR。复用原geometry/cacheGate renderer，绝不在AP2s窗口重绘或改normal deadline。完整私有graph编译/strictrecipe/digest/normal-source+17service字节稳定；native真实capture和坏体/布局/完整patch断言，Root8CPU真实VM逐值/屏幕/无新domain AP发布/无用户设备authority/整USB及三可写内盘未变，之后独立验收写原H备份flush/readback/native FAT32 rb。正常桌面目标仍待定位，本卡仅intentional preAP checkpoint，USB首错尚未发生不构造伪值。",
+  "document": "codex-works/tasks/P8USERCHECK1-board.md",
+  "historical": false,
+  "id": "codex:P8USERCHECK1",
+  "integration_note": "六个声明文件已真实集成主工作区并保持formal96590ceb...验收指纹。实际已验收candidate-r2显式USER CHECK R1更新原SanDisk H（disk2 serial4C530000010320109015 USB/FAT32/offset131072/partition7798652928保持），先备份原normal scratch4文件，再逐文件flush+fsync+SHA回读。最终native rb volume exit0，mount_error0/ready1/dirty0/1899872clusters及bpb一致、canaries1、writes0/flushes0/bad_io0、不repair；之后4文件再次SHA回读一致。最终receipt SHAd24a17858e2293165a9ee630d80ab19bdcc885a6815b73f2e5e035cad5403728，EFIadd7473f06d171ce4266a3b13ac3fd932e0f1dbfda181010dd7a4bd9591993e6，IMG07a8c83f886094d27c66339f674cc17b22fd167a28b31dfa7a15859dbe8b2b7d，SERVICES仍08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。无格式化/分区/rawdisk写。实际VM-r3通过、15行82320pixels/真实boot+domain/enable flag/新AP入口未发布/无用户硬件authority/完整代码/4整镜像不变及formal2tests0skip源稳定见验收note。该镜像有意停在AP发布前，正常desktop及USB服务尚未执行，不宣称S19根因已找到或真机通过；用户将回传到ENABLE OK整屏。",
+  "legacy_hash": "b2fd660d45630a3c1739edea551b231c8b9d31b329cd9798346ffa0e95d14ad4",
+  "number": "P8USERCHECK1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查固定capture模块、private user_boot唯一hook、SMP=1 recipe、原Gate/geometry renderer、严格overlay/IMG/两个EFI消费者和native测试有效性。hook严格在真实ud.acquire+services.enable_smp返回成功后/新AP发布之前，不改正常文件、deadline或17服务；有意stop不能当成桌面/USB错误证据。正式job96590ceb317d4d6c8fb19917a1584a9c：2tests5.156s，0skip/源稳定/全部进程退出。实际capture debug/release O0/O2、ELF/COFF、3类真坏体断言失败、只读输入/once/空/状态/3..16CPU/136B布局均通过，patch唯一边界和15行列宽检查有效。Root actual8CPU WHPX单USB三可写内盘vm-r3 PASS：捕获17u64逐项对真实boot Report80B/Domain120B/SMP_ENABLED1/bridge非零/未发布handoff0；新用户服务及14类设备authority全零；真实CR3四级页表读取arena要求有效supervisor NX；完整kernel执行字节一致，15行82320像素、末行470；全USB及三整内盘hash不变、单次stop/退出。VM SHA674c02e184517102b573d82a0a21c11dd84cbad4d855cd08da1918258e73f6c6，manifest43151b1f0be1f05501418cd7c37cda22336689c7e19192548594b34b5a3c7c54。前两轮仅observer将arena误当内核线性段/缺runtime_offset，修为真实CR3查表；客体candidate未变。原始relative日志仅cwd同文件canonical化，rawlogSHA和严格flags/object/tool核验保留。验收仅AP发布前诊断边界，真机和USB首错仍待后续观察，不猜锁死。",
+  "status": "integrated",
+  "title": "S19后锁与服务初始化的AP发布前独立停机诊断",
+  "updated_at": "2026-10-27T12:09:04+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 5.156,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_boot_checkpoint",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8USERCHECK1.md": "62bc027d15a2e429bec827ecc5145138b35dcd9eeefd7e21b59e39c96d77ebbb",
+      "docs/hardware-user-boot-checkpoint.md": "bac96a6379b14ea1eaf2c910a1f36ecd64934a979b67cee6bb737e891e3a67b0",
+      "kernel/boot/user_boot_checkpoint.dg": "e9105a489249c72a2994d6621635693e7fe54b76d084a2d3f248a07364cdb4e1",
+      "tests/test_user_boot_checkpoint.py": "d6dac67f343d06ba6c8983e9ba149ed9753b7c2990c189b4c57304c46c7fcc02",
+      "tests/user_boot_checkpoint_probe.c": "b65fa48985d5629fb794b8a9bd5e224d3e7a59a797ffca3b53e133b0dfff195c",
+      "tools/build_user_boot_checkpoint.py": "df54aec05734b02f4435c89cb705b815b673664bfc3db886944343e731cda531"
+    },
+    "finished_at": "2026-10-27T12:01:00+00:00",
+    "job": "96590ceb317d4d6c8fb19917a1584a9c",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/boot/user_boot_checkpoint.dg",
+    "tools/build_user_boot_checkpoint.py",
+    "tests/test_user_boot_checkpoint.py",
+    "tests/user_boot_checkpoint_probe.c",
+    "docs/hardware-user-boot-checkpoint.md",
+    "codex-works/deliveries/P8USERCHECK1.md"
+  ]
+}

@@ -1,0 +1,25 @@
+// Opt-in pre-AP checkpoint. Normal boot never imports this observer.
+module boot.user_boot_checkpoint;
+import sched.user_boot as ub;
+import sched.user_domain as ud;
+pub const INVALID:u64=0x0b03_0001;
+pub struct Report{pub version:u64,pub done:u64,pub error_code:u64,pub checkpoint:u64,pub cpus:u64,
+ pub boot_ready:u64,pub boot_failed:u64,pub published:u64,pub domain_ready:u64,pub domain_failed:u64,
+ pub lock:u64,pub owner:u64,pub online:u64,pub barrier:u64,pub expected:u64,pub completed:u64,pub enable_returned:u64}
+const EMPTY:Report=Report{version:0,done:0,error_code:0,checkpoint:0,cpus:0,boot_ready:0,boot_failed:0,published:0,
+ domain_ready:0,domain_failed:0,lock:0,owner:0,online:0,barrier:0,expected:0,completed:0,enable_returned:0};
+var STATE:Report=EMPTY;
+pub export("dong_user_boot_checkpoint_pointer") fn pointer()*const Report{unsafe{return &STATE;}}
+pub export("dong_user_boot_checkpoint_run") fn run()*const Report{unsafe{
+ if STATE.version!=0{return &STATE;}STATE.version=1;
+ let info=ub.report();if info==null{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ STATE.cpus=(*info).count;STATE.boot_ready=(*info).ready;STATE.boot_failed=(*info).failed;STATE.published=(*info).published;
+ if (*info).domain==0||STATE.cpus<3||STATE.cpus>16{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ let d=(*info).domain as *const ud.Domain;
+ STATE.domain_ready=(*d).ready;STATE.domain_failed=atomic_load(&(*d).failed);STATE.lock=atomic_load(&(*d).lock);
+ STATE.owner=(*d).owner;STATE.online=(*d).online;STATE.barrier=(*d).barrier;STATE.expected=(*d).expected;STATE.completed=(*d).completed;
+ if STATE.boot_ready!=1||STATE.boot_failed!=0||STATE.published!=0||STATE.domain_ready!=1||STATE.domain_failed!=0
+   ||STATE.lock!=1||STATE.owner!=0||STATE.online!=(1<<STATE.cpus)-1||STATE.barrier!=0{STATE.error_code=INVALID;}
+ else{STATE.checkpoint=21;STATE.enable_returned=1;}
+ compiler_fence();STATE.done=1;return &STATE;
+}}
