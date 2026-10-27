@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T12:09:04+00:00",
+  "generated_at": "2026-10-27T12:46:14+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -11188,6 +11188,77 @@
       "legacy_hash": "865db60a761e7aa32a151d93858eb476c3caebf122bebfdae3ed89de32f86e83",
       "claim_from_status": "todo",
       "integration_note": "已完成真实本地文件集成：七授权路径均实际位于主工作区；逐一重算SHA与正式rev4 verification的七项fingerprint完全一致，五测试/观测文件还与真实control/fault冻结副本及独立审查SHA一致。文件映射与证明封存reviews/2026-10-21-P5CTX2-integration.json。P5CTX1两生产文件SHA保持既定823fc277...及548c6daf...，HEAD仍28fae186eade64aac9eec17fcc2fb30913b948f6，其它既有改动保留。accepted rev5已通过；本次只登记本地集成，不建PR、不commit、不push；P5范围仍为partial，held1/drain UNKNOWN，无DMA回收或重启。"
+    },
+    {
+      "id": "codex:P8APCHECK1",
+      "number": "P8APCHECK1",
+      "owner": "codex",
+      "title": "真实AP交接与队列投影后的受控停机诊断",
+      "description": "真机preAP检查点字段全符，继续定位新AP发布/activate ready2及队列投影。新增显式AP CHECK R1私有profile：保持原锁/deadline/IPI/activate及BSP投影实路径，仅在私有user_boot.asm让AP成功activate之后park(IF0 cli/hlt)而不进入idle/用户域锁竞争；BSP真实等待全部ready2并投影成功后、retire/unlock之前捕获17u64屏幕主动停止。AP park是诊断行为改变，必须明确不能证明AP idle/BKL竞争/CPL3通过；避免在AP timed lock窗口慢速重绘。原错误路径保持，capture只读所有配置Header.ready/last_error，掩码/首错/boot/domain/owner/pub等15行；无用户进程/设备authority。完整私有图及第4个user_boot.o严格编译/recipe/2EFI manifest/17服务保持。实际native capture与真坏体/debug-release/O0-O2/ELF-COFF、exact hook及park边界；Root8CPU actualAP header/GS或ready/masks/IPI发布/投影/lock/无硬件authority/全代码/像素/整USB+三内盘不变验证；独立验收后按原SanDisk身份备份+flush+回读+native rb写H。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 10,
+      "write_paths": [
+        "kernel/boot/ap_boot_checkpoint.dg",
+        "tools/build_ap_boot_checkpoint.py",
+        "tests/test_ap_boot_checkpoint.py",
+        "tests/ap_boot_checkpoint_probe.c",
+        "docs/hardware-ap-boot-checkpoint.md",
+        "codex-works/deliveries/P8APCHECK1.md"
+      ],
+      "depends_on": [
+        "codex:P8USERCHECK1"
+      ],
+      "checks": [
+        "module:tests.test_ap_boot_checkpoint"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-27T12:29:48+00:00",
+      "updated_at": "2026-10-27T12:46:14+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8APCHECK1-board.md",
+      "delivery": "codex-works/deliveries/P8APCHECK1.md",
+      "claimed_at": "2026-10-27T12:39:37+00:00",
+      "completed_at": "2026-10-27T12:41:12+00:00",
+      "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_ap_boot_checkpoint",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 9.906
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/boot/ap_boot_checkpoint.dg": "ca2c3f34961f58cc2345785d223ffc137e900fc8797c7e156f3c11180cb0d2dd",
+          "tools/build_ap_boot_checkpoint.py": "069d8a9a82bf8747d0b970fbb14e488b65713230a4eaa1d02c249cb762dbc2b1",
+          "tests/test_ap_boot_checkpoint.py": "0d1c72270ecb49e3087a7679c9f4b300251d93361a4fdb64168228cc323e17db",
+          "tests/ap_boot_checkpoint_probe.c": "2f1100b92bed7059ee1c2a55d98841bd77a3573a53274d672f1c373baf663a37",
+          "docs/hardware-ap-boot-checkpoint.md": "a715d03240b0b61a06f02fc91df441272e9a0f89a09a6b0668b7f4fe246050ff",
+          "codex-works/deliveries/P8APCHECK1.md": "e14e72129e936fadad3e4d9e0c33177dd1cc87db3f39ce5e60f48e4c6f2a794f"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-27T12:41:31+00:00",
+        "job": "8b3ec2f1a71046049d81948f7c143014"
+      },
+      "review_note": "已实际审查真实capture与Cpu256 ready200/error208、私有BSP projection后hook、AP成功activate后范围校验/lock bts park位/CLI-HLT、normal BSP原汇编字节不变、原until内诊断park barrier、9命令/4对象strict recipe及overlay/17服务/双EFI绑定。明确park绕过后续idle/BKL竞争/CPL3，不当作正常调度成功。正式job8b3ec2f1a71046049d81948f7c143014：2tests9.906s、0skip/source-stable/进程退出；实际capture debug/release/O0-O2/ELF-COFF，7类真坏体被C断言拒绝，各CPU ready/error/null、首错最低CPU、parkmask、队列范围、once/只读输入、实际BSS136和Header布局均检查。Root candidate-r3 9实际命令+verify，manifest12b0346f0da7926f8768b5a186a442d355acb9e0c36f2c9a5e8a4c21948777e1。Root vm-r2真实8CPU单USB PASS：boot/domain/pub/lock、actualqueue.count1、8 Header ready2/error0/syscalls0、各CPU GS==各Header、7AP RIP在诊断park且IF0/HLT1、publish ptr/count8/parkFE、未执行用户服务及14类硬件authority全零，完整kernel字节、15行83300pixels/底470，全USB及3整可写内盘hash保持、单stop清理。VM SHAd53423f211ecbf96e742f8ad072bb1e6a37a9c6cd04aeb315203df09ad5e2689。首formal native通过但实际VM发现EMPTY.first_cpu16令STATE入.data，已拒绝验收并返修为全零EMPTY+run中置NONE，新增BSS断言后全重建复验，失败历史保留；没有放宽实际BSS审查。只验收显式诊断，Intel运行与CPL3仍待照片。",
+      "legacy_hash": "c60a3fef98bb9693dfaaa93fe01ad1d6651b79511c05bc4141eaaceee4e8be9d",
+      "claim_from_status": "rework",
+      "integration_note": "六个声明文件已实际集成主工作区且与formal8b3ec2f1a71046049d81948f7c143014验收指纹一致。实际candidate-r3 AP CHECK R1已更新用户确认的原SanDisk H（disk2 serial4C530000010320109015 USB/FAT32/offset131072/partition7798652928保持），先备份旧USER CHECK四文件，逐文件flush/fsync/SHA回读；native rb FAT32 exit0 mount_error0 ready1 dirty0/1899872clusters及bpb一致 canaries1 writes0 flushes0 bad_io0无repair，之后四文件再次SHA一致。最终receipt SHAcd25b40472f410309140706a915aa46e176858a191e10ca7c406baf4754eb0d3，EFI7348ad7b87772c0e1c5daed36dc0758544f4246e9b98992d1f674fa507621804，IMGe232ef3f452a35557a9d663cacf60478e2516a8a1404f1e5c80af362a5b9d3e4，SERVICES仍08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。无格式化/分区/rawdisk写。实际8CPU真实Header/GS/AP RIP IF0 HLT/readyFF parkedFE/queue1/完整代码/15行83300pixels及四整盘未变、独立2tests9.906s0skip/source-stable证据见验收note。first BSS合同失败已返修并完整重建复验，历史保留。明确AP成功activate后park是本诊断变化，尚未验证正常AP idle/BKL竞争/dispatch/CPL3/USB/desktop，Intel结果待新照片，不提前完成正常运行目标。"
     },
     {
       "id": "codex:P8BOOTDIAG1",

@@ -1,0 +1,35 @@
+// Explicit post-activation diagnostic; normal boot does not import this.
+module boot.ap_boot_checkpoint;
+import sched.user_boot as ub;
+import sched.user_domain as ud;
+import sched.user_entry_plan as ep;
+pub const INVALID:u64=0x0b04_0001;
+pub struct Report{pub version:u64,pub done:u64,pub error_code:u64,pub checkpoint:u64,pub cpus:u64,
+ pub published:u64,pub lock:u64,pub owner:u64,pub online:u64,pub ready_mask:u64,pub error_mask:u64,
+ pub first_error:u64,pub first_cpu:u64,pub queue_count:u64,pub boot_failed:u64,pub domain_failed:u64,pub parked_mask:u64}
+const EMPTY:Report=Report{version:0,done:0,error_code:0,checkpoint:0,cpus:0,published:0,lock:0,owner:0,online:0,
+ ready_mask:0,error_mask:0,first_error:0,first_cpu:0,queue_count:0,boot_failed:0,domain_failed:0,parked_mask:0};
+var STATE:Report=EMPTY;
+unsafe extern "sysv64" fn ap_checkpoint_parked_mask()u64;
+pub export("dong_ap_boot_checkpoint_pointer") fn pointer()*const Report{unsafe{return &STATE;}}
+pub export("dong_ap_boot_checkpoint_run") fn run()*const Report{unsafe{
+ if STATE.version!=0{return &STATE;}STATE.version=1;STATE.first_cpu=16;
+ let info=ub.report();if info==null{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ STATE.cpus=(*info).count;STATE.published=(*info).published;STATE.boot_failed=(*info).failed;
+ if (*info).domain==0||(*info).headers==0||STATE.cpus<3||STATE.cpus>16{STATE.error_code=INVALID;STATE.done=1;return &STATE;}
+ let d=(*info).domain as *const ud.Domain;STATE.domain_failed=atomic_load(&(*d).failed);STATE.lock=atomic_load(&(*d).lock);
+ STATE.owner=(*d).owner;STATE.online=(*d).online;STATE.parked_mask=ap_checkpoint_parked_mask();
+ if (*d).engine==null{STATE.error_code=INVALID;STATE.done=1;return &STATE;}STATE.queue_count=(*(*d).engine).count;
+ var i:u64=0;while i<STATE.cpus{
+  let address=*(((*info).headers as *const u64)+i as usize);
+  if address==0{STATE.error_code=INVALID;break;}
+  let h=address as *const ep.Cpu;let ready=atomic_load(&(*h).ready);let failure=atomic_load(&(*h).last_error);
+  if ready==2{STATE.ready_mask|=1<<i;}
+  if failure!=0{STATE.error_mask|=1<<i;if STATE.first_cpu==16{STATE.first_cpu=i;STATE.first_error=failure;}}
+  i+=1;
+ }
+ if (*info).ready!=1||STATE.published!=1||STATE.boot_failed!=0||(*d).ready!=1||STATE.domain_failed!=0
+  ||STATE.lock!=1||STATE.owner!=0||STATE.online!=(1<<STATE.cpus)-1||STATE.ready_mask!=STATE.online
+  ||STATE.error_mask!=0||STATE.parked_mask!=(STATE.online&~1)||STATE.queue_count==0||STATE.queue_count>16{STATE.error_code=INVALID;}
+ if STATE.error_code==0{STATE.checkpoint=23;}compiler_fence();STATE.done=1;return &STATE;
+}}
