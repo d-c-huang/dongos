@@ -132,6 +132,9 @@ var IRQ_AFTER:[COUNT]u64=[0;COUNT];
 var IRQ_POINTER:[COUNT]u64=[0;COUNT];
 var IRQ_DEADLINE:[COUNT]u64=[0;COUNT];
 var CLOCK_HZ:u64=0;
+// Optional UART output may use at most 100ms of the trusted calibrated clock.
+// The RAM log accepts the whole message even when no UART can transmit it.
+export("dong_services_log_budget") fn log_budget()u64{unsafe{return CLOCK_HZ/10;}}
 var EXECUTABLE:*u8=null;
 var EVENT:proc.Event=proc.EMPTY_EVENT;
 var KEYBOARD: *console.Queue=null;
@@ -1623,12 +1626,19 @@ export("dong_user_smp_service") fn smp_service(slot:usize,event:u64,pointer:u64)
     if (*d).owner!=0||(*d).lock!=1||(*cpu).mode!=smp_domain.LOCKED||(*cpu).slot!=slot as u64
         ||(*cpu).token!=(*p).token||(*p).incarnation!=(*CATALOG).incarnation[slot]||pointer!=(&(*process(slot)).frame) as u64||!managed(slot){return 0x060b_0011;}
     CURRENT=slot;INFO.current=slot as u64+1;let frame=pointer as *abi.Frame;var failure:u64=0;
+    // Init has no parent that can restart it. Remember its admitted identity
+    // before retirement clears the catalog; an ordinary app exit stays local.
+    let was_init=procs.current(CATALOG,slot)==5;
+    let init_status=(*frame).rdi;
+    var init_detail:u64=0x050b_0003;
     if event==257{
         INFO.syscalls+=1;STATES[slot].started=1;
         if user_validate_frame(frame)==0{
+            init_detail=0x0405_0001;
             USER_FAULTS+=1;let result=retire(slot,proc.FAULTED,0x0405_0001);match result{ok=>{},err(e)=>{failure=e;},}
         }else{
             let operation=(*frame).rax;
+            if operation==0xff&&init_status!=0{init_detail=init_status;}
             match perform(frame){ok(hint)=>{},err(code)=>{
                 INFO.errors+=1;
                 if LAUNCH_FAILED||memory.STAGE_FAILED||memory.UNSHARE_FAILED||memory.RESOURCE_FAILED||memory.OBJECT_FAILED||device_host.PCI_FAILED||windows.FAILED||operation==0xfe||operation==0xff{failure=code;}
@@ -1639,12 +1649,17 @@ export("dong_user_smp_service") fn smp_service(slot:usize,event:u64,pointer:u64)
         // A trusted IRQ capture may contain a user-controlled unusable RSP,
         // flags or other return state. Retire only that process through the
         // same global detach/flush/reclaim path as a real CPL3 exception.
+        init_detail=0x0405_0001;
         USER_FAULTS+=1;let result=retire(slot,proc.FAULTED,0x0405_0001);match result{ok=>{},err(e)=>{failure=e;},}
     }else if event<=32{
+        init_detail=0x050b_0100|(event-1);
         USER_FAULTS+=1;let result=retire(slot,proc.FAULTED,event-1);match result{ok=>{},err(e)=>{failure=e;},}
     }else{failure=0x060b_0011;}
     if memory.OBJECT_FAILED{failure=0x0410_0004;}
     if device_host.PCI_FAILED{failure=0x060b_0011;}
+    if failure==0&&was_init&&!managed(slot){
+        failure=init_detail;
+    }
     CURRENT=NONE;if failure!=0{INFO.last_error=failure;return failure;}return 0;
 }}
 export("dong_user_smp_interrupt") fn smp_interrupt(vector:u64)u64{unsafe{

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T15:30:35+00:00",
+  "generated_at": "2026-10-27T16:51:06+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -11341,6 +11341,117 @@
       "legacy_hash": "0266921396873e824e0a1efe9bc3582c82ad70d7a4a0bcccf1fa77ccf1f58946",
       "claim_from_status": "todo",
       "integration_note": "六声明文件真实位于code/及coordination/dongos_works中，已独立通过15项零skip正式复验并逐SHA核对与fingerprint完全一致，accept后单独登记本地文件集成。正常与两类拒绝客体绑定EFI972dc5a5…，当前R2可见诊断介质候选位于code/build/hardware/bootdiag-20261025-r3/source/esp；已准备同一SanDisk身份/旧SHA预检、原件备份与读回验证脚本。H盘当前不在开发机，未执行写回，真实硬件仍黑屏待定位；新观察前不将P2/P8标通过。原失败全部保留，无commit/push。"
+    },
+    {
+      "id": "codex:P8BOOTLOG1",
+      "number": "P8BOOTLOG1",
+      "owner": "codex",
+      "title": "消除串口诊断对桌面启动的阻断并保留服务失败现场",
+      "description": "最新USER RUNTIME R1真机仍残留S19/error0。只读审查发现服务管理器及启动服务将sys.log UART发送失败作为致命启动失败，services_write_bytes用百万次IN轮询且占用BKL，正常串口虚拟机不覆盖缺席/不响应场景；管理服务退出可静默只剩启动旧画面。先通过实际实现和失效UART模型复现，证据支持后修复可选日志后端不阻断真实启动；保留错误/退出证据并接入可信BSP失败屏，避免单个正常子进程退出误判。不得虚构Intel根因、修改锁时限/存储权限、引入成功checkpoint停机。实际正反例、现有init/桥测试、独立零skip稳定复验；root执行连续8CPU完整USB桌面/键鼠/文件持久性验证及负例，不以只新增诊断作为真实根因已解决。发布前实审验收真实集成，同一SanDisk确认身份/备份/仅四文件/校验，用户未插回前不得写盘。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 10,
+      "write_paths": [
+        "kernel/services_run.asm",
+        "kernel/user/services.dg",
+        "kernel/boot/user_runtime_status.dg",
+        "tools/build_user_runtime.py",
+        "tests/test_services_console.py",
+        "tests/services_console_probe.c",
+        "tests/services_console_probe.asm",
+        "tests/test_user_runtime.py",
+        "tests/user_runtime_probe.c",
+        "tests/test_init_lifecycle.py",
+        "tests/init_lifecycle_probe.c",
+        "docs/hardware-user-runtime.md",
+        "codex-works/deliveries/P8BOOTLOG1.md"
+      ],
+      "depends_on": [
+        "codex:P8RUNTIME1"
+      ],
+      "checks": [
+        "module:tests.test_services_console",
+        "module:tests.test_init_lifecycle",
+        "module:tests.test_user_runtime"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-27T15:46:34+00:00",
+      "updated_at": "2026-10-27T16:51:06+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8BOOTLOG1-board.md",
+      "delivery": "codex-works/deliveries/P8BOOTLOG1.md",
+      "claimed_at": "2026-10-27T16:23:24+00:00",
+      "completed_at": "2026-10-27T16:28:07+00:00",
+      "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_services_console",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 92.031
+          },
+          {
+            "spec": "module:tests.test_init_lifecycle",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 8.719
+          },
+          {
+            "spec": "module:tests.test_user_runtime",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 45.328
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/services_run.asm": "766b5e46fef7c730630352dad3b6dfb09b9c0f8b0f9ab6ca8fe0112d86f62afc",
+          "kernel/user/services.dg": "8005541acee08aeefb45e1be2adf53b0f61458589405db8fe6f1ac6b01a10ce6",
+          "kernel/boot/user_runtime_status.dg": "3cd01f5e4d181fe2e2bb667b25ff72a807f068e1fa93262b74733a7886f087c2",
+          "tools/build_user_runtime.py": "9a14cde2c1d113da913e2182df7c08627fb7392fd3cfc30ccc58ae5fac527fb3",
+          "tests/test_services_console.py": "6298cfeb5fda10cf30c0cdbf768633dba4a35fd9437247f2d02819f03d292795",
+          "tests/services_console_probe.c": "2157d1459a810bc3c2f47f8c11d861414f35c64d242544baa835563ad238fbd7",
+          "tests/services_console_probe.asm": "a39c42dca57f71e2126de0cd58b25c99db53aba882dc7c546381e4295940e905",
+          "tests/test_user_runtime.py": "80c7434dd67b7c3eed407227c14269ce65b8d43791693e0b2739a01aaa0b9926",
+          "tests/user_runtime_probe.c": "7ff78fda9d058be1b05ff4bbbe6eb8bb5dec52f14bee30ca6633349899968c1d",
+          "tests/test_init_lifecycle.py": "6d28582a85bb8158726e3b1a228293c04c3b8d6936b2e8bb4daf1be168e37e23",
+          "tests/init_lifecycle_probe.c": "8c846ef67858217967ff86b6340c185271483f25f6709e8e19f25ce787b1e1fb",
+          "docs/hardware-user-runtime.md": "0bd16653e11d6853ece9d804e722344bcb4a85367cedb7661286f6beb77b20dd",
+          "codex-works/deliveries/P8BOOTLOG1.md": "1a76644183faf16cb720188b4addbbb8dc60d15d88e189f39963a97c9ed05155"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-27T16:30:53+00:00",
+        "job": "ac58c6ece94e4f508e2b77c5edf98821"
+      },
+      "review_note": "实审最终ASM与真实smp_service：4096环先接收，SysV非易失寄存器/栈对齐正确；UART缺席/忙可选退化，100ms校准TSC+65536忙轮询双边界，原sys.log地址/长度/权限不变，BSP/BKL序列化；仅有效exit采集rdi，无效syscall/IRQ帧04050001，不冒充退出状态，所有init错误均在真实退役/ACK/revoke后传播；普通app不升级致命错误。独立复验ac58c6ece94e4f508e2b77c5edf98821的3模块共7tests0skip，源稳定/进程退出；13指纹逐一匹配。真实旧ASM+init忙UART0子服务失败，新实现3spawn/1kill；debug/release、O0/O2、ELF/COFF及6类真实坏体拒绝，普通服务既有回归1test298.297s含24坏体通过。最终fresh source在build/hardware/user-runtime-20261028-r2：vm-r2实际8CPU两启动PASS，HID/GUI/USB写追加删读sync/重启同盘整体SHA不变，3内部哨兵全盘哈希不变，源码/观察器稳定/无外部改guest内存/全部进程停止；结果SHA c0933f83453ab3ac822c4d6d944a56f936289a6b27676b5db8782b77fd74969b。uart-vm-r1实际8CPU恒忙TX一完整启动PASS，同一全部桌面键鼠文件/CPU断言，真实12771bytes accepted/dropped、sent0、disabled1、timeouts1，结果SHA65d892f1b93e919c02c21ab4b330559cc5dcc00526a6d765cff0f32a214d9b35；fixture never_publish，仅改一处IN为0。严格candidate来源与9命令核对通过，不包含成功停车；旧失败/主动停止证据保留。验收可复现缺陷及当前修复，不宣称已定位Intel实机根因或实机桌面通过。",
+      "legacy_hash": "93737d5bee05a017f0173f80ba19f160baa8006d2e52220af2f0f3a8f1c73ead",
+      "claim_from_status": "rework",
+      "integration_note": "已核对并真实集成到主工作区code：最终ASM、services.dg、R2构建标识、3个实际执行测试/探针及文档已落盘，13项验收指纹一致；独立ac58c6ece94e4f508e2b77c5edf98821与最终20261028-r2正常8CPU两启动、恒忙UART完整桌面启动均PASS。原SanDisk H:身份/序列号/单分区FAT32核对，旧四文件哈希匹配并完整备份；仅更新EFI/BOOT/BOOTX64.EFI、DONGOS.IMG、SERVICES.BIN、DONGTEST.TXT，逐文件fsync+SHA256回读通过，无格式化/原始磁盘写入。原生FAT32 rb检查mount_error0 ready1 dirty0 writes0 flushes0 bad_io0 canaries1、无repair正常返回；后续四文件再次回读一致。最终receipt SHA25610df25be00fde2e25925be3b2b71916d29b48d45b72e94e155946f5864116700；DONGOS.IMG SHA2566f341197305c24c13c97f3d5d6bafae8903e3630fcfc2fc08eef8e079b1e326a。候选连续运行，不发布故障fixture。真机根因及完整桌面仍待用户启动反馈，不标记实机通过。"
     },
     {
       "id": "codex:P8BSPDIAG1",

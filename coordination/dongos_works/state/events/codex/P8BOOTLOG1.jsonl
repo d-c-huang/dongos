@@ -1,0 +1,16 @@
+{"at":"2026-10-27T15:46:34+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T15:48:13+00:00","data":{"claimed_at":"2026-10-27T15:48:13+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:10:32+00:00","data":{"claimed_at":"2026-10-27T15:48:13+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":"2026-10-27T16:10:32+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:10:48+00:00","data":{"job":"fc780f32e2264b8ca7f9416545cd108b","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:10:48+00:00","data":{"job":"fc780f32e2264b8ca7f9416545cd108b"},"kind":"verification_started","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:13:22+00:00","data":{"rev":4,"status":"submitted"},"kind":"verified","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:13:22+00:00","data":{"job":"fc780f32e2264b8ca7f9416545cd108b","status":"completed"},"kind":"job_finished","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:22:04+00:00","data":{"rev":5,"status":"rework"},"kind":"rework","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:23:24+00:00","data":{"claimed_at":"2026-10-27T16:23:24+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":null,"owner":"codex","resume_status":null,"rev":6,"status":"in_progress"},"kind":"claim","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:28:07+00:00","data":{"claimed_at":"2026-10-27T16:23:24+00:00","claimed_by":"codex-mcp-5c7de4d7c45b49d1","completed_at":"2026-10-27T16:28:07+00:00","owner":"codex","resume_status":null,"rev":7,"status":"submitted"},"kind":"submit","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:28:17+00:00","data":{"job":"ac58c6ece94e4f508e2b77c5edf98821","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:28:17+00:00","data":{"job":"ac58c6ece94e4f508e2b77c5edf98821"},"kind":"verification_started","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:30:53+00:00","data":{"rev":8,"status":"submitted"},"kind":"verified","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:30:53+00:00","data":{"job":"ac58c6ece94e4f508e2b77c5edf98821","status":"completed"},"kind":"job_finished","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:48:41+00:00","data":{"rev":9,"status":"accepted"},"kind":"accept","task_id":"codex:P8BOOTLOG1"}
+{"at":"2026-10-27T16:51:06+00:00","data":{"rev":10,"status":"integrated"},"kind":"integrate","task_id":"codex:P8BOOTLOG1"}

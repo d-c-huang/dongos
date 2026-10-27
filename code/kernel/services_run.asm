@@ -56,33 +56,107 @@ runtime_copy_bytes:
     rep movsb
     ret
 
-; Trusted kernel buffer and exact length; bounded UART polling.
+; Trusted kernel buffer and exact length. Accept into the bounded RAM log
+; before trying the optional UART. A missing console must not kill init.
+; Caller serializes through BSP/BKL (or the legacy single BSP dispatcher).
+; SERVICES_CONSOLE_BEGIN
+extern dong_services_log_budget
 services_write_bytes:
-    mov r8,rdi
-    mov r9,rsi
-.next:
-    test r9,r9
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    mov r12,rdi
+    mov r13,rsi
+    test r13,r13
     jz .ok
-    mov ecx,0x100000
+    mov r8,[rel services_console_head]
+    lea r9,[rel services_console_ring]
+    xor ecx,ecx
+.record:
+    mov al,[r12+rcx]
+    mov [r9+r8],al
+    inc r8
+    and r8,4095
+    inc rcx
+    cmp rcx,r13
+    jb .record
+    mov [rel services_console_head],r8
+    add [rel services_console_accepted],r13
+    cmp qword [rel services_console_disabled],0
+    jne .drop
+    call dong_services_log_budget
+    mov r15,rax
+    test r15,r15
+    jz .disable
+    lfence
+    rdtsc
+    shl rdx,32
+    or rax,rdx
+    mov r14,rax
+    mov ebx,65536                 ; also bounded if the clock stops advancing
+.next:
+    test r13,r13
+    jz .ok
     mov dx,0x3fd
 .wait:
     in al,dx
+    movzx ecx,al
+    mov [rel services_console_last_lsr],rcx
+    cmp al,0xff                   ; absent ISA device is not a ready UART
+    je .disable
     test al,0x20
     jnz .send
-    dec ecx
-    jnz .wait
-    mov eax,0x050b0004
-    ret
+    dec ebx
+    jz .timeout
+    lfence
+    rdtsc
+    shl rdx,32
+    or rax,rdx
+    sub rax,r14                   ; unsigned elapsed time tolerates TSC wrap
+    cmp rax,r15
+    jae .timeout
+    pause
+    mov dx,0x3fd
+    jmp .wait
 .send:
     mov dx,0x3f8
-    mov al,[r8]
+    mov al,[r12]
     out dx,al
-    inc r8
-    dec r9
+    inc qword [rel services_console_sent]
+    inc r12
+    dec r13
     jmp .next
+.timeout:
+    inc qword [rel services_console_timeouts]
+.disable:
+    mov qword [rel services_console_disabled],1
+.drop:
+    add [rel services_console_dropped],r13
 .ok:
     xor eax,eax
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
     ret
+section .bss
+align 8, resb 1
+global services_console_head,services_console_accepted,services_console_sent
+global services_console_dropped,services_console_disabled,services_console_last_lsr
+global services_console_timeouts,services_console_ring
+services_console_head: resq 1
+services_console_accepted: resq 1
+services_console_sent: resq 1
+services_console_dropped: resq 1
+services_console_disabled: resq 1
+services_console_last_lsr: resq 1
+services_console_timeouts: resq 1
+services_console_ring: resb 4096
+section .text
+; SERVICES_CONSOLE_END
 services_character:
     mov dx,0x3fd
     in al,dx
