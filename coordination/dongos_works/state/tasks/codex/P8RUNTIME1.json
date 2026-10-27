@@ -1,0 +1,81 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_user_runtime"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-27T13:46:08+00:00",
+  "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
+  "completed_at": "2026-10-27T15:23:12+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-27T13:45:53+00:00",
+  "delivery": "codex-works/deliveries/P8RUNTIME1.md",
+  "depends_on": [
+    "codex:P8FIRSTENTRY1"
+  ],
+  "description": "用户要求继续完成真实桌面启动，避免多次无谓逐阶段停机。最新真机FIRST USER检查通过，F4发生于首个系统调用之前。审计并实际验证F4后EOI、锁、连续用户返回、首系统调用与服务启动；基于证据修复具体缺陷，不用虚构故障。允许限定文件中的必要运行修复和无条件成功停车移除/失败时可见可信状态。正常成功路径必须持续到桌面，不人为等待照片停住；保持正常CPU拓扑、存储权限、原时限和normal17服务。新工具必须严格绑定原normalbuild/source/actualcommands且声明诊断差异，不能冒充normal验证。测试实际实现+有效错误体、0skip/stable及独立复验，root负责真实8CPU单USB端到端VM/代码帧与存储无改验证。若需额外文件先扩任务范围。完成实审和验收后准备原SanDiskH备份/写入/flush/readback/FAT rb，设备插入需重新确认或实证。独立复验+真实文件集成后更新进度。不得仅靠新增逐阶段stop任务充当启动修复。",
+  "document": "codex-works/tasks/P8RUNTIME1-board.md",
+  "historical": false,
+  "id": "codex:P8RUNTIME1",
+  "integration_note": "六新授权文件已真实集成，五个既有kernel声明文件保持原字节，11验收指纹稳定。formal c5c1421ba1754fb5b654d00227d30654三tests36.291s0skip/stable；root及独立只读源码契约实审无阻断。freshnormal/candidate九命令严格构建、continuous8CPU两boot完整桌面/HID/终端/USB文件持久性、3模拟内盘无写及单stopcleanup通过；明确neverpublish强制失败VM另过80948像素/真实Header/代码完整性，正常candidate未改。用户确认原SanDiskH插回后实际检查disk2/serial4C530000010320109015与旧FIRSTUSER四payloadSHA，备份后仅替换4文件；flush/fsync/逐文件及native后最终回读均匹配。FAT32 rb exit0,mount_error0,ready1,dirty0,clusters1899872,writes0,flushes0,bad_io0,canaries1/no repair。Receipt SHAbf6e92b4c23ca61d286134604e571d3cb64197f5aeddd56383238a240ee3d3b9，无format/rawdisk写。此版成功连续桌面，实际失败时显示；原Intel完整桌面结果仍待用户启动，未冒认未知根因已修复。",
+  "legacy_hash": "b97f9577945df2768ea37bb7cd586489c9d181741ed19b355e6ac71b3dfdb343",
+  "number": "P8RUNTIME1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "已实际审查producer/builder/C/Python测试/docs和5个保持原样kernel契约，另只读审查无阻断：正常桥DG/锁/EOI/retire/API/17服务原样，无成功停车；仅原trustedBSP错误stores后mapped切kernelCR3/可信栈/XRSTOR/报告/原Gate绘制，AP/untrusted不改；compositor slot3固定BSP+IF0排除并发FBwriter，cacheGate不强开。Report256B BSS/once/done-last/最低logical published failure+mask/Header fallback/selected-return2真实检查。独立formal c5c1421ba1754fb5b654d00227d30654三方法36.291s0skip源稳定，9状态坏体和F4 EOI漏/重坏体有独立断言。freshnormal+candidate9真实命令严格绑定通过。Rootcontinuous8CPU WHPX两实际boot完整HID/4GUI/终端/USB读写sync+二启同USB持久性hash、原normalphase23/view0/report全零未调用、3可写内盘整hash不变/单stop/cleanup全部过。另明确neverpublish fixture只在真实首F4已切kernelroot处强制原user_smp_fail，实际失败页15行80948像素/1513027B kernelcode/Header/CR3/报告均过、无物理设备/guest写/USB内盘变。首forcedobserver误期待entry0/stage0，实际保留prior commit3/15被正确拒绝，保留失败记录后只修观察预期，producer未变。仅验收连续profile+实际可见失败盲点修复，不宣称未知Intel根因或真机桌面已通过。",
+  "status": "integrated",
+  "title": "恢复真机连续桌面启动并捕获实际运行失败",
+  "updated_at": "2026-10-27T15:30:35+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 36.657,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_runtime",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8RUNTIME1.md": "406d51fb458f57f8ea867dc9c0c41b84fdae027be2fedb56f38e77eead550a2d",
+      "docs/hardware-user-runtime.md": "e3df9accffb7cd0bb887ece230618fdf8489685014524c9f2dd7af925577ad74",
+      "kernel/boot/user_runtime_status.dg": "3cd01f5e4d181fe2e2bb667b25ff72a807f068e1fa93262b74733a7886f087c2",
+      "kernel/entry.asm": "1700afe0a3873109eb032677ac6cb5f2da3beca0e38549e08c783f155fbb4d17",
+      "kernel/sched/user_boot.asm": "1e930f98512b368143fb5f6cd8a6b7d7009a5e2b3fff0123264384ba8faf276c",
+      "kernel/sched/user_boot.dg": "ffa26c35ffb8507eeff9890f6dac143fc1590942e688128ea6910e59305717fd",
+      "kernel/sched/user_bridge.dg": "eb25e153ab4462b70b45a568b6dee8144921faed0151e103c4a42da6963ff6d4",
+      "kernel/sched/user_entry.asm": "b1e9057b772bb9367ee2a2de2762cd59025c57761b062e41b129097bcaa8a325",
+      "tests/test_user_runtime.py": "80c7434dd67b7c3eed407227c14269ce65b8d43791693e0b2739a01aaa0b9926",
+      "tests/user_runtime_probe.c": "7ff78fda9d058be1b05ff4bbbe6eb8bb5dec52f14bee30ca6633349899968c1d",
+      "tools/build_user_runtime.py": "7f4b0c531bf018df6b5de8ea517facd257eb2727a1c301796da7468130ad42f9"
+    },
+    "finished_at": "2026-10-27T15:24:19+00:00",
+    "job": "c5c1421ba1754fb5b654d00227d30654",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/sched/user_bridge.dg",
+    "kernel/sched/user_entry.asm",
+    "kernel/sched/user_boot.asm",
+    "kernel/sched/user_boot.dg",
+    "kernel/entry.asm",
+    "kernel/boot/user_runtime_status.dg",
+    "tools/build_user_runtime.py",
+    "tests/test_user_runtime.py",
+    "tests/user_runtime_probe.c",
+    "docs/hardware-user-runtime.md",
+    "codex-works/deliveries/P8RUNTIME1.md"
+  ]
+}
