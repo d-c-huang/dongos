@@ -1,0 +1,65 @@
+// Explicit diagnostic profile only. BSP owns STATE until compositor handoff.
+module boot.startup_console;
+import sched.user_boot as ub;
+import sched.user_domain as ud;
+import sched.user_entry_plan as ep;
+import sched.user_bridge as bridge;
+import user.abi as abi;
+pub const INVALID:u64=0x0b07_0001;
+pub struct Report{pub version:u64,pub done:u64,pub error_code:u64,pub kind:u64,
+ pub returns:u64,pub captures:u64,pub logs:u64,pub slot:u64,pub operation:u64,pub event:u64,
+ pub syscalls:u64,pub entries:u64,pub bridge_stage:u64,pub rip:u64,pub stopped:u64,pub accepted:u64,
+ pub text:[8][41]u8}
+const EMPTY:Report=Report{version:0,done:0,error_code:0,kind:0,returns:0,captures:0,logs:0,slot:16,
+ operation:0,event:0,syscalls:0,entries:0,bridge_stage:0,rip:0,stopped:0,accepted:0,text:[[0;41];8]};
+var STATE:Report=EMPTY;
+pub export("dong_startup_console_pointer") fn pointer()*const Report{unsafe{return &STATE;}}
+// Eight last nonempty wrapped rows. A clipped ring prefix is discarded through
+// its first LF. CR is ignored; other controls become '?'; every row is NUL-ended.
+unsafe fn lines(ring:*const u8,count:u64)void{unsafe{
+ STATE.text=[[0;41];8];var first:u64=0;if count>4096{first=count-4096;}
+ var discard=count>4096;var row:usize=0;var col:usize=0;var pending=false;
+ var at=first;while at<count{
+  let byte=*(ring+(at&4095) as usize);at+=1;
+  if discard{if byte==10{discard=false;}continue;}
+  if byte==13{continue;}
+  if byte==10{if col!=0{pending=true;}continue;}
+  if pending||col==40{
+   if row==7{var i:usize=0;while i<7{STATE.text[i]=STATE.text[i+1];i+=1;}STATE.text[7]=[0;41];}
+   else{row+=1;}col=0;pending=false;
+  }
+  var value=byte;if value>=97&&value<=122{value-=32;}
+  if value<32||value>95{value=63;}
+  STATE.text[row][col]=value;col+=1;
+ }
+}return;}
+// kind1: before commit (kernel root/xstate), kind2: after log acceptance,
+// kind3: after complete_entry and kernel xstate restore, BEFORE the deadline.
+pub export("dong_startup_console_run") fn run(kind:u64,head:u64,count:u64,ring:*const u8)u64{unsafe{
+ if STATE.stopped!=0{return 0;}
+ if kind<1||kind>3||head>=4096||head!=(count&4095)||(count!=0&&ring==null){return 0;}
+ let info=ub.report();let b=bridge.pointer();
+ if info==null||b==null||(*info).ready!=1||(*info).count<3||(*info).count>16||(*info).headers==0||(*info).domain==0{return 0;}
+ let d=(*info).domain as *const ud.Domain;
+ if (*d).cpus==null||(*d).processes==null||(*b).domain!=d as *ud.Domain||(*b).headers!=(*info).headers as *u64{return 0;}
+ let c=(*d).cpus;let address=*(((*info).headers as *const u64));if address==0{return 0;}
+ let h=address as *const ep.Cpu;
+ if (*h).ready!=2||(*h).logical_id!=0||(*h).domain!=(*info).domain||(*h).kernel_xstate==0
+  ||((*h).kernel_xstate&63)!=0||(*h).kernel_xstate>0xffff_ffff_ffff_ffff-1024-sizeof(ep.Metrics) as u64{return 0;}
+ // cfg3 has a permanently reserved slot and BSP-only affinity. Disable before
+ // its very first IRET, even if it never marks ready or later fails/restarts.
+ let handoff=kind==1&&(*c).slot==3&&(*c).mode==6;
+ if kind==1{STATE.returns+=1;}else if kind==3{STATE.captures+=1;}else{STATE.logs+=1;}
+ let paint=handoff||(kind==1&&STATE.returns<=2)||(kind==3&&STATE.captures<=2)||(kind==2&&count!=STATE.accepted);
+ if !paint{return 0;}
+ STATE.done=0;STATE.version=1;STATE.kind=kind;STATE.slot=(*c).slot;STATE.syscalls=(*h).syscalls;STATE.event=(*h).event;
+ let metrics=((*h).kernel_xstate+1024) as *const ep.Metrics;STATE.entries=(*metrics).user_entries;
+ STATE.bridge_stage=bridge.PROGRESS[0].stage;STATE.operation=0;STATE.rip=0;
+ if (*c).slot<16&&(*c).token!=0{
+  var frame:u64=(*c).returned;if kind==3{frame=(*c).capture;}
+  if frame!=0{let f=frame as *const abi.Frame;STATE.operation=(*f).rax;STATE.rip=(*f).rip;}
+ }
+ if count!=0{lines(ring,count);}else{STATE.text=[[0;41];8];}STATE.accepted=count;
+ if handoff{STATE.kind=4;STATE.stopped=1;}
+ compiler_fence();STATE.done=1;return 1;
+}}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T16:51:06+00:00",
+  "generated_at": "2026-10-28T09:14:27+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -11259,6 +11259,48 @@
       "legacy_hash": "c60a3fef98bb9693dfaaa93fe01ad1d6651b79511c05bc4141eaaceee4e8be9d",
       "claim_from_status": "rework",
       "integration_note": "六个声明文件已实际集成主工作区且与formal8b3ec2f1a71046049d81948f7c143014验收指纹一致。实际candidate-r3 AP CHECK R1已更新用户确认的原SanDisk H（disk2 serial4C530000010320109015 USB/FAT32/offset131072/partition7798652928保持），先备份旧USER CHECK四文件，逐文件flush/fsync/SHA回读；native rb FAT32 exit0 mount_error0 ready1 dirty0/1899872clusters及bpb一致 canaries1 writes0 flushes0 bad_io0无repair，之后四文件再次SHA一致。最终receipt SHAcd25b40472f410309140706a915aa46e176858a191e10ca7c406baf4754eb0d3，EFI7348ad7b87772c0e1c5daed36dc0758544f4246e9b98992d1f674fa507621804，IMGe232ef3f452a35557a9d663cacf60478e2516a8a1404f1e5c80af362a5b9d3e4，SERVICES仍08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。无格式化/分区/rawdisk写。实际8CPU真实Header/GS/AP RIP IF0 HLT/readyFF parkedFE/queue1/完整代码/15行83300pixels及四整盘未变、独立2tests9.906s0skip/source-stable证据见验收note。first BSS合同失败已返修并完整重建复验，历史保留。明确AP成功activate后park是本诊断变化，尚未验证正常AP idle/BKL竞争/dispatch/CPL3/USB/desktop，Intel结果待新照片，不提前完成正常运行目标。"
+    },
+    {
+      "id": "codex:P8BOOTCONSOLE1",
+      "number": "P8BOOTCONSOLE1",
+      "owner": "codex",
+      "title": "真机连续启动的屏幕日志与首用户态进度",
+      "description": "R2实机仍残留S19/error0，不能归因锁或串口。已有首CPL3/F4真机证据，下一版将真实内存日志、BSP初次返回/捕获与syscall计数在首compositor入口前显示，继续执行正常启动而非成功checkpoint停机。使用原屏幕几何检查和cache Gate；仅可信BSP/内核根/已恢复kernel xstate，预定cfg3首次用户返回前永久关闭启动绘制，不能与compositor写者并发。只读永久owned输入与4096日志环，文本固定界限ASCII转大写、完整行/截断语义明确；保留原致命失败屏。建立显式不同profile和严格私有patch/源哈希/命令绑定，禁止冒充普通无hook版。实际producer/assembly路径正反例、布局与只读canary、独立0skip稳定复验，root连续8CPU桌面/HID/文件与故障日志显示验证。用户已确认原SanDisk H插回，验收后四文件备份/同步/回读/FAT rb。此任务是减少真机信息盲区，不宣称已修好真机根因。",
+      "assignment_owner": "codex",
+      "status": "rework",
+      "rev": 9,
+      "write_paths": [
+        "kernel/boot/startup_console.dg",
+        "tools/build_startup_console.py",
+        "tests/test_startup_console.py",
+        "tests/startup_console_probe.c",
+        "tests/startup_console_shim.asm",
+        "docs/hardware-startup-console.md",
+        "codex-works/deliveries/P8BOOTCONSOLE1.md"
+      ],
+      "depends_on": [
+        "codex:P8BOOTLOG1"
+      ],
+      "checks": [
+        "module:tests.test_startup_console",
+        "module:tests.test_user_runtime"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-28T07:59:16+00:00",
+      "updated_at": "2026-10-28T09:14:27+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8BOOTCONSOLE1-board.md",
+      "delivery": "codex-works/deliveries/P8BOOTCONSOLE1.md",
+      "claimed_at": "2026-10-28T08:56:02+00:00",
+      "completed_at": "2026-10-28T08:59:18+00:00",
+      "claimed_by": "codex-mcp-08a83870ee38446d",
+      "candidate": null,
+      "verification": null,
+      "review_note": "第二轮独立5 tests/0skip稳定通过、编译通过；WHPX完整桌面仍触发AP等待1秒超时及Held级联，TCG未在原时限内出现CLIENTS_READY，禁止称完整回归通过。真实快照证明首次compositor前STATE.stopped=1、画面不再更新，前轮故障屏76440像素通过。保留代码和所有失败；不accept、不integrate、不宣称解决Intel根因。按用户既有原SanDisk H诊断写盘授权，仅发布经最新同镜像故障屏验证的实验日志采集版，原四文件备份+fsync+回读+FAT只读检验；这不代表任务验收。后续以实机新日志返修，完整桌面问题仍待解决。",
+      "legacy_hash": "95967da544c98582bef1c988fb68763097f231154c78a457a8d182a34d9da96e",
+      "claim_from_status": "rework"
     },
     {
       "id": "codex:P8BOOTDIAG1",
