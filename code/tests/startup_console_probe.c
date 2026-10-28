@@ -20,8 +20,8 @@ typedef struct {U published,version,cpu,argument_cpu,entry,vector,stage,error_co
 typedef struct {U kernel_stack,user_stack,continuation,root_frame,original_cr3,syscalls,busy,result,smp,domain,logical_id,contexts,context_count,pcid_enabled,gdt,tss,idt,stack_bottom,df_top,nmi_top,exception_top,kernel_xstate,capture,returned,return_xstate,ready,last_error,event,raw_frame,deadline_ticks,tsc_hz,timer_hz;} Header;
 typedef struct {U switches,retained,user_timers,user_entries,last_vector,failed,gs_base,kernel_gs_base,fs_base,efer,star,lstar,fmask,gdtr_base,gdtr_limit,idtr_base,idtr_limit,tr,cr4,xcr0,rsp0,reserved[3];} Metrics;
 typedef struct {U r15,r14,r13,r12,r11,r10,r9,r8,rdi,rsi,rbp,rdx,rcx,rbx,rax,rip,rflags,rsp,cr3,fs_base,gs_base,status,syscalls,exit_code,reserved;} Frame;
-typedef struct {U version,done,error_code,kind,returns,captures,logs,slot,operation,event,syscalls,entries,bridge_stage,rip,stopped,accepted;unsigned char text[8][41];} Report;
-_Static_assert(sizeof(Report)==456&&offsetof(Report,text)==128,"console ABI");
+typedef struct {U version,done,error_code,kind,returns,captures,logs,slot,operation,event,syscalls,entries,bridge_stage,rip,stopped,accepted;unsigned char text[8][41],first[8][41];U fault;} Report;
+_Static_assert(sizeof(Report)==792&&offsetof(Report,text)==128&&offsetof(Report,first)==456&&offsetof(Report,fault)==784,"console ABI");
 typedef struct {unsigned char bytes[1024];Metrics metrics;} XState;
 typedef struct {U low[4];Boot boot;Domain domain;Cpu cpus[16];Process processes[16];Header headers[16];U addresses[16];_Alignas(64) XState states[16];Frame returned,captured;Bridge bridge;unsigned char ring[4096];U high[4];} Inputs;
 static Inputs in,before;static U checks,getters,draws;static int absent;
@@ -61,7 +61,48 @@ static U call(U kind,U head,U count,const unsigned char*ring){
  return result;
 }
 static U record(const char*s,U start){for(U i=0;s[i];i++)in.ring[(start+i)&4095]=(unsigned char)s[i];return start+strlen(s);}
+
+static U append_log(U n,const char*line){n=record(line,n);CK(call(2,n&4095,n,in.ring)==1);return n;}
+static int contains(const unsigned char rows[8][41],const char*needle){for(unsigned i=0;i<8;i++)if(strstr((const char*)rows[i],needle))return 1;return 0;}
+static void failures_test(void){
+ setup();U n=0;
+ n=append_log(n,"xhci_error=0x0000000000000000\r\n");
+ n=append_log(n,"xhci_error=0x000000000817000Z\r\n");
+ n=append_log(n,"prefix xhci_error=0x0000000008170001\r\n");
+ const Report*r=dong_startup_console_pointer();CK(r->fault==0);
+ n=append_log(n,"usb_rejected_port=0x0000000000000009\r\n");
+ n=append_log(n,"usb_rejected_error=0x00000000");CK(r->fault==0);
+ n=append_log(n,"08190006\r\n");CK(r->fault==1);
+ n=append_log(n,"usb_rejected_phase=0x0000000000000004\r\n");
+ n=append_log(n,"usb_rejected_slot=0x0000000000000003\r\n");
+ n=append_log(n,"usb_rejected_held=0x0000000000000001\r\n");
+ CK(contains(r->first,"USB_REJECTED_PORT=0X0000000000000009")&&contains(r->first,"USB_REJECTED_ERROR=0X0000000008190006")&&contains(r->first,"USB_REJECTED_PHASE=0X0000000000000004")&&contains(r->first,"USB_REJECTED_HELD=0X0000000000000001"));
+ unsigned char first[8][41];memcpy(first,r->first,sizeof first);
+ n=append_log(n,"DONGOS_XHCI_DEVICE_RETAINED\r\n");
+ n=append_log(n,"usb_rejected_error=0x0000000008190003\r\n");
+ n=append_log(n,"usb_rejected_phase=0x0000000000000007\r\n");
+ CK(!memcmp(first,r->first,sizeof first));
+ n=append_log(n,"xhci_error=0x0000000008190003\r\n");
+ n=append_log(n,"xhci_phase=0x0000000000000008\r\n");
+ n=append_log(n,"xhci_held=0x0000000000000001\r\n");
+ CK(contains(r->text,"XHCI_ERROR=0X0000000008190003")&&contains(r->text,"XHCI_PHASE=0X0000000000000008"));
+ unsigned char terminal[8][41];memcpy(terminal,r->text,sizeof terminal);
+ for(unsigned i=0;i<140;i++)n=append_log(n,"DONGOS_INIT_FAILURE 0000000000000003 0000000000000002 0000000000000001 0000000005060001\r\n");
+ CK(n>4096&&!memcmp(first,r->first,sizeof first)&&!memcmp(terminal,r->text,sizeof terminal)&&r->accepted==n);
+ in.cpus[0].slot=3;CK(call(1,n&4095,n,in.ring)==1&&r->stopped==1);Report closed=*r;
+ CK(!call(2,n&4095,n,in.ring)&&!memcmp(&closed,r,sizeof closed));
+ // One batched update also retains the earlier error, not just its last line.
+ setup();n=record("usb_probe_port=0x0000000000000012\nusb_probe_error=0x0000000008190006\nxhci_error=0x0000000008170001\nxhci_phase=0x0000000000000008\nxhci_held=0x0000000000000001\nDONGOS_INIT_RETRY_EXHAUSTED\n",0);
+ CK(call(2,n,n,in.ring)==1);r=dong_startup_console_pointer();CK(r->fault==1&&contains(r->first,"USB_PROBE_PORT=0X0000000000000012")&&contains(r->text,"XHCI_PHASE=0X0000000000000008"));
+ // A clipped error-shaped prefix cannot trigger a sticky failure record.
+ setup();memset(in.ring,'x',4096);n=record("xhci_error=0x0000000008170001\n",5000);U total=n;
+ // Arrange that the oldest surviving byte is in that error line.
+ n=total-10+4096;for(U at=total;at<n;at++)in.ring[at&4095]='a';
+ n=record("\nordinary\n",n);CK(call(2,n&4095,n,in.ring)==1);CK(dong_startup_console_pointer()->fault==0);
+ setup();n=append_log(0,"usb_limit_port=0x0000000000000006\nDONGOS_XHCI_DEVICE_LIMIT\n");r=dong_startup_console_pointer();CK(r->fault==1&&contains(r->first,"USB_LIMIT_PORT=0X0000000000000006"));
+}
 int main(void){
+ failures_test();
  setup();CK(call(1,0,0,NULL)==1);const Report*r=dong_startup_console_pointer();CK(r->done==1&&r->kind==1&&r->slot==5&&r->returns==1&&r->rip==in.returned.rip&&r->operation==in.returned.rax&&r->syscalls==in.headers[0].syscalls&&r->entries==in.states[0].metrics.user_entries&&r->event==0xf4&&r->bridge_stage==2);
  CK(call(3,0,0,NULL)==1&&r->captures==1&&r->rip==in.captured.rip&&r->operation==in.captured.rax);CK(call(1,0,0,NULL)==1&&call(1,0,0,NULL)==0&&r->returns==3);
  U n=record("init_ready\r\nxhci_error=0x08170001\n",0);CK(call(2,n,n,in.ring)==1);CK(!strcmp((char*)r->text[0],"INIT_READY")&&!strcmp((char*)r->text[1],"XHCI_ERROR=0X08170001"));CK(call(2,n,n,in.ring)==0);
@@ -76,5 +117,5 @@ int main(void){
  CK(services_write_bytes(in.ring,17)==0xabcdef0123456789ULL);CK(boot_progress_view==0&&boot_progress_phase==23);
  setup();in.cpus[0].slot=3;startup_console_tick(1);CK(startup_console_disabled==1&&draws==1&&dong_startup_console_pointer()->stopped==1);
  setup();startup_console_disabled=1;startup_console_tick(1);CK(getters==0&&draws==0&&dong_startup_console_pointer()->version==0);
- printf("STARTUP_CONSOLE_OK checks=%u bytes=456 continued=1 bounded=1 handoff=1\n",(unsigned)checks);return 0;
+ printf("STARTUP_CONSOLE_OK checks=%u bytes=792 continued=1 bounded=1 handoff=1\n",(unsigned)checks);return 0;
 }

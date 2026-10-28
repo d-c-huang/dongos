@@ -1,4 +1,4 @@
-# BOOT LIVE R1
+# BOOT LIVE R2
 
 P8BOOTCONSOLE1 adds an explicit `user-startup-console` diagnostic profile. The
 Intel machine still retained the old S19/error0 screen after USER RUNTIME R2;
@@ -7,7 +7,7 @@ subsequent execution visible and does not claim to fix the unknown hardware caus
 
 Build a fresh ordinary level7 USB-only source with `tools.build.build`, then run
 `python -m tools.build_startup_console --normal-source <source> --normal-build-log <log> --output <candidate>`.
-The EFI banner is `DongOS BOOT LIVE R1`; `startup-console.json` binds the original
+The EFI banner is `DongOS BOOT LIVE R2`; `startup-console.json` binds the original
 source, exact commands, private patches, full compiler ABI, service bundle and
 all output hashes. It cannot be substituted for an ordinary build manifest.
 
@@ -44,3 +44,27 @@ On hardware, leave wired keyboard/mouse directly attached. If startup does not
 reach the desktop, photograph the complete BOOT LIVE screen, including all log
 rows. If a fatal screen appears, photograph it instead. A desktop pass still
 requires actual mouse, keyboard and file checks by the hardware operator.
+
+
+R2 follows the real Intel photograph with cfg2/block 05060001 and cfg4/input
+07310001. These are generic downstream failures; the photo does not establish
+the controller's underlying error. R1's last-eight-rows screen lost that evidence.
+R2 keeps two independent eight-row windows: FIRST USB ISSUE captures the first
+complete nonzero USB error (or device-limit marker) and its contiguous detail
+records; LATEST OR TERMINAL USB LOG continues normally until the first terminal
+xhci/hid/proxy error, then retains its contiguous phase/held records. Later init
+failures and circular-buffer rollover cannot overwrite either snapshot. The
+first issue may be a recoverable rejected device and is not declared the root
+cause. Both windows contain original log text, not inferred diagnoses. The
+normal screen remains when no recognized issue has occurred. At 18-pixel pitch
+both windows fit the existing 640x480 minimum geometry. The report ABI is 792
+bytes; its original first 456 bytes retain their offsets. No driver, retry,
+readiness or DMA behavior is changed. Handoff still permanently disables all
+startup drawing before the first compositor entry.
+
+Tests exercise fragmented/batched records, exact nonzero error recognition,
+clipped prefixes, first issue versus later terminal failure, more than 4096
+bytes of subsequent init logs, read-only canaries, and closure before compositor.
+Two additional wrong-body cases verify that losing either sticky window fails.
+The previous complete-desktop VM failures remain unresolved; this is an
+experimental evidence collector, not an accepted desktop repair.

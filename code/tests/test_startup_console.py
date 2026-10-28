@@ -11,6 +11,8 @@ MUTANTS={
  'wrong-frame':('if kind==3{frame=(*c).capture;}','if false{frame=(*c).capture;}'),
  'wrong-uppercase':('value-=32;','value-=31;'),
  'wrong-wrap':('if row==7{','if row==6{'),
+ 'no-first-pin':('FIRST_KIND==0&&kind!=0','kind!=0'),
+ 'no-terminal-pin':('if TERMINAL_KIND==0{lines(ring,count,count);}','if true{lines(ring,count,count);}'),
  'false-handoff':('(*c).slot==3&&(*c).mode==6','(*c).slot==5&&(*c).mode==6'),
 }
 ASM_MUTANTS={
@@ -28,7 +30,7 @@ class StartupConsoleTests(unittest.TestCase):
    for mode in ('debug','release'):
     d=out/variant/mode;d.mkdir(parents=True);source=original
     if variant in MUTANTS:old,new=MUTANTS[variant];self.assertEqual(1,source.count(old));source=source.replace(old,new)
-    graph=fixtures();graph['boot/startup_console.dg']=source+'\nexport("checkpoint_reset") fn reset()void{unsafe{STATE=EMPTY;}}\n'
+    graph=fixtures();graph['boot/startup_console.dg']=source+'\nexport("checkpoint_reset") fn reset()void{unsafe{STATE=EMPTY;FIRST_KIND=0;FIRST_CLOSED=false;TERMINAL_KIND=0;TERMINAL_CLOSED=false;}}\n'
     for name,body in graph.items():
      p=d/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(body,encoding='utf-8')
     compiled=compile_file(d/'boot/startup_console.dg',roots=[d],mode=mode);b.console_layout(compiled.layout_manifest)
@@ -37,7 +39,7 @@ class StartupConsoleTests(unittest.TestCase):
     pattern=re.compile(r'(?m)^\$?'+sym+r':\r?\n((?:[ \t]+db [0-9, ]+\r?\n)+)')
     self.assertEqual(1,len(pattern.findall(compiled.assembly)))
     data=pattern.search(compiled.assembly).group(1)
-    self.assertEqual(456,len(re.findall(r'\d+',data)))
+    self.assertEqual(792,len(re.findall(r'\d+',data)))
     asm=pattern.sub(lambda m:'global console_canary_low\nconsole_canary_low: times 4 dq 0\n'+sym+':\n'+m.group(1)+'global console_canary_high\nconsole_canary_high: times 4 dq 0\n',compiled.assembly)
     (d/'probe.asm').write_text(asm,encoding='utf-8')
     entry=b.patch_entry((ROOT/'kernel/entry.asm').read_text(encoding='utf-8'))
@@ -68,7 +70,7 @@ class StartupConsoleTests(unittest.TestCase):
   self.assertEqual(bridge,actual.replace('\nunsafe extern "sysv64" fn startup_console_tick(kind:u64)void;','').replace('\n if cpu==0{startup_console_tick(3);}',''))
   self.assertIn('if cpu==0{startup_console_tick(3);}\n stage(cpu,DEADLINE)',actual)
   self.assertEqual(old.patch_user_boot_asm(read('kernel/sched/user_boot.asm')),b.patch_user_boot_asm(read('kernel/sched/user_boot.asm')))
-  self.assertEqual('user-startup-console',b.PROFILE);self.assertEqual(10,len(b.COMMAND_ORDER));self.assertEqual('DongOS BOOT LIVE R1',b.BANNER.decode())
+  self.assertEqual('user-startup-console',b.PROFILE);self.assertEqual(10,len(b.COMMAND_ORDER));self.assertEqual('DongOS BOOT LIVE R2',b.BANNER.decode())
   for fn,path in ((b.patch_entry,'kernel/entry.asm'),(b.patch_user_entry_asm,'kernel/sched/user_entry.asm'),(b.patch_services_run,'kernel/services_run.asm')):
    with self.assertRaises(ValueError):fn(fn(read(path)))
 if __name__=='__main__':unittest.main(verbosity=2)

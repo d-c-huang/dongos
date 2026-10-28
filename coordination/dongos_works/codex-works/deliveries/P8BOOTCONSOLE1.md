@@ -35,3 +35,19 @@ All changed source requires fresh build and independent verification again.
 ## AI交付 2026-10-28T08:59:18+00:00 · codex-mcp-08a83870ee38446d
 
 返修增加真实汇编关闭标志；compositor首次返回永久关闭后，tick在GS/CR3/IF读取和Dong producer调用之前返回。新增asm-no-fast/asm-no-close实际坏体，现原生2 tests/0skip PASS（7坏体/debug release/O0 O2/ELF64 Win64）。保留前轮VM失败与普通对照；不宣称USB超时根因已修复。正在冻结源重建并重做完整VM，尚未写H。
+
+
+R2 rework (2026-10-28): Intel reached actual init logging, cfg2 exited with
+05060001 and cfg4 with 07310001. These are block setup and input USB readiness
+failures, not evidence of a S19 lock hang. Preserve earliest USB issue and
+terminal controller failure separately, including contiguous port/phase/held
+context. Complete nonzero hex records only; fragmented input and wrapped-ring
+prefix are bounded; subsequent init/revoke logs do not overwrite the evidence.
+No driver changes or claimed hardware fix. Existing desktop-regression failures
+remain recorded. Native five tests passed (2 startup + 3 runtime); nine faulty
+producer/ASM bodies rejected. Independent checks and exact-image VM pending.
+
+
+## AI交付 2026-10-28T09:59:25+00:00 · codex-mcp-b0b0a56f66684e46
+
+R2修正真实Intel照片暴露的日志被init级联覆盖问题：独立保留最早USB异常及最终xhci/hid/proxy错误和连续detail；精确完整非零记录、分片/批量/环形截断/超过4096字节后仍保留。Report792B保持原456B偏移，原ASM早退/首次compositor关闭不变。原生startup2 tests通过（9坏体，debug/release、ELF64/Win64、O0/O2）；runtime3 tests通过。根因仍未知，未改驱动/重试/DMA；先前完整桌面回归失败仍未解决。本轮fresh build和实际故障屏验证进行中，未写U盘，不申请验收集成。

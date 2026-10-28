@@ -33,7 +33,7 @@ REPORT_SIZE = 256
 FIELDS = ('version', 'done', 'error_code', 'cpu', 'cpus', 'failure_cpu', 'failure_code', 'failure_detail', 'entry', 'event', 'stage', 'domain_failed', 'bridge_failed', 'lock', 'owner', 'online', 'mode', 'slot', 'token', 'captured', 'syscalls', 'user_entries', 'header_error', 'operation', 'rip', 'rsp', 'frame_root', 'raw_root', 'pcid', 'calls', 'failure_mask', 'frame_kind')
 ROWS = (('CHECK ERROR', 'error_code'), ('ERROR CPU', 'failure_cpu'), ('ERROR CODE', 'failure_code'), ('DETAIL', 'failure_detail'), ('ENTRY', 'entry'), ('LAST EVENT', 'event'), ('BRIDGE STAGE', 'stage'), ('CPU MODE', 'mode'), ('SLOT', 'slot'), ('OPERATION', 'operation'), ('USER RIP', 'rip'), ('SYSCALLS', 'syscalls'), ('USER ENTRIES', 'user_entries'), ('DOMAIN FAIL', 'domain_failed'), ('BRIDGE CALLS', 'calls'))
 TITLE = 'DONGOS RUNTIME FAILED'
-BANNER = b'DongOS BOOT LIVE R1'
+BANNER = b'DongOS BOOT LIVE R2'
 COMPLETION_MARKER = 'DONGOS_USER_RUNTIME_FAILURE'
 MODULE = 'boot.user_runtime_status'
 MODULE_PATH = 'boot/user_runtime_status.dg'
@@ -282,7 +282,7 @@ CONSOLE_TITLE = 'DONGOS BOOT LIVE'
 def console_layout(layout):
     matches=[t for t in layout['types'] if t['full_name']=='boot.startup_console.Report']
     check(len(matches)==1,'one console layout required');r=matches[0]
-    check(r['size']==456 and r['alignment']==8 and [(f['name'],f['offset'],f['size']) for f in r['fields']]==[(n,i*8,8) for i,n in enumerate(CONSOLE_FIELDS)]+[('text',128,328)],'console layout differs')
+    check(r['size']==792 and r['alignment']==8 and [(f['name'],f['offset'],f['size']) for f in r['fields']]==[(n,i*8,8) for i,n in enumerate(CONSOLE_FIELDS)]+[('text',128,328),('first',456,328),('fault',784,8)],'console layout differs')
     return r
 
 def patch_user_entry_asm(text):
@@ -332,6 +332,13 @@ def patch_entry(text):
     cmp qword [rbx+8],1
     jne .startup_console_regular
 '''
+    body+='    cmp qword [rbx+784],0\n    je .startup_console_live\n'
+    for label,y in (('startup_console_first',110),('startup_console_terminal',290)):
+        body+='    lea rsi,[rel '+label+']\n    mov edi,56\n    mov edx,'+str(y)+'\n    call text_draw\n'
+    for offset,y in ((456,132),(128,312)):
+        for i in range(8):
+            body+='    lea rsi,[rbx+'+str(offset+i*41)+']\n    mov edi,56\n    mov edx,'+str(y+i*18)+'\n    call text_draw\n'
+    body+='    jmp .painted\n.startup_console_live:\n'
     for i,(_,field) in enumerate(CONSOLE_ROWS):
         body+='    lea rsi,[rel startup_console_label_'+str(i)+']\n    mov edi,56\n    mov edx,'+str(110+i*24)+'\n    call text_draw\n    mov rax,[rbx+'+str(CONSOLE_FIELDS.index(field)*8)+']\n    mov edi,238\n    mov edx,'+str(110+i*24)+'\n    call screen_hex_draw\n'
     for i in range(8):
@@ -341,6 +348,7 @@ def patch_entry(text):
     text=_replace(text,'    cmp ecx,24\n','    cmp ecx,25\n')
     text=_replace(text,'    dd runtime_failure_title-boot_progress_titles\n','    dd runtime_failure_title-boot_progress_titles\n    dd startup_console_title-boot_progress_titles\n')
     labels='startup_console_title: db "'+CONSOLE_TITLE+'",0\n'
+    labels+='startup_console_first: db \"FIRST USB ISSUE\",0\nstartup_console_terminal: db \"LATEST OR TERMINAL USB LOG\",0\n'
     labels+=''.join('startup_console_label_'+str(i)+': db "'+label+'",0\n' for i,(label,_) in enumerate(CONSOLE_ROWS))
     text=_replace(text,'boot_progress_unknown_title: db "DONGOS P7 BOOT STAGE",0\n',labels+'boot_progress_unknown_title: db "DONGOS P7 BOOT STAGE",0\n')
     return text+'''
