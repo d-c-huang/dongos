@@ -1,0 +1,97 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_xhci_precheck_diagnostic",
+    "module:tests.test_xhci_controller",
+    "module:tests.test_xhci_scratchpad"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-28T10:26:14+00:00",
+  "claimed_by": "codex-mcp-b0b0a56f66684e46",
+  "completed_at": "2026-10-28T10:37:41+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-28T10:25:15+00:00",
+  "delivery": "codex-works/deliveries/P8XHCIPRECHECK1.md",
+  "depends_on": [
+    "codex:P8SCRATCH1"
+  ],
+  "description": "实机BOOT LIVE R2捕获08110002/phase0/held0，controller.precheck多个拒绝条件共用码，不能据此猜测legacy/未知cap/PSI后放宽门禁。保存固定版本reason/offset/raw/aux诊断，在实际失败服务xhci_error前输出四条短日志，现有sticky屏保留7行。只记录决策读取样本，不额外MMIO读取/写入，不改变预检谓词、enable/DMA/返回码或Setup/Caps/State布局。实际debug/release正反例、原始样本/原因/读失败/只读canary，旧controller/scratch回归与完整构建和rootVM屏幕检查。已有BOOTCONSOLE任务负责R3诊断版本标识，本任务不写其文件。用户已确认原SanDisk H插回，验证后四文件备份/fsync/回读/FAT rb；Intel根因仍待具体条件，不冒充修复成功。",
+  "document": "codex-works/tasks/P8XHCIPRECHECK1-board.md",
+  "historical": false,
+  "id": "codex:P8XHCIPRECHECK1",
+  "integration_note": "诊断源码已实际落在code/services/usb/xhci_controller.dg及drivers/xhci_service.dg，测试/文档与独立复验指纹一致；完整构建使用这些真实文件，R3精确候选实际故障显示和最终fatal核对启动smoke通过。仅集成此诊断组件；不声明Intel Unsupported根因修复或完整桌面回归通过。",
+  "legacy_hash": "f476fbde74fbf97c9daf635380ee7ab08364560182f6b002314acaa4c8d124f2",
+  "number": "P8XHCIPRECHECK1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "仅验收预检诊断组件，不验收真机启动修复。实际审查所有Unsupported分支和read_raw：原条件、返回码、MMIO读取顺序/次数、enable/DMA行为及Setup112/Caps328/State1280 ABI不变；独立40B报告在实际拒绝处保存决策样本，新预检/成功清零，四条短日志在原error/phase/held前输出且无重读。实际debug/release执行42场景、O0/O2、ELF/Win64、wrong-body控制，独立job256edc214e0c40fb8429226681450444共6 tests/0skip/source_stable PASS。fresh普通构建及R3严格候选构建PASS，manifest7f55483874433958525df7ce2b0d93e868234e27ed2448a2225801d74a2d348b。root真实8CPU零端口QEMU控制器经原precheck产生08110002/check4，原始七行在两个窗口完整保留，99960像素核对PASS，虚拟启动介质及三内部哨兵完整哈希不变。真实8CPU正常USB boot-smoke-v3到CLIENTS_READY，最后冻结后fatal报告全零、UART无fatal、compositor永久交接及截图PASS。保留两项失败：首negative配置未生效，v2正确配置后才通过；positive-v2漏终态fatal误报PASS，截图06690004已显式否决并保留audit-rejection，v3补最终fatal核对才通过。单次v3通过不证明稳定，整体BOOTCONSOLE仍返修，完整HID/文件及Intel根因未通过。证据code/build/hardware/xhci-precheck-20261028-r1。",
+  "status": "integrated",
+  "title": "真机xHCI预检拒绝分支与原始寄存器证据",
+  "updated_at": "2026-10-28T11:01:35+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 22.047,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_precheck_diagnostic",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 22.828,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_controller",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 59.422,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_scratchpad",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8XHCIPRECHECK1.md": "788d92835b1a0a7570f3fa504fc7981d4efbf4af6811e9887489f1328d62c9e4",
+      "docs/hardware-xhci-precheck.md": "468a898ce8f501306559ffaa3997149c3b4a8fcfbee7945196cd9e06c9d09fe1",
+      "services/drivers/xhci_service.dg": "44a148079dfca3c07b885433c0ae88c40490b023471064d1b871f263a5c9ebfd",
+      "services/usb/xhci_controller.dg": "1125b6038b06e470f81abefe5a307913e2131b795d1ff7236f8c878bdec44cd7",
+      "tests/test_xhci_precheck_diagnostic.py": "8389af5a7c1fb48e3b76c277c7aa8ca720bcb5db3c54fd273d4cef276867a729",
+      "tests/xhci_precheck_diagnostic_probe.c": "c70082edf0ef2c5762c7efae473574845fdfcaa64478ca849d1165c2a773bfd4"
+    },
+    "finished_at": "2026-10-28T10:41:48+00:00",
+    "job": "256edc214e0c40fb8429226681450444",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "services/usb/xhci_controller.dg",
+    "services/drivers/xhci_service.dg",
+    "tests/test_xhci_precheck_diagnostic.py",
+    "tests/xhci_precheck_diagnostic_probe.c",
+    "docs/hardware-xhci-precheck.md",
+    "codex-works/deliveries/P8XHCIPRECHECK1.md"
+  ]
+}

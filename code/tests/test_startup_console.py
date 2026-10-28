@@ -70,7 +70,7 @@ class StartupConsoleTests(unittest.TestCase):
   self.assertEqual(bridge,actual.replace('\nunsafe extern "sysv64" fn startup_console_tick(kind:u64)void;','').replace('\n if cpu==0{startup_console_tick(3);}',''))
   self.assertIn('if cpu==0{startup_console_tick(3);}\n stage(cpu,DEADLINE)',actual)
   self.assertEqual(old.patch_user_boot_asm(read('kernel/sched/user_boot.asm')),b.patch_user_boot_asm(read('kernel/sched/user_boot.asm')))
-  self.assertEqual('user-startup-console',b.PROFILE);self.assertEqual(10,len(b.COMMAND_ORDER));self.assertEqual('DongOS BOOT LIVE R2',b.BANNER.decode())
+  self.assertEqual('user-startup-console',b.PROFILE);self.assertEqual(10,len(b.COMMAND_ORDER));self.assertEqual('DongOS BOOT LIVE R3',b.BANNER.decode())
   for fn,path in ((b.patch_entry,'kernel/entry.asm'),(b.patch_user_entry_asm,'kernel/sched/user_entry.asm'),(b.patch_services_run,'kernel/services_run.asm')):
    with self.assertRaises(ValueError):fn(fn(read(path)))
 if __name__=='__main__':unittest.main(verbosity=2)

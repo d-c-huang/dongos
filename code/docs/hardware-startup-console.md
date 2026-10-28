@@ -1,4 +1,4 @@
-# BOOT LIVE R2
+# BOOT LIVE R3
 
 P8BOOTCONSOLE1 adds an explicit `user-startup-console` diagnostic profile. The
 Intel machine still retained the old S19/error0 screen after USER RUNTIME R2;
@@ -7,7 +7,7 @@ subsequent execution visible and does not claim to fix the unknown hardware caus
 
 Build a fresh ordinary level7 USB-only source with `tools.build.build`, then run
 `python -m tools.build_startup_console --normal-source <source> --normal-build-log <log> --output <candidate>`.
-The EFI banner is `DongOS BOOT LIVE R2`; `startup-console.json` binds the original
+The EFI banner is `DongOS BOOT LIVE R3`; `startup-console.json` binds the original
 source, exact commands, private patches, full compiler ABI, service bundle and
 all output hashes. It cannot be substituted for an ordinary build manifest.
 
@@ -68,3 +68,8 @@ bytes of subsequent init logs, read-only canaries, and closure before compositor
 Two additional wrong-body cases verify that losing either sticky window fails.
 The previous complete-desktop VM failures remain unresolved; this is an
 experimental evidence collector, not an accepted desktop repair.
+
+R3 changes the explicit EFI banner for the xHCI precheck diagnostic service.
+The sticky producer and renderer are unchanged from R2. See hardware-xhci-precheck.md
+for CHECK/REG/VALUE/AUX; these four records plus the existing error/phase/held
+fit one eight-row window. This is not a claim of physical startup repair.

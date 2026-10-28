@@ -51,3 +51,8 @@ producer/ASM bodies rejected. Independent checks and exact-image VM pending.
 ## AI交付 2026-10-28T09:59:25+00:00 · codex-mcp-b0b0a56f66684e46
 
 R2修正真实Intel照片暴露的日志被init级联覆盖问题：独立保留最早USB异常及最终xhci/hid/proxy错误和连续detail；精确完整非零记录、分片/批量/环形截断/超过4096字节后仍保留。Report792B保持原456B偏移，原ASM早退/首次compositor关闭不变。原生startup2 tests通过（9坏体，debug/release、ELF64/Win64、O0/O2）；runtime3 tests通过。根因仍未知，未改驱动/重试/DMA；先前完整桌面回归失败仍未解决。本轮fresh build和实际故障屏验证进行中，未写U盘，不申请验收集成。
+
+
+## AI交付 2026-10-28T10:38:03+00:00 · codex-mcp-b0b0a56f66684e46
+
+仅将显式EFI版本标识及其断言/文档更新为BOOT LIVE R3，配合新P8XHCIPRECHECK1服务诊断。producer/renderer/ASM和792B布局未更改，4条预检日志+原error/phase/held7行适用已有sticky窗口。完整HID文件回归前轮失败仍未解决，本轮重新排队5项独立检查。新镜像root实际故障显示/正常启动与写盘尚未完成，不申请验收。

@@ -40,11 +40,23 @@ pub struct State {pub info:Info,pub busy:u64,pub enabled:u64,pub setup:Setup,pub
 pub const EMPTY_SETUP:Setup=Setup {bar:0,bar_bytes:0,lease_token:0,physical:0,pointer:null,bytes:0,
     physical_bits:0,epoch:0,tsc_hz:0,timeout_ms:0,device_token:0,exclusive:0,interrupts_off:0,pci_command:0};
 pub const EMPTY_STATE:State=State {info:EMPTY_INFO,busy:0,enabled:0,setup:EMPTY_SETUP,caps:EMPTY_CAPS,ops:null,context:0,command:ring.EMPTY_PRODUCER,events:ring.EMPTY_CONSUMER,plan:ring.EMPTY_PLAN};
+// Observation only: original precheck predicates, return codes and reads remain.
+pub struct PrecheckReport {pub version:u64,pub check:u64,pub offset:u64,pub value:u64,pub aux:u64}
+const EMPTY_PRECHECK:PrecheckReport=PrecheckReport {version:1,check:0,offset:0,value:0,aux:0};
+var PRECHECK:PrecheckReport=EMPTY_PRECHECK;
+var PRECHECK_ACTIVE:bool=false;
+var PRECHECK_VALUE:u64=0;
+pub fn precheck_report()*const PrecheckReport {unsafe{return &PRECHECK;}}
+unsafe fn rejected(check:u64,offset:u64,value:u64,aux:u64)void {unsafe{
+ PRECHECK=PrecheckReport {version:1,check:check,offset:offset,value:value,aux:aux};
+}return;}
 const MAX:u64=0xffff_ffff_ffff_ffff;
 const LIMIT:usize=1000000;
 unsafe fn read_raw(ops:*const Ops,context:u64,s:*const Setup,offset:u64)!u32 {unsafe {
     if ops==null||s==null||offset&3!=0||offset>(*s).bar_bytes||4>(*s).bar_bytes-offset {return error.Invalid;}
-    var value:u32=0;if (*ops).read(context,(*s).bar,offset,&value)!=0 {return error.IoFailure;}return value;
+    var value:u32=0;let code=(*ops).read(context,(*s).bar,offset,&value);
+    if code!=0 {if PRECHECK_ACTIVE {rejected(0x80,offset,code,0);}return error.IoFailure;}
+    if PRECHECK_ACTIVE {PRECHECK_VALUE=value as u64;}return value;
 }}
 unsafe fn read(s:*State,offset:u64)!u32 {unsafe {return read_raw((*s).ops,(*s).context,&(*s).setup,offset);}}
 unsafe fn write(s:*State,offset:u64,value:u32)!void {unsafe {
@@ -66,7 +78,7 @@ unsafe fn wait(s:*State,offset:u64,mask:u32,expected:u32)!void {unsafe {
     }
 }return error.Timeout;}
 fn overlaps(a:u64,n:u64,b:u64,m:u64)bool {return a<b+m&&b<a+n;}
-unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {unsafe {
+unsafe fn precheck_inner(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {unsafe {
     if ops==null||s==null||out==null||(*s).bar==0||(*s).bar_bytes<4096||(*s).bar_bytes>0x1000_0000
         ||(*s).lease_token==0||(*s).device_token==0||(*s).exclusive!=1||(*s).interrupts_off!=3
         ||((*s).pci_command&0x407)!=0x402||(*s).epoch==0||(*s).pointer==null||((*s).pointer as u64&4095)!=0
@@ -76,15 +88,15 @@ unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {un
     match wire.span(&region,(*s).physical,(*s).bytes,4096) {ok=>{},err(e)=>{return error.Invalid;},}
     var c=EMPTY_CAPS;let first=try read_raw(ops,context,s,0);c.version=(first>>16) as u64;c.operational=(first&255) as u64;
     if (first&0xff00)!=0||c.operational<32||(c.operational&3)!=0
-        ||(c.version!=0x100&&c.version!=0x110&&c.version!=0x120) {return error.Unsupported;}
+        ||(c.version!=0x100&&c.version!=0x110&&c.version!=0x120) {rejected(3,0,first as u64,0);return error.Unsupported;}
     let hcs1=try read_raw(ops,context,s,4);let hcs2=try read_raw(ops,context,s,8);let hcc=try read_raw(ops,context,s,16);
     c.maximum_slots=(hcs1&255) as u64;c.enabled_slots=c.maximum_slots;if c.enabled_slots>8 {c.enabled_slots=8;}
     c.ports=(hcs1>>24) as u64;c.ac64=(hcc&1) as u64;c.context_bytes=32;if (hcc&4)!=0 {c.context_bytes=64;}
     let scratch=((hcs2>>27)&31)|(((hcs2>>21)&31)<<5);
     if c.maximum_slots==0||((hcs1>>8)&2047)==0||c.ports==0||c.ports>32||scratch as u64>dma.MAX_SCRATCH
-        ||(hcs1&0x00f8_0000)!=0 {return error.Unsupported;}
-    if (*s).bytes!=dma.bytes(hcs2 as u64){return error.Unsupported;}
-    if c.ac64==0&&(*s).physical+(*s).bytes>0x1_0000_0000 {return error.Unsupported;}
+        ||(hcs1&0x00f8_0000)!=0 {rejected(4,4,hcs1 as u64,hcs2 as u64);return error.Unsupported;}
+    if (*s).bytes!=dma.bytes(hcs2 as u64){rejected(5,8,hcs2 as u64,(*s).bytes);return error.Unsupported;}
+    if c.ac64==0&&(*s).physical+(*s).bytes>0x1_0000_0000 {rejected(6,16,(*s).physical,(*s).bytes);return error.Unsupported;}
     c.doorbells=(try read_raw(ops,context,s,20)) as u64;c.runtime=(try read_raw(ops,context,s,24)) as u64;
     let operational_bytes=0x400+c.ports*16;let runtime_bytes:u64=64;let doorbell_bytes=(c.enabled_slots+1)*4;
     if (c.doorbells&3)!=0||(c.runtime&31)!=0||c.runtime<c.operational||c.doorbells<c.operational
@@ -94,29 +106,33 @@ unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {un
         ||overlaps(c.operational,operational_bytes,c.runtime,runtime_bytes)
         ||overlaps(c.operational,operational_bytes,c.doorbells,doorbell_bytes)
         ||overlaps(c.runtime,runtime_bytes,c.doorbells,doorbell_bytes) {return error.Invalid;}
-    if ((try read_raw(ops,context,s,c.operational+8))&1)==0 {return error.Unsupported;}
+    if ((try read_raw(ops,context,s,c.operational+8))&1)==0 {rejected(8,c.operational+8,PRECHECK_VALUE,0);return error.Unsupported;}
     var offset=((hcc>>16) as u64)*4;var count:usize=0;
     while offset!=0 {
-        if count==64 {return error.Unsupported;}let header=try read_raw(ops,context,s,offset);let id=header&255;
+        if count==64 {rejected(9,offset,count,0);return error.Unsupported;}let header=try read_raw(ops,context,s,offset);let id=header&255;
         if id==1 {
             // Initial kernel admission must resolve BIOS ownership/SMIs. This
             // executor does not pretend an uncleared semaphore is a handoff.
-            if (header&0x1_0000)!=0||(header&0x100_0000)==0 {return error.Unsupported;}
-            if (try read_raw(ops,context,s,offset+4))!=0 {return error.Unsupported;}
+            if (header&0x1_0000)!=0||(header&0x100_0000)==0 {rejected(10,offset,header as u64,0);return error.Unsupported;}
+            if (try read_raw(ops,context,s,offset+4))!=0 {rejected(11,offset+4,PRECHECK_VALUE,header as u64);return error.Unsupported;}
         }else if id==2 {
-            if (try read_raw(ops,context,s,offset+4))!=0x2042_5355 {return error.Unsupported;}
+            if (try read_raw(ops,context,s,offset+4))!=0x2042_5355 {rejected(12,offset+4,PRECHECK_VALUE,header as u64);return error.Unsupported;}
             let range=try read_raw(ops,context,s,offset+8);let slot=try read_raw(ops,context,s,offset+12);
             let start=(range&255) as u64;let ports=((range>>8)&255) as u64;let major=(header>>24) as u64;
             // Empty SupportedProtocol ranges describe no ports. Their offset may
             // be the one-past-end sentinel; they never populate protocols[].
             if start==0||start>c.ports+1||ports>c.ports+1-start||(major!=2&&major!=3)
-                ||(range&0xf000_0000)!=0||(slot&~31)!=0||(slot&31)!=0 {return error.Unsupported;}
+                ||(range&0xf000_0000)!=0||(slot&~31)!=0||(slot&31)!=0 {rejected(13,offset+8,range as u64,((slot as u64)<<32)|header as u64);return error.Unsupported;}
             var i=start-1;while i<start-1+ports {if c.protocols[i as usize]!=0 {return error.Invalid;}c.protocols[i as usize]=major;i+=1;}
-        }else {return error.Unsupported;}
+        }else {rejected(16,offset,header as u64,0);return error.Unsupported;}
         let next=((header>>8)&255) as u64;if next==0 {offset=0;}else {if offset>MAX-next*4 {return error.Invalid;}offset+=next*4;}count+=1;
     }
     *out=c;
 }return;}
+unsafe fn precheck(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {unsafe{
+ PRECHECK=EMPTY_PRECHECK;PRECHECK_VALUE=0;PRECHECK_ACTIVE=true;
+ let result=precheck_inner(ops,context,s,out);PRECHECK_ACTIVE=false;return result;
+}}
 unsafe fn fence(s:*State,phase:u64)!void {unsafe {
     compiler_fence();if (*(*s).ops).fence((*s).context,phase)!=0 {return error.IoFailure;}compiler_fence();
 }return;}

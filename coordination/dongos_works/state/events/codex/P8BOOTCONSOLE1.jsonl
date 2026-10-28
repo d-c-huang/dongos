@@ -20,3 +20,10 @@
 {"at":"2026-10-28T10:01:27+00:00","data":{"rev":12,"status":"submitted"},"kind":"verified","task_id":"codex:P8BOOTCONSOLE1"}
 {"at":"2026-10-28T10:01:27+00:00","data":{"job":"0cf655c44b6e4d15b69fb4198f86b071","status":"completed"},"kind":"job_finished","task_id":"codex:P8BOOTCONSOLE1"}
 {"at":"2026-10-28T10:12:56+00:00","data":{"rev":13,"status":"rework"},"kind":"rework","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:26:14+00:00","data":{"claimed_at":"2026-10-28T10:26:14+00:00","claimed_by":"codex-mcp-b0b0a56f66684e46","completed_at":null,"owner":"codex","resume_status":null,"rev":14,"status":"in_progress"},"kind":"claim","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:38:03+00:00","data":{"claimed_at":"2026-10-28T10:26:14+00:00","claimed_by":"codex-mcp-b0b0a56f66684e46","completed_at":"2026-10-28T10:38:03+00:00","owner":"codex","resume_status":null,"rev":15,"status":"submitted"},"kind":"submit","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:39:55+00:00","data":{"job":"a04952dc79384cc8a9bd52d527f75f75","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:41:49+00:00","data":{"job":"a04952dc79384cc8a9bd52d527f75f75"},"kind":"verification_started","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:42:56+00:00","data":{"rev":16,"status":"submitted"},"kind":"verified","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T10:42:56+00:00","data":{"job":"a04952dc79384cc8a9bd52d527f75f75","status":"completed"},"kind":"job_finished","task_id":"codex:P8BOOTCONSOLE1"}
+{"at":"2026-10-28T11:02:11+00:00","data":{"rev":17,"status":"rework"},"kind":"rework","task_id":"codex:P8BOOTCONSOLE1"}

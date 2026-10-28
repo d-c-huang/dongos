@@ -261,7 +261,12 @@ unsafe fn start()!void {unsafe {
     try enumerate_root();try start_hid();try start_storage();try start_proxy();
 }return;}
 export("service_main") fn main()u64 {unsafe {
-    match start() {ok=>{},err(e)=>{hex("xhci_error=0x",e);hex("xhci_phase=0x",STATE.info.phase);hex("xhci_held=0x",STATE.info.held);return e;},}
+    match start() {ok=>{},err(e)=>{
+        let check=controller.precheck_report();if (*check).version==1&&(*check).check!=0 {
+            hex("xhci_check=0x",(*check).check);hex("xhci_reg=0x",(*check).offset);
+            hex("xhci_value=0x",(*check).value);hex("xhci_aux=0x",(*check).aux);
+        }
+        hex("xhci_error=0x",e);hex("xhci_phase=0x",STATE.info.phase);hex("xhci_held=0x",STATE.info.held);return e;},}
     let ready=sys.ready_boot(BOOT);if ready!=0 {return ready;}let log=sys.log("DONGOS_XHCI_HID_BLOCK_RPC_READY\r\n");if log!=0 {return log;}
     loop {match pump_hid() {ok=>{},err(e)=>{hex("usb_hid_error=0x",e);hex("xhci_held=0x",STATE.info.held);return e;},}match serve_block() {ok=>{},err(e)=>{hex("usb_proxy_error=0x",e);return e;},}let status=sys.yield_now();if status!=0 {return status;}}
 }}
