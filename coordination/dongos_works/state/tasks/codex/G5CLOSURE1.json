@@ -16,6 +16,7 @@
     "discover:codex-works/tests:test_g5_closure_native.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "5457976c41db431da6b1e81dcee603eb",
   "claimed_at": "2026-10-22T15:34:57+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T15:39:14+00:00",

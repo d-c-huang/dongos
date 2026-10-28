@@ -7,6 +7,7 @@
     "discover:codex-works/tests:test_g5_host_mapping.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "99dd8aebfb804305914d34bc244e6b36",
   "claimed_at": "2026-10-22T15:34:57+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T15:36:43+00:00",

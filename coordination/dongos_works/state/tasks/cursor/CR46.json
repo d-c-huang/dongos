@@ -16,6 +16,7 @@
     "discover:cursor-works/tests:test_guest_diagnostic_sink.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "2b2846fb943540cf9f83a157d4a22db4",
   "claimed_at": "2026-10-20T07:28:02+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T07:42:04+00:00",

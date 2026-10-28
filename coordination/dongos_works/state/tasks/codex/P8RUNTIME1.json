@@ -7,6 +7,7 @@
     "module:tests.test_user_runtime"
   ],
   "claim_from_status": "todo",
+  "claim_token": "f43dacd061764999969fcb7f9ae9f7e1",
   "claimed_at": "2026-10-27T13:46:08+00:00",
   "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
   "completed_at": "2026-10-27T15:23:12+00:00",

@@ -7,6 +7,7 @@
     "module:tests.test_compiler_guest_runner"
   ],
   "claim_from_status": "todo",
+  "claim_token": "f80f7427c52f45ebba595d0fbb053788",
   "claimed_at": "2026-10-23T14:01:16+00:00",
   "claimed_by": "codex-mcp-839d838dd7b04cc5",
   "completed_at": "2026-10-23T14:04:28+00:00",

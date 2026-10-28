@@ -7,6 +7,7 @@
     "discover:lmstudio-works/tests:test_p2_fixture_contract.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "7bb0b09d266740e58881cb7bbb4d2fe0",
   "claimed_at": "2026-10-24T08:44:01+00:00",
   "claimed_by": "codex-mcp-14ca67a3341042c4",
   "completed_at": "2026-10-24T08:45:02+00:00",

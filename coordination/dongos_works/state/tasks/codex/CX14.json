@@ -7,6 +7,7 @@
     "module:tests.test_compiler_job_launch"
   ],
   "claim_from_status": "todo",
+  "claim_token": "412058971cba4ad9aab02a0c645515e8",
   "claimed_at": "2026-10-20T09:26:40+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-22T01:01:52+00:00",

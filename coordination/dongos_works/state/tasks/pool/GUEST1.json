@@ -7,6 +7,7 @@
     "discover:pool-works/tests:test_guest_source_path.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "98bb5f4f65bc42b3840fa55ac6b09304",
   "claimed_at": "2026-10-20T05:50:53+00:00",
   "claimed_by": "deepseek-mcp-199bcd394d05436c",
   "completed_at": "2026-10-20T06:02:46+00:00",

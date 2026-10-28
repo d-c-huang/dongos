@@ -7,6 +7,7 @@
     "module:tests.test_bsp_diagnostic"
   ],
   "claim_from_status": "todo",
+  "claim_token": "c3b758454ee1473899e059d8f7e3212a",
   "claimed_at": "2026-10-26T13:14:38+00:00",
   "claimed_by": "codex-mcp-918a30d10dd649bf",
   "completed_at": "2026-10-26T13:31:15+00:00",

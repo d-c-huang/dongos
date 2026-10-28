@@ -8,6 +8,7 @@
     "discover:pool-works/tests:test_mcp_pool_config.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "b34339cecacf4d9a9a05158851af29f7",
   "claimed_at": "2026-10-20T04:43:36+00:00",
   "claimed_by": "cursor-mcp-415ed5783a554f4e",
   "completed_at": "2026-10-20T06:03:14+00:00",

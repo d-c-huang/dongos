@@ -10,6 +10,7 @@
     "module:tests.test_user_smp_worker"
   ],
   "claim_from_status": "rework",
+  "claim_token": "6767c179b5514c32a2f6ab7ecf750a89",
   "claimed_at": "2026-10-22T19:44:57+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T19:51:20+00:00",

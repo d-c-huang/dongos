@@ -7,6 +7,7 @@
     "discover:tests:test_compiler_stack.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "1166544bcb184666bbde5cc21aeed9ed",
   "claimed_at": "2026-10-20T08:30:02+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T08:30:03+00:00",

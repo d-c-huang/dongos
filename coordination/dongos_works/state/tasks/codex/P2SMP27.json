@@ -10,6 +10,7 @@
     "module:tests.test_user_smp_barrier"
   ],
   "claim_from_status": "rework",
+  "claim_token": "2611c558f045411b9b8d3609850feb2d",
   "claimed_at": "2026-10-22T21:28:22+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T21:34:30+00:00",

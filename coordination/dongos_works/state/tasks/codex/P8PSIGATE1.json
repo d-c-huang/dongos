@@ -8,6 +8,7 @@
     "module:tests.test_xhci_kernel"
   ],
   "claim_from_status": "todo",
+  "claim_token": "9f2df88d6c364f11a4d8a97682d24462",
   "claimed_at": "2026-10-28T11:35:20+00:00",
   "claimed_by": "codex-mcp-b0b0a56f66684e46",
   "completed_at": "2026-10-28T11:46:02+00:00",

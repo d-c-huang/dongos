@@ -3125,6 +3125,7 @@
       "checks": [
         "discover:claude-works/tests:test_nasm_u64_module.py"
       ],
+      "claim_token": null,
       "claimed_at": "2026-10-19T15:35:14+00:00",
       "claimed_by": null,
       "complexity": "standard",
@@ -3538,6 +3539,7 @@
       },
       "review_note": "Codex实际审查六文件、原任务与旧失败，已重写生产/真实导出probe/独立C缓存和页表oracle/永久TestCase/unsafe文档。真实Space.inspect完整DFS核对Pool/meta/父项/大页/隐藏HHDM，所有输入与输出完整尾部边界；真实planner→protect_live撤权→BSP同步ACK→实际tlb.broadcast AP全根失效及epoch/root回读→protect_live授予→实际VA广播与PUBLISH全部读者可见。没有伪造Space，没有用Domain广播序号替代online_epoch；原始页表/回调/硬件错误poisoned/held且停止后续操作。明确单BSP/IF0/全程quiescence/可信同步回调与固定共享根限制，组件不等于硬件消费者完成。独立正式job923958831cb9466098acdd60483f28f4实际1test/0skip/exit0/30.859s，source_stable/process_stopped/execution_exited全部true。两模式×生产+3实际坏Dong共8组均ELF64/COFF组装、SysV原生返回并检查6个callee-saved/RSP，正常1/4/16读者、2/16别名反复转换、无冲突RO→RX可见性、各回调及逐个撤权失败、实际中途protect失败、真实AP send/ACK timeout、错误SHOOTDOWN/PUBLISH回读、完整输入先验与查询、拓扑变化、seal/busy通过。三坏体正常返回由cross-alias-WX/shootdown-completed/grant-after-failure独立拒绝，非文本/崩溃负控。旧失败和开发前缀错误保留且明确排除。现只验收组件，待真实main文件集成及主目录复测后另登记integrated。",
       "legacy_hash": "57fe9f1682925de0b4b51f59b7a15ff05ddc64845008eebcfdf5dbff36bf1a5f",
+      "claim_token": "833c392be029435ab7624f4128b36139",
       "assignment_history": [
         {
           "at": "2026-10-21T15:37:12+00:00",
@@ -3616,6 +3618,7 @@
       },
       "review_note": "按用户授权由Codex接手重写6文件，实际源码/原契约审查完成。真实Space.inspect池视图全树/metadata/隐藏大页和PAT4消费者扫描；每页每reader MTRR/PAT；实际cacheplan及paging live/reclaim操作、两个独立全部读者ACK/cache/PAT读回、原始错误/阶段/lease持有/精确回执、完整端点和互斥存储，未省略placeholder。根原生run6492da7fa0d2两模式各64场景389963独立C检查、完整SysV寄存器/RSP、20ELF/COFF对象、4类×2真实坏Dong正常返回精确拒绝；源/hash/docs/delivery传递闭包稳定。正式独立隔离jobfb6a510c71304793b955fb6baf25c53a为unittest1入口/0skip/41.593s/exit0，source_stable/process_stopped/execution_exited均true。已排除原development失败与错误passed字段，原始证据保留。见reviews/2026-10-22-P2WC1-Codex-independent-review.json。本项原契约组件范围通过；正常GOP硬件callback与实际客体归后续P2消费者，不提前关闭全P2/WC。现先验收，待真实主目录文件集成。",
       "legacy_hash": "8f40daf5c4f27af514cfc58ce65dc24bf4162227e4611a087524d11c1a4c424c",
+      "claim_token": "f66fcf73614b4fbcbad91413039a6d85",
       "pause_note": "用户明确要求Codex接手P2WC1修改。请原Claude客户端立即停止本任务编辑与全部外部进程，使用acknowledge_pause确认停止后由协调器转交Codex；不得继续修改/提交。原六文件和历史保留，不删覆盖，不将状态暂停当进程停止。Codex在确认前只读该候选，先处理已安全转交的EXEC。",
       "assignment_history": [
         {
@@ -3708,6 +3711,7 @@
         "module:tests.test_service_handoff"
       ],
       "claim_from_status": "todo",
+      "claim_token": "6569b20e5fac41448994e4bc4afb2727",
       "claimed_at": "2026-10-20T08:42:39+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T09:13:24+00:00",
@@ -3800,6 +3804,7 @@
         "module:lang.tests.test_bootstrap_x86_compact"
       ],
       "claim_from_status": "rework",
+      "claim_token": "bacb6dffed0f469baa9af19c686653b7",
       "claimed_at": "2026-10-20T09:11:52+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T09:13:23+00:00",
@@ -3868,6 +3873,7 @@
         "module:lang.tests.test_bootstrap_compiler_job"
       ],
       "claim_from_status": "todo",
+      "claim_token": "bf495ba086c54dd99da9d441c654ea8a",
       "claimed_at": "2026-10-20T09:16:31+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T09:45:21+00:00",
@@ -3936,6 +3942,7 @@
         "module:tests.test_compiler_job_launch"
       ],
       "claim_from_status": "todo",
+      "claim_token": "412058971cba4ad9aab02a0c645515e8",
       "claimed_at": "2026-10-20T09:26:40+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-22T01:01:52+00:00",
@@ -4012,6 +4019,7 @@
         "module:lang.tests.test_bootstrap_compiler_job"
       ],
       "claim_from_status": "todo",
+      "claim_token": "4d0cdee2f7274ce0a345a9ce97747f1f",
       "claimed_at": "2026-10-20T10:05:52+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T10:06:31+00:00",
@@ -4397,6 +4405,7 @@
         "module:lang.tests.test_guest_files_reader"
       ],
       "claim_from_status": "todo",
+      "claim_token": "787b20d07fc94cf3a9abcad276a0a398",
       "claimed_at": "2026-10-20T07:04:06+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T07:08:31+00:00",
@@ -4482,6 +4491,7 @@
         "discover:tests:test_compiler_stack.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "1166544bcb184666bbde5cc21aeed9ed",
       "claimed_at": "2026-10-20T08:30:02+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T08:30:03+00:00",
@@ -4550,6 +4560,7 @@
         "module:lang.tests.test_guest_files_commit"
       ],
       "claim_from_status": "todo",
+      "claim_token": "216f06b195824b139048849dd8a09640",
       "claimed_at": "2026-10-20T08:15:48+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T08:19:33+00:00",
@@ -4673,6 +4684,7 @@
       "review_note": "独立源码/契约及真实负控审查通过。正式隔离job4628b48597ad4fa4a0edb758628cc8a5：10tests/0skip、2.859s，source_stable/process_stopped/execution_exited均true，三文件指纹匹配。旧平铺/新分组仅在帮助明示分组选项时追加-h -w，两探测check=True错误传播、完整warning名独立匹配；实际NASM3.02 ELF64/COFF均验证两合法重定位的原warning失败→能力探测成功，同时number-overflow仍严格失败。未据mock声称安装过旧NASM，身份与异机CX6分开。",
       "legacy_hash": "f519302164caa90b53bb51a7ed5571fc64f19fd65b656da9c3fa2f163dcd6252",
       "claim_from_status": "todo",
+      "claim_token": "a8f2c05cdfee4368b1f9e3f0af1856c6",
       "integration_note": "声明的lang/tests/test_dongc.py、test_nasm_compatibility.py已实际位于本地主线并随PR8/main244b18c集成；交付保留CXNASM3独立身份。三文件与新正式验收指纹完全一致，主线14项桥/NASM/启动联合回归已通过，正常记录集成，不导入或替换异机CX6任务。"
     },
     {
@@ -4684,6 +4696,7 @@
         "discover:codex-works/tests:test_g5_alignment_native.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "0a646d895c9748dfa7b741ab46fd567e",
       "claimed_at": "2026-10-22T06:54:26+00:00",
       "claimed_by": "codex-mcp-a56c25d7f28e4bc4",
       "completed_at": "2026-10-22T07:23:40+00:00",
@@ -4755,6 +4768,7 @@
       "checks": [
         "discover:codex-works/tests:test_g5_closure_native.py"
       ],
+      "claim_token": "5457976c41db431da6b1e81dcee603eb",
       "claimed_at": "2026-10-22T15:34:57+00:00",
       "claimed_by": "codex-mcp-daece153b59c4bd5",
       "completed_at": "2026-10-22T15:39:14+00:00",
@@ -4887,6 +4901,7 @@
       "review_note": "独立入口2项0skip/rc0、source_stable/process_stopped/execution_exited全true；独立逐文档实际审查通过：70项/协调器967.625,321.766,1248.36s、实际integrated rev、四ELF与源码SHA/预算等匹配正式0856原始产物，36新/修local links均存在，13受管文档指纹现场一致。G5宿主NASM范围、CLI scopefalse、内建assembler dialect、新G6及历史profile、Linux未运行和旧失败边界准确。未改实现/测试。",
       "legacy_hash": "c5dc9452f71a60ea17576f193debe011bce0746a9846c0753562b2c376e832c3",
       "claim_from_status": "todo",
+      "claim_token": "dadb6a7071864cd8937554c36a64f7b1",
       "integration_note": "文档已真实写入code主线及协调审查目录，入口复验和独立实际内容/链接审查通过，登记本地集成。工作区整体进度由协调角色依最新MCP同步，不修改库/index。"
     },
     {
@@ -4966,6 +4981,7 @@
       "review_note": "独立入口2项0skip/rc0、source_stable/process_stopped/execution_exited全true；独立逐文档实际审查通过：70项/协调器967.625,321.766,1248.36s、实际integrated rev、四ELF与源码SHA/预算等匹配正式0856原始产物，36新/修local links均存在，13受管文档指纹现场一致。G5宿主NASM范围、CLI scopefalse、内建assembler dialect、新G6及历史profile、Linux未运行和旧失败边界准确。未改实现/测试。",
       "legacy_hash": "7a6484030b3c3d86cacc3e7ec8aa999be5fb8eb07ca88b5a966d961c0b00f3d9",
       "claim_from_status": "todo",
+      "claim_token": "6c15a9ebe5344306bde9117e826e420c",
       "integration_note": "文档已真实写入code主线及协调审查目录，入口复验和独立实际内容/链接审查通过，登记本地集成。工作区整体进度由协调角色依最新MCP同步，不修改库/index。"
     },
     {
@@ -4977,6 +4993,7 @@
         "discover:codex-works/tests:test_g5_exec_native.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "2f09ea346b654b489b425c264299cfe8",
       "claimed_at": "2026-10-22T07:57:56+00:00",
       "claimed_by": "codex-mcp-a56c25d7f28e4bc4",
       "completed_at": "2026-10-22T07:57:57+00:00",
@@ -5048,6 +5065,7 @@
       "checks": [
         "discover:codex-works/tests:test_g5_full_native.py"
       ],
+      "claim_token": "d88465bde71640cfb679b95e43136fa9",
       "claimed_at": "2026-10-22T14:49:33+00:00",
       "claimed_by": "codex-mcp-daece153b59c4bd5",
       "completed_at": "2026-10-22T14:53:26+00:00",
@@ -5192,6 +5210,7 @@
       "review_note": "实际审查宿主PE链接、_beginthreadex/static ctx/真实原线程句柄退休与fflush/ExitProcess生命周期，不改ELF或compiler预算。独立job4d1c4e4057a142f2aa9af0c87050d60c为1test/0skip/1.609s，stable/stopped/exited全部true。另一代理复算3份指纹候选/隔离均匹配；good PE64 ImageBase10000000/size536576，完整2MiB固定400000映射首尾canary/free真实rc0；bad固定PE400000/RELOCS_STRIPPED，无ASLR避开，实际rc17且VirtualQuery MEM_IMAGE及模块路径精确指向bad.exe。6进程rc=[0,0,0,0,0,17]，source和good/bad产物SHA核实。仅宿主门禁通过，closure固定点另验。",
       "legacy_hash": "d78201aefa4a650700ba7cb9aede4a1d1b3c0dc888a20bc32a13401fcab97cc8",
       "claim_from_status": "rework",
+      "claim_token": "90eede084163435db1804d31f7cb58fe",
       "integration_note": "已实际将宿主修复落在主线code/tools/compiler_job.py，当前SHA a4f9830ce2cb1d1306c7b79e531a7f1e4e407d78cacea46d960ba3992c13d565与正式候选一致；永久独立测试及交付保留于声明works路径，3声明文件均保持验收指纹。G5CLOSURE1已用同一主线工具重新排独立冷构建c464866d6f9b4fb2beeac4c23d9974fc，未将host小门禁冒作固定点成功。无提交/推送/OS/VM。"
     },
     {
@@ -5257,6 +5276,7 @@
       "review_note": "实际审查Windows固定窗口持有：worker在原harness分配前reserve2MiB，load只释放自有reservation后按原始ELF映射，small卸载立即重hold，保留文件/arena/64KiB compiler stack预算。正式job0e522b2b18b54676a48a417e00e21cc0=1test/0skip/2.219s，stable/stopped/exited=true。另一代理复算3指纹候选与隔离一致；good PE10000000真实2轮2MiBcanary/free rc0，固定bad PE400000 rc17/MEM_IMAGE；同源仅删除初始hold的bad PE10000000真实rc17/MEM_PRIVATE12288证明小分配抢占，8进程rc=[0,0,0,0,0,17,0,17]，两源SHA匹配。仅宿主持有门禁通过，完整闭包另验。",
       "legacy_hash": "268c9b4f5f1c5427bf05ada3e52ac251c4b85442f4d787bdecbe9ff1f72248de",
       "claim_from_status": "todo",
+      "claim_token": "99dd8aebfb804305914d34bc244e6b36",
       "integration_note": "已真实落地code/tools/compiler_job.py，SHA3e86f68d40a6888a333fe8c7b6c7009704b03726a26d0ecd17c97816ec689011与正式验收一致；永久宿主门禁及交付均保持正式3文件指纹。主线工具包含窗口持有/真实load释放/小ELF卸载后重持有；未移动修补ELF，G5CLOSURE1仍待重新完整独立冷构建。未运行OS/VM或提交推送。"
     },
     {
@@ -5413,6 +5433,7 @@
       "review_note": "最新独立正式job0856b466a4d44a13be901c02f8acff46三check51+1+18共70项/0skip/outer rc0，无cancel/timeout；source_stable/process_stopped/execution_exited全true。独审本轮35 current+isolated指纹及7生产=accepted候选字节；full257输入/51成功27要求/scope_complete、228 assembly/exe/object与142driver/真实坏体fallback；closure四ELF2046376B SHA2bda587a6842913879eb6bf0445202066adb68baef06d06593ff0f3ee787defa，49源码/149输入；legacy144语义case、26guestcase/14ELF/160预检/3真坏体、精确200B data模型/两地址13OBS/静态指针/control返回69/sysv四case均独立解码复算通过。保留旧失败，不含Linux专项或新G6客体验证。",
       "legacy_hash": "188cb90ea898ed15044761ab866f20b2743ae2e304c7840922e3c4491a240271",
       "claim_from_status": "rework",
+      "claim_token": "7419741098954370bc8f884c8015cf3c",
       "pause_note": "开发guest test_actual_compiled_wrong_sources_are_rejected刚返回FAIL，尚未完整trace；正向/assemble/emit部分通过。立即停止刚排队正式d6484e94，先定位原子性坏体fixture问题，绝不在开发失败下继续耗费正式full/验收。保留所有记录。",
       "integration_note": "七生产模块、runner、永久full/closure/4组件测试和清单已真实写入code主线；旧回归接口已按新契约保留严格oracle。上述70项为本轮实际主线冷复验及独审，文件指纹均已现场核对。登记本地主线工作树集成，未提交/推送/运行OS或VM；最终文档由G5DOC1后续登记。"
     },
@@ -5478,6 +5499,7 @@
       "review_note": "独立入口job0a36604f04f3445b97a9ee36a8200c38通过2项0skip/source stable；另G5INT1正式0856 legacy18实际调用本文件两受影响方法，对本轮冷编译器完成完整gap双模式、真实Win64定义/外调和非法foreign pair/link原子拒绝；独审方法调用/源指纹4dd...及本轮执行记录通过，无oracle弱化。",
       "legacy_hash": "c1d7181b16a6a7d888f40c73c53360f622147c6b41bfb0b7e6f8a57f12005fd3",
       "claim_from_status": "todo",
+      "claim_token": "7164db1b1a0840b1b07303c095d5ee5c",
       "integration_note": "源文件已真实在code主线，G5INT1正式70项和原始产物独审通过，本任务2入口及两个方法实际借用执行通过，登记本地集成。"
     },
     {
@@ -5489,6 +5511,7 @@
         "discover:codex-works/tests:test_g5_panic_native.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "13103962c2734d7283f5df2b04fa4a1c",
       "claimed_at": "2026-10-22T07:12:07+00:00",
       "claimed_by": "codex-mcp-a56c25d7f28e4bc4",
       "completed_at": "2026-10-22T07:40:55+00:00",
@@ -5563,6 +5586,7 @@
         "discover:codex-works/tests:test_g5_tagged_native.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "d67298d906f4472b9f39d9c82ba11c04",
       "claimed_at": "2026-10-22T06:21:19+00:00",
       "claimed_by": "codex-mcp-a56c25d7f28e4bc4",
       "completed_at": "2026-10-22T07:23:39+00:00",
@@ -5689,6 +5713,7 @@
       "review_note": "已实际审阅host-ready md/json与原test_compiler_job_preparation源码；stdlib独立复算318产物、445/7/4/12输入、49源码、真实ELF段页数、双FAT/链/源码SEED及空stage、负控SHA恢复和命令日志。明确12当前源码差异、历史host-only且动态峰值/新G6未证。正式5279fdea41ba4447b776fdf4416206ec通过15/0skip/0.61s/source_stable/process_stopped/execution_exited。三文件主目录SHA匹配，文档JSON链接存在，未运行VM或放宽阶段结论。",
       "legacy_hash": "3c27d771370d611a78005140013555cf61e99ecd5cfe1dc755ade7f1f3d48257",
       "claim_from_status": "todo",
+      "claim_token": "f80f7427c52f45ebba595d0fbb053788",
       "integration_note": "三项审查/交付文件已真实落入本地主线协调工作区，并与正式复验指纹逐项相同；优先级已同步progress-map/ALLOCATION/roadmap。独立验收后单独登记本地集成；新G6客体和更广纯ELF仍待完成，未提交推送。"
     },
     {
@@ -5754,6 +5779,7 @@
       "review_note": "审查当前编码生产改动及G6原runner契约，fresh固定点1项零skip；实际同盘两启PASS，独立离线965+965 raw/FAT/页退休审计通过，456源与主目录一致。永久证据包含原receipt、审计原文及哈希。独立作业2d01ede4e1f543978a2e999adbec0e13正式15项零skip，source_stable/process_stopped/execution_exited均true。范围限当前G6，不替代全部纯ELF语言矩阵。",
       "legacy_hash": "d4ea874d9e287812c336704881f895530da95a71f1d94a0a7bbc80e3b3b1998d",
       "claim_from_status": "todo",
+      "claim_token": "dc315ac7091c4f68a046652f59203c7d",
       "integration_note": "三份永久证据已真实落在主目录，逐份SHA256与独立复验fingerprint完全一致；L3ENC1生产文件此前已集成rev6。当前G6编译、同盘两启及独立审计闭环，登记集成。"
     },
     {
@@ -5832,6 +5858,7 @@
       "review_note": "实际审查 memory.dg uses_static_tables/prepare_tables、build profile 与检查调用顺序：构建配置经 verify_profile 绑定，动态 root/alias/32页容量/arena已分配上界/互斥及每页supervisor RW NX WB均独立约束；user pte原32页逐级边界未放宽。独立job dc797113b18f48799f55d0b1ed135f28 两模块20tests零skip、source_stable且进程退出。仅验收检查器，G6原失败保留，待新双启动。",
       "legacy_hash": "fbb183e396653f43e080e4714c65486a394b3447242321cd56a47db169927391",
       "claim_from_status": "todo",
+      "claim_token": "ecc0264e5acf4e5d910d4e0d5a74b15b",
       "integration_note": "真实主目录三个声明文件已存在，SHA256分别8751b0f9…、865bf7a8…、cbee26d0…与独立复验指纹一致。登记检查器集成，不把此前G6失败改成通过。"
     },
     {
@@ -5956,6 +5983,7 @@
       "review_note": "已实际审查新增host集成测试、3文档及调用图；真实exercise/build，无fakefixture/编译，双改字节负控精确拒绝/finally恢复、boot护栏及独立FAT解码有效。正式7b55181e05024fdba45198cdcf4858cd五组1+15+2+3+1=22tests/0skip，全部rc0/source_stable/process_stopped/execution_exited=true。root独立复算318原产物SHA、445源+7harness+4fixture+12profile冻结输入一致，stage1==stage2及原G5 ELF/hash一致，2,046,376B/500页、49源码491,683B；实际services1172+113+48页，干净单次静态managed16265/16384余119，但动态峰值明确未证。64MiB seed FAT/SOURCES/SEED字节及空stage条目已核，未运行OS/VM。G6新guest仍未完成，用户已改优先P2→P5，文档后继G6DOC1暂停。",
       "legacy_hash": "d15e70e5b9860573577f6661caf552984860245cfdbfb24499c405321c2abb93",
       "claim_from_status": "todo",
+      "claim_token": "75d9380f869f4e22861e759f097a4f73",
       "integration_note": "新增永久测试与3份契约/进度文档已实际在code主目录，全部正式复验指纹一致，独立原始产物与源码契约审查通过，登记本地集成。未启动来宾/提交/推送。按用户最新要求先P2后P5，G6DOC1保留paused2，扩大compiler新G6未外推为完成。"
     },
     {
@@ -6022,6 +6050,7 @@
       "review_note": "已实际审查fresh生产源码、VirtIO计时契约、池归属检查及G6原runner路径；同盘两启run-b54a8a8d615b原结果PASS，owned QEMU各退出0。独立离线审计961+961原始文件、所有冻结输入、精确FAT固定点、128页退休全零及请求状态通过（audit SHA086c1523…），主目录生产源与实跑一致。正式job812d5b622b2148c6848cb00511879302 15tests/0skip、source_stable且进程退出。只验收当前G6，不关闭广义L3A。",
       "legacy_hash": "247271a58cf902a94c77498385c33a0cea55ee42367b3bd4ef72fa15c4aca0f3",
       "claim_from_status": "todo",
+      "claim_token": "ca77d9209a2849b5af7b8378c1780043",
       "integration_note": "主目录三个实际交付文件SHA bf2cf712…/8efaa49a…/843710f4…与独立复验指纹一致；实现修复G6WAIT2/G6POOL1已真实主目录集成，生产源与实跑冻结输入逐文件一致。登记当前G6闭环；L3A更广纯ELF保留未完成。"
     },
     {
@@ -6095,6 +6124,7 @@
       "review_note": "独立审查显式timed入口及生产block_service回调：共享State/Ops/Lease和tablet不变，取时在发布前，单调差值避免加法溢出，5000ms边界和完成后复查，冻结100000次有界拒绝；所有发布后失败沿原fault/held直至真实reset。正式e8510c2b91054ebe941e0c6d0eec57af通过4项/23.938s/0skip，source_stable/process_stopped/execution_exited；两模式24真实C场景、两对象格式/布局/栈与5类实际坏体均通过，本机修后4项23.816s。原R1/R2夹具失败及两次客体FLUSH失败保留。代码已实际在主目录，不把组件验收代替后继新G6构建/双启。",
       "legacy_hash": "a93aba4eec8f1647a4becf36ecf8623ba2609a49e409244b265d70ff05133432",
       "claim_from_status": "todo",
+      "claim_token": "d673125cb5d64aecba4d67708c8e4596",
       "integration_note": "已真实完成七声明文件主目录实现/文档/交付，内容与正式复验指纹匹配，独立验收后登记本地集成。G6RUN2接续全新构建与实际同盘双启；旧归档不能替代。未提交推送。"
     },
     {
@@ -6106,6 +6136,7 @@
         "discover:codex-works/tests:test_l3_defer_native.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "1c30a778422149f381343a871a6f3c6d",
       "claimed_at": "2026-10-22T04:26:51+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T04:32:13+00:00",
@@ -6232,6 +6263,7 @@
       "review_note": "已审查生产assembler/ELF地址契约及观察桥：实际Dong输出进入同源native_assembler，内核验证ELF，COFF仅绝对符号、无目标代码段；按原地址装载原始字节，宿主extern仅独立槽桥接，RX/RW保持，无NASM目标回退。原51项/27组断言保留，字节观察仅改读ELF（AST一致）；私有全局地址负控等价双LEA，生产不改。独立冻结job ed37c79515f94c87a488e538ea6ba20d 51tests/0skip/963.657s全通过，source_stable/process_stopped/execution_exited均true。独立stdlib审计259输入、148目标ELF、166次实际观察执行及6类真实错误源码通过。157主目录源码及5交付指纹匹配；G6的456源仍一致。完整纯ELF矩阵门关闭，历史失败保留。",
       "legacy_hash": "500e2b7caf09af8594a8e123ea87810434904cffc03d39b23b149cec901689b0",
       "claim_from_status": "todo",
+      "claim_token": "5f0c22e24544476395d4cfbaf4580e56",
       "integration_note": "两份测试代码与三份交付/提交证据已真实落在main主目录，5份SHA256逐项匹配accepted独立fingerprint；157源码无差异、G6 456源仍绑定已验收当前编译器。登记本地主线文件集成rev6；不提交/推送。提交文档保留为当时快照，最终完成状态同步到L3进度及完成回执。"
     },
     {
@@ -6299,6 +6331,7 @@
       "review_note": "实际审查两生产模块：XMM独立kind仅movdqu内存双向允许；LOCK/XCHG限定32/64位STORE，REX/ModRM和RIP修补保留；特权指令零操作数，既有输出原子性未改变。独立job e1c4412f3d2944efb5a85cf9d4d148f8 全4tests/0skip/486.25s，源码稳定且进程已退出。1017条NASM字节对照、错误形式/容量与57别名预检、实际ELF原子内存/CAS成功失败，真正Dong两模式Win64桥接→native ELF执行37通过。只验收编码差集，新G6单独验证。",
       "legacy_hash": "f44d83bde00222cd3903ce5c0461d968515b2c3e0d9897374d75a9b6e812536b",
       "claim_from_status": "todo",
+      "claim_token": "efacf6a12d4440c9872d2dd4ecaa3c21",
       "integration_note": "声明的四个真实主目录文件指纹c35f1f32/0bd6de7b/9e9eb135/2daf7f78与正式独立复验一致，实际文件集成完成。G6ENC1接续新版自举及客体门，旧结果不外推。"
     },
     {
@@ -6310,6 +6343,7 @@
         "discover:codex-works/tests:test_l3_control_integration.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "02b810159e4e472da1285d924ededc4a",
       "claimed_at": "2026-10-22T05:30:03+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T05:31:40+00:00",
@@ -6398,6 +6432,7 @@
         "discover:codex-works/tests:test_l3_for_native.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "e680433b230f4b5b8e4bc27745537248",
       "claimed_at": "2026-10-22T04:52:34+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T04:57:21+00:00",
@@ -6528,6 +6563,7 @@
       "review_note": "实际审查7声明路径和差异：两桥仍真实组装ELF64/COFF，仅按宿主选择CC链接对象；POSIX wrapper/observer -no-pie是非PIC种子对象的明确链接策略，独立固定4MiB native mapper保持PIE，目标DG/字节/ABI/oracle未改。Linux首轮真实musl loader do_relocs进入main前SEGV不算语义负控，同对象非PIE实际pipeline0后修复；失败与interrupted原场保留。隔离WSL私有ext4/mount namespace新完整Linux L3A6+native4+兼容3+主线CLI2=15tests/0skip/703.708s，1335源前后字节SHA一致，Python3.12.15/GCC15.2/NASM2.16.03，候选两桥SHA逐项等于本次正式fingerprint，详reviews/2026-10-22-L3HOST13-Linux-pass.json。Windows新正式ff16d33a6bb345e79c8a796eade946ab outer1/0skip/466.032s，实际child内层3/0skip/0errors/0failures；候选和主目录输入稳定，process_stopped/execution_exited/source_stable全部true。首正式61018e16因快照合并根未有project.json导入失败未跑桥，官方返修识别实际lang/dongc根后重跑，未绕过失败。两个测试桥源SHA与实际主目录一致；本机Alpine结果与尚未运行的GitHub Ubuntu整套CI分开，不冒称远端CI已绿；G5完整语言阶段不因此完成。",
       "legacy_hash": "992db33803f43479498bad5714fcdaad1fd9e3bb9fc23c82a3606a764e711b3d",
       "claim_from_status": "rework",
+      "claim_token": "a70e3b4f383b404a8dd23f0872de25f6",
       "integration_note": "全部7声明文件实际落盘，逐项SHA与accepted正式指纹完全一致；两主目录桥与隔离候选逐字节相同，见reviews/2026-10-22-L3HOST13-main-files.json。Windows正式outer1/inner3零skip和独立Linux实际15tests/0skip/1335源稳定均已验收。原L3A/L3REG11记录保留，本任务为明确后继；零参数旧harness修复REG14后继另验。"
     },
     {
@@ -6595,6 +6631,7 @@
       "review_note": "实际审查主线工具/说明与accepted L3候选逐字节同SHA（runner db5b2b5e…，说明ff728057…）；没有重写算法或目标IR/代码。主线真实python -m tools.g5_differential --help、ROOT/默认输出目录、当前bootstrap/本工具完整源清单、已存在输出先拒且sentinel不变均执行。独立正式cc5b26202326434f93b154f6718aabbf为2tests/0skip/0.609s，source_stable/process_stopped/execution_exited全部true。完整有限矩阵由L3独立正式4项0skip/899.078s证明，本项没有用入口代替语义。整个G5仍scope_complete=false；矩阵执行宿主Windows SysV，未将Linux入口或COFF组装冒称完整POSIX/Win64ABI执行验收。源码根对works/主线两种位置明确适配，生产DG未改。",
       "legacy_hash": "1dc450aa5bc4b10eb3548228c575dec3a6501cd3601b86aaaccf7b8104016d81",
       "claim_from_status": "todo",
+      "claim_token": "7a2d5e2dc29f4f5988f7250e1c747654",
       "integration_note": "已完成真实4主目录文件/交付落盘，逐项SHA匹配已验收正式指纹，runner与说明又逐字节匹配accepted L3候选，见reviews/2026-10-22-L3MAIN12-main-files.json。正式入口2tests/0skip通过；全部语义矩阵原L3正式已验，不扩大整个G5或宿主范围。"
     },
     {
@@ -6606,6 +6643,7 @@
         "module:lang.tests.test_bootstrap_method_semantics"
       ],
       "claim_from_status": "todo",
+      "claim_token": "dd476300adac45efb543cc3d749824ea",
       "claimed_at": "2026-10-22T03:07:50+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T03:12:32+00:00",
@@ -6677,6 +6715,7 @@
         "module:lang.tests.test_l3_method_native"
       ],
       "claim_from_status": "todo",
+      "claim_token": "aaf1899e1dda4d63a61d383081be665d",
       "claimed_at": "2026-10-22T04:12:22+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T04:30:08+00:00",
@@ -6822,6 +6861,7 @@
       "review_note": "已实际审查四文件和全部新谓词调用点：rt_static仅对&place进入新判定；真实表达式类型取RuntimeWorkspace.info，GLOBAL/CONST可见存储根、struct字段和纯常量array索引通过，类型/可写/unsafe/边界先由rt_expr完整检查，禁止动态index、指针跟随和动态值读取。rt_expr_general折叠scalar CONST仍保留只读PLACE，无WRITE，不改变值计算或放宽写常量。原unsafe/类型/flow/visibility/容量与输出先验保留。TestCase组合复用native harness但不继承导出其它测试；私有符号由真实binding先拒绝，17组静态正反例/跨模块，两种真实坏Dong谓词两模式成功构建正常返回后由精确status拒绝，原始源/测试/说明及闭包稳定。独立正式job b6f95b1056d04087af90879957cf89e4：新增3tests/0skip/362.985s +完整runtime semantic14tests/0skip/1771.859s，合计17；source_stable/process_stopped/execution_exited均true。已有DECLARE/CONST/数组/NEVER/cleanup/内存副作用等大量实际回归及坏体通过，不仅正例通过。开发失败保留且不纳入验收。仅前端静态取址组件验收；后端和完整ELF由L3A另验，整体L3A/G5不关闭。",
       "legacy_hash": "ae8bdc3bcdc327d56dcdef1d78c958481c84e14a97dec7129291d2f803961b69",
       "claim_from_status": "todo",
+      "claim_token": "79d7345bddc94eee906fdda8d91faeec",
       "integration_note": "真实三主目录文件lang/bootstrap/semantic_types.dg、lang/tests/test_bootstrap_static_address.py、docs/bootstrap-static-address.md已实际原地实现；不是候选代替main。逐一读取并SHA匹配正式独立job b6f95b1056d04087af90879957cf89e4的全部源/测试/说明，清单reviews/2026-10-22-L3PTR7-main-files.json。该job实际就在这些主目录文件上跑新增3项+既有14项共17tests/0skip，全部源码稳定/进程停止/正常退出；实际源/契约审查后accepted5，现单独登记integrated。原开发失败保留，未改编译器Python/ABI或动态初始化限制；有限前端能力，不把L3A/G5整体标完成。"
     },
     {
@@ -6892,6 +6932,7 @@
       "review_note": "已实际审查5声明路径及新旧测试差异：GLOBAL由旧拒绝表移为真实返回1正例，extern lower3/输出不变保留；.data由非法section表移为精确字节正例，以.bss保持未知节拒绝；原Linux完整ABI/陷阱/字段偏移坏体未删除。新增本机门禁实际重新引导Dong，两模式原GLOBAL连续两次1/ELF64+COFF+SysV，extern精确lower3/输出保持，实际完整native ELF固定0x400000的数据1更新42返回与原始数据字节，再六类非法section/重定位失败保持。开发C观察器-Wmisleading-indentation原失败保留，加花括号后实际重跑，正式cd42e4f7eebf434dab86b6e871f7e2c7完整3tests/0skip/462.359s，source_stable/process_stopped/execution_exited=true。没有把本机未执行的完整Linux两套或skip算成功，不修改生产编译器或弱化失败标准。",
       "legacy_hash": "26a836a151e12e59c630d6b30779f0a74e556cdc26184bcd5acf13faff0c484c",
       "claim_from_status": "todo",
+      "claim_token": "17cce089a1b54d6e9ac40fc42e8cd543",
       "integration_note": "真实5文件已在主目录，逐项SHA与accepted正式指纹一致，见reviews/2026-10-22-L3REG11-main-files.json。正式实际3tests/0skip/462.359s通过。保留旧Linux专用测试平台界限及原开发失败。"
     },
     {
@@ -6961,6 +7002,7 @@
       "review_note": "实际审查5声明文件与全部失败/最终产物。原零参数GLOBAL确实触发exact_args0减1为MAX，生产正确INVALID1而旧CDriver误期望CAPACITY2；现0 args明确测试MAX描述符INVALID、Result及完整lower workspace保持；非零args原短容量2检查保留。又独立复验实测无args时ABI kinds/locations零容量本来合法，现作成功正例，输出每字节匹配原baseline，恢复前缀后整个4MiB输出hash等于原a9填充，尾部保持；其余非零capacity、alias、guard、源码/IR只读及真实坏体未删，不向正例塞无关参数。严格-Wall/-Wextra/-Werror保持，C if明确花括号，Windows观察C用标准MinGW printf且显式SysV，生产DG完全未改。首774c4ac6正式1/0skip但失败198.938s是第二个错误资源假设，原96/printf/布局失败全部保留不计通过；官方rework5重提交。新正式5b2cade114724fb98e5a63be607b9001冷1test/0skip/200.828s，真实当前Dong wrapper→原旧Driver全部契约→两模式原无参GLOBAL→NASM ELF64/COFF→SysV实际返回1，1函数0参数；source_stable/process_stopped/execution_exited全true。独立Linux实际原NativeCompilerTests.test_global_storage_is_supported冷1test/0skip/176.721s（内含两目标模式）通过，候选SHA e475e147…逐字节匹配Windows正式及当前主目录，source稳定，见reviews/2026-10-22-L3REG14-Linux-pass.json。不修改旧验收/失败历史，GitHub整套Ubuntu CI尚未运行与本机Alpine分开记录。",
       "legacy_hash": "063e374ca687ceb2fdc4b67199a5721955a1fe5cb12622b234e6bcb9633599b7",
       "claim_from_status": "rework",
+      "claim_token": "62e108200c4f4d2b8ad3d8884025db59",
       "integration_note": "真实5声明文件已落盘，全部SHA与accepted正式指纹完全一致；主目录旧harness与独立候选逐字节相同，详reviews/2026-10-22-L3REG14-main-files.json。Windows独立正式冷1/0skip/200.828s及Linux实际旧原方法1/0skip/176.721s（两模式）均通过，生产DG未改；完整失败/返修保留。当前本轮最后一项实现完成，后续只做最终状态/任务图/提交推送核对及用户授权关机。"
     },
     {
@@ -6973,6 +7015,7 @@
         "module:lang.tests.test_g5_runner_entry"
       ],
       "claim_from_status": "rework",
+      "claim_token": "84d74d96cd034645befd4f07867c3210",
       "claimed_at": "2026-10-22T01:26:55+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T01:28:10+00:00",
@@ -7056,6 +7099,7 @@
         "module:lang.tests.test_l3_escaped_symbols"
       ],
       "claim_from_status": "todo",
+      "claim_token": "371dbb9e12e645458576e2c378111d66",
       "claimed_at": "2026-10-22T01:08:57+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T01:15:42+00:00",
@@ -7122,6 +7166,7 @@
         "module:lang.tests.test_g5_runner_entry"
       ],
       "claim_from_status": "todo",
+      "claim_token": null,
       "claimed_at": "2026-10-22T01:06:45+00:00",
       "claimed_by": null,
       "completed_at": "2026-10-22T01:15:41+00:00",
@@ -7294,6 +7339,7 @@
       "review_note": "实际审查11文件生产/ASM/测试/契约：调度前固定共享根真实调用已集成EXEC/WC所有者；AP f1 mailbox只在sequence未ACK时执行，保存caller寄存器，Box416布局与实际产物一致；受控PF仅精确指令/CR2/error3恢复并还原IDT，无泛故障吞掉。所有硬件命令在实际操作后捕获CR3/CR0/CR4/EFER/PAT/MTRR/epoch，真实PAT回读发布Context，owner仍独立拒绝错误读回；无伪ACK/生产负控开关。正常最新单核03eea1a2615f、四核7bfdf19983e5全读者写保护+42/43/封存/2025页WC通过，完整128表闭包、buddy held、2025退休receipt、所有actual MSR；后续compositor USER/HHDM全WC、pid2实际arena32表及compositor128表、桌面/P5两稳定观察通过。唯一AP完整flush漏调用坏体37bd57542d1e实际phase3/mask1/物理99，唯一CPU3 PAT WRMSR漏调用492fd311f804实际phase8/WC4/error7/held无remap，均不是崩溃/超时负控。四档案源/只读磁盘稳定、QMP全只读、当前独立树+MSR逐GOP页解码再复算通过reviews/2026-10-22-P2ALIAS8-final-raw-replay.json。旧接线/快照/旧探测失败全部保留不计通过。正式808396a46c8b4c4d8b85962a52e41522：5+1+1=7tests/0skip，全部source_stable/process_stopped/execution_exited=true。最新kernel2MiB内；本任务仅固定拓扑/共享根/held不复用，TCG不证明WC性能，任意调度后多CR3/PCID/PGE动态变更不在此验收。",
       "legacy_hash": "ce91c0dda5eadd42570183b88501f58151a6babb876e830187703b7957a26c21",
       "claim_from_status": "todo",
+      "claim_token": "39ef151d33404669bc3d3bcbfbd3857a",
       "integration_note": "真实11授权路径已在主目录，逐项SHA与accepted正式指纹完全一致；全部实际正常客体build-inputs生产编译源也与主目录逐字节一致，不只是候选文件。记录reviews/2026-10-22-P2ALIAS8-main-files.json。正式7tests/0skip及最新正常1/4CPU/两唯一坏体/完整raw replay/四核桌面P5均已验收。本地集成完成，仍未推送，完整语言L3在途。"
     },
     {
@@ -7376,6 +7422,7 @@
       "review_note": "根与两独立只读审查已逐读实际FIFO sidecar/原Domain契约及C/DG/Python真坏源：once bind、原CPU/IF0/root核、保原绝对limit、queued-expired-free拒、原head Timeout保留、poll ACK、fail-held不取消、先原unlock清wait/owner最后serving原子发布、MAX前拒wrap均一致。R1编译失败保留；R2仅修!void坏体转发，panic独立prefix/97与常规C oracle1分离。独立d7273818c35049bd8b9f95bb627af90b 3test0skip/source stable/stopped/exited；根实核24真实DG编译、debug/release各19normal rc0+11真坏DG native oracle rc1=60进程，110命令/756产物SHA无差异；当前6文件逐SHA一致。真实线程/FIFO/ACK仅宿主硬件边界，Bridge尚未接线，不声称解决WHPX超时或AP/PCID/P2整体通过。",
       "legacy_hash": "22e5c588e3131fd8a6779e30ed01b86fed795b03d909ffa8160ad7182a37be8a",
       "claim_from_status": "rework",
+      "claim_token": "81f5497bdd4245c584877178d29c9819",
       "integration_note": "授权6文件实际在主工作树并逐SHA与独立回执一致，登记此独立组件真实文件集成；保持Bridge/Domain生产入口未接线与受限证据范围，不commit/push、不扩阶段通过。"
     },
     {
@@ -7455,6 +7502,7 @@
       "review_note": "实际源码/契约审查通过，4行正式assemble能力探测接线，不改原CXNASM3 helper，不按版本猜测；保留Wall/Werror/只两类合法warning/full-name/失败传播及全部build参数。独立正式job288e9bde49ac497c8f2ecb6363afa2a0两checks共16tests/0skip/exit0，source_stable/process_stopped/execution_exited均true；根另实际NASM2同16项通过。独立冻结源NASM3完整release runtime7 exit0/172.156s，316inputs精确match main，唯一consumed-source改tools/build.py；2,006,608B/余90,544B，ELF materialize一致。新镜像实际1/4CPU共享根full raw、四核desktop/P5两稳定观察、独立raw replay通过，源/disk不变且QEMU停止。旧NASM2/3非bit-identical，全部19ASM输入相同，kernel/5service text raw反汇编差异审查及明确规范化等价，完整旧新归档保留，不将它当全程序证明。见reviews/2026-10-21-P2BUILD5-independent-review.json及.local/p2build5-3de5a87604。scope仅构建消费者，不提前关闭EXEC/WC。验收后再核对真实本地文件。",
       "legacy_hash": "507ed96da06ad56a1d8cd7e73575c98e30cf4e0378489ea9574d52f7f4ce250b",
       "claim_from_status": "todo",
+      "claim_token": "42c8044c14274a82b8be005e6840a38d",
       "integration_note": "已实际完成本地文件集成核对：主code/tools/build.py、tests/test_build_assembler.py和映射works交付共3文件逐项SHA与accepted正式fingerprint完全一致，记录reviews/2026-10-21-P2BUILD5-local-files.json；冻结构建316inputs亦与主目录一致。新NASM3完整release2,006,608B/余90,544B、实际1/4CPU full raw及四核P5/桌面、独立重放通过；正式16tests/0skip/source_stable/全进程停止，NASM2兼容同16项通过。tools/build.py承接P2SIZE2并只增4行warning帮助探测，旧验收receipt保留历史，不改旧任务指纹。先验收rev5，现分开登记integrated；无commit/push/PR。EXEC/WC及DeepSeek任务按原负责人继续。"
     },
     {
@@ -7543,6 +7591,7 @@
       "review_note": "root实际源码/契约/有效测试审查完成，含命名空间修复、各代际独立绑定、线性receipt顺序、gate并发发布及实际原子ASM语义。正式ac7fe821d9b44c2b8bd854e30218d121：runtime_cache1+真实paging2=3tests0skip，133.484/5.375sec，rc0/source_stable/process_stopped/execution_exited true。12个真实DG debug/release生产+5坏源变体，110实际命令50native执行；真实ASM gate宿主执行，特权reader只双格式组装、硬件边界显式mock。root重核60个DG/reader ELF/COFF/EXE产物SHA、全部命令回执与tools SHA，50native的精确错误/guard和atomic close/drain/open一致。未接真实memory ledger/services mux/panic/NMI或guest，physical WC不在本项完成范围；仅验收组件。",
       "legacy_hash": "299f174263ac92d2c51f34bbf9fd40bfd8a13c1298681d3e4f71ac6a81d57ae9",
       "claim_from_status": "rework",
+      "claim_token": "e267f26bbb3343cc8d412c5de17d1d65",
       "integration_note": "6声明源码/文档已真实集成code，当前指纹与ac7…正式冻结输入一致。组件3tests0skip及60产物/tool/命令已核，登记仅代码组件集成，生产入口和实际guest/physical WC仍待闭合，不据host清P2。"
     },
     {
@@ -7720,6 +7769,7 @@
       "review_note": "已实际审查Claude原始补丁及最终源码/契约/反控：B large_try/large_identity/large_check逐块一致；C绑定真实buddy order0、entry/headers和PF trace；D使用真实GOP ledger、实际根快照/页回执并在分配后重新冻结。原Domain/Bridge期限、ACK、held和观察预算未放宽，runtime5/6/7内核1,986,960/1,991,056/1,995,152B均守2MiB；全部零静态池调用方按真实arena身份校验。连续slot0 UART无命令间暂停，历史raw严格epoch/source/offset/Catalog绑定。正常及两种实际生产遗漏poll的最终WHPX客体首轮通过，独立进程离线回放488/478/491raw通过；C13屏障/2回执/8PF/页表75恢复，D5屏障/两轮8100页完整撤销回收重映射，四CPU真实动作/ACK。负例实际报告C Reader 0x06140004和D Domain Held 0x06090004、首次STORE/READ请求掩码与ACK0、held/poison、对应BSP投影链，且原始AP WAIT时钟确实跨原deadline，不接受任意错误或虚假到期。独立指针来源审查与final-negative-audit保留。正式独立8cf746e3518145219278173a593dafbc六模块39+3+6+58+38+28=172tests/0skip通过；source_stable/process_stopped/execution_exited均true。P2CDTYPE1与P2CDBUILD1均已独立集成rev6。主目录26声明文件与正式fingerprint完全一致，整体1121源码与三类实际guest冻结图一致；所有旧失败/不稳定构建保留。接受P2CD1局部接线与零池修复；不接受warm-PCID复用、物理WC性能或真机门。",
       "legacy_hash": "1aac619cf848d427c992894fb543b1f94de34b9c4ca6146a0498d72e740a0cf3",
       "claim_from_status": "todo",
+      "claim_token": "d1eeae57a06b491ea05cb79d0ba0185c",
       "integration_note": "已完成真实文件移交至code/及coordination/dongos_works/：父项24源码/文档文件与两份交付审查记录，共26份；连同P2CDBUILD1两文件共28份。所有目标均先按接手基线/本任务进度hash预检并备份，transplant-manifest.json记录before/after。正式复验后再次按协调器fingerprint核对26文件完全相同，完整1121生产源码图与最终正常/C遗漏poll/D遗漏poll客体冻结图相同。独立复验172tests零skip稳定，补充builder10tests零skip及有效类型组件独立验收均已集成。原Claudeworktree/原始交付/补丁、全部失败及raw归档保留。登记本地主目录集成并更新进度；无commit/push，warm-PCID及物理WC真机门保持未接受。"
     },
     {
@@ -7781,6 +7831,7 @@
       "review_note": "已审查唯一builder生产适配：verify_profile对runtime7完整manifest预期由1改0，与父项零静态池一致；工具角色、command、完整source/overlay/profile/artifact绑定及失败关闭均保留。正式独立ebf434eb7c83402fa6ddf6e51632b4df为10tests/0skip通过，source_stable/process_stopped/execution_exited均true。父项实际三类最终guest及独立离线回放488/478/491raw通过，1121输入冻结图与主目录一致。最终2份文件逐一主目录hash与正式fingerprint一致，审查依据包含父项隔离副本保留源码和完整失败历史。仅接受该必要adapter，不外推warm-PCID或真机门。",
       "legacy_hash": "48e9a77758f615cc186a9b5491e4da289295dee9c9e18c5b8fb6caf16c3f81ef",
       "claim_from_status": "todo",
+      "claim_token": "9af539dceae04f8db442eca873209af5",
       "integration_note": "已真实复制必要builder adapter至code/tests/p2_pcid_build.py，交付至coordination/dongos_works/codex-works/deliveries/P2CDBUILD1.md；移交前基线预检和原文件备份完整，父目录transplant-manifest.json记录before/after。最终2文件主目录fingerprint与独立验收实物完全一致，完整1121源码输入与最终客体图一致。登记本地文件集成；无commit/push。"
     },
     {
@@ -7848,6 +7899,7 @@
       "review_note": "已实际审查源码与既有cache_type_plan及Intel SDM表13-7：原WB-only不等价于有效WC/UC；现每页MTRR解析成功后分别证明effective_type(WC)=WC和effective_type(UC)=UC。保留PAT0/3/4、CR0/CR4、物理宽度、全原始MTRR保留位/非法类型/重叠冲突/跨CPU一致性及运行中变化拒绝，cache维护/原期限/held不变、无WRMSR。实际审查C设备模型五种合法MTRR、非法/冲突/变化和7类实际生产坏体，debug/release共16组ELF/COFF；本机R2 1test/194.246s/0skip；正式82cf626668fe437c803de857b41405c0 1test/213.437s/0skip、source_stable/process_stopped/execution_exited。R1夹具失败保留；仅组件验收，P2CD1客体门仍未关闭。",
       "legacy_hash": "1335f4d54276f7ef1c018284495422517386beeb18b74197c2f50729659c3b1b",
       "claim_from_status": "todo",
+      "claim_token": "55a26b2aecf44aed9949d177fb0977dd",
       "integration_note": "五声明文件已从隔离副本真实移交主目录，独立验收后全部SHA与正式82cf626668fe437c803de857b41405c0指纹一致；登记组件本地集成。P2CD1隔离候选使用相同四源码/测试/契约字节，父任务仍待最终客体正负及正式复验，未提交推送。"
     },
     {
@@ -7926,6 +7978,7 @@
       "review_note": "实际审查 device_host/user_boot 调用顺序与契约：在新 INFO/Domain/Bridge/Header 分配发布之前完成原 discover 全 ECAM 枚举；保留原 Context复核、deadline、ACK、真实设备复核与 1/2CPU fallback。正式 c6d05731305847e599981387aaef81ea 为 5 tests / 0 skip，source_stable、process_stopped、execution_exited。root 复核 normal 20对象/25命令和 manager 38命令/14native执行，10个真实坏源正常返回1、4个生产执行返回0，原始输出及源码一致。验收仅 preflight实现/host契约；R7第一原因仍为证据支持的推断，fresh实际guest修复效果待后续验证。",
       "legacy_hash": "fb4f0aa2194dbf649666eda07bf229a2c91df5ff9e692530b1dab552bbbac07f",
       "claim_from_status": "todo",
+      "claim_token": "670f5a2ce727454f913cfdb1af9a0f0f",
       "integration_note": "实现文件已实际位于主工作区 code/ 和声明 works 路径；协调器复核与本次独立复验 fingerprint 一致后登记本地集成。未创建提交或推送；实际 guest 门禁不由本项 host 通过替代。"
     },
     {
@@ -8012,6 +8065,7 @@
       "review_note": "实际审查 DG identity/fixed/dispatch 与 ASM register/claim/invoke/restore：精确未swapgs CPL0 PF gate、guard先于切栈、默认关闭、一次注册、仅saved RIP写回，保留原帧/全部GPR与SS/RSP，纯整数、不动CR3/ACK/权限。正式 f3f29865ca4b48ad9b946e65877f431e 为2 tests/0 skip，stable/stopped/exited。root复核55命令/110 raw输出SHA、32对象+8 EXE SHA、8真实DG变体/14native执行、2个真实wrongABI E0301，生成回调栈上界1120B。仅组件验收，服务/build与真实PF尚待接线和实际运行。",
       "legacy_hash": "5b30f453dd25efb6db609b9f9231b362d658cd2a21fb7f243322633c14e1ed8d",
       "claim_from_status": "todo",
+      "claim_token": "59033ef0c78d40b9a2dc20ff8b686a84",
       "integration_note": "实现文件已实际位于主工作区 code/ 和声明 works 路径；协调器复核与本次独立复验 fingerprint 一致后登记本地集成。未创建提交或推送；实际 guest 门禁不由本项 host 通过替代。"
     },
     {
@@ -8100,6 +8154,7 @@
       "review_note": "root实际源码/契约/有效测试审查，独立agent静态seed/ABI/符号闭包复核；修正PROBE被下次barrier洗掉、非nullable fn与重复extern、无请求poll的rawtag遗漏。正式33aa513f0cca4706b80adbfc2bac7105通过：runtime_exec1+真实paging2=3tests0skip；72.859/4.781sec，rc0、process_stopped/execution_exited/source_stable true。8真实DG debug/release生产+3坏源组，实际ASM双格式、C/native64命令38执行；每mode16真实native场景包括AP-only tag/fallback/PGE、3NULLcallback Context原子拒绝、stale-write模型精确CODE99+未消费票据；6真坏源码精确marker正常rc1，非泛崩溃。root核24个ELF/COFF/EXE SHA、所有命令raw stdout/stderr SHA与真实工具SHA。特权/execute/PF为显式host边界模型，真实ASM只组装，尚未接service/poll mux/真实PF入口/build，frame一直held；仅验收组件，不能关闭P2硬件/接线门禁。",
       "legacy_hash": "cd406dce962cf436d754599b645a30b17fa0544041560aaccdebd25d0563a92b",
       "claim_from_status": "rework",
+      "claim_token": "a501a2d8d1864e3683f580687f04ce51",
       "integration_note": "6声明源码/文档已真实落入code主工作区，指纹与33aa…独立复验冻结输入一致；组件3tests0skip通过，guard/原生真坏源/产物与工具已核。登记仅组件代码集成，未接services/PF/build，下一独立任务接真实受控入口；实际AP执行与P2总门禁仍未完成。"
     },
     {
@@ -8193,6 +8248,7 @@
       "review_note": "已逐项实际审查3新/改文件及生产shared_barrier.asm。真实runtime4/6/7 selector和orchestration逐字保留，仅local特权body在私有copy替身；三态、inactive唯一fallback、真实CR4优先旧flag、PGE拒绝、local/AP错误与SysV stack/GPR保存均独立C断言，3唯一坏ASM真实构建运行rc1精确拒绝。正式64cf4d5d11454dfebd38a28ec54136b8三模块3tests/0skip，rc0/source_stable/process_stopped/execution_exited全true。root独立复算190产物SHA/46真实命令、6native执行(3正+3负)与before/after输入，已验domain及barrier原13坏体回归保持。actualCR4read/INVPCID/AP执行字段false准确，不冒充硬件验收。文档perCPU/静态池/失败持有边界匹配当前源码。",
       "legacy_hash": "5b6f78be605dc9381faa9564dbb97a0b26b1e87c12942cc8117e4b616c41ebc5",
       "claim_from_status": "todo",
+      "claim_token": "9fb074de9e704ee1a81cde7928a90c34",
       "integration_note": "3授权源码/文档已真实位于code主目录并匹配正式独立指纹，源码/契约/测试有效性与原始产物复算通过，登记本地集成。未改已验生产实现或执行OS/VM/提交推送；整体P2仍按新PCID/根闭包/WC任务及后调度消费者和外部门禁继续。"
     },
     {
@@ -8288,6 +8344,7 @@
       "review_note": "根及独立审查者逐审实际entry Gate及四绘图入口、cache契约、原生C/ASM/oracle/真坏源与完整entry双格式各runtime汇编。固定align64 Gate32B/getter/singleCAS failfast，SFENCE再decrement、close/drain/epoch契约、panic serial优先/每获gate恰leave、异常参数和NOACCESS受控边界一致；boot-only GOP probe实际调用先于SMP/service。独立6e1f20d8758f4eca972db0e0f64997d7三模块3test/0skip/stable/stopped/exited；正常及7真坏源各O0/O2共16native和12 whole-entry对象真实执行/汇编范围，不声称特权host执行或实际AP/WC/NMI完成。根逐核当前6文件SHA完全相同，已真实在主工作树。",
       "legacy_hash": "0e376d7ae733a7b1ec783686d7f98d48101ba356cbe4ffa1dd84a818305f0419",
       "claim_from_status": "todo",
+      "claim_token": "d85d7cd4cb284d13a3d4fefc31c06fe3",
       "integration_note": "授权文件已实际落于D:\\projects\\2026\\dongos主工作树；独立复验后逐文件SHA与回执完全一致，真实审查及范围见验收note。仅登记已完成文件集成，不进行commit/push，不扩展为P2整体验收。"
     },
     {
@@ -8353,6 +8410,7 @@
       "review_note": "实际diff仅旧来源测试自建其TemporaryDirectory父目录一行，原source/manifest/artifact篡改断言未改；独立2676654ed39c4bd8ad28e4484a4b62db七项/0skip/rc0/0.422秒，source_stable/process_stopped/execution_exited=true，全新副本无旧build依赖。03:20检查点保留当时在途状态/失败真实边界、3条文档链接存在，不冒充现在实时状态。后续PCID544e重新32tests也全部过；WC771f新5tests及实际四核raw另在WC14登记。",
       "legacy_hash": "8d4def842f609bc20531de0a74060f4094fbbbb0fb292abd925d0d2f564a076f",
       "claim_from_status": "todo",
+      "claim_token": "5028892e1ad64fcf879064786fcd6839",
       "integration_note": "tests/test_user_smp_oracle.py一行及新检查点已在真实本地主线工作树，字节与2676654e正式指纹一致，登记本地集成；原旧失败未删除，无commit/push，P2仍partial。"
     },
     {
@@ -8431,6 +8489,7 @@
       "review_note": "root实际审查ps/Catalog统一身份、14..17精确角色、stale token不重定向、fresh UART重复绑定、KILL OK同代KILLED5/slot释放及essential全程保持，新增11个host方法覆盖真实错误传播/错回执/代际竞争/部分停止/重启。正式1e1aca5ebfee495f83d984acb615f038共18tests/0skip，source_stable/stopped/exited，主目录四路径同fingerprint。仅采集器修复通过，不证明实际B事务或AP PCID。",
       "legacy_hash": "a37364a5aef999c22448281ac3c86c2b04128cd5be837db49cefd51355984ea2",
       "claim_from_status": "todo",
+      "claim_token": "a0a9f3bce7d842bc88dfebc749833ae3",
       "integration_note": "声明文件已真实落入主工作区，按本次独立作业fingerprint复核后登记本地集成；没有提交推送。检查点按明确日期保留，不作为整体P2通过声明。"
     },
     {
@@ -8494,6 +8553,7 @@
       "review_note": "根实际审查fixture完整提取生产enable_smp/project/large_poll/callback/retire、真实Catalog/Domain/queue和ABI，LargeStorage/Block/Context来自实际源码/编译布局；资源RAM仅作为显式owned aligned guarded zero-once边界，dormant Large三个拒绝/注册/真实poll覆盖且不宣称事务执行。10真坏源+6debug/release场景=22实际编译/26native控制，不将synthetic硬件声称AP实测。独立28d623bb3fac4d468a05c2a7a870998d 1test0skip286.672s/source stable/进程stopped exited；根逐核当前3文件SHA与回执相同。仅服务夹具范围验收；新Large真实负载/observer接线继续由原B返修，不冒充通过。",
       "legacy_hash": "6eefa413cfcf02d63c60ca61e91f7ae57aaf25720dcee1108adb7f09a3a4c106",
       "claim_from_status": "todo",
+      "claim_token": "8bd61b1a4bb6488eb62578b41d2e087e",
       "integration_note": "授权3文件已真实在主工作树，独立复验后指纹逐项相同，按已审真实fixture范围登记集成；不commit/push，不扩大为Large事务或P2整体完成。"
     },
     {
@@ -8656,6 +8716,7 @@
       "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
       "legacy_hash": "e1ededa0bca7abd8b0fb004b6c262ebc2d1644cb85935e45261fe7a6aff0439a",
       "claim_from_status": "rework",
+      "claim_token": "878ae69dd1974debab13a77aa633cfb4",
       "pause_note": "用户最新明确要求立即上传完整当前代码并关机，停止继续P2/P5实施。请求停止当前R11复验及其子进程，保留已有测试/失败证据；当前尚未完成双boot正常/负控、严格回放及独立验收，不标accepted/integrated。上传为当前工作检查点。",
       "integration_note": "已完成真实文件本地主线集成：主目录18个声明文件逐项SHA256匹配R15独立正式复验指纹；正常/精确漏刷/实际flush返回错误共六启、严格回放及独立raw审计均通过。accepted rev67后单独登记integrated，不代表Git提交/推送。证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json；既往失败保留，P2其他消费者/P5/物理WC不由本项关闭。"
     },
@@ -8795,6 +8856,7 @@
       "review_note": "源码/契约审查通过：独立raw BootInfo发布、arena journal/held、原撤销flush/unbind后删项、完整forest与发布项对比、根快照复核且转换阶段不误核WC、HHDM前置边界已核。C直接原始PTE检查20正常+10真坏Dong运行；五坏体两模式编译成功并正常exit1，未以panic冒负控。正式85481e0d327745dab512a9a646576cf5六组9tests/0skip/source_stable/进程退出全通过；R1完整runtime7构建339source、99staged、7artifacts独立SHA一致，kernel1978768B。仅验收ledger宿主组件，不声称C/D实际、暖PCID、物理WC或客体运行通过。",
       "legacy_hash": "adfda4e420c24987e5a0f6cbd90c9d18fa9341e40fdd98b9e021efbc85436da3",
       "claim_from_status": "rework",
+      "claim_token": "2c748e52e60344129757973ffd492dbc",
       "integration_note": "六授权文件已真实落盘主目录并逐项SHA与独立冻结指纹一致。正式9项零skip、源稳定且进程退出；同源runtime7 release构建完成并复算339输入/99内核暂存/7产物。登记本地主线工作树集成，未提交推送或运行VM。后续C/D实际消费者和硬件门仍保留。"
     },
     {
@@ -8906,6 +8968,7 @@
       "review_note": "独立源码/契约/测试及最终物理字节审查PASS、无阻塞，见reviews/2026-10-21-P2LIVE1-independent-review.md/.json及host-final/guest/runtime7证据。实际核Context/Stats ABI、全512页所有权/Busy/整根失效后回收、正常root/BSP启动接线、512页实际数据、非均匀merge精确不变和buddy精确归还。独立12 host0skip，既有planner/paging6项0skip；三类native坏源两模式定向拒绝；最终a2/b2 4/1CPU完整guest与raw portable replay通过，m2实际漏split链接phase2/steps3/held1/error020f0001拒绝。r2完整release runtime7构建及真实四核桌面/P5CTX2正常控制/P2Report回归通过，独立materialize 2096720B余432、350chunks核真。正式job a8778fe9dfae4df6842a1ce3cb5efe1e 三模块12项0skip/来源稳定，14文件主目录SHA与正式fingerprint一致。已核1299源码同实际guest、8个P5文件及HEAD基线保留；历史失败、unsupported OOM未实测和BSP临时布局边界记录准确。此为本轮P2LIVE1验收，不扩称持久/多核大页、EXEC/WC或PCID完成。",
       "legacy_hash": "2c3e87fb1947f571ef4429238e3b5d3cba7fb48030c86f5f5ef3007a11b49bb2",
       "claim_from_status": "todo",
+      "claim_token": "52b2b5ae80414f15b2c839ae5700cf78",
       "integration_note": "真实本地文件集成已完成并预检通过，非仅状态登记。reviews/2026-10-21-P2LIVE1-integration.json逐一记录14声明主文件与正式rev4指纹完全一致，9关键文件与最终freeze一致，主目录8源码根共1299文件同a2/b2/r2实际构建/运行来源；m2仅paging一个故意坏语句。独立review明确PASS且14指纹复核稳定；8个既有P5关键文件SHA及HEAD 28fae186eade64aac9eec17fcc2fb30913b948f6未变，其它既有dirty保留。正式12项0skip、独立与真实guest证明均完整后，先accepted rev5，再登记本地integrated；原失败和范围边界保留。不建PR、不提交、不推送。"
     },
     {
@@ -8977,6 +9040,7 @@
       "review_note": "实际审查边界规则、独立手算答案及反控；正式1cbbfce655d34c37be29e227fe53fce7 4项零skip通过，源码稳定且进程退出。码表验证实际读取生产DG常量，模型不能修改测试。5文件主目录SHA与正式一致。",
       "legacy_hash": "5f34eefa55f091243e788d656ee7edc0ac7baddaa980089a31cc5c8dc72bf6ca",
       "claim_from_status": "todo",
+      "claim_token": "7bb0b09d266740e58881cb7bbb4d2fe0",
       "integration_note": "5声明文件已真实落入主目录且SHA匹配accepted，登记测试门集成。不代表P2或实际GOP授权通过。"
     },
     {
@@ -9074,6 +9138,7 @@
       "review_note": "实际审查describe局部PoolView先核own valid_mask再取min(canonical硬件,own)并约束pool首尾；private walker所有parent/4KiB/2MiB reserved bits与PA/extent使用effective；共享1..511仍逐项canonical/A-only/零项exact，共享树只按hardware扫描，kernel52高共享parent+leaf不截到private48。未改实际root构建、4KiB帧或5056B Scratch、失败输出原子性。正式91bb571d06604d46a889b6ab8a1cd0ad三模块4tests/0skip、42.625/5.468/10.062秒，stable/stopped/exited=true；root独立复算108输入/产物SHA、48命令，12真native cases，两正向各67场景2956019断言，36/40/46/52+高canonical共享正向过，10次五类实际坏实现精确rc1拒绝。C limit重定义在正式前已修且独立Werror语法过；ROOT13原同48历史不外推。",
       "legacy_hash": "961c0a10ecb458b8726853f8b348b5c189e7f6a273e355de6fa32bd5ce6b11b1",
       "claim_from_status": "todo",
+      "claim_token": "7a55b648494d454fab6167468ddbc1ce",
       "integration_note": "五个真实文件已在本地主线工作树，与91bb571d新指纹逐项一致；登记替换ROOT13只读forest位宽兼容性实现。无OS/VM/commit/push；独立硬件根/BKL/lease/调度后consumer等仍由P2LARGE16及后续承担，P2整体partial。"
     },
     {
@@ -9158,6 +9223,7 @@
       "review_note": "根逐审7文件及实际来源/字节/时序契约：metadata来自已完整identity的staged profile/ELF/layout并比resident RO；真实UART及serial.log prefix、BootInfo20Q、kernel2MiB/buddy4MiB/已用arena<=128MiB/map/RSDP/完整8页bootstrapPT互斥，6实际pmemsave原始request/response；immutable bytes registry显式epoch/CPU/HMP原CRLF、晚期disk重新hash，拒PA/offset/混epoch/缺失/运行态读取/legacy冒充真实。全stop→cont时长包含host解码与实际确认，固定10s明显干扰拒绝不声称无扰动，不改guest时钟/内存/寄存器或原deadline。独立c44b321d8dd0470b8989a23fbd24804f 10+19=29test0skip/stable/stopped/exited，500缓存读取无额外QMP与最终篡改负控真实productionPython路径通过；当前7文件逐SHA一致。仅observer组件验收，未据host边界声称真实AP/PCID/P2通过。",
       "legacy_hash": "c075861fd904d080f4dbc2b3932ab5562a4a2014c6bffb1408b499bc2e8ae587",
       "claim_from_status": "todo",
+      "claim_token": "a5aacc426a4c4d149eb6a7a35be70a6f",
       "integration_note": "授权文件已实际在主工作树，源码/契约/真实检查已审，逐文件SHA与独立回执完全一致；登记实际文件集成，无commit/push，不扩大为P2整体验收。"
     },
     {
@@ -9238,6 +9304,7 @@
       "review_note": "仅验收延后落盘/证据组件：root逐读5源码/契约/17production宿主控制，主目录57零skip预检；正式afc75c10...独立17+19=36零skip/stable/stopped/exited真，5主目录fp匹配。新795 sourcegraph真实normal/omit构建及1108/1108/286链已独立复核。实际normal-r4输入不变/cleanup0/final_disk_verified真，root另独立核6bulk+424slice长度/SHA/父bytes及真实cont后batch；v2队列/xb/重复flush/late tamper/多epoch时序成立。严格保留实际运行failed：首ps UTF8 UART timeout，首次stop确认0ms、bulk235ms、host审计4453ms、总暂停4688ms，落盘424文件在cont后250ms。组件门成立不代表期限扰动已解决，更不验收B/AP/PCID/P2；需后续显式历史image将重审计移出暂停，不调原clock/deadline/ACK。R4 result SHA a034554b0f18da17970df8a2cdde65ad28a0540d58d68955ccf77035a84f72e2，原失败完整保留。",
       "legacy_hash": "f33c754794c9b8de2cc47a5aed199ef354d0b73ae324029ae16050a7c2f7a900",
       "claim_from_status": "todo",
+      "claim_token": "9c33aa73447247cd90bb27453d5d0d15",
       "integration_note": "五真实文件已在code及codex-works主目录，root对照正式36回执5fp完全一致。仅登记v2延后落盘证据组件集成，实际normal-r4仍failed/暂停4688ms/首ps timeout，B和P2仍partial；后继修显式historical capture审计，不放宽原期限。"
     },
     {
@@ -9360,6 +9427,7 @@
       "review_note": "已实际审查源码/契约/测试：OBS历史CapturedImage边界、WHPX启动及PFLASH规则和R9真实反控；B动态16Q回执、完整机器码绑定、R14历史requested顺序及R15同事务首Failure严格归因，保留正常/旧契约和原guest期限。独立正式OBS110/B65项均0skip/source_stable/process_stopped/execution_exited，本机兼容158项通过。同冻结R15镜像normal-r15-wire2、omit-r15-wire1、flush-error-r15-wire3各实际两启通过原runner与严格回放；六启独立raw闭合1930/1894、979/1087、981/980文件，进程均退出0，无PFLASH错误。normal-r15-wire1第二启采集2922ms后原期限超时等旧失败保留，不重标。主目录18+12文件与正式指纹一致。永久证据reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json SHA256 3acfd3f25843101746c466b2ccfce50c4caf55ddbff96c43858656afe17add83；审查见同名review.md。仅本任务软件/本机范围，不关闭整个P2/P5或物理WC。",
       "legacy_hash": "aed9e4327b9352c553b3ffe6f297e6a0c299f695cc45b4fc2b495da5dc164864",
       "claim_from_status": "rework",
+      "claim_token": "b3aecb0a52174e2b9928ff1b76fcf703",
       "integration_note": "已完成真实文件本地主线集成：主目录12个声明文件逐项SHA256匹配独立正式复验指纹；同源三场景六启及严格回放/raw审计通过。登记与accepted分开；不代表Git提交或推送。完整证据见reviews/2026-10-23-P2OBS36-P2LARGE16-R15-evidence.json。"
     },
     {
@@ -9433,6 +9501,7 @@
       "review_note": "已实际审查7文件与原契约：fixture在独立副本只注入真实buddy碎片操作，原生产alloc9返回02000007而非mock；独立C全1024页账本/完整前后比对和两类真实坏Dong正常执行精确拒绝。正式隔离job6220f8d4b029422b853165edbb78e929为3tests/0skip/exit0/6.812s，source_stable/process_stopped/execution_exited均true。根协调者另独立复算真实runtime7 1/4CPU原始数据：free879且无order9/10、phase0/held0/零发布、allocator/metadata/Space/table_meta/全pool软件位不变、owner未绑定/Domain不变，QEMU全停止；正常P2SMP3 1/4CPU及漏AP负控归档重放通过，主线316输入/P5源码保持。审查与完整证据见reviews/2026-10-21-P2OOM4-independent-review.json；首次copy冲突未执行测试并保留，不计成功。范围仅受控碎片拒绝，不关闭EXEC/WC或任意用户根。本项通过验收，待逐文件核对本地集成。",
       "legacy_hash": "4b611f9d9f9c741fdd6f63f1247543dfbc6200a500c19dde931fb47774d66610",
       "claim_from_status": "rework",
+      "claim_token": "cad4100ab82c4f78ad3a731ce862b8d3",
       "integration_note": "已先完成真实本地文件集成核验：主code的6个实现/测试/文档及works交付共7文件实际存在，逐项SHA与accepted正式复验fingerprint完全一致，见reviews/2026-10-21-P2OOM4-local-files.json。生产kernel/316正常构建输入及P5身份源码保持不变，正常2,006,608B/余90,544B；仅独立故障fixture2,031,184B。正式3tests/0skip、真实1/4CPU碎片OOM原始复算与正常1/4CPU/漏AP负控归档复算均通过。验收rev8与集成分开登记；无commit/push/PR。P2EXEC1返修和P2WC1在途、全P2待办保持。"
     },
     {
@@ -9545,6 +9614,7 @@
       "review_note": "源码/契约/有效测试实际审查完成，含独立agent只读launch/replay复审。独立作业 b893487745444470ada6ec46686c7f0a：16+9+7+1=33测试0skip，所有rc0、process_stopped/execution_exited/source_stable true。新增显式WHPX interrupt backend不放宽真实逐CPU CR4/Header/retained/timer/root/tag/代际/raw门禁。current-r3为固定pre-P2LARGE16生产1493文件+7声明覆盖的新副本，无复用产物；实际fresh runtime7构建rc0、kernel.bin 1994448 B，独立identity CLI rc0；root重核全部280产物和7覆盖SHA。协调者实际WHPX --cpu host --kernel-irqchip off避开最初nested请求，但固件PlatformPei发生#GP、未出现DONGOS_P7_DESKTOP_READY，实际runner rc1/Timeout，inputs_unchanged true，owned QEMU stopped/cleanup true、alive false、qemu_returncode0，原始serial/stderr/result保留。仅验收严格入口与身份组件；真实AP PCIDE1正负硬件门禁仍未通过，P2整体不得标完成，physical WC亦未关闭。",
       "legacy_hash": "f0953db4626d12ccd3215a3eb2254db348158fabfa324961502cd9cd6b6dd9b0",
       "claim_from_status": "rework",
+      "claim_token": "6767c179b5514c32a2f6ab7ecf750a89",
       "integration_note": "已在主工作区真实集成6声明源码/文档，root核当前文件与b893…冻结指纹及current-r3的声明覆盖相等；33独立host测试0skip通过，fresh真实构建与identity通过。登记集成的是PCID严格验收入口组件；WHPX实际固件#GP失败留存，未伪称AP PCID运行或P2整体完成，不包含在途B/C/D实现。"
     },
     {
@@ -9630,6 +9700,7 @@
       "review_note": "根完整审查原ENTRY21/EXEC19/RAW38契约、六真实文件与callback/ASM，第三方只读源码审查fd4d324c740a21376c171e76918462ea13ad1914a196aba7b8a3e6e52cdedabf一致：explicit headers admission在四TRACE globals发布前完成actual pool/full extent/四stack/32空record检查，ENTRY重查；Raw const、先空slot后consume、固定copy/commit-last、原ASM唯一savedRIP写，未增clock/ACK/硬件读/间接call。根预检1/226.312s/0skip及独立659文件/111命令/40execute审计r2 JSON92c7bea626fa8bef7c8d8bd21101a1a22cbab597db4a7bf6065363c33d35b13c成立；28正常rc0+12真实坏源码C oracle rc1、2 ABI E0301、70binary、source37/tool3稳定，换行转换单独标注。正式34f5db61555e4a2db448794ebe01ba31两module各1test/0skip/rc0，245.984+104.547s，source_stable/stopped/exited全部true；formal原生14variants、SMP32controls真实结果均pass且stable。实际assembly dispatch400B、保守闭包1344B，各帧<=4096且总<16384，host guard exception stack实测通过。仅验收trace入口组件，不宣称真实PF/IRET、Block物理ownership或C/D消费者actual、硬件WC通过。",
       "legacy_hash": "a0241674ab0a98c9ad1bd98a8a3bb93977763ac505d901928218df728b3c7e25",
       "claim_from_status": "todo",
+      "claim_token": "a6d26ffbda99495cb2f9b165b21c5251",
       "integration_note": "六授权实物已实际落main工作树code及works映射，主目录指纹与正式34f5...六文件完全一致；先accepted再单独登记integrated。原user_entry.asm保持b1e9057b772bb9367ee2a2de2762cd59025c57761b062e41b129097bcaa8a325，Raw/Header/旧入口ABI和callback精确身份保持。生产C/D仍须绑定真实Block/32records及独立sourcePA provenance并跑新actual门，本项不越界关闭阶段。Git统一提交推送仍在P2/P5全部软件/本机复验完成后执行。"
     },
     {
@@ -9706,6 +9777,7 @@
       "review_note": "逐项审查两夹具补充：large_request明确mock且核memory.ACTIVE==16/未失败；map_framebuffer复用原C精确id/VA/PA/rounding检查，无放松/skip。正式cdcce3a19ad74b0a9ddaf7f7e3a9f6b9两测试零skip通过，原真实错误源码仍由C拒绝，source_stable/进程停止退出均true。此门仅服务/桌面兼容回归，不冒真实ledger/WC。",
       "legacy_hash": "fa8d3f4543ed63287b2b99c77eace74e0e84cc05d30b89cd956bac1cf7d482cb",
       "claim_from_status": "todo",
+      "claim_token": "68fdfc82306149eeb7e1dfee1d076099",
       "integration_note": "真实两测试及交付已在主目录；逐文件SHA256与正式冻结fingerprint相同，未从候选冒充集成。独立2tests/0skip通过且源稳定，登记本地主线工作树集成；不提交推送。"
     },
     {
@@ -9804,6 +9876,7 @@
       "review_note": "已实际审查runtime_roots生产walker/有效权限/WX/PCID无关语义、全部shared1..511（仅A位差异、零项精确）、private0/池唯一父/环/foreign/accounting/pending/容量与5056B align64 caller Scratch预检；C独立原始walk有效，完整根枚举/BKL/lease由调用方承担，组件不授权变更。正式688d4e6524cc4711b057277f22cba22e三模块4tests/0skip，25.218/5.484/6.375秒，stable/stopped/exited=true。root复算72产物/输入SHA、32命令，debug/release两正向各39场景2002320断言；漏shared、private foreign放行、隐藏别名遗漏6次真坏源码均正常rc1精确拒绝。原快照失败、E0601及C-Werror失败全部保留；4KiB帧上限未改。",
       "legacy_hash": "96c8d4ae3481c3fe9d35c924abde114df4513f166960924795fa3d2d76bec6a7",
       "claim_from_status": "rework",
+      "claim_token": "2c46a3f5210c477b835e44d56b1b15ef",
       "integration_note": "五个实际文件已在真实本地主线工作树，主线SHA与688d4e65正式指纹逐项一致；非候选副本，登记本地集成。仅只读forest组件完成，P2调度后owner/完整根身份绑定/AP PCID/WC硬件门禁仍未关闭；无OS/VM/commit/push。"
     },
     {
@@ -9871,6 +9944,7 @@
       "review_note": "已实际审查默认profile、生成器、对象验证及契约。默认3不变，runtime>=5单一显式kernel快照仅生成profile2；所有普通DG逐字节及SHA保留，resolver重复根拒绝未放宽。真实ELF64/COFF和独立ELF BSS符号测量393216/262144差131072，Space64/Process/Frame/Allocator布局相同，非法/冲突profile保持输出。正式首job因协调器把kernel/build当产物遗漏而失败，完整历史保留；修复通用源码快照并29协调器测试0skip后新job1f4dd601f8684ec19b8b14a25d944403为2tests/0skip且source_stable/process_stopped/execution_exited全部true。真实正式镜像1994448B；4CPU桌面/P5原始回放实际验证pid2既有arena完整32表、compositor128表和全GOP一致WC；硬件P2ALIAS8仍单独验收。",
       "legacy_hash": "c0aa3354d4f701825badcd45478c30e024d687b3f8cc4982e97b1ec0775f9ea8",
       "claim_from_status": "rework",
+      "claim_token": "46eefed7dc8c469aa3a59ffafbb65201",
       "integration_note": "已完成真实主目录文件集成并逐项SHA与已验收formal指纹完全相同，见reviews/2026-10-22-P2SIZE10-main-files.json。正式0skip稳定复验通过；build.py/user.memory接入与实际客体验收由独立P2ALIAS8负责，本状态不扩大组件验收范围。"
     },
     {
@@ -9959,6 +10033,7 @@
       "review_note": "源码/API/CLI/默认函数体、真实重定位和GC保活契约审查通过，见reviews/2026-10-21-P2SIZE2-review.md与integration.json。独立C ABI和ELF load-segment oracle及正式job6926b60f41224582ae9ee2c05bc743aa共3项0skip/source_stable；24项既有ABI/GDB回归通过。完整原构建器runtime7正常重建0/99.078s，313实际消费输入同主目录，ELF materialize等于1990224B/余106928B，原2MiB ABI不变。真实四核桌面/P5CTX2 control两快照/P2Report 23.859s通过，完整raw回放与350chunks逐SHA、BootInfo+ELF物理绑定复算通过，source/disk/clean exit0。八个声明文件正式指纹匹配，首次测试观察器错误及冻结后host-only差异如实记录；不冒称另一个AI审查或P2消费者完成。",
       "legacy_hash": "f7ac9f4344c15edc30e6052d14216d5a4a37502704943f93c01acfacd4ecfa52",
       "claim_from_status": "todo",
+      "claim_token": "4862dff7389f4a61b4792f9a5be0b8b0",
       "integration_note": "真实主文件已落盘并逐SHA核对八声明路径与正式rev4一致，实际313内核消费源码与运行冻结副本相同，主机测试按最终正式来源核验。默认编译/服务路径与原2MiB ABI保持，原P2/P5源码和其它dirty保留。已先accepted rev5，再登记本地integrated；实际构建/客体/原始字节与受限复验通过，receipt reviews/2026-10-21-P2SIZE2-integration.json。无PR/commit/push；继续P2功能开发，不把预算前置当阶段完成。"
     },
     {
@@ -10167,6 +10242,7 @@
       "review_note": "root已实际审查精确profile verifier、完整源图/ELF+COFF TABLES span及PCID/WC/alias/lifecycle/pool契约、有效旧profile全重hash等反控；正式17210f23966143d098950d2a4a119714十模块99测试0skip，source_stable/process_stopped/execution_exited=true。normal/omit-ap-flush两真实285artifact构建严格identity均重算通过，各raw1962384B余134768B；WC实际raw1974672B余122480B。新SMPv2+GOP实际full build1966480B余130672B，R13首次暂停前连续运行2s且随后不resume，实际完整16槽审计含11live根全部通过：slot1真实arena32页PA/VA/Space/Frame/generation/metadata/511shared/全别名与guards核验，kernelSpace used74/128，arena NEXT10423/32768=42692608B，保留限额。548raw逐一length/SHA相符，Domainfailed0，AP已有用户进入。此为预算/profile组件验收；AP timers仍0，warmPCID/事务/PF/物理WC整体门禁不由此关闭。R10/R11部分stage审计拒绝及旧失败完整保留。",
       "legacy_hash": "a20f8b188f99d472c537684407232e2b714213f2287cab56090fc1011d47fcd8",
       "claim_from_status": "todo",
+      "claim_token": "a88d9c55df5b4c318a9ac2ad8dad31b1",
       "integration_note": "17个声明生产helper/采集器/oracle/测试及文档已真实写入主目录；正式指纹匹配，root完成源码契约审查、99零skip独立复验及实际构建/健康R13完整根池预算核对后登记本地集成。保持原2MiB loader/128MiB arena/128kernel表/16384frames/32或128私有池上限；组件集成不等于P2阶段完成，未提交或推送。"
     },
     {
@@ -10269,6 +10345,7 @@
       "review_note": "已实际审查授权文件及build.py调用契约。仅runtime>=5 kernel显式使用已有function_sections/O1，services和默认compile_file未变，不新增SSA语义。正式job1b92ef213054497f8f83beeaf40a8eb8四模块16tests/0skip，source_stable/process_stopped/execution_exited全部true。实际IR66SSA/1036L1。O1单独仅省4096仍超限，原失败留存；组合独立P2SIZE10后真实kernel1994448B/2MiB内，余102704B。正常1CPU和4CPU原始回放及桌面/P5已通过，P2ALIAS8另验收最新顺序与真实负控。只验收本策略，不把组件通过冒充全部P2完成。",
       "legacy_hash": "9067660d515692681f825868dd70c0cf5ab94f9e7db261c56c5e3c719d824a4e",
       "claim_from_status": "todo",
+      "claim_token": "f3310d68b2b94fdab3380d7f6faf1c59",
       "integration_note": "已完成真实主目录文件集成并逐项SHA与已验收formal指纹完全相同，见reviews/2026-10-22-P2SIZE9-main-files.json。正式0skip稳定复验通过；build.py/user.memory接入与实际客体验收由独立P2ALIAS8负责，本状态不扩大组件验收范围。"
     },
     {
@@ -10377,6 +10454,7 @@
       "review_note": "root实际审查6路径诊断代码/ABI/独立C预言及真实坏DG，原锁/ACK/绝对limit/held未改变；正式326a3816570445f08a69f2c87658e27a完整4模块均passed、0skip、source_stable/process_stopped/execution_exited=true。root复算新诊断134命令/46原生结果/420artifact SHA均一致；原有entry/services/barrier全部通过，旧services缺项已由HARNESS28声明夹具修复。实际fresh full runtime7=1966480B，R12读到Failure v2三时间字段并核544raw SHA/length；R13连续2s首次stop后禁止resume，548raw核对、全根池审计通过且无首错/Domainfailed0/APentries161/168/213，说明旧stop/cont有观察者扰动，未认定生产锁首因。仅验收精确只读诊断组件，不声明AP timer/PCID/事务或P2阶段通过。",
       "legacy_hash": "08e19ccc0b429b3431d9375e302f082dcfd4e2d0434faeede805fc898051385e",
       "claim_from_status": "rework",
+      "claim_token": "2611c558f045411b9b8d3609850feb2d",
       "integration_note": "六个受审实现/测试/文档文件已真实处于主目录对应路径，非只记录报告；coordinator指纹与独立受测版本一致，root已核实际native artifacts和新guest原始布局。登记本地诊断组件集成，保留R9-12失败与observer可能原因，不关闭P2其它门禁；未提交或推送。"
     },
     {
@@ -10494,6 +10572,7 @@
       "review_note": "已逐行审查声明16文件、共享owner契约、硬件失效桥、启动调用位置及独立C/raw测试有效性。固定同CR3/online epoch读者，BSP唯一写者IF0；所有AP实际ACK后方可回收，硬件错误fail-stop且lease/回执保留；seal后永久拒绝修改。真实buddy order9执行512页/项完整map/split/replace/拒merge/恢复/merge/unmap/永久remap，最终held512、free368、full517/invlpg2/retired4；四核本轮524广播/1572 AP ACK，旧SMP oracle已绑定真实P2最终观测。正式job4213e61d66af439d89c071b85f6c6550三模块5tests/0skip/exit0/source_stable/process_stopped。正常runtime7 release单/四核及单调用漏AP失效负控均实际通过，完整原始转储在主目录独立进程重新解码复算通过；负控actualPTE/BSP新页6对AP旧页5、phase3/ProbeMismatch/pending/held，非超时构建失败。316实际build输入匹配主目录，ELF物化逐字等于kernel.bin2006608B/余90544B；P5两生产SHA保持。无第二AI审查者声明，以源码审查+独立C/raw oracle+正式隔离子进程为据。证据.local/p2smp3-47d6915707/及reviews/2026-10-21-P2SMP3-formal.json。范围仅调度前固定共享内核根并封存持有，任意多用户CR3/EXEC/WC继续保留。",
       "legacy_hash": "2772b538f3f0bf5f25f79f86338e666ca93b47bb6323fff2b84f39a7255b6951",
       "claim_from_status": "todo",
+      "claim_token": "5258c0f713414d5cb29adf45848d389b",
       "integration_note": "已完成真实本地文件集成，再登记状态：声明16文件均实存主目录并匹配正式复验指纹；主目录与完成的正常release runtime7构建316输入SHA一致。新模块/汇编桥/调用与GC构建接线、永久C/raw测试、PLAN及说明均已落盘，原P5及其它负责人候选未改。1/4CPU正常客体与唯一漏AP调用实际负控全部raw replay通过；ELF物化正确、原2MiB装载ABI不变。当前HEAD28fae186eade64aac9eec17fcc2fb30913b948f6，无PR/commit/push。正式5tests/0skip/source_stable及独立审查/原始归档详见本任务验收note。此登记不代表整体P2/EXEC/WC完成。"
     },
     {
@@ -10569,6 +10648,7 @@
       "review_note": "已实际逐段审查5份文档、检查点MD/JSON及工作区进度同步；PLAN返修准确区分P2EXEC1/P2WC1/P2ALIAS8已集成的启动消费者与调度后多根/AP PCID/物理WC余项，P2保持partial，P2后P5顺序明确。5条检查点链接全存在、JSON可解析，历史02:55状态不冒充实时。新正式7194b75aff094bb38a43d363664ee79e入口1test/0skip、rc0，4.625秒，source_stable/process_stopped/execution_exited=true；旧82b7记录保留不替代新字节。无OS/VM或提交推送。",
       "legacy_hash": "63467c5a97da0f1fe1a4cb64cc3733e46eb9f55df37102ae4117b373acfefe11",
       "claim_from_status": "rework",
+      "claim_token": "1b3acf3a413545cc8f9cb3ced03147a2",
       "integration_note": "已在真实本地主线工作树核对五份源文档及两份检查点，非候选副本；协调器入口新指纹覆盖当前PLAN返修字节，工作区progress-map/roadmap/ALLOCATION已实际同步。登记本地集成，未commit/push，不把P2整体partial改为完成。"
     },
     {
@@ -10644,6 +10724,7 @@
       "review_note": "root实际核六主线文档与独立MD/JSON检查点、MCP明确时点rev/job、七文档SHA及新增链接目标；P2仍partial/P5未开始，清楚保留R2 buddy E0202整体failed、直接诊断非正式、R8 AP进入0/Domainfailed及700原始读取独审与QEMU清理。正式0e82c88b85d44a42a1cb07cbb45c3305核心共享失效协议1test/0skip/stable/stopped/exited通过；此回归不冒作文档语义测试，语义与数据由root独立实际审查。旧冻结检查点未改。",
       "legacy_hash": "1e9a288cebd055bd83a4e3717b51fb937d9cfb721a1a6365128c51705a39cf65",
       "claim_from_status": "todo",
+      "claim_token": "b02393560f00410e90efb2114af6c47c",
       "integration_note": "声明文件已真实落入主工作区，按本次独立作业fingerprint复核后登记本地集成；没有提交推送。检查点按明确日期保留，不作为整体P2通过声明。"
     },
     {
@@ -10719,6 +10800,7 @@
       "review_note": "根实际语义审查六主文档、锁诊断MD/JSON及交付：05:42历史与05:55新增R13分开，SIZE23 integrated6/SMP27 integrated9准确；99/31项历史回执、R9-R12失败、R13无首错/AP161/168/213/11live完整审计/预算保持严格范围，P2 partial/P5未开始和物理门禁未关闭。JSON/本地19links/六doc及MD/script/archive SHA已实核。独立6993211594444628822ab2e36b4b19d4 1test/0skip/stable/实际进程停止退出；当前9文件逐SHA与回执相同。文档语义由真实审查提供，barrier单测不冒称文档语义证明。",
       "legacy_hash": "2939b65985cdfb5bcf67fd4a2f261bff460f8975fc55ab4f79988bbdb7689275",
       "claim_from_status": "rework",
+      "claim_token": "d22c217cab4d4b41bde52b408270764b",
       "integration_note": "授权文件已实际落于D:\\projects\\2026\\dongos主工作树；独立复验后逐文件SHA与回执完全一致，真实审查及范围见验收note。仅登记已完成文件集成，不进行commit/push，不扩展为P2整体验收。"
     },
     {
@@ -10794,6 +10876,7 @@
       "review_note": "根完整审读MD/JSON/六入口，保留05:42/05:55历史，当前06:32任务快照与独立/预检/实际guest范围分明；实际复核28绑定SHA/六docSHA/MD40links，实施者61新增links及旧正文逐字保持。R13 AP idle/masked与无完整Engine历史限制、旧request已armed但large_try等timer的准确活性缺口、P2partial/P5未开始/open gates均正确。独立0c2eb82c5c8a41c8bf1ad6819318acd7 1test0skip/stable/stopped/exited；当前9文件逐SHA一致。单测仅声明barrier检查，文档语义由实际审查确认。",
       "legacy_hash": "2fa67030b2e99dc3c5f3739d76c90fbd8d6d0e376ba13ead6fdb445131b41628",
       "claim_from_status": "todo",
+      "claim_token": "1b20764611c34815be9302c07fa87e8c",
       "integration_note": "授权文件已实际在主工作树，源码/契约/真实检查已审，逐文件SHA与独立回执完全一致；登记实际文件集成，无commit/push，不扩大为P2整体验收。"
     },
     {
@@ -10869,6 +10952,7 @@
       "review_note": "根实际审查九主目录文件与07:50有界契约：六入口旧正文保留、25个绑定原始证据SHA独立重算全同，OBS34仅IO组件/B R6正式37历史/R4真实failed4688ms/当前R7与OBS36未测的时点语义准确；用户最终P2/P5软件本机范围、物理待验和末端授权未执行均明确。独立a7c1263dadb942e896c947102ce3343c barrier真生产/native门1test0skip rc0/11.719s，source_stable/process_stopped/execution_exited全true；九当前文件匹配复验指纹。仅验收文档有界检查点，不验收P2/P5整体，不把随后新OBS66结果倒写为该时点通过。三任务快照已全部真正开始unittest后才登记状态。",
       "legacy_hash": "cd925536a78a361f39417996d95937aedb054f0df12dcc8ff2297fe91cc6a863",
       "claim_from_status": "todo",
+      "claim_token": "7d6f3b20b69c414caa1845cc06e9883f",
       "integration_note": "九声明文档已真实写入主目录code/与coordination/dongos_works/codex-works/，根审与独立a7c1复验后当前指纹一致，登记主线集成。保留所有历史失败/检查点及未完成软件门；完整GitHub上传和关机尚未执行。"
     },
     {
@@ -10946,6 +11030,7 @@
       "review_note": "根实际审查六主文档、09:40有界历史检查点MD/JSON及交付，独立重算37份证据SHA/长度、31新本地链接、六份旧正文与SYNC35正式副本逐字suffix一致；root audit4a39b2cc17a621a103e088540b14c58d78116bb60be0f8bab5bdfa6d591aa2e8。正确保留R4/R8失败、R5历史诊断/未验收、B owner已complete≠完整actual、raw archive final_disk≠guest data.img链、P2partial/P5未实现/硬件待验。正式14b7d33e030744cbb22013cf977cfa29 barrier1/0skip/rc0/13.297s，stable/stopped/exited；九指纹与实物一致。本次仅验收历史进度同步，不关闭P2/OBS/B actual门。",
       "legacy_hash": "9058f4ba79e5a37ece422976a03117c254112f1fce1675f891ab5b89fd012996",
       "claim_from_status": "todo",
+      "claim_token": "a5df74eb2dc243a88723af407e01f351",
       "integration_note": "九授权文档实物已位于main工作树code/与coordination/dongos_works映射；主目录与独立复验九文件fingerprint完全一致，37证据/31链接/六旧正文留存核通过，accept与integrate分开登记。09:40历史检查点保持有界，不追加冒充后续RAW/B/P2/P5完成。Git提交/远端推送仍待全部P2/P5软件本机工作完成后统一执行。"
     },
     {
@@ -11024,6 +11109,7 @@
       "review_note": "已审查新API及unsafe契约，PoolView从真实私有Space读取得到const视图，不写Space/PTE、不放宽旧ABI；sizeof完整端点/乘法/对齐/全部pool/meta/Space尾部重叠写前拒绝。实际debug/release+ELF64/COFF+SysV C对照真实init/map，完整source/output guards及现有paging回归通过。独立正式job9b7c4c8149314173bb5866b4baa2452f为1+2=3tests/0skip/exit0，source_stable/process_stopped/execution_exited均true。仅EXEC/WC全根扫描前置，不因getter完成而验收它们；未运行OS/VM。",
       "legacy_hash": "b4d29e21a979e08fd86dcd85ac0db6da09a7a4f72b0b8905bc895a6a0aefb53b",
       "claim_from_status": "todo",
+      "claim_token": "d81712fee74f4e66933881df2ebbf659",
       "integration_note": "先完成实际主目录4文件逐项SHA核对，与accepted正式fingerprint相同，见reviews/2026-10-21-P2VIEW6-local-files.json。真实Space读取与guard/corner cases/既有paging3tests零skip、独立正式源稳定/进程全停；API及docs/test已真实落盘，无待复制候选。验收与集成分别登记；不建PR/提交/推送，不关闭EXEC/WC。"
     },
     {
@@ -11101,6 +11187,7 @@
       "review_note": "实际审查DG/ASM计时SFENCE+CPUID/RDTSC/LFENCE、完整叶PTE/flags、备份guards逐字恢复、native C直接核pattern、精确overlay和source/tool/log/artifact身份及显式runner/replay。新正式771f1364dcae4599970d908643969e73五tests/0skip、191.516秒、stable/stopped/exited=true；含真实fresh runtime7 build→direct/CLIidentity→真实command tamper拒绝→恢复。root复算597SHA，kernel.bin2006736B，native debug/release两正向及跳恢复/越界4坏体精确拒绝。另root在该固定源码副本显式实际四核TCG采集run-fbd3198c8e47，CLI rc0；raw replay一致、67物理dump逐项SHA/长度复算，完整PAT/MTRR/owner/GOP/PTE和备份恢复通过，QEMU stopped/cleanup=true/alive=false/rc0、source/disk稳定。首轮真实identity失败保留。physical_wc_performance/physical_gate_complete仍false，本项不关闭物理WC或调度后迁移义务。",
       "legacy_hash": "e2c7c1e37576007c2e489d69cb82e1a3fdf3dcac1ba503dd0863ef243ca194f8",
       "claim_from_status": "rework",
+      "claim_token": "ad223c079aca429cacaa168b6856610f",
       "integration_note": "八个实现/测试/文档已在真实本地主线工作树，当前SHA与771f1364正式指纹一致；固定隔离副本内新freshbuild与实际四核采集/raw replay另提供执行证据，非以booleans假冒集成。登记本地工具组件集成，不commit/push。物理WC门禁和动态多根WC仍pending，P2整体partial。"
     },
     {
@@ -11187,6 +11274,7 @@
       "review_note": "独立源码/契约/测试与真实guest证据审查通过，报告reviews/2026-10-21-P5CTX2-independent-review.md/.json，无返修。协调器job b15f655e12ea439bbe3af0aef39cf8be：12+9 tests、零skip、exit0、process_stopped/execution_exited/source_stable=true；七授权文件SHA吻合。完整runtime7 control/fault构建与真实4CPU TCG两次稳定观察均通过，1050/1049原始转储、1293/1294冻结源及全部构建产物独立SHA复核；完整未stub重放control/fault通过。实际424byte各53字段共106raw mutants全拒；drain改raw并同步全部hash+savedcontext后完整Replay仍语义拒绝，原archive未改。P5CTX1 native debug/release及两类mutants通过；保留首次NASM/ABI失败与修正证据。仅验收initialized-queue context/reset/hold，P5 partial、drain UNKNOWN，无post-unmap TLB/drain/free/unpin/reuse/新token/重启证明。",
       "legacy_hash": "865db60a761e7aa32a151d93858eb476c3caebf122bebfdae3ed89de32f86e83",
       "claim_from_status": "todo",
+      "claim_token": "d68d0e7ffb8e409cb3007f9cb687c438",
       "integration_note": "已完成真实本地文件集成：七授权路径均实际位于主工作区；逐一重算SHA与正式rev4 verification的七项fingerprint完全一致，五测试/观测文件还与真实control/fault冻结副本及独立审查SHA一致。文件映射与证明封存reviews/2026-10-21-P5CTX2-integration.json。P5CTX1两生产文件SHA保持既定823fc277...及548c6daf...，HEAD仍28fae186eade64aac9eec17fcc2fb30913b948f6，其它既有改动保留。accepted rev5已通过；本次只登记本地集成，不建PR、不commit、不push；P5范围仍为partial，held1/drain UNKNOWN，无DMA回收或重启。"
     },
     {
@@ -11258,6 +11346,7 @@
       "review_note": "已实际审查真实capture与Cpu256 ready200/error208、私有BSP projection后hook、AP成功activate后范围校验/lock bts park位/CLI-HLT、normal BSP原汇编字节不变、原until内诊断park barrier、9命令/4对象strict recipe及overlay/17服务/双EFI绑定。明确park绕过后续idle/BKL竞争/CPL3，不当作正常调度成功。正式job8b3ec2f1a71046049d81948f7c143014：2tests9.906s、0skip/source-stable/进程退出；实际capture debug/release/O0-O2/ELF-COFF，7类真坏体被C断言拒绝，各CPU ready/error/null、首错最低CPU、parkmask、队列范围、once/只读输入、实际BSS136和Header布局均检查。Root candidate-r3 9实际命令+verify，manifest12b0346f0da7926f8768b5a186a442d355acb9e0c36f2c9a5e8a4c21948777e1。Root vm-r2真实8CPU单USB PASS：boot/domain/pub/lock、actualqueue.count1、8 Header ready2/error0/syscalls0、各CPU GS==各Header、7AP RIP在诊断park且IF0/HLT1、publish ptr/count8/parkFE、未执行用户服务及14类硬件authority全零，完整kernel字节、15行83300pixels/底470，全USB及3整可写内盘hash保持、单stop清理。VM SHAd53423f211ecbf96e742f8ad072bb1e6a37a9c6cd04aeb315203df09ad5e2689。首formal native通过但实际VM发现EMPTY.first_cpu16令STATE入.data，已拒绝验收并返修为全零EMPTY+run中置NONE，新增BSS断言后全重建复验，失败历史保留；没有放宽实际BSS审查。只验收显式诊断，Intel运行与CPL3仍待照片。",
       "legacy_hash": "c60a3fef98bb9693dfaaa93fe01ad1d6651b79511c05bc4141eaaceee4e8be9d",
       "claim_from_status": "rework",
+      "claim_token": "f500e288b48548a99b68f67d7a635cc9",
       "integration_note": "六个声明文件已实际集成主工作区且与formal8b3ec2f1a71046049d81948f7c143014验收指纹一致。实际candidate-r3 AP CHECK R1已更新用户确认的原SanDisk H（disk2 serial4C530000010320109015 USB/FAT32/offset131072/partition7798652928保持），先备份旧USER CHECK四文件，逐文件flush/fsync/SHA回读；native rb FAT32 exit0 mount_error0 ready1 dirty0/1899872clusters及bpb一致 canaries1 writes0 flushes0 bad_io0无repair，之后四文件再次SHA一致。最终receipt SHAcd25b40472f410309140706a915aa46e176858a191e10ca7c406baf4754eb0d3，EFI7348ad7b87772c0e1c5daed36dc0758544f4246e9b98992d1f674fa507621804，IMGe232ef3f452a35557a9d663cacf60478e2516a8a1404f1e5c80af362a5b9d3e4，SERVICES仍08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。无格式化/分区/rawdisk写。实际8CPU真实Header/GS/AP RIP IF0 HLT/readyFF parkedFE/queue1/完整代码/15行83300pixels及四整盘未变、独立2tests9.906s0skip/source-stable证据见验收note。first BSS合同失败已返修并完整重建复验，历史保留。明确AP成功activate后park是本诊断变化，尚未验证正常AP idle/BKL竞争/dispatch/CPL3/USB/desktop，Intel结果待新照片，不提前完成正常运行目标。"
     },
     {
@@ -11300,7 +11389,8 @@
       "verification": null,
       "review_note": "R3仅版本标识与预检七行配合；producer/792B报告/ASM永久交接未改。独立job a04952dc79384cc8a9bd52d527f75f75共5 tests、0skip、source_stable PASS。严格fresh候选manifest7f55483874433958525df7ce2b0d93e868234e27ed2448a2225801d74a2d348b。root zero-port precheck-fault-vm-v2实际产生08110002/check4，first/terminal两个窗口完整7行99960像素PASS，介质/3内部哨兵未变。positive boot-smoke-v2虽输出PASS，终态截图06690004且UART有runtime fatal，审查明确否决（audit-rejection.json保留）；observer-v3补冻结后fatal结构全零及UART无fatal检查后单次启动/交接PASS，但不消除前次运行期故障，不代表稳定。完整HID/文件既有失败未修复，本任务保持rework、不accept/integrate。按用户本轮SanDisk H已插回授权发布R3实验诊断版，只为记录实际预检拒绝条件及原值，真机根因尚未确定；写入前备份，fsync/回读及FAT rb验证。证据code/build/hardware/xhci-precheck-20261028-r1；独立诊断组件P8XHCIPRECHECK1已验收集成，与整机成功分开。",
       "legacy_hash": "95967da544c98582bef1c988fb68763097f231154c78a457a8d182a34d9da96e",
-      "claim_from_status": "rework"
+      "claim_from_status": "rework",
+      "claim_token": "104706c768a449a79725e907c4eb3ae5"
     },
     {
       "id": "codex:P8BOOTDIAG1",
@@ -11382,6 +11472,7 @@
       "review_note": "实际审查两生产ASM、独立C/原生测试及契约：Microsoft x64对齐/shadow与非易失状态正确；ASCII有限长度且UTF16/ASCII缓冲与callee shadow分离；固件调用在首个最终GetMemoryMap之前封存，重试/fatal后仅串口，未放宽4GiB/BootInfo/映像拒绝。独立3e65aa9682154e548f8a928f3310ee69共2+13=15tests/0skip通过，source_stable/stopped/exited。正常、真实篡改和缺失镜像三个当前EFI客体分别原PASS/E08/E04，完整串口精确一次并有真实截图；根已目视正常与E08画面。最终EFI972dc5a5…绑定三运行，内核与首轮U盘逐字一致且独立解包核对。六主目录文件逐SHA与正式fingerprint一致。仅验收可见诊断能力；真机黑屏根因/阶段门仍待新物理观察，U盘未插回，未登记介质已更新。",
       "legacy_hash": "0266921396873e824e0a1efe9bc3582c82ad70d7a4a0bcccf1fa77ccf1f58946",
       "claim_from_status": "todo",
+      "claim_token": "c4fb90a6be5e4e5f84371902515a0bf9",
       "integration_note": "六声明文件真实位于code/及coordination/dongos_works中，已独立通过15项零skip正式复验并逐SHA核对与fingerprint完全一致，accept后单独登记本地文件集成。正常与两类拒绝客体绑定EFI972dc5a5…，当前R2可见诊断介质候选位于code/build/hardware/bootdiag-20261025-r3/source/esp；已准备同一SanDisk身份/旧SHA预检、原件备份与读回验证脚本。H盘当前不在开发机，未执行写回，真实硬件仍黑屏待定位；新观察前不将P2/P8标通过。原失败全部保留，无commit/push。"
     },
     {
@@ -11493,6 +11584,7 @@
       "review_note": "实审最终ASM与真实smp_service：4096环先接收，SysV非易失寄存器/栈对齐正确；UART缺席/忙可选退化，100ms校准TSC+65536忙轮询双边界，原sys.log地址/长度/权限不变，BSP/BKL序列化；仅有效exit采集rdi，无效syscall/IRQ帧04050001，不冒充退出状态，所有init错误均在真实退役/ACK/revoke后传播；普通app不升级致命错误。独立复验ac58c6ece94e4f508e2b77c5edf98821的3模块共7tests0skip，源稳定/进程退出；13指纹逐一匹配。真实旧ASM+init忙UART0子服务失败，新实现3spawn/1kill；debug/release、O0/O2、ELF/COFF及6类真实坏体拒绝，普通服务既有回归1test298.297s含24坏体通过。最终fresh source在build/hardware/user-runtime-20261028-r2：vm-r2实际8CPU两启动PASS，HID/GUI/USB写追加删读sync/重启同盘整体SHA不变，3内部哨兵全盘哈希不变，源码/观察器稳定/无外部改guest内存/全部进程停止；结果SHA c0933f83453ab3ac822c4d6d944a56f936289a6b27676b5db8782b77fd74969b。uart-vm-r1实际8CPU恒忙TX一完整启动PASS，同一全部桌面键鼠文件/CPU断言，真实12771bytes accepted/dropped、sent0、disabled1、timeouts1，结果SHA65d892f1b93e919c02c21ab4b330559cc5dcc00526a6d765cff0f32a214d9b35；fixture never_publish，仅改一处IN为0。严格candidate来源与9命令核对通过，不包含成功停车；旧失败/主动停止证据保留。验收可复现缺陷及当前修复，不宣称已定位Intel实机根因或实机桌面通过。",
       "legacy_hash": "93737d5bee05a017f0173f80ba19f160baa8006d2e52220af2f0f3a8f1c73ead",
       "claim_from_status": "rework",
+      "claim_token": "a5979c9872444724a1396d80e70fbc54",
       "integration_note": "已核对并真实集成到主工作区code：最终ASM、services.dg、R2构建标识、3个实际执行测试/探针及文档已落盘，13项验收指纹一致；独立ac58c6ece94e4f508e2b77c5edf98821与最终20261028-r2正常8CPU两启动、恒忙UART完整桌面启动均PASS。原SanDisk H:身份/序列号/单分区FAT32核对，旧四文件哈希匹配并完整备份；仅更新EFI/BOOT/BOOTX64.EFI、DONGOS.IMG、SERVICES.BIN、DONGTEST.TXT，逐文件fsync+SHA256回读通过，无格式化/原始磁盘写入。原生FAT32 rb检查mount_error0 ready1 dirty0 writes0 flushes0 bad_io0 canaries1、无repair正常返回；后续四文件再次回读一致。最终receipt SHA25610df25be00fde2e25925be3b2b71916d29b48d45b72e94e155946f5864116700；DONGOS.IMG SHA2566f341197305c24c13c97f3d5d6bafae8903e3630fcfc2fc08eef8e079b1e326a。候选连续运行，不发布故障fixture。真机根因及完整桌面仍待用户启动反馈，不标记实机通过。"
     },
     {
@@ -11560,6 +11652,7 @@
       "review_note": "已实审工具完整源码/4文件契约及真实便携测试：仅新工具显式services_run.o P6_USER_SMP=0，正常生产源/默认策略/安全期限不改。日志只校验已知33内核+7加载器对象模板，非shell/任意argv执行；normal完整来源、17原ELF/SVC、唯一selector/banner、IMG/两manifest消费者及输出目录/派生绑定有效。23个真实篡改/拒绝/不执行控制（含重算hash后的normal selector/旧manifest/banner/服务）保留；synthetic provider仅pipeline明确不冒充OS。正式独立d37a7e95f33a49f783dc2a43f818ad12 1test118.641s PASS/0skip/source_stable，4文件指纹一致，进程全部停止退出。root正式工具实际构建diagnostic五命令rc0。正常8CPU真实完整gate eight-live-r2 PASS SHAbf12fe6fbce93b1828896962d44035d6eec68bc48fdc4b8cda8b563766d2da60，r1末尾旧trace4CPU断言失败原件保留；不改guest仅8CPU/mask适配。BSP实际8CPU完整desktop/HID/WRITE/APPEND/CAT/SYNC/代码/内盘隔离gate bsp-live-r1 PASS SHA3c638c015ab60bb711f73154295562e1724a14f3cbe8b2288be3ed22e3b95299。真实平台8CPU/steps31/旧AP GS+root、phase6 gate保留；userBoot.INFO/bridge.ACTIVE/SMP_ENABLED/handoff全零，legacy PCID实际硬件/软件门一致；最终phase14/failed0/error0/view0/cpus8，88B+128B context零。全部normal/diagnostic/source/observer稳定、VM rc0停止、三whole内部盘不变。接受显式诊断版，仅用于区分用户SMP与共用路径，不宣称真机S19已修好或具体AP/锁根因；下一步备份更新原SanDisk H并只读FAT校验。",
       "legacy_hash": "a1c3282e225be3026ff38f7bf1f242d2ccfb3fc9b77772f1ef215275a9aa62ca",
       "claim_from_status": "todo",
+      "claim_token": "c3b758454ee1473899e059d8f7e3212a",
       "integration_note": "4声明文件已实际集成主目录并等于正式独立复验四指纹；正式1test/23拒绝控制/0skip和真实正常8CPU、BSP8CPU完整gate通过。额外只读独立审计重hash512项normal+346源码、17ELF/SVC原字节，实际kernel各2执行段dump等于ELF(normal1503395B/BSP1503331B)，BSP7块inactive全0、8Context/state4/epoch1/online_epoch1/error0、7AP原GS/root/CR4和PCIDE关、平台count/online8 steps31 ping7/parallelphase6、legacyPCID真实和7条文件/键鼠响应均核对，三whole内盘一致，VM8CPU/WHPX/单finalstop/rc0。诊断profile明确，Intel物理根因及BSP桌面仍待复测。原SanDisk H disk2/serial4C530000010320109015/7798784000B/offset131072 FAT32身份及旧4SHA匹配，备份后仅写明确BSP诊断payload+README，未格式化/改分区/裸写/写内盘。EFI29696B SHA ff12324cf45b6497d575672f9b7ac48248df77d23395518ef9a13fb9e91a0f46；IMG2011282B SHA9e959c475c49bfd2313df92c617086387e703168da7a191eb2e3609049ec0fcf；原SERVICES33333248B SHA47a43ef79daee271dc934804e68eaccedc6385054f2343a2294f22356974188a。4文件flush/fsync及最终完整读回一致；原生volume rb无repair/exit0，mount0 ready1 dirty0 clusters=BPB1899872 reads53264 writes0 flushes0 bad_io0 canaries1。回执build/hardware/usb-s19-20261026-r1/usb-publish/receipt.json SHA4ad3eb34e5a65a14ecc74b7e8ecd41120512cef9e70c01fef5958ea9773159dd。用户需核BSP DIAG R1 USER SMP OFF入口；S14为该模式预期，未桌面60秒按F12观察并拍照。源码/记录随后推GitHub。"
     },
     {
@@ -11715,6 +11808,7 @@
       "review_note": "源码/契约/测试有效性已实审：只放可信MCFG完整配置请求的Runtime type11，BAR/DMA及Runtime Reserved/RAM仍拒，FB与先guard后map不变。128B首拒绝valid-last、纯固定BSS getter真实ELF链接和14行640×480/ABI守卫有效；原生214cases×4、10实际坏体及屏幕318cases/5743checks×2、14坏体×2保留真实生产函数。正式作业08773772212f4c199c2a583d3f3c76d2七模块10tests全PASS，0skip，source_stable/进程停止退出均true，9文件指纹一致。正常USB-only双启PASS、phase23/failed0/error0/view0/cpus4且两context零，result SHA18395e702938cced79ecc29516120c081a27ab2b54e5f90296833ddd48476eae。Runtime真实MCFG positive完整桌面/HID/FS PASS SHA305430b9ada4e3a551cd9f4b2a23bc144eb21cf95f20fd694323529a53625ce7；旧规则negative真实编译内核S15/050a0002+128B+14行像素PASS SHA8fe8a35affa82bae741c6e16c9160bf35458dd9f8f5b6bf0acfe7b51e2a22521。独立原始审计521输入、17服务、执行segment、checksummedMCFG一致，6000B原图仅type/Runtime两字节改变；实际PTE80000000e00fb01b，HHDM两alias均0；反例非假stub，76636像素一致。两VM stopped/rc0，内部三whole盘不变。实机照片仅证明Denial，Runtime根因仍待新屏幕/真机验证；此次VM4CPU/Q35/OVMF，未声称8CPU真机桌面完成。接受软件修复，接下来仅发布正常payload至原H。",
       "legacy_hash": "fbe35a452197f05c39a9b25dbf3096796fa0e2aa88ada7cee1eb576a28505160",
       "claim_from_status": "todo",
+      "claim_token": "37cce2f573ac498eb17253e1a64be309",
       "integration_note": "真实9文件已位于主目录并逐项等于正式复验指纹；软件和4CPU QEMU正/反例均已验收。原SanDisk H: disk2/serial4C530000010320109015/7798784000B/offset131072/FAT32身份复核一致，先备份旧4文件后仅更新正常BOOTX64.EFI(29696B,SHA5a0199ad5e19a3e7b1cc106fb0d13ea223acc134801587efb1d3e0ec2e42d4aa)、DONGOS.IMG(2011282B,SHA8743d0dcd9472834db83a6e5c65e4a2a67578207f2af83651d75064c23ee564b)、SERVICES.BIN(33333248B,SHA47a43ef79daee271dc934804e68eaccedc6385054f2343a2294f22356974188a)和DONGTEST.TXT。全部flush/fsync/完整SHA读回一致，未格式化/改分区/裸磁盘写，私有fixture未发布。实际原生只读volume探针rb/无repair返回0，mount_error0 ready1 dirty0 clusters=BPB1899872 reads53264 writes0 flushes0 bad_io0 canaries1。回执build/hardware/usb-ecam-20261026-r1/usb-publish/receipt.json SHAd77f3fc1d54d8643cd395e6664f33c46245083171e71a9e23e8bcc60e530e2b1。已告知可安全弹出；8CPU Intel真机是否越过S15/桌面/USB键鼠仍待用户验证，不以QEMU通过代替。GitHub上传随后完成。"
     },
     {
@@ -11823,6 +11917,7 @@
       "review_note": "已实际审阅四源码diff/生产依赖/现有probe和oracle，改动仅UTF-8 staging、真实128B拒绝context纯依赖、真实DmaLease/Process/generation/dma_snapshot ABI与默认hardware_profile逐字复制；未删原正常/坏体断言或弱化BAR/DMA/零effects门。首轮6ERROR及预加载旧xHCI两错误日志保留，冻结新源预验四模块7唯一tests全部实际通过：50executables/80native invocations(40rc0/40真实坏体rc1)，源码hash稳定。正式独立作业dfa4160b806a4a349f0f95e3d0925caa四模块7tests全PASS/0skip/timeout0，source_stable/process_stopped/execution_exited全true，四源+delivery五指纹等于主目录。另A独立作业08773772212f4c199c2a583d3f3c76d2同四模块亦全通过。接受测试夹具维护，不把此结果等同于8CPU物理Intel桌面/USB测试通过。",
       "legacy_hash": "e5e7511177ebf31d117b318a36bb8508781d49bc5ca98fa2c6f713509ce584e4",
       "claim_from_status": "todo",
+      "claim_token": "93a6debf962443f8800331a8f0ba2067",
       "integration_note": "五个声明文件已实际集成主目录，等于正式独立作业dfa4160b806a4a349f0f95e3d0925caa的五指纹；7tests全通过、零skip、source稳定、所有执行退出。真实生产guard与native oracle/坏体未弱化，UTF8/当前ABI/profile依赖适配完成。P8ECAM1已integrated rev6并发布正常SanDisk H:，本任务仅维护测试，不另写USB。保留原首轮错误日志及尚未验证8CPU Intel实机的限制，GitHub完整源码/交付/正式审查记录随后提交。"
     },
     {
@@ -11894,6 +11989,7 @@
       "review_note": "已实际审查6文件及正常源契约：capture钩子在checked/begin_entry/200B copy/complete_entry XSAVE/kernel-xstate恢复后、DEADLINE和callback前，成功深栈保留；可信BSP失败先原Header/metrics写，再mapped user_entry切kernelroot，只有失败重置栈，untrusted/AP原路径保持。sole INIT5/affinity1/其余token0断言保证无compositor执行，保留正常APidle。Report192B BSS全零once/done-last，frame/root/token/incarnation/25word及reason1 framekind有真实检查。独立formal job5409bb7d3c584f9c82d1b87d75dfa222：2tests11.930s,0skip,stable，8坏体debug/release均C断言有效。Root实际8CPU WHPX VM-r2通过：F4真实首用户IRQ，actual Frame200B/roots/INIT ELF executable页/Bridge.calls0，1515171B kernel executable与77812像素15行一致，整USB和三可写内盘未变、单stop/cleanup；只证明首次CPL3事件捕获，不宣称syscall/desktop或Intel修复。另一个只读审查agent无阻断项。验收仅此诊断profile，真机结果待回传。",
       "legacy_hash": "7574c2bab0238183c19fa8de3e932793c2bf4022d2b810900b944f6a2711af5c",
       "claim_from_status": "todo",
+      "claim_token": "d3c2a9ca5e2142f2b9d681a4d6508dd5",
       "integration_note": "六个授权文件已实际集成当前code/与works目录，全部验收指纹保持。formal job5409bb7d3c584f9c82d1b87d75dfa222通过2tests0skip/stable；root实审和第二只读审查无阻断；九命令build/strict verify与实际8CPU VM-r2（真实首用户F4捕获/INIT ELF页/Bridge.calls0/15行像素/整USB与三模拟内盘未变）均通过。已核对原SanDisk serial4C530000010320109015/disk2/H及旧AP CHECK R1四文件SHA，备份后仅替换4文件，逐文件flush/fsync和回读一致；native FAT32 rb exit0,mount_error0,ready1,dirty0,1899872clusters,writes0,flushes0,bad_io0,canaries1/no repair，最终四文件再回读一致。发布receipt SHA9ca961e28afdfd6ec219ca92bc619c7b490b69bbcfff256af3668a504482629c。无format/rawdisk写。该版主动首事件停，正常桌面和Intel下一张照片仍待验证，非物理故障已解决声明。"
     },
     {
@@ -12008,6 +12104,7 @@
       "review_note": "实际审查8声明文件的GOP契约/Win64ABI/所有权/失败回退/Info守卫/完整低4G地址和容量约束、UEFI类型对齐、原低跳板及最终EBS边界。native实际坏体缺Free/漏actual/坏ranking/漏low4G/删typed对齐均由执行或COFF符号oracle拒绝。返修独立job bc6de4297c56409abf5c67ebdd47f900 四模块7项全部PASS/0skip/source稳定/进程已退出；r1失败及UEFI ASSERT现场完整保留且未发布。r2完整build源稳定，仅2boot ASM变化，最终14类型符号map对齐PASS，kernel旧版字节一致、17服务actual ASM/PHDR/全部ALLOC同值。root实际r2 live-full-1080/result.json passed=true，两WHPX启动全HID字符/按钮/F12pwd消费、mkdir/write/append/rm/cat/sync及CBW/CSW/FLUSH、17ELF及kernel代码和各CPU健康检查全过，second整USB SHA与first同51107ec8d2b80d86712ce60512b4e57e2cd86d5752ab27d9dc914257fd98ce45。cirrus fallback/result.json passed=true，固件仅3模式且实际800x600 BGR桌面，真实截图/UC像素/ELF/池/CPU/USB视图/同步强审计通过；此fallback不另声明实际HID，HID在1080两boot完成。三VM全停止、observer源稳定、三个可写内盘整SHA始终未变。现在可发布原H；真实Intel桌面/HID仍待用户复测，不代替物理PCID/WC验收。",
       "legacy_hash": "26b9c140ba6e5ec2b61e2d7ff02aa52b805ea2b2911a23a19c7e3260d20cb246",
       "claim_from_status": "rework",
+      "claim_token": "33beb9b9b81e47edb669fb472cc0dcc7",
       "integration_note": "声明8文件已真实落在主源码/交付目录，独立7项与r2完整build指纹匹配、最终typed对齐已检查，actual1080两boot+Cirrus800x600全过后完成发布。原SanDisk H serial4C530000010320109015/disk2/USB非系统/单MBR FAT32几何前后不变；旧4文件已在build/hardware/usb-gop-20261025-r2/usb-publish/before完整备份。只替换BOOTX64.EFI(29696B SHA ef523ac810db866f1df95983c4e5bdaf3ead54b3ed5cde6cc94c3265e1940874)、配套SERVICES.BIN(33333248B SHA0402983df59e488e04b0dd18e11dd619902890dc7234306cb1a3c737af134c88)和DONGTEST.TXT，原DONGOS.IMG保留b263...cef0；全部flush/fsync并从H完整读回SHA一致。最终原卷native只读全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，已正常退出；回执usb-publish/receipt.json含全SHA及native结果。没有格式化/分区/原始磁盘写入/内盘写入/Git。所有实际VM已停。首轮UEFI对齐回归和publisher UTF8预检失败均保留且未发布首轮候选；最终R4已可交用户实机再测，物理桌面/HID尚待反馈。"
     },
     {
@@ -12105,6 +12202,7 @@
       "review_note": "实际审查production两ASM/契约/native oracle：range严格排空/溢出/entry越界，高地址不盲拒；final-map前LoaderCode低页、自含284B/8RIP闭包、私有GDT/GDTR/IDTR与低栈，先跳低再CR3/CS，无原PE引用，服务trace寄存器保持；E14有界串口保留，原4GiB bootstrap/GOP及2MiB窗口未放宽。独立3054c45d502645828a1ccf4dd7c8c98d 2+2+13=17tests/0skip，source_stable/stopped/exited。实际五客体全部通过：旧R2自然5GiB运行在0x140001d73停E01；新低/真实5GiB正常原PASS，新真实5GiB篡改/缺失原E08/E04。根目视旧E01和新high正常截图；独立pmemsave的BootInfo/最终raw map证明type1唯一覆盖低页、无Conventional重叠，GDTR为低副本地址；实读CR3物理walk确认原PE不在新root。三源码build前后SHA稳定，内核与首轮USB逐字不变，六主文件与正式fp一致。仅接受修复，不宣称目标真机或完整runtime7矩阵通过；H待插回。",
       "legacy_hash": "1d02ca8eb6436a909ecaae6a211dbd7f522d43a1b233f488e579348e1ad71c0a",
       "claim_from_status": "todo",
+      "claim_token": "6c0afea1ef474ef9b9d66902f60463cf",
       "integration_note": "六声明文件已实际位于code/及works_root并逐SHA与独立验证fp一致，完成accept后单独登记本地集成。正式17零skip与五类真实客体/raw物理审计均已通过；最终源码稳定、EFI29bdd9c4…、原内核3c904bb4…绑定。无存储USB DIAG R3候选及旧R2备份/新旧SHA预检/刷盘flush读回脚本位于code/build/hardware/high-loader-20261025-r2/；H当前未插回，尚未更新介质。目标Intel真机仍待重试，不计整体P2/P8/暖PCID/物理WC通过。没有提交或推送Git。"
     },
     {
@@ -12230,6 +12328,7 @@
       "review_note": "已审查7文件与全部契约。实际生产差异仅注释及Runtime&&slot!=0→slot>8，可信MADT0..8(LAPIC/IOAPIC)才允许type11Runtime；HPET9/PM10 Runtime、全部非11、retained/重复/几何/rawattrs只读/原子性/Plan184 Views88 Conflict88/UCsupervisorNX/allocator/EFI服务/deadline保持。native policy两模式COFF ELF×C O0/O2均1041+473检查及7真实坏体oracle正常拒绝；prepare两模式各455场景/96 APIC成功、输入不变、query全部先map与flags9、首尾IOretained及其它Runtime失败零sideeffect、8坏体无panic。独立job d3070fccf6e846e087e4a721e64f476e五模块7项全部PASS/0skip/source稳定/进程全退出，7文件指纹相符。root正常runtime7 USB-only build冻结，live-full原完整两boot HID/鼠标/键盘/F12pwd/文件write append rm cat syncFLUSH/全部CPU健康/代码池页表检查通过；两boot phase14 failed0 error0 view0 ctx88零，USB整SHA均ca93051171b93120af4a28ac87c165712f3587b2e43ec7e8cfcb3c3d31221a9d。root runtime-proof 8CPU双Runtime fixture PASS：真实postEBS原map完整快照与最终逐字节重建，仅LAPIC idx129 type11 attrs800000000000100D及IOAPIC idx130 type11 attrs8000000000000001追加/指定typeattrs变化，原其他descriptor/padding完全一致。实际CR3=root/view/pool=0x400000，设备3slot PTE exact supervisorRW/UC/NX，两目标宽HHDM无映射，ctx88全零；实际IRQ/线程reports/BSS/engine/guards/stack/controller/codebytes全核原oracle，ticks129 switches65 两workers各64。仅私有postruntime cmp1→2一字节guard在S03/error1/cpu8终态取证，terminal分隔投影明确记载，不冒称正常8CPU全SMP或桌面通过。3VM均停、正常对象不变、受控USB和3可写内盘全SHA不变。H已再次核原SanDisk序列/4旧SHA正确，准许发布正常成品；实际Intel能否越过S01、桌面键鼠仍待用户复测。",
       "legacy_hash": "85f345be297bdb3bb6d4cc9f91efcf7b8fe7f18a8ca1b284f75e1c18025e5aaf",
       "claim_from_status": "todo",
+      "claim_token": "ed9cd57197504fd482e74497b500cf47",
       "integration_note": "7授权文件已真实集成主code/与coordination交付目录，指纹与正式独立job d3070fccf6e846e087e4a721e64f476e一致；已完成源码/契约审查、7项0skip、正常完整桌面两boot及8CPU双Runtime LAPIC/IOAPIC实际IRQ线程/PTE/全rawmap回归，详见accept真实审查。原SanDisk H: disk2序列4C530000010320109015已核7798784000B USB/非systemboot/单FAT32 offset131072，四旧SHA一致；备份在code/build/hardware/usb-ioapic-20261025-r1/usb-publish/before。正常成品3文件与说明已flush/fsync写入并全SHA读回：EFI c33a74ba202d39e1e46585c70e3491a958d632e7affe32c5b415de6821445779；IMG a08cd1bc274ad1f5ea3f9b5d8cf2d00fd90f2b997abb2b5623f8374f88e19d1e；SERVICES e2b7bf8c25b7ed62317207ec6af1f68b47aa3bacdc9de31b3be1bb7367f8a027。非私有guard候选，receipt绑定manifest/normal两boot/runtime双控制器proof/前后身份与四readback。实际原卷native rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，未修复。无format/partition/rawdisk/internaldisk操作。真实Intel是否越过S01及桌面键鼠仍待用户启动反馈，不把8CPU BSP IRQ线程取证冒称全SMP8CPU桌面通过。现有完整代码checkpoint107946e已推GitHub main，本次新修复与任务记录继续提交推送。"
     },
     {
@@ -12355,6 +12454,7 @@
       "review_note": "已审查7文件及UEFI原定义/当前根缓存所有权：生产仅kind!=11 || (runtime && slot!=0)，只MADT LAPIC type11 Runtime兼容；没有地址/attr串硬编码和UCcap位猜测，其它Runtime槽/全部非11/retained/duplicates/geometry/原子性/Plan184/Views88/Conflict88保持，rawattrs只读。无EFI runtime调用/SetVirtualAddressMap，旧root/PGE/PCID宽alias已退休，新root显式白名单/allocator仅非runtime type7，device安装supervisor WRITE|UC/NX，platform先核APIC_BASE。native policy1041+85及prepare各222真实场景/多capmask12×两API、strictUCflags/query→map和原子性，旧拒/误放Runtime/ReservedRAM/吞错/截断发布等实际坏体由oracle正常拒绝。独立job25499c6bb1484f4a9b961f03af7a54b5五模块7项PASS/0skip/source稳定/进程退出。完整USB-only runtime7 source build稳定。root live-full正常两WHPX boot完整HID/F12pwd/GUI/写追加删读syncFLUSH/代码池页表及全部CPU健康通过，state14 failed0 error0 view0 ctx88全0；两boot整USB SHA均66e1225edb0cc26ad949c616167b415661dc03b843db5571041f99cf7520369e。runtime-proof8CPU私有EFI原LAPIC descriptor type11 attrs800000000000100D与真实rawmap完全一致，只有kernel guard cmp1→2在真实runtime_begin后取证，materialized kernel一字节差；真实平台/调度BSS与串口原oracle/engine/guards/控制器验证129ticks65switches两worker64ticks失败0，slot0 Runtime MMIO已实际读写并产生IRQ，ctx0，真实CR3==retained root==View root，设备PTE exactRW/UC/NX/super且HHDM LAPIC不存在。受控终态S03/error1/cpu8记录，不冒称完整SMP或desktop8通过；原oracle只投影已证一字节guard的terminaldelimiter，真实metrics/报告/寄存器未改。三VM全停，normal objects/observer源图不变，受控USB与3可写内盘整SHA不变。可发布正常修复版原H，实际Intel是否越过S01到desktop仍待用户复测。",
       "legacy_hash": "da07250dc8378e855d7809a476c4ef73786e12aae5bd7d8b0f66ceed99588e61",
       "claim_from_status": "todo",
+      "claim_token": "46e7ff9e50ec4e1f91dfe5d12383fe77",
       "integration_note": "7授权文件已真实集成主code/及coordination交付目录，指纹与独立复验25499c6bb1484f4a9b961f03af7a54b5一致；源码契约审查、5模块7测试0skip/source稳定、正常runtime7两次完整桌面/HID/F12pwd/USB文件操作与CPU强观察器、8CPU Runtime LAPIC真实IRQ线程129ticks/65switches/UCsupervisorNX PTE和无HHDM别名证据均已通过，三VM已停。已核原SanDisk disk2序列4C530000010320109015/USB/7798784000B/单FAT32 H:/offset131072及旧四文件SHA，完整备份在code/build/hardware/usb-lapic-20261025-r1/usb-publish/before；正常修复EFI/IMG/SERVICES与说明已flush/fsync写入并全SHA读回一致，非私有guard候选。EFI 8e5a903d98cf8cf5dbaffcf75aa8c1cfcda580e65c0632dea9e74d521944f17b，IMG a2995517b6b6d79e7d1448aee352e669e54a9b49e21b3a20904c603c83c593c9，SERVICES b1525883415712c210e5bd0e228ecc80c6be230e3b7137949059246815faedc3；receipt.json记录身份前后及manifest和两VM报告hash。实际卷原生readonly-volume审计正常返回：mount_error0 ready1 readonly0 dirty0 clusters=BPB=1899872 reads53263 writes0 flushes0 bad_io0 canaries1，rb未修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk/Git改动；真机是否越过S01及桌面/键鼠仍待用户启动反馈，不将VM取证等同于物理验收。"
     },
     {
@@ -12496,6 +12596,7 @@
       "review_note": "实际审查15文件及新ABI/边界/alias/失败原子性：原type11且非RUNTIME接受谓词、retained/重复页/几何/Plan184/Views88保持，旧接口null语义保持；88B Conflict在全部alias/overflow校验后清零，真实RamConflict分支写valid0/fence/valid1，Plan/Views仍原子失败。runtime7传独立BSS三参数；只有S01/failed/firsterror/version/valid/error_code精确匹配显示9行，原2writer/Gate/geometry/首次CPL3 disable保持，无候选MMIO探测。实际policy旧1041+53诊断、prepare debug/release各186场景含零query/map/invalidate/touch、renderer182场景/两format/64bit，真实吞guard/漏valid/截断/错offset坏体均oracle拒绝；compiler↔ASM↔C 11字段88B一致。独立job8193bb8be6094e9ea2dbe26d0f12bade五模块7项PASS/0skip/source稳定/进程退出。完整USB-only runtime7 build源稳定；root正常live-full两WHPX boot全原HID/F12/GUI/FS写追加删读syncFLUSH/代码池页表及CPU健康门通过，均phase14/failed0/error0/view0/cpus4且ctx88B全零，second整USB SHA=first b3dbbab5a9db27e9960e53c3c11e0e2f63449a2279fcec60b38f5861918d6559。私有EFI conflict-2仅postEBS交付map追加LAPIC reserved fixture，正常kernel/IMG/services字节均未改；真实planner产生S01/error03030002，ctx11字段与rawmap index125/stride48/basefee00000/pages1/type0/attr0及sealed UART marker完全相同，9行真实QMP像素逐项通过，未进入IRQ/THREADS/SMP/service，USB和3可写内盘整SHA不变。三VM全停，normal源/objects未变。首次fixture observer用错BootInfo map indices导致断言失败，保留conflict/；已依据实际160B捕获校正为4/5/6并重跑通过，不改变验收门。可发布正常候选原H；物理冲突设备/type仍待用户新照片，不推断Reserved为RAM，不宣告已修复或物理桌面通过。",
       "legacy_hash": "464ab03e5fbd1afb086bebdba6763067d37c50b8a924cc01fa124768835397b6",
       "claim_from_status": "todo",
+      "claim_token": "b86c1939b0464f51914b8de2c3d9a280",
       "integration_note": "15声明文件已真实落盘主目录且与独立7项0skip/source稳定指纹一致，正常完整USB-only两boot及私有EFI真实冲突屏均通过且全停；Plan/Views/旧接口/接受条件/超时/USB-only权限不放宽。新三参数只观察原冲突字段、冲突零query/map/invalidate，normalctx88B全零。已将正常source/esp发布原SanDisk H serial4C530000010320109015/disk2/非系统USB；单MBR FAT32 offset131072 size7798652928前后不变。旧4文件完整备份r1/usb-publish/before；新EFI29696B fd7ae7302e6b212d069feb20ea9093dffd079cd130f5f33205c0a0b0d53cab03、IMG2007170B d0a88eb28a2fa599a2597d4708c7c14d98c2df48de7d89270d56fd08a62ca611、SERVICES33333248B a0466f5f43e312ea5b4727eddcae0a8ac2c5a3e92259d9c827fb99a712e755c1及说明971B均flush/fsync并H全SHA读回一致。最终原卷native readonly全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53263 writes0 flushes0 bad_io0 canaries1，进程已退出，receipt.json绑定原卷日志及normal/controlled VM SHA。无格式化/分区/原始磁盘/内盘/Git。私有EFI fixture与首个观察器BootInfo索引错误失败留作历史未发布；H正常诊断候选入口仍R4，S01 error2新增DEVICE SLOT/DEV ADDRESS/UEFI TYPE/DESC BASE/PAGES/ATTR。实际Intel冲突设备与类型未知，等用户新照片后定向兼容修复，不宣告真机冲突或桌面已通过。"
     },
     {
@@ -12591,6 +12692,7 @@
       "review_note": "独立job91fd2dae18c4432fb05e7063258481a5共6 tests/0skip/source_stable PASS；实际precheck/真实服务日志58场景及debug/release/O0/O2、旧controller和scratch回归通过。实际审查仅完整标准USB2三速/USB3单速表通过，等价指数计算无溢出，其他ID/速率/字段仍拒绝，新增CHECK11原值日志，PSIC0语义及Setup/Caps/State ABI不变。补充root native66场景检查PSI越BAR、保留位、USB2双工错及等价指数，debug/release PASS，绑定同一已复验源哈希。 两组件真实源码已共同构建，严格候选manifest e63cdf6da369a483e450fb37fca92962556fd28e792c7491476b9571bcb0553f。root8CPU正常启动至CLIENTS_READY，冻结后fatal报告0且UART无fatal，compositor永久交接/桌面截图PASS；同镜像zero-port拒绝仍08110002并保留日志99960像素PASS；虚拟介质和3内部哨兵完整哈希不变，guests全部结束。证据build/hardware/xhci-psi-20261028-r1。只验收明确PSI兼容组件：实机PSI各word尚未读回，非标准表仍不支持；完整HID/文件既有失败和真机启动结果不宣称已通过。",
       "legacy_hash": "1da4185657037b6ca234626e3cc64fad7559bc34bb3dbe6cb5542103984fe9fb",
       "claim_from_status": "todo",
+      "claim_token": "7d6e59deda9d4cc7aaf02377a3621495",
       "integration_note": "已完成主code目录真实源码集成，独立复验指纹全部匹配；两侧代码共同进入PSI R1完整构建及严格诊断候选，8CPU实际正常/拒绝路径验证通过。登记本组件集成；不替代用户真机复测或完整HID/文件验收。"
     },
     {
@@ -12677,6 +12779,7 @@
       "review_note": "独立job ce1d0239cbb840f19f2164c8f2b36bc2，authority2+kernel3 tests，0skip、source_stable PASS。实际审查kernel在BME前逐条读取PSI并校验标准ID/速率/对称/双工/重复/全跨度/next重叠；Extension48B不变，协议项legacy_control为可信内核派生mask，保留raw range/PSIC。authority重新检查mask/数量/跨度/全端口覆盖，legacy语义原封保留；用户不可提供此mask。实际kernel正反例含PSI标准表可BME、错速/重复/重叠/双工拒绝且BME0，忽略速率及缺mask的错误实现被测试捕获。 两组件真实源码已共同构建，严格候选manifest e63cdf6da369a483e450fb37fca92962556fd28e792c7491476b9571bcb0553f。root8CPU正常启动至CLIENTS_READY，冻结后fatal报告0且UART无fatal，compositor永久交接/桌面截图PASS；同镜像zero-port拒绝仍08110002并保留日志99960像素PASS；虚拟介质和3内部哨兵完整哈希不变，guests全部结束。证据build/hardware/xhci-psi-20261028-r1。只验收明确PSI兼容组件：实机PSI各word尚未读回，非标准表仍不支持；完整HID/文件既有失败和真机启动结果不宣称已通过。",
       "legacy_hash": "ff12e8249d25d777da49f34700e1120de3bc2388512ede4143a2a269df3a9960",
       "claim_from_status": "todo",
+      "claim_token": "9f2df88d6c364f11a4d8a97682d24462",
       "integration_note": "已完成主code目录真实源码集成，独立复验指纹全部匹配；两侧代码共同进入PSI R1完整构建及严格诊断候选，8CPU实际正常/拒绝路径验证通过。登记本组件集成；不替代用户真机复测或完整HID/文件验收。"
     },
     {
@@ -12758,6 +12861,7 @@
       "review_note": "已实际审查producer/builder/C/Python测试/docs和5个保持原样kernel契约，另只读审查无阻断：正常桥DG/锁/EOI/retire/API/17服务原样，无成功停车；仅原trustedBSP错误stores后mapped切kernelCR3/可信栈/XRSTOR/报告/原Gate绘制，AP/untrusted不改；compositor slot3固定BSP+IF0排除并发FBwriter，cacheGate不强开。Report256B BSS/once/done-last/最低logical published failure+mask/Header fallback/selected-return2真实检查。独立formal c5c1421ba1754fb5b654d00227d30654三方法36.291s0skip源稳定，9状态坏体和F4 EOI漏/重坏体有独立断言。freshnormal+candidate9真实命令严格绑定通过。Rootcontinuous8CPU WHPX两实际boot完整HID/4GUI/终端/USB读写sync+二启同USB持久性hash、原normalphase23/view0/report全零未调用、3可写内盘整hash不变/单stop/cleanup全部过。另明确neverpublish fixture只在真实首F4已切kernelroot处强制原user_smp_fail，实际失败页15行80948像素/1513027B kernelcode/Header/CR3/报告均过、无物理设备/guest写/USB内盘变。首forcedobserver误期待entry0/stage0，实际保留prior commit3/15被正确拒绝，保留失败记录后只修观察预期，producer未变。仅验收连续profile+实际可见失败盲点修复，不宣称未知Intel根因或真机桌面已通过。",
       "legacy_hash": "b97f9577945df2768ea37bb7cd586489c9d181741ed19b355e6ac71b3dfdb343",
       "claim_from_status": "todo",
+      "claim_token": "f43dacd061764999969fcb7f9ae9f7e1",
       "integration_note": "六新授权文件已真实集成，五个既有kernel声明文件保持原字节，11验收指纹稳定。formal c5c1421ba1754fb5b654d00227d30654三tests36.291s0skip/stable；root及独立只读源码契约实审无阻断。freshnormal/candidate九命令严格构建、continuous8CPU两boot完整桌面/HID/终端/USB文件持久性、3模拟内盘无写及单stopcleanup通过；明确neverpublish强制失败VM另过80948像素/真实Header/代码完整性，正常candidate未改。用户确认原SanDiskH插回后实际检查disk2/serial4C530000010320109015与旧FIRSTUSER四payloadSHA，备份后仅替换4文件；flush/fsync/逐文件及native后最终回读均匹配。FAT32 rb exit0,mount_error0,ready1,dirty0,clusters1899872,writes0,flushes0,bad_io0,canaries1/no repair。Receipt SHAbf6e92b4c23ca61d286134604e571d3cb64197f5aeddd56383238a240ee3d3b9，无format/rawdisk写。此版成功连续桌面，实际失败时显示；原Intel完整桌面结果仍待用户启动，未冒认未知根因已修复。"
     },
     {
@@ -12892,6 +12996,7 @@
       "review_note": "Root实际审查共享layout、controller/precheck/reset/DCBAA/完整租约清零、launcher实际cap计算、trusted kernel独立硬件重读/全部128页owned alias/动态snapshot、authority全表与buffer/tail零检及新旧allocator函数体、native oracle和实际坏体。新函数除入口名/128页bound外与旧32页体逐字相同，旧ABI/Caps/State/零scratch128K及设备scope偏移不变；支持34/64且>64拒绝，restore能力不发CSS/CRS，实际save命令仍拒绝，ownership/SMI/unknown/协议门禁保留。独立job290640f6671042c8943e76935cf8446f：3+2+2+3=10tests，64.282+21.421+9.703+331.547s，全0skip/源稳定/进程退出；新native28exec含12 normal和16真实坏体断言失败、ELF/COFF、O0/O2；kernel34/64正例及table/tail/最后页alias拒绝。Root旧广回归12tests378.278s及kernel3tests352.587s通过。Fresh normal runtime7 USB-only manifest65fe9e3d80a75b1b44da0178efc925ed39a38a3b722cf4d7a907372e87ecefe4；实际8CPU单USB live VM PASS，GUI/HID/F12/pwd/同盘mkdir/write/append/rm/cat/sync、全部代码/PTE/private pools/8CPU/最终phase23 error0，三可写内盘整hash不变，VM结果3126fa92eb859da553a3f7ec17343f545f375402b32c27a5582fe0d328800813。首次formal835cee的90s host NASM timeout保留失败历史，仅最后完整图assembler改300s，native90s/断言未改；VM后所有输入仅该host helper三处budget改动，已反向重建旧hash证明，production/artifacts/runtime observer未变。Intel真机仍待新版复测，不将QEMU零scratch成功等同34页真机通过；原SanDisk H已核验，写盘仍待accepted gate。",
       "legacy_hash": "3bedf38642814bdb324ef4b03c2b52b74954989efa1e5d2d13cbf6017eaf6cb3",
       "claim_from_status": "rework",
+      "claim_token": "156994280a4f463aaf2bac09236e2ec5",
       "integration_note": "18个声明文件已实际位于主工作区且与formal job290640f6671042c8943e76935cf8446f验收指纹一致；实际fresh正常USB-only候选已集成并写入用户确认的原SanDisk H（disk2 serial4C530000010320109015 USB，offset131072/partition7798652928/FAT32保持）。先备份原CAPS4文件，再逐文件flush/fsync+SHA回读；native rb FAT32 volume进程exit0，mount_error0 ready1 dirty0 clusters1899872/bpb一致 canaries1 writes0 flushes0 bad_io0，无repair，之后4文件再次回读一致。最终receipt SHA e14807725162c1cce0de9297fe35ab7121f0d0b47be9951f70310f04cdd21cf8；EFI020ae97d803cea4f53470123e32e59cffd1cfff8c70978d618ed1cd036718416，IMGc2849e36c34c7e558ca87e11f6843b121e357b263157afaabf022e3c4681e8a6，SVC08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。未格式化/分区/rawdisk写。真实8CPU单USB live gate/GUI/HID/console/USB durable I/O及3整内盘不变和独立10tests0skip/source-stable证据见验收note；首次host汇编timeout历史保留，最终仅host单步预算300未改运行断言。新版取消CAPS主动停止，恢复normal桌面路径，loader原R3 banner可保留。Intel真机、34页实际DMA和桌面键鼠仍需用户复测，不标记硬件通过。"
     },
     {
@@ -12997,6 +13102,7 @@
       "review_note": "已实际审查10文件：仅runtime7阶段宏，首draw成功后arm；helper全15GPR/flags/DF保留且不触XMM，唯一TU first64biterror避免macro局部符号重复；全部glyph/hex仍原2外writer内、Gate4qwords及geometry保持，未arm/closed/disable拒写；timerarm→sched→stop/AP deadline内部无hook，首次SMP/legacyCPL3前S14后立即disable。native真实宏/renderer独立像素oracle84cases1101checks O0/O2、截断/漏disable实际坏体、whole entry+2TU reader正常/旧重复回归体有效；非7profile20组ALLOC与R4一致。返修独立job1a08020b52474ddc9b48aaab3b5117b6 三模块5项PASS/0skip/source稳定/进程全退出；P8SYMBOL1另已独立integrated，generic构建工具未改。root r2完整normal build source稳定，现有reader解析实际kernel29681symbols；live-full/result.json passed true，两WHPX完整boot的真实HID/F12pwd/GUI/原代码池页表/写追加删读sync与FLUSH/CPU健康全部通过；两次实际新状态均phase14 failed0 error0 view0 cpus4，second整USB SHA与first均c672453f8b97ed16d8baa847b95846257080795522a014d80ddd457f1b70e84c。bad-stage3实际private cmp1→2坏guard重链配套EFI，materialized code仅一字节不同，真实线程先完成再显示S03 BOOT FAILED firsterror1/failed1，源码/normalobjects未变、截图逐像素/代码核对、无SMP/services后续marker。三VM全停，normal observer源稳定，USB失败体及所有可写内盘整SHA未变。H发布前只读原卷审计ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flush0 bad_io0 canaries1。可发布诊断版；实际Intel阻塞根因仍待用户下一屏，不声明物理桌面/HID/PCID/WC通过。",
       "legacy_hash": "70620ba5dd37142d0635ca1519d9e25fc708c972d39885f9bdcb54cd0cacbec2",
       "claim_from_status": "rework",
+      "claim_token": "7460436a000e4dc19404c2deef110294",
       "integration_note": "10声明源码/测试/文档/交付文件已真实集成主目录且与返修独立指纹一致。独立5项/0skip/source稳定及r2实际正常两boot+受控S03失败体全部通过且全停，P8SYMBOL1补充已integrated；完整build当前源图稳定，原算法/超时/USB-only策略不放宽。H原SanDisk serial4C530000010320109015/disk2/USB非系统/单MBR FAT32起始131072大小7798652928均前后不变；r2/usb-publish/before完整备份原4文件。已刷写正常source/esp的BOOTX64.EFI(29696B cb4df70207f2a5335e7dc58a688b40696d59b0ab673c05706c94d39992583c61)、DONGOS.IMG(2003058B 2a2d0c55cf444c24ccb51ebe9bcbb94d576f53b9ed95f7a61f2cb5b704559dc3)、SERVICES.BIN(33333248B a7f463b897eef1c092a137f765e06a15d1cfb43933346cc6555d4808012061bf)及说明；每个flush/fsync+H全SHA读回一致。发布前后原卷native只读全FAT审计均PASS ready1 readonly0 dirty0 clusters1899872 reads53262 writes0 flushes0 bad_io0 canaries1，进程正常退出，receipt.json已绑定两日志。没有格式化/分区/原始磁盘/内盘写入/Git。首轮观察器/private-include失败保留；H仅发布正常诊断版，controlled坏体独立存放。用户下次仍DIAGR4入口，内核新S01-S14/CPUCOUNT/FIRSTERROR，等待真实最后屏定位阻塞，不声明Intel桌面/HID/PCID/WC物理通过。"
     },
     {
@@ -13060,6 +13166,7 @@
       "review_note": "已审查parser仅在UTF8/bounds检查后忽略info==0且..@前缀实现标签，不放宽required、普通local/global/weak/typedprivate冲突和表边界。真实NASM2TU+ld fixture18场景、旧函数实际失败对照有效；独立job4cde07bcf7cd42ddaaec961de80a717f 1项PASS/0skip/source稳定/进程退出，原CPU结果协议17项额外回归PASS。只改测试观察器，不称其解决normal generic链；主任务已另将宏错误记录收敛唯一TU并重建。无生产/VM/磁盘/Git变化。",
       "legacy_hash": "94f49834d1f67c02c1ff936c9cd548eceef15e0630f308ceaf6cdf059529c3d5",
       "claim_from_status": "todo",
+      "claim_token": "1b9e30ab6dc340bc9d8190946c4b1937",
       "integration_note": "3声明文件已真实落盘并与独立指纹一致；CPU observer及实际ELF正负夹具完成，主目录可用，未改构建工具和生产策略。主任务P8STAGE1继续以唯一TU诊断helper兼容全部既有reader。"
     },
     {
@@ -13125,6 +13232,7 @@
       "review_note": "实际审查仅runtime3成功返回后标志/重画，初始ACPI标题保留；嵌套宏兼容旧renderer提取，完成字节在Gate存储外，原enter/leave/所有边界及其它runtime保持。正式b5fbb6268a394c98865545bfd2d50fca协议3tests/0skip稳定并退出；额外实际renderer/Gate组与协议共4tests/16.543s/0skip，完整所有级别入口汇编。未修改production runner实际过原129ticks/65switches/两worker64ticks/失败0、98物理读/4guard/3MMIO；额外全boot ASM/source绑定闭合，候选ESP与runner逐SHA相同。当前5GiB正常与实际漏runtime坏体真实执行：物理完成字节1/0，正常完整协议与THREADS PASS；坏体原kernel fail并保持ACPI READY，根已目视两屏无假PASS。三主文件与正式fp及候选冻结源一致。仅验收诊断显示；用户硬件仅已报告runtime0成功，runtime3物理待验，H未插回。",
       "legacy_hash": "3830fe6ab8d889821b632ba0ff4a5a22542c7f4c9614590fc4b748ab111a3fae",
       "claim_from_status": "todo",
+      "claim_token": "d155f50bea8b4285bc3fef645a94fc7b",
       "integration_note": "三声明文件已真实位于主目录，独立复验后逐SHA匹配正式fingerprint，候选冻结源/同生产runner ESP一致，accept与integrate单独登记。无磁盘runtime3线程诊断包及R3旧EFI/内核hash预检、原件备份/flush/读回脚本位于code/build/hardware/p3-threads-20261025-r1/；EFI8f77ffe3…、IMGd5b0504b…由实际正常/漏调反控和原生产硬件观察绑定。H未插回，尚未执行新介质写入；用户报告runtime0基础画面通过有单独user-observation，新的线程/USB/暖PCID/WC物理门保持待验。未提交推送。"
     },
     {
@@ -13250,6 +13358,7 @@
       "review_note": "已审查7授权文件/所有ACPI入口及UEFI原定义，私有add只接受plan_core中已发现校验的0..10平台寄存器。生产只去掉Runtime按slot>8拒绝，所有已描述页仍必须type11；没有改PCI/DMA独立Runtime拒绝/allocator/EFI服务/deadline。rawattrs只读、全部非11/retained/重复/几何/Plan184 Views88 Conflict88/原子性/诊断/UCsuperNX不变。原生policy实际1041+566检查、12mask全11槽/全11同时Runtime/全部非11两态/全槽retained及HPETPM重复几何，8真实旧规则/误放坏体正常oracle拒绝。prepare两模式各519场景/144成功/flags9/query全先map/输入只读ctx零/失败副作用及14坏体正常rc1无panic；预检旧输出说明已纠正，正式版本独立复验job ad7de22e89c24f2084a0488569b5783c 五模块7测试0skip/source稳定/进程全退出，7指纹一致。root正常USB-only runtime7冻结build、live-full原完整两boot HID/GUI/F12pwd/文件write append rm cat syncFLUSH/全部CPU健康/代码池页表等强gate PASS；两boot phase14 failed0 error0 view0 ctx88零，整USB SHA均060b3b8884599ffdfd07f39a0b7567ee3ebff45a989e3528249c1614dd3404ab。root8CPU runtime-proof三Runtime LAPIC IOAPIC HPET PASS：真实postEBS原map完整快照与最终逐字节重建仅三指定type/attrs/必要append变化，所有其它字段/padding保留；真实CR3/root/View/pool一致，三实际设备PTE exact supervisorRW/UC/NX且三宽HHDM无alias。原runtime串口+真实BSS reports/engine/guard/stack/controller/codebytes全核，129ticks65switches两workers各64完成真实IRQ线程。私有cmp1→2仅后runtime一字节guard在S03/error1/cpu8取证，不发布不冒称8CPU完整SMP/desktop；SystemMemory PM只由native覆盖，q35实际为SystemIO，不冒称PM MMIO实机。三个VM全停、normal objects/受控USB/三可写内盘全SHA均不变。静态EFI初次自组命令漏正常COFF relocation选项而失败保留，改用原build完整实际命令后-Wall -Werror汇编通过且无源修改；真实VM最终成功。原SanDisk H再次身份与旧四SHA核对正确，可发布正常成品并readback/FAT审计，物理Intel后续启动/HID仍待反馈。",
       "legacy_hash": "1384c331c07cdfaffd11816b5d58d53468974649a4e4f609a561f590cf1a2a71",
       "claim_from_status": "todo",
+      "claim_token": "4f43f09c67d14aedafb402c71166d07e",
       "integration_note": "7文件已真实集成主code/与coordination交付目录，正式独立job ad7de22e89c24f2084a0488569b5783c指纹一致；7项0skip/source稳定及root实际正常双boot完整HID/FS/CPU强gate、8CPU三Runtime LAPIC+IOAPIC+HPET真实IRQ线程/原map完整快照与字节重建/PTE/无三HHDM别名已完成，详见accept；所有VM停/正常对象及内盘不变。原SanDisk H: disk2序列4C530000010320109015 USB7798784000B/非BootSystem/单FAT32 offset131072核对前后不变、四旧SHA一致。备份code/build/hardware/usb-platform-mmio-20261026-r1/usb-publish/before；正常非私有guard成品及说明已flush/fsync写入并全SHA读回。EFI485ace1e4bd4f8d8a8862377845ceb48f41e394fafa2941392eed2cf5a73e43d；IMG94093d918d7c38de4ec3b88fb653df49c907afce5db3f04bcc211e30bf423dbb；SERVICES754a1a0a57d2a5f593d5dea00fdd9f584f7520ae93b4dc1fdb3c9039ab56b441；receipt绑定manifest/正常两boot/三设备runtimeproof/四readback。原卷native readonly rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，不修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk修改。SystemMemory PM只有native覆盖，实际Intel继续启动/桌面/键鼠仍待用户复测，不冒称实机已过。继续沿用户既有授权将本次源码测试文档及去claim_token公开任务快照提交推送GitHub。"
     },
     {
@@ -13328,6 +13437,7 @@
       "review_note": "实际审查tools/build_usb.py调用完整USB原/快照源图验证且--usb-only复用普通ESP在镜像创建前拒绝；查看test_device_manager仅增加真实默认profile复制/源指纹，packaging测试覆盖metadata/快照改写和缺失。独立作业d961830e1ced4c5193574d1d0d14a627，2模块8tests，0skip，均正常退出，source_stable=true，scope指纹吻合。此验收仅打包与fixture，不替代P8USBONLY1实际VM或硬件验收。",
       "legacy_hash": "4905eef06f78589e86adc858ed076e38430d6dac27e7588d1e44841549eae1e9",
       "claim_from_status": "todo",
+      "claim_token": "6823f367483848199d6146be8c48afb4",
       "integration_note": "实现与交付四路径已实际保存在项目主源码/works目录，不是候选独立副本；独立复验和scope SHA通过后登记集成，无Git提交推送。"
     },
     {
@@ -13453,6 +13563,7 @@
       "review_note": "实际审查内核仅USB_ONLY cfg1固定60秒，hz>MAX/60在Catalog任何写前拒绝；default及其余17配置依然hz*10，无ABI/依赖/权限/重试变更。完整native oracle独立逐字核10776B与guards、合法MAX/60及MAX/10边界、0/overflow/ready非法输出不变、60->10真坏体rc1；四旧fixture仅追加真实profile指纹。独立job86387ddd616e4837a9f343bd50667cd8全部5模块5tests0skip，source_stable/8路径SHA吻合。R6 VM亦已实际核catalog18配置预算，整体HID仍待main验收。",
       "legacy_hash": "01607f361ec3697583ffdc8f3b222eac1ef889d91458ca77cd1e73c13b317c82",
       "claim_from_status": "todo",
+      "claim_token": "4d5c8a3d941e4cbcb0449c6d0a2e51ab",
       "integration_note": "8个声明文件已实际落盘于主code及正确works，独立验真指纹一致后登记集成，无Git提交推送。"
     },
     {
@@ -13544,6 +13655,7 @@
       "review_note": "实际审查三个旧FAT测试Git diff与坏体fixture，均只增加真实默认hardware_profile依赖到SOURCES和私有源树；原mirror写缺失/LFN checksum/entry scan/cursor坏体、边界与性能预算均保留。独立job1fa1f75d554341799beea23a340e4f03三模块12tests0skip，真实native正常/坏体正常退出，source_stable=true、scope SHA匹配。",
       "legacy_hash": "26556b59f61a947209d0305d215abe3bd3426c0423038f6986707f1edb2c06ed",
       "claim_from_status": "todo",
+      "claim_token": "dae47ce10dc3460381fb9dbfdb75ec7b",
       "integration_note": "三fixture和交付文档已实际保存在项目主源码/正确works目录，独立复验和指纹核验通过后登记集成，无Git提交推送。"
     },
     {
@@ -13615,6 +13727,7 @@
       "review_note": "已实际审阅新DG/构建器/原生C/Python/文档及契约：只走既有configuration_read、vendor/multifunction与manager首项顺序一致，固定232B Report once/done-last/纯getter；BAR仅读config解码，原map/64attrs与FB只读，不授cap/DMA、不写PCI/size或读控制器MMIO。private三对象/唯一module+import/EFI单banner/normal512及17服务不变，画面15行只在既有Gate/几何stage24/version1/done1内。正式独立61732d32357f410ebe890dcddcf665cf 1test20.063s PASS/0skip/source_stable/进程停止退出，6指纹相符。真实DG debug/release×O0/O2各115cases404730checks，9实际坏体×2/40ELF-COFF/22native，32B双canary/View160/raw/config只读/零write/sticky有效；旧夹具失败保留。实际8命令完整graph+三obj+kernel/IMG/EFI build/verify通过。root8CPU vm-r2 PASS SHAc835b4762a3cc2e59e16a423121c7ad661d29ccf918695bcb0048648da2b46cc；额外原始只读核34物理dump，Report29字段/232B/MCFG60B checksum0/PCI头和QMP slot5身份000d1b36/class0c0330/BAR8004+3800→380000008000一致；原6192B图cover=[]，found0/desc五字段0/flags1103，明确没有描述符而非Reserved0。当前ECAM e0028000；21块新增授权/用户/交接零，完整1513635B执行段等于ELF，PNG15行80164像素一致，底470<480。单marker无user ready，stage24/error0/view保留/CPU8，单finalstop rc0已停止；整USB/3whole可写内盘SHA均不变。r1观察器误要求必须存在描述符被拒原件保留，r2只修观察器，guest同源。接受明确主动停止诊断，不代表Intel真机根因或桌面/接管修好；下一步备份发布H并只读FAT检查，用户拍完整15行。",
       "legacy_hash": "65458b83c6b013f57ff2b0646824f0e5b01d5a0dd3f1e72502ac314ddce53542",
       "claim_from_status": "todo",
+      "claim_token": "02641610653d408c83c28d0cf3431b54",
       "integration_note": "6声明文件已在主目录并逐项等于正式独立61732d32357f410ebe890dcddcf665cf的指纹。真实8命令build、native1test20.063s/0skip/115cases404730checks×4/9坏体×2、8CPU实际Report/MCFG/PCI/80164pixel/完整代码及无新授权/整USB与3内盘不变均已审查通过。仅作为明确只读intentional_stop诊断，原正常源/策略/17服务不变，Intel真机根因待下一屏。原SanDisk H disk2 serial4C530000010320109015/7798784000B/offset131072 FAT32及旧4SHA核对，完整备份后仅写新EFI29696B SHA13e88e8dde3e93453b5d41250cf22d6dd853042b443cf23a9bfa803f3e8ba6ea、IMG2019506B SHAd494de31a06ab97105bdbaa0027ee9a2cae38a690ba84498bf9e3e88dcda2047、原SERVICES33333248B SHA47a43ef79daee271dc934804e68eaccedc6385054f2343a2294f22356974188a及明确README。全部flush/fsync/最终SHA读回一致，未格式化/改分区/裸写/写内盘。实际原生volume rb无repair/exit0，mount_error0 ready1 dirty0 clusters=BPB1899872 reads53266 writes0 flushes0 bad_io0 canaries1。回执build/hardware/usb-info-20261026-r1/usb-publish/receipt.json SHA2c60e938301193d788724da0725f65ba19aa452cfd2c6858af442f4dbcbf5fbb。已告知可安全弹出，用户启动核USB INFO DIAG R1并拍完整DONGOS USB READ ONLY15行至FLAGS，不等桌面/不按F12；数据回传后才定位修复。随后提交GitHub完整代码/审查记录。"
     },
     {
@@ -13781,6 +13894,7 @@
       "review_note": "实际审查21声明文件：完整USB snapshot给kernel+17CPL3并防篡改，default模块不改；shared rank/内核admit+grant早退/USB block先于PCI扫描三层fail-closed；唯一MBR视图减法边界与raw proxy身份容量保留；USB2MiB bitmap完整mirror/LFN/目录/循环/交叉/孤儿审计，FSInfo仅8 hint字节兼容且独立范围/保留区检查；单遍seen先检查cluster且有界，8B清零/比较全覆盖。独立jobc68c11789ff14cd98832daf6fdfdbda7全部6模块29tests0skip，正常退出、source_stable=true、21路径SHA匹配；补充任务已独立集成。Root真实R6 live-full-gate-2/result.json passed=true，17实际assembly与kernel代码/私有池/页表一致，两次同MBR单USB+有线USB键鼠+三个可写内部NVMe/AHCI/VirtIO完整SHA不变；真实终端a make/release和compositor按钮消费、F12/pwd精确4字符、mkdir/write/append/remove/cat/sync与实际CBW/CSW FLUSH、原引导payload保持，第二轮整个USB SHA=首轮7a90e1c722e0998de5378611d38c598252d1220bd7a6515b660f03fc1989883d。四CPU metrics.failed及Bridge失败全零；每轮最后只stop一次不resume，原暂停取证诱发deadline历史失败保留。人工5项host控制亦0skip；所有QEMU已退出、runner输入SHA稳定b137fd9c...。此为源码/候选验收；待H身份/备份/fsync/读回后登记集成；真机桌面及P2 warm-PCID/WC均不宣称已验收。",
       "legacy_hash": "5cf0904f9dcb82117c0d0ba27ba170f8630746423299ec980aad364296b3be62",
       "claim_from_status": "todo",
+      "claim_token": "bddbde36ac2441108b9d662e8402a413",
       "integration_note": "实现21路径已实际落盘主code/正确works且与独立复验指纹一致，非仅候选副本。R6 live-full-gate-2完整2次启动通过，29项独立0skip+人工5项host控制通过，所有QEMU已退出。已在通过验收后更新H：fresh身份Disk2 SanDisk serial4C530000010320109015/7798784000B/USB/非boot-system/唯一MBR0C offset131072 size7798652928保持；先验证原runtime3 EFI/IMG/TXT三SHA并备份到code/build/hardware/usb-only-20261025-r6/usb-publish/before，再仅复制EFI/BOOT/BOOTX64.EFI(28160B)、DONGOS.IMG(2003058B)、SERVICES.BIN(33333248B)、DONGTEST.TXT(725B)，逐文件flush+fsync与完整SHA读回相同，无格式化/分区或raw写。receipt.json all_payload_readbacks_match=true，原分区保留。使用正式独立job编译的同源USB-release native只读H再审计：mount_error0 ready1 readonly0 dirty0 clusters1899872 reads53261 writes0 flushes0 bad_io0 canaries1（real-volume-after-publish.log）。发布收据与前后卷日志均保存在该build硬件目录；代码集成和USB发布完成，真机桌面/键鼠实际结果待用户测试，P2 warm-PCID/物理WC未提升，无Git提交推送。"
     },
     {
@@ -13906,6 +14020,7 @@
       "review_note": "实际审查USB input在queue/console/usb_rpc初始化之后仅认证原cfg13 tag/incarnation，1024上限不变，PS2/tablet/IRQ三路径不触达，默认流程保留；审查完整真实22DG闭包及122次native正常/坏体，成功由实际pump/reply/GUI事件而非返回0判定。mount_cache只扩大USB eligibility至真实bitmap cap，保留2x32-sector lifecycle/失败不重试，两个unaligned u64拷贝精确512B。独立jobcb7b880b1d484c8080a8d5e726da88d7全部5模块9tests，0skip，正常退出，source_stable和8路径SHA吻合。FS更大启动预算另由P8USBAUDIT2维护，本验收不替代main桌面VM。",
       "legacy_hash": "f4bfc1c6220aa3cb79dbce8969cef6143d6cca6c569b95a688b126daef48a70c",
       "claim_from_status": "todo",
+      "claim_token": "335d41d24e97425db2829d04d6638c94",
       "integration_note": "8项实现/测试/交付已实际落到主code与正确works目录，与独立复验指纹相同，登记集成，不执行Git提交推送。"
     },
     {
@@ -13977,6 +14092,7 @@
       "review_note": "已实际审查固定capture模块、private user_boot唯一hook、SMP=1 recipe、原Gate/geometry renderer、严格overlay/IMG/两个EFI消费者和native测试有效性。hook严格在真实ud.acquire+services.enable_smp返回成功后/新AP发布之前，不改正常文件、deadline或17服务；有意stop不能当成桌面/USB错误证据。正式job96590ceb317d4d6c8fb19917a1584a9c：2tests5.156s，0skip/源稳定/全部进程退出。实际capture debug/release O0/O2、ELF/COFF、3类真坏体断言失败、只读输入/once/空/状态/3..16CPU/136B布局均通过，patch唯一边界和15行列宽检查有效。Root actual8CPU WHPX单USB三可写内盘vm-r3 PASS：捕获17u64逐项对真实boot Report80B/Domain120B/SMP_ENABLED1/bridge非零/未发布handoff0；新用户服务及14类设备authority全零；真实CR3四级页表读取arena要求有效supervisor NX；完整kernel执行字节一致，15行82320像素、末行470；全USB及三整内盘hash不变、单次stop/退出。VM SHA674c02e184517102b573d82a0a21c11dd84cbad4d855cd08da1918258e73f6c6，manifest43151b1f0be1f05501418cd7c37cda22336689c7e19192548594b34b5a3c7c54。前两轮仅observer将arena误当内核线性段/缺runtime_offset，修为真实CR3查表；客体candidate未变。原始relative日志仅cwd同文件canonical化，rawlogSHA和严格flags/object/tool核验保留。验收仅AP发布前诊断边界，真机和USB首错仍待后续观察，不猜锁死。",
       "legacy_hash": "b2fd660d45630a3c1739edea551b231c8b9d31b329cd9798346ffa0e95d14ad4",
       "claim_from_status": "todo",
+      "claim_token": "2ef6c9f3896c49d1b326931a8130743f",
       "integration_note": "六个声明文件已真实集成主工作区并保持formal96590ceb...验收指纹。实际已验收candidate-r2显式USER CHECK R1更新原SanDisk H（disk2 serial4C530000010320109015 USB/FAT32/offset131072/partition7798652928保持），先备份原normal scratch4文件，再逐文件flush+fsync+SHA回读。最终native rb volume exit0，mount_error0/ready1/dirty0/1899872clusters及bpb一致、canaries1、writes0/flushes0/bad_io0、不repair；之后4文件再次SHA回读一致。最终receipt SHAd24a17858e2293165a9ee630d80ab19bdcc885a6815b73f2e5e035cad5403728，EFIadd7473f06d171ce4266a3b13ac3fd932e0f1dbfda181010dd7a4bd9591993e6，IMG07a8c83f886094d27c66339f674cc17b22fd167a28b31dfa7a15859dbe8b2b7d，SERVICES仍08825f787b8b1d49d345fd0ddc5f37c862c60cfce5ea580dd747eb7a2c62061c。无格式化/分区/rawdisk写。实际VM-r3通过、15行82320pixels/真实boot+domain/enable flag/新AP入口未发布/无用户硬件authority/完整代码/4整镜像不变及formal2tests0skip源稳定见验收note。该镜像有意停在AP发布前，正常desktop及USB服务尚未执行，不宣称S19根因已找到或真机通过；用户将回传到ENABLE OK整屏。"
     },
     {
@@ -14095,6 +14211,7 @@
       "review_note": "已实际审查10授权文件及BSP/AP所有权/计时时序。保留原1..14，新增15..19只在BSP安全准备段绘图；DG19在until创建前，20..23仅HW_BOOT_MARK/store，retire在unlock前，legacy关闭点不变，AP/IRQ通用入口不改。BSP专用publish返回错误先原64bit RAX HW_BOOT_ERROR再原fail-stop，完整ABI helper沿用Gate四qword/几何保护，未改安全门/xHCI/PCI Runtime/deadline。NASM7次ELFCOFF runtime0通过；native原宏/renderer/实际stage mark retire包装O0O2各236场景3706检查、全GPR flags DF XMM/SysV对齐/guard/Gate及7真实坏体×2被oracle正常拒绝，4实际hook坏体拒绝；首负例缺锚点异常已明确断言且失败历史保留。P8USERTEST1仅修旧路由测试与冻结source合同，已独立3项验收集成rev6，未放宽生产。正式job4550eb16bebf48169445f5b100109046 四模块6测试0skip/source稳定/所有进程退出，10指纹一致。root实际normal USB-only runtime7构建source稳定、live-full两次完整GUI/HID/F12pwd/文件write append rm cat syncFLUSH/全部CPU及代码/页表/pool强gate PASS；两boot phase23 failed0 error0 view0 ctx88零，完整USB SHA均f0ed9c703c72f8b91c200b9f0ae969fe9a74b633db26986a394852bade2e5785。root8CPU preflight-proof实际VM PASS：只私有真实user.device_host.preflight_discovery入口6字节mov eax,真实Denied050a0002;ret；其余ELF/materialized全部不变，真实directcall/site/所有阶段代码均未改，无早期guard变更；完整EFI重放两个manifest消费者hash绑定/服务bundle原样。实际先完成IRQ/threads/SMP/ELF原markers，再S15 failed1/error050a0002/view有效/cpu8/context零，服务串口原错误码一致，全kernel executablebytes及实际屏幕每glyph像素验证通过，未放行用户服务。三VM均停、normal objects/受控USB/三可写内盘全SHA不变。纯诊断盲区修复已证，Intel真实停滞根因未证且不能宣称桌面修好；view退休后的unlock故障/activate内部直接fatal/后续用户态仍不保证新屏显，不unsafe恢复。可发布正常成品到已确认原SanDisk H，须备份fsync/readback/FAT审计。",
       "legacy_hash": "42e04d29f4907610e5f34037c7de567433dc5fc4c6f81244d4857845bf5e97de",
       "claim_from_status": "todo",
+      "claim_token": "5d116d67d5bc482084176fe4604e0988",
       "integration_note": "10授权文件已在主code/与coordination交付目录真实集成，正式job4550eb16bebf48169445f5b100109046指纹一致，四模块6测试0skip/source稳定/进程退出；路由测试维护P8USERTEST1已独立3项验收并集成rev6。实际正常USB-only两boot完整HID/FS/CPU强gate及8CPU私有S15真实PCI preflight Denied050a0002错误/像素/全codebytes取证均通过，细节见accept；三个VM全停。原SanDisk H disk2序列4C530000010320109015 USB7798784000B/非systemboot/单FAT32 offset131072前后身份不变，旧四SHA核对一致。完整备份code/build/hardware/usb-user-diag-20261026-r1/usb-publish/before；仅正常非故障候选成品+说明已flush/fsync并全SHA读回：EFI6a09f9d1ca037ee62ba7f8c3870ee7d58f83f77c0143003f2b2d29d566e19b1f；IMG6a3acb39fd30744a7a98527a800076880c02dfca9f8f2563f2a94e9efc5a91e4；SERVICES3198b7b4f312b9b9ab9b06822eb616426422d8e8d1f5f3faf68c7aa4f5f5f185。receipt绑定manifest/normal两boot/preflight失败proof/四readback。原卷native rb FAT审计正常返回mount_error0 ready1 readonly0 dirty0 clusters=BPB1899872 reads53263 writes0 flushes0 bad_io0 canaries1，不修复，logSHA7d2e748ae1f0e294e5f5feda435af9bedd2a8a5b184a37a0cedede776f54efe1。无format/partition/rawdisk/internaldisk改动。已证本次诊断盲区修复，不宣称真实Intel桌面停滞根因修好；需要用户拍新阶段/原error反馈，退休后unlock/activate内部fatal/用户态仍有已说明边界。继续沿用户既有授权提交推GitHub，公开JSON去claim_token保留本机权威原件。"
     },
     {
@@ -14158,6 +14275,7 @@
       "review_note": "已实际审查单测试变更：旧断言原ROOT/kernel/smp_probe.dg与已生效storage_profile完整冻结源路由不符；改为精确output/kernel-profile-src/smp_probe.dg及当前源逐字节相等，核kernel DG source_before/after一致，并调用现有verify_profile校验全部生成源集合/hash及0静态表合同，原normal selector/链接object/未build/无ELF等断言均保留。无生产变更。最终native3项PASS；独立job6fcc5634de4d451ca0c96164bca1963d 3项0skip/source稳定/进程全退出，测试指纹36c43931f6858628cce9cd7e94e7fd2e973dd3e16a8fff5318687383a61cb1b3一致。两轮旧路径/缺source_boundary失败记录真实保留，未重标。",
       "legacy_hash": "f4affc243c2c5d144f54a48ae25db319901b75ca951ccba97899857b38537334",
       "claim_from_status": "todo",
+      "claim_token": "42ba5b19ad2645d683b7c58301874d0d",
       "integration_note": "tests/test_user_smp_integration.py及本交付已在主目录真实集成，指纹与独立3项0skip/source稳定复验一致。仅维护真实冻结源码路由断言，无生产代码/VM行为修改，旧失败保留。"
     },
     {
@@ -14229,6 +14347,7 @@
       "review_note": "已实际审查完整cap decoder、builder私有reader/entry/renderer、原始mmio_range和两类native oracle及文档契约；另有builder agent只读独立审查PASS。每次先参数边界/原门禁，再UC仅内核RO NX映射，首次同页强制RO；无PCI/controller写、新ownership/DMA，normal512及17服务保留。首4K/64节点/已知完整结构前置界限、unknown header-only、partial明确且仅完整链推断coverage，reject_mask仅当前可观察谓词。正式job5c5453174be9493c97717a4970e4aba3：2tests28.562s、零skip、源稳定；真实14类坏体×debug/release fail oracle、ABI256B/相邻BSS/call顺序/零副作用有效。Root实际8CPU WHPX单USB三可写内盘sentinel、实Report/首page/15行78792pixels/CR0.WP/四级有效USER拒绝/leaf UC RO NX/noalias/noauthority及整盘hash不变，vm-r3 SHA fae66cdc2f13c398c804bb11919e2ada1265630f49c86419e24b02ca41852610。早两轮只纠正observer marker/有效权限误判，候选未变。验收为显式只读诊断停机，真机根因/desktop/HID仍未通过，发布前核验原SanDisk并备份/flush/readback/native rb零写。",
       "legacy_hash": "fa1696c0d0910e9fa45a2a98a4fd0c96f0327fb68d0dd946ed189c02b688a473",
       "claim_from_status": "todo",
+      "claim_token": "95d8acf4c083430480d18eee45d5e5de",
       "integration_note": "六个已验收声明文件已实际集成到主工作区，正式复验源指纹未变。实际接受候选builder-preflight-r1/esp写入用户已确认的原SanDisk H（disk2 serial4C530000010320109015；USB/FAT32/offset131072/partition7798652928保持），先备份原4文件，再各flush+fsync及SHA回读。最终receipt SHA256 52c4f82e1c988f0211ccd45270d9d5bdb514a9a9d6d8c7d5e9101db6fdc7ef52；EFI2d43c1e95e9e53383bf6d0b1e6d027f325e74064b9b3b46d9e0a82da6de7f601，IMGd6ea90158ce60fd61215b626874d9916ac7c2be84faba56d4e0dfeb335061397，SERVICES原hash保持。native rb volume进程exit0，mount_error0/ready1/dirty0/clusters1899872、canaries1、writes0/flushes0/bad_io0、未repair，之后4文件再次SHA回读一致。无格式化、分区或rawdisk写；仅显式CAPS R1首page只读诊断停机版，normal默认/服务未改。真实硬件能力和固件占用仍待照片，未登记桌面/HID通过。Root真实VM及正式独立2tests0skip/source-stable证据见验收note。"
     },
     {
@@ -14326,6 +14445,7 @@
       "review_note": "仅验收预检诊断组件，不验收真机启动修复。实际审查所有Unsupported分支和read_raw：原条件、返回码、MMIO读取顺序/次数、enable/DMA行为及Setup112/Caps328/State1280 ABI不变；独立40B报告在实际拒绝处保存决策样本，新预检/成功清零，四条短日志在原error/phase/held前输出且无重读。实际debug/release执行42场景、O0/O2、ELF/Win64、wrong-body控制，独立job256edc214e0c40fb8429226681450444共6 tests/0skip/source_stable PASS。fresh普通构建及R3严格候选构建PASS，manifest7f55483874433958525df7ce2b0d93e868234e27ed2448a2225801d74a2d348b。root真实8CPU零端口QEMU控制器经原precheck产生08110002/check4，原始七行在两个窗口完整保留，99960像素核对PASS，虚拟启动介质及三内部哨兵完整哈希不变。真实8CPU正常USB boot-smoke-v3到CLIENTS_READY，最后冻结后fatal报告全零、UART无fatal、compositor永久交接及截图PASS。保留两项失败：首negative配置未生效，v2正确配置后才通过；positive-v2漏终态fatal误报PASS，截图06690004已显式否决并保留audit-rejection，v3补最终fatal核对才通过。单次v3通过不证明稳定，整体BOOTCONSOLE仍返修，完整HID/文件及Intel根因未通过。证据code/build/hardware/xhci-precheck-20261028-r1。",
       "legacy_hash": "f476fbde74fbf97c9daf635380ee7ab08364560182f6b002314acaa4c8d124f2",
       "claim_from_status": "todo",
+      "claim_token": "c9ccd94c9c064ef698bc69a39a2c6797",
       "integration_note": "诊断源码已实际落在code/services/usb/xhci_controller.dg及drivers/xhci_service.dg，测试/文档与独立复验指纹一致；完整构建使用这些真实文件，R3精确候选实际故障显示和最终fatal核对启动smoke通过。仅集成此诊断组件；不声明Intel Unsupported根因修复或完整桌面回归通过。"
     },
     {
@@ -14337,6 +14457,7 @@
         "module:tests.test_syscall_corpus"
       ],
       "claim_from_status": "todo",
+      "claim_token": "c8594ebfbf6b4bbebbfdb46956e5a89f",
       "claimed_at": "2026-10-22T02:40:15+00:00",
       "claimed_by": "codex-mcp-8c76f5a25c8d4b71",
       "completed_at": "2026-10-22T02:43:57+00:00",
@@ -16434,6 +16555,7 @@
         "discover:cursor-works/tests:test_nasm_pair_cleanup_function.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": null,
       "claimed_at": "2026-10-20T04:51:40+00:00",
       "claimed_by": null,
       "completed_at": "2026-10-20T06:03:16+00:00",
@@ -16658,6 +16780,7 @@
         "discover:cursor-works/tests:test_guest_source_catalog.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "94da995f7cab47c6b2383fb5240a7dba",
       "claimed_at": "2026-10-20T07:23:49+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T07:40:26+00:00",
@@ -16736,6 +16859,7 @@
         "discover:cursor-works/tests:test_guest_diagnostic_sink.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "2b2846fb943540cf9f83a157d4a22db4",
       "claimed_at": "2026-10-20T07:28:02+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T07:42:04+00:00",
@@ -16811,6 +16935,7 @@
         "discover:cursor-works/tests:test_semantic_stack.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "f4a4cc08957a46f78b2774b992b8668d",
       "claimed_at": "2026-10-20T08:27:37+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T08:28:36+00:00",
@@ -17277,6 +17402,7 @@
         "discover:cursor-works/tests:test_l3_extern_unsafe.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "42ef870b63dd46399b8c7f6923bf398c",
       "claimed_at": "2026-10-22T06:16:42+00:00",
       "claimed_by": "deepseek-mcp-802902233bc54373",
       "completed_at": "2026-10-22T07:17:20+00:00",
@@ -17412,6 +17538,7 @@
           "note": "用户明确要求接收处理P5CTX1，Codex接手实现及后续独立复验/集成。当前todo、从未领取、无candidate/交付/作业，不存在需要停止的原领取轮次；保持原任务编号和声明文件路径。"
         }
       ],
+      "claim_token": "016942666fd84400b4c98a671b083460",
       "claim_from_status": "todo",
       "integration_note": "已完成真实本地主线文件集成：验收的两个完整模块复制到code/kernel/user/{device_host,services}.dg，三个P5测试复制到code/tests/，五文件与已验收副本逐字节一致；文档复制到code/docs/p5-recovery-context.md并仅补主线位置说明。正式隔离复验job5ed94c53b4b84458a0a53b052c63b8c9通过1test/0skip及全部稳定/退出标志，7文件指纹未改。集成后完整86模块依赖图debug/release编译通过；13模块21个不同测试方法均已通过（首轮19项通过，旧DMA/VirtIO两native因Windows printf格式构建失败，仅加ANSI stdio宏后定向2项/0skip通过，首失败与重跑证据分别保留）。SMP/故障/GUI/preload/USB旧fixture兼容及负控锚点已独立审查，无弱化原oracle；新P5 native实际绑定主线源码。memory/devices/device_manager及生产Process/Frame未改，不回收DMA，drain未知，P5整体未完成。具体映射/SHA和真实证据见coordination/dongos_works/reviews/2026-10-21-P5CTX1-integration.md及同名JSON；未运行OS/VM、提交或推送。"
     },
@@ -19177,6 +19304,7 @@
           "note": "用户授权两项完成后继续所有剩余任务并由Codex直接修复DeepSeek错误。L3A已经独立验收rev10，L3仍todo无claim/活动作业；为连续完成本轮剩余任务，Codex直接接手有限G5 runner与真实缺口记录，不自动启动DeepSeek AI CLI，不扩展为虚称整个自举完成。保留原四授权路径、任务书和定向门禁。"
         }
       ],
+      "claim_token": "62dc356c3b4647a1b5f513f628257323",
       "claim_from_status": "rework",
       "pause_note": "主动源码审查发现有限runner只最终fingerprint生产/只读闭包，运行时创建的目标fixture源虽同轮正常观察一致且归档，尚未全部纳入最终源稳定清单。此为任务契约缺口，不能据当前轮验收。请求官方停止验证7b0221ae，保留interrupted/现场；确认实际子进程退出后Codex直接补fixture指纹登记和独立篡改拒绝负控，再完整冷复验，不回交DeepSeek，不修改DB/index。",
       "integration_note": "已验收的runner/说明原字节真实集成code/tools/g5_differential.py及code/docs/g5-differential.md，候选4文件和永久完整矩阵测试留在版本仓库；主线独立L3MAIN12实际CLI/根/防覆盖2tests/0skip/0.609s并源码审查/指纹后integrated6，记录reviews/2026-10-22-L3-main-copy.json及L3MAIN12-main-files.json。L3正式5672d2e5为4tests/0skip/899.078s，全矩阵和源码稳定；明确更正accept说明随手数量158，真实原始coverage为155源，未修改原证据。整个G5仍false，16真实known-gap保留；Windows执行范围明确。后继L3HOST13仅适配测试桥Linux链接、L3REG14修旧测试容量0边界，不回写旧L3正式指纹。"
@@ -19271,6 +19399,7 @@
       },
       "review_note": "按用户要求Codex直接修复并完成实际源/契约审查。原DeepSeek首交7项虽通过但.text填零回归/静态指针缺口未验收，原始八文件与正式失败/通过历史均保留。修复native .text/.rodata NOP且.data零对齐，后端static_place从Graph.info取真实表达式类型并核验array index<count；声明外前端由独立L3PTR7已正式17tests/0skip集成6。GLOBAL单实例、窄宽精确store、聚合padding、模块编码、pub/private和CONST .rodata保持；program_ir未修改，不覆盖旧版。实际检查永久测试是源bytes→真Dong frontend/lower/backend→ELF64/COFF、SysV原生及callee/RSP/完整字节；3真坏Dong错址/窄store邻接canary/容量提前发布都构建并正常返回后被独立数值/内存/发布oracle拒绝，不以崩溃/文本当负控。完整native assembler ELF实际映射原定0x400000执行静态绝对指针读写，Windows仅退出初始线程释放栈，不修改ELF/指针；另无静态指针fixture异址执行仅作对照。实际.text6个NOP且穿过后返回42；kernel ELF.validate原始headers通过。原生容器沿用已有RX/RW数据布局，未虚称新增独立RO segment。独立正式jobd4b983c7f6354673b6d064bd4e5cccd3：globals6tests/0skip/854.516s，native4tests/0skip/263.375s，共10，全source_stable/process_stopped/execution_exited=true。全部原始只读闭包SHA稳定，旧开发失败明确排除。当前仅验收有限全局量完整里程碑，整个L3A/G5仍有后续语言差集，由L3 runner实际记录，待真实主目录集成及主线回归另integrate。",
       "legacy_hash": "dafd75b1f7fa1e23990726ff1f85d2a5a56f27a712e517cfb11eedb2ddd44b18",
+      "claim_token": "95cd09ffbfe642f6873901c52a8a4217",
       "assignment_history": [
         {
           "at": "2026-10-21T16:40:50+00:00",
@@ -19935,6 +20064,7 @@
           "note": "用户明确授权Codex接手DeepSeek尚未完成的两项任务。本项尚未领取，无外部执行者；保留稳定ID、两声明文件、独立测试及P2VEC42依赖，待前项独立验收后执行。"
         }
       ],
+      "claim_token": "9b050c90012c4060a464e81b50d33310",
       "claim_from_status": "todo",
       "integration_note": "JSON和交付已从独立snapshot真实移交到项目works_root，并在独立验收后逐文件复算与正式9868d94f74e745a38c6bb924ee380ae3指纹一致：JSON84002a95…、交付3d454ce2…。登记本地集成。P2VEC42集成文件亦重验SHA一致；共仅四个任务声明文件交付，未修改测试/生产、未提交推送或执行OS/VM。"
     },
@@ -19998,6 +20128,7 @@
       },
       "review_note": "已实际逐行审查JSON和任务书：固定12行/顺序/字段、bool与十六进制字符串严格符合；8有效/4无效，跨页=0x2000、未对齐两页=0x3000、16MiB偏移包络=0x1001000、2^48精确终点=0x1000，四无效均false/null。独立审查测试使用固定输入和独立整除包络，已运行4项契约/错误负控全部通过。正式94b5d018570144e08c2d8eb8bd279120 1项/0skip、source_stable/process_stopped/execution_exited。旧错误交付追加纠正且历史保留，仅两声明文件真实移交；本次仅验收数据，不宣称实际授权或物理WC。",
       "legacy_hash": "7fb2063fbc893bc00a0e1b14316518632dc011864053daab229928a5d10d743a",
+      "claim_token": "b12623c7c967444fbf513d82b5aa3f14",
       "last_run_note": "执行失败、缺少交付或修改超出归属；请查看日志",
       "assignment_history": [
         {
@@ -20028,6 +20159,7 @@
         "discover:pool-works/tests:test_guest_source_path.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "98bb5f4f65bc42b3840fa55ac6b09304",
       "claimed_at": "2026-10-20T05:50:53+00:00",
       "claimed_by": "deepseek-mcp-199bcd394d05436c",
       "completed_at": "2026-10-20T06:02:46+00:00",
@@ -20094,6 +20226,7 @@
         "discover:pool-works/tests:test_guest_source_reader.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "b52e3bb4e8b84f33aa4f6de31ce3925f",
       "claimed_at": "2026-10-20T05:31:37+00:00",
       "claimed_by": "deepseek-mcp-199bcd394d05436c",
       "completed_at": "2026-10-20T05:36:54+00:00",
@@ -20160,6 +20293,7 @@
         "discover:pool-works/tests:test_guest_compile_memory.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "a508b7fba1b2496db4798949e1e3e39f",
       "claimed_at": "2026-10-20T05:53:11+00:00",
       "claimed_by": "claude-worker-guest3",
       "completed_at": "2026-10-20T05:53:12+00:00",
@@ -20235,6 +20369,7 @@
         "discover:pool-works/tests:test_guest_compile_image.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "ade500d740fe4664a349dc0f650d4ac8",
       "claimed_at": "2026-10-20T08:27:36+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T08:28:35+00:00",
@@ -20310,6 +20445,7 @@
         "discover:pool-works/tests:test_guest_artifact_commit.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "d8404bb1aa1c42c1844104ea3e8c3806",
       "claimed_at": "2026-10-20T07:21:45+00:00",
       "claimed_by": "codex-mcp-d76b66689d824a70",
       "completed_at": "2026-10-20T07:27:07+00:00",
@@ -20376,6 +20512,7 @@
         "discover:pool-works/tests:test_l3_method_semantics.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "107e3d67b79d4eb384a236003f70180a",
       "claimed_at": "2026-10-22T02:24:25+00:00",
       "claimed_by": "cursor-mcp-3e7917854bd14ac8",
       "completed_at": "2026-10-22T02:42:19+00:00",
@@ -20444,6 +20581,7 @@
         "discover:pool-works/tests:test_mcp_pool_config.py"
       ],
       "claim_from_status": "todo",
+      "claim_token": "b34339cecacf4d9a9a05158851af29f7",
       "claimed_at": "2026-10-20T04:43:36+00:00",
       "claimed_by": "cursor-mcp-415ed5783a554f4e",
       "completed_at": "2026-10-20T06:03:14+00:00",
@@ -20528,6 +20666,7 @@
         "discover:pool-works/tests:test_syscall_corpus.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "eca6793409eb4f4684c1beec15fe5cb4",
       "claimed_at": "2026-10-22T01:34:59+00:00",
       "claimed_by": "deepseek-mcp-802902233bc54373",
       "completed_at": "2026-10-22T01:39:52+00:00",
@@ -20593,6 +20732,7 @@
         "discover:pool-works/tests:test_windows_verification_finish.py"
       ],
       "claim_from_status": "rework",
+      "claim_token": "97d006dcdc2e4e77849459ac2cd3624a",
       "claimed_at": "2026-10-20T05:58:39+00:00",
       "claimed_by": "manual:claude",
       "completed_at": "2026-10-20T06:14:02+00:00",
@@ -21003,6 +21143,7 @@
         "module:lang.tests.test_bootstrap_x86_compact",
         "module:lang.tests.test_bootstrap_native_assembler"
       ],
+      "claim_token": null,
       "claimed_at": null,
       "claimed_by": null,
       "completed_at": null,
@@ -21045,6 +21186,7 @@
         "module:tests.test_user_address_spaces",
         "module:tests.test_service_resources"
       ],
+      "claim_token": null,
       "claimed_at": null,
       "claimed_by": null,
       "completed_at": null,
@@ -21142,6 +21284,7 @@
       },
       "review_note": "",
       "legacy_hash": "80f08300ae2532286b8200960d081f26e99e390f91085b44d194d1582b2f6868",
+      "claim_token": "635588d89a6a4e57aedabaab1dad243c",
       "claim_from_status": "todo",
       "resume_status": "submitted",
       "pause_control": "confirmed",

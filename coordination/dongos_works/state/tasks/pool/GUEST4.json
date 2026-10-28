@@ -16,6 +16,7 @@
     "discover:pool-works/tests:test_guest_compile_image.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "ade500d740fe4664a349dc0f650d4ac8",
   "claimed_at": "2026-10-20T08:27:36+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T08:28:35+00:00",

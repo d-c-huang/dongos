@@ -9,6 +9,7 @@
     "module:tests.test_panic_binding"
   ],
   "claim_from_status": "todo",
+  "claim_token": "d85d7cd4cb284d13a3d4fefc31c06fe3",
   "claimed_at": "2026-10-22T21:30:36+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T21:45:39+00:00",

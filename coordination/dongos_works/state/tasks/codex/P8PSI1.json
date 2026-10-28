@@ -9,6 +9,7 @@
     "module:tests.test_xhci_scratchpad"
   ],
   "claim_from_status": "todo",
+  "claim_token": "7d6e59deda9d4cc7aaf02377a3621495",
   "claimed_at": "2026-10-28T11:35:20+00:00",
   "claimed_by": "codex-mcp-b0b0a56f66684e46",
   "completed_at": "2026-10-28T11:46:01+00:00",

@@ -10,6 +10,7 @@
     "module:tests.test_user_smp_normal_activation"
   ],
   "claim_from_status": "todo",
+  "claim_token": "5d116d67d5bc482084176fe4604e0988",
   "claimed_at": "2026-10-26T11:06:26+00:00",
   "claimed_by": "codex-mcp-918a30d10dd649bf",
   "completed_at": "2026-10-26T11:17:47+00:00",

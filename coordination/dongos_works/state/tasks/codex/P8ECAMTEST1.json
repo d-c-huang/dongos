@@ -10,6 +10,7 @@
     "module:tests.test_nvme_broker"
   ],
   "claim_from_status": "todo",
+  "claim_token": "93a6debf962443f8800331a8f0ba2067",
   "claimed_at": "2026-10-26T12:08:08+00:00",
   "claimed_by": "codex-mcp-918a30d10dd649bf",
   "completed_at": "2026-10-26T12:27:31+00:00",

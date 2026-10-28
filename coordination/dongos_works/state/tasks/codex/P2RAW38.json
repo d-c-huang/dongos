@@ -8,6 +8,7 @@
     "module:tests.test_user_smp_entry"
   ],
   "claim_from_status": "todo",
+  "claim_token": "a6d26ffbda99495cb2f9b165b21c5251",
   "claimed_at": "2026-10-23T01:40:41+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-23T02:12:36+00:00",

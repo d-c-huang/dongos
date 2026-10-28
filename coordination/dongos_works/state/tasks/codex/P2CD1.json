@@ -12,6 +12,7 @@
     "module:tests.test_p2_historical_capture"
   ],
   "claim_from_status": "todo",
+  "claim_token": "d1eeae57a06b491ea05cb79d0ba0185c",
   "claimed_at": "2026-10-24T11:24:33+00:00",
   "claimed_by": "codex-mcp-5f95564a50c4415d",
   "completed_at": "2026-10-24T13:45:30+00:00",

@@ -7,6 +7,7 @@
     "module:tests.test_user_boot_checkpoint"
   ],
   "claim_from_status": "todo",
+  "claim_token": "2ef6c9f3896c49d1b326931a8130743f",
   "claimed_at": "2026-10-27T11:52:30+00:00",
   "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
   "completed_at": "2026-10-27T12:00:45+00:00",

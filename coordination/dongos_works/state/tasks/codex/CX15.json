@@ -7,6 +7,7 @@
     "module:lang.tests.test_bootstrap_compiler_job"
   ],
   "claim_from_status": "todo",
+  "claim_token": "4d0cdee2f7274ce0a345a9ce97747f1f",
   "claimed_at": "2026-10-20T10:05:52+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T10:06:31+00:00",

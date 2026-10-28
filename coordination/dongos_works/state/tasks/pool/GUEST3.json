@@ -7,6 +7,7 @@
     "discover:pool-works/tests:test_guest_compile_memory.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "a508b7fba1b2496db4798949e1e3e39f",
   "claimed_at": "2026-10-20T05:53:11+00:00",
   "claimed_by": "claude-worker-guest3",
   "completed_at": "2026-10-20T05:53:12+00:00",

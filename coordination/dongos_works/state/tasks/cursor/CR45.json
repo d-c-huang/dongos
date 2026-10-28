@@ -16,6 +16,7 @@
     "discover:cursor-works/tests:test_guest_source_catalog.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "94da995f7cab47c6b2383fb5240a7dba",
   "claimed_at": "2026-10-20T07:23:49+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T07:40:26+00:00",

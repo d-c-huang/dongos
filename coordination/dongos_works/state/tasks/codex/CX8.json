@@ -7,6 +7,7 @@
     "module:lang.tests.test_guest_files_commit"
   ],
   "claim_from_status": "todo",
+  "claim_token": "216f06b195824b139048849dd8a09640",
   "claimed_at": "2026-10-20T08:15:48+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T08:19:33+00:00",

@@ -9,6 +9,7 @@
     "module:tests.test_user_runtime"
   ],
   "claim_from_status": "rework",
+  "claim_token": "a5979c9872444724a1396d80e70fbc54",
   "claimed_at": "2026-10-27T16:23:24+00:00",
   "claimed_by": "codex-mcp-5c7de4d7c45b49d1",
   "completed_at": "2026-10-27T16:28:07+00:00",

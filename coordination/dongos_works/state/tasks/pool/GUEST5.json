@@ -16,6 +16,7 @@
     "discover:pool-works/tests:test_guest_artifact_commit.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "d8404bb1aa1c42c1844104ea3e8c3806",
   "claimed_at": "2026-10-20T07:21:45+00:00",
   "claimed_by": "codex-mcp-d76b66689d824a70",
   "completed_at": "2026-10-20T07:27:07+00:00",

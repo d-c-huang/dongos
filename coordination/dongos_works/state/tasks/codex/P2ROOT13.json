@@ -9,6 +9,7 @@
     "module:tests.test_paging"
   ],
   "claim_from_status": "rework",
+  "claim_token": "2c46a3f5210c477b835e44d56b1b15ef",
   "claimed_at": "2026-10-22T19:09:01+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T19:12:41+00:00",

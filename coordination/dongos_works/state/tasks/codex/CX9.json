@@ -10,6 +10,7 @@
     "module:tests.test_user_address_spaces",
     "module:tests.test_service_resources"
   ],
+  "claim_token": null,
   "claimed_at": null,
   "claimed_by": null,
   "completed_at": null,

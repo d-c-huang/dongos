@@ -23,6 +23,7 @@
     "discover:lmstudio-works/tests:test_p2_rounding_vectors.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "b12623c7c967444fbf513d82b5aa3f14",
   "claimed_at": "2026-10-24T10:09:29+00:00",
   "claimed_by": "codex-mcp-5f95564a50c4415d",
   "completed_at": "2026-10-24T10:10:26+00:00",
