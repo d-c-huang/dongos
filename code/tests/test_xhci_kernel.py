@@ -142,6 +142,7 @@ class XhciKernelTests(unittest.TestCase):
    d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();stage=d/'source';override=stubs();original=(SOURCE_ROOT/'kernel/user/devices.dg').read_text(encoding='utf-8')
    if mutation:
     needle,replacement={
+     'psi-rate':('let bit=xhci.psi_speed(major,try xhci_word(offset+16+index*4));','let raw=try xhci_word(offset+16+index*4);let bit=(1 as u64)<<(raw&15);'),
      'wrong-device':('((try read32(XHCI_ADMITTED))!=XHCI_IDENTITY)','false'),
      'stale-owner':('owner!=XHCI_OWNER||incarnation!=XHCI_INCARNATION||',''),
      'late-interrupter':('while i<b.interrupters as usize {','while i<1 {'),
@@ -152,8 +153,8 @@ class XhciKernelTests(unittest.TestCase):
    obj=d/'probe.o';nasm=tool('nasm','NASM');cc=tool('gcc','CC');self.assertTrue(nasm and cc)
    r=self.command([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),'-o',str(obj),str(d/'probe.asm')],d,'assemble');self.assertEqual(0,r.returncode,r.stderr)
    exe=d/('probe.exe' if os.name=='nt' else 'probe');r=self.command([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing',*(['-mno-sse'] if os.name=='nt' else ['-no-pie']),str(ROOT/'tests/xhci_kernel_probe.c'),str(obj),'-o',str(exe)],d,'link');self.assertEqual(0,r.returncode,r.stderr)
-   scenarios=('removed-identity','owner','late-interrupter','quarantine') if mutation else ('normal','removed-identity','owner','late-interrupter','quarantine','partial-grant','readback','dma-page','old-erstba','bar-overlap','legacy-isolation','msi','cap-boundary','extension-boundary','removed-before-attach','wrong-slot','scratch34','scratch64','scratch-table','scratch-dirty','scratch-last-alias')
-   if mutation:scenarios=({'wrong-device':'removed-identity','stale-owner':'owner','late-interrupter':'late-interrupter','reuse-quarantine':'quarantine'}[mutation],)
+   scenarios=('removed-identity','owner','late-interrupter','quarantine') if mutation else ('psi-good','psi-duplicate','psi-rate','psi-overlap','psi-duplex','normal','removed-identity','owner','late-interrupter','quarantine','partial-grant','readback','dma-page','old-erstba','bar-overlap','legacy-isolation','msi','cap-boundary','extension-boundary','removed-before-attach','wrong-slot','scratch34','scratch64','scratch-table','scratch-dirty','scratch-last-alias')
+   if mutation:scenarios=({'psi-rate':'psi-rate','wrong-device':'removed-identity','stale-owner':'owner','late-interrupter':'late-interrupter','reuse-quarantine':'quarantine'}[mutation],)
    for scenario in scenarios:
     r=self.command([str(exe),scenario],d,scenario)
     if mutation:self.assertEqual(1,r.returncode,r.stdout+r.stderr);self.assertIn('xHCI kernel check failed line',r.stderr)
@@ -166,4 +167,4 @@ class XhciKernelTests(unittest.TestCase):
     nasm=tool('nasm','NASM');r=self.command([nasm,'-f','elf64',*nasm_flags(nasm),'-o',str(p.with_suffix('.o')),str(p)],self.out,name+'-'+mode,timeout=300);self.assertEqual(0,r.returncode,r.stderr)
  def test_actual_kernel_grant_gate_and_quarantine(self):self.native()
  def test_actual_bad_kernel_sources_are_rejected(self):
-  for mutation in ('wrong-device','stale-owner','late-interrupter','reuse-quarantine'):self.native(mutation)
+  for mutation in ('psi-rate','wrong-device','stale-owner','late-interrupter','reuse-quarantine'):self.native(mutation)

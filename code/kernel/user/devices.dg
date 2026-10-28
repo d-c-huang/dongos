@@ -586,6 +586,18 @@ unsafe fn xhci_extensions(first:u64)!usize {unsafe {
         var e=xhci.Extension {offset:offset,header:header,name:0,range:0,slot:0,legacy_control:0};
         if kind==1 {e.legacy_control=try xhci_word(offset+4);}
         else {e.name=try xhci_word(offset+4);e.range=try xhci_word(offset+8);e.slot=try xhci_word(offset+12);}
+        if kind==2 {
+            let psic=e.range>>28;bytes=16+4*psic;let major=header>>24;let next_bytes=((header>>8)&255)*4;
+            if offset>XHCI_BARS[0].length||bytes>XHCI_BARS[0].length-offset||(next_bytes!=0&&next_bytes<bytes){return error.Denied;}
+            if psic!=0 {
+                if (major!=2&&major!=3)||(major==2&&psic!=3)||(major==3&&psic!=1){return error.Denied;}
+                var index:u64=0;while index<psic {
+                    let bit=xhci.psi_speed(major,try xhci_word(offset+16+index*4));
+                    if bit==0||(e.legacy_control&bit)!=0{return error.Denied;}
+                    e.legacy_control|=bit;index+=1;
+                }
+            }
+        }
         *(XHCI_EXTENSIONS+count)=e;count+=1;
         let next=(header>>8)&255;if next==0 {offset=0;}else {
             if next*4<bytes||offset>XHCI_BARS[0].length||next*4>XHCI_BARS[0].length-offset {return error.Denied;}

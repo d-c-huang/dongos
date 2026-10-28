@@ -54,6 +54,16 @@ static void one(unsigned scenario){
   regs[0]=0x01000080;regs[1]=0x18000840;regs[2]=0x14200054;regs[4]=0x200077c1;s.bytes=524288;regs[0x88/4]=1;
   regs[0x8000/4]=0x01000401;regs[0x8010/4]=0x02000002;regs[0x8014/4]=0x20425355;regs[0x8018/4]=0x1801;expected_reads=13;
   if(scenario!=17){regs[0x8000/4]=scenario==18?0x00010001:192;check=scenario==18?10:16;offset=0x8000;value=regs[0x8000/4];expected_reads=8;}break;
+ case 21:case 22:case 23:case 24:case 25:case 26:case 27:case 28:
+  regs[4]=0x01000001;regs[0x400/4]=0x02000802;regs[0x404/4]=0x20425355;regs[0x408/4]=0x30000401;
+  regs[0x410/4]=0x000c0021;regs[0x414/4]=0x05dc0012;regs[0x418/4]=0x01e00023;
+  regs[0x420/4]=0x03000002;regs[0x424/4]=0x20425355;regs[0x428/4]=0x10000405;regs[0x430/4]=0x00050134;expected_reads=19;
+  if(scenario==22){regs[0x414/4]=regs[0x410/4];check=17;offset=0x414;value=regs[0x414/4];aux=regs[0x400/4];expected_reads=13;}
+  if(scenario==23||scenario==24){regs[0x410/4]=scenario==23?0x000c0027:0x000d0021;check=17;offset=0x410;value=regs[0x410/4];aux=regs[0x400/4];expected_reads=12;}
+  if(scenario==25||scenario==26){if(scenario==25)regs[0x408/4]=0x20000401;else regs[0x400/4]=0x02000402;check=13;offset=0x408;value=regs[0x408/4];aux=regs[0x400/4];expected_reads=11;}
+  if(scenario==27){regs[0x430/4]=0x00050034;check=17;offset=0x430;value=regs[0x430/4];aux=regs[0x420/4];}
+  if(scenario==28){failing=0x418;error=0x08110003;check=128;offset=0x418;value=7;expected_reads=14;}
+  break;
  case 20:
   regs[4]=0x01000001;for(unsigned i=0;i<64;i++){unsigned k=0x400/4+i*4;regs[k]=0x02000402;regs[k+1]=0x20425355;regs[k+2]=1;}
   check=9;offset=0x800;value=64;expected_reads=263;break;
@@ -73,4 +83,4 @@ static void one(unsigned scenario){
  else n=snprintf(expected,sizeof expected,"xhci_error=0x%016llx\r\nxhci_phase=0x0000000000000000\r\nxhci_held=0x0000000000000000\r\n",(unsigned long long)error);
  CK(n>0&&log_length==(size_t)n&&!memcmp(log_bytes,expected,(size_t)n));
 }
-int main(void){for(unsigned i=0;i<=20;i++){one(i);one(0);}printf("PRECHECK_DIAGNOSTIC_OK checks=%llu cases=42 no_hardware_writes=1\n",(unsigned long long)checks);return 0;}
+int main(void){for(unsigned i=0;i<=28;i++){one(i);one(0);}printf("PRECHECK_DIAGNOSTIC_OK checks=%llu cases=58 no_hardware_writes=1\n",(unsigned long long)checks);return 0;}

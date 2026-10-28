@@ -50,6 +50,7 @@ class XhciAuthorityTests(unittest.TestCase):
     d=self.out/((mutation+'-' if mutation else '')+mode);d.mkdir();source=self.source
     if mutation:
      source=d/'services';(source/'drivers').mkdir(parents=True);(source/'usb').mkdir();(source/'usb/xhci_dma.dg').write_bytes((ROOT/'services/usb/xhci_dma.dg').read_bytes());p=source/'drivers/xhci_authority.dg';s=(self.source/'drivers/xhci_authority.dg').read_text();needle,replacement={
+      'psi-mask':('psic!=3||e.legacy_control!=14','psic!=3'),
       'old-erstba':('p.erstsz!=1||p.erstba!=0||','p.erstsz!=1||'),
       'binding-owner':('h.binding_owner!=h.owner||',''),
       'dma-pointer':('expected=h.lease_physical+4096;','expected=h.lease_physical+4096+8;'),
@@ -70,5 +71,5 @@ class XhciAuthorityTests(unittest.TestCase):
     else:self.assertEqual(0,r.returncode,r.stdout+r.stderr);self.assertIn('xHCI authority native checks passed',r.stdout)
  def test_actual_authority_snapshots_and_dma(self):self.native()
  def test_actual_bad_authority_sources_are_rejected(self):
-  for mutation in ('old-erstba','binding-owner','dma-pointer','late-interrupter',
+  for mutation in ('psi-mask','old-erstba','binding-owner','dma-pointer','late-interrupter',
                    'old-reject-empty','missing-coverage','missing-overlap'):self.native(mutation)

@@ -66,8 +66,18 @@ int main(int argc,char**argv){CK(argc==2);const char*s=argv[1];if(!strncmp(s,"sc
  else {if(!strcmp(s,"msi")){pci[2][1]|=0x100000;pci[2][0x34/4]=0x50;pci[2][0x50/4]=0x00016005;pci[2][0x60/4]=0x80000011;}
   Bar old_bars[12];Lease old_leases[2];U old_commands[2]={0};
   if(!strcmp(s,"legacy-isolation")){CK(xk_grant(2,&handles[2],catalog[0].ecam)==0);CK(xk_grant(4,&handles[4],catalog[1].ecam)==0);CK(xk_dma(2,69632,4096)==0&&xk_dma(4,16384,4096)==0);memcpy(old_bars,bar(2),6*sizeof(Bar));memcpy(old_bars+6,bar(4),6*sizeof(Bar));old_leases[0]=*lease(2);old_leases[1]=*lease(4);old_commands[0]=pci[0][1];old_commands[1]=pci[1][1];}
+  if(!strncmp(s,"psi-",4)){
+   mmio[0x1000/4]=0x02000802;mmio[0x1008/4]=0x30000201;mmio[0x100c/4]=0;
+   mmio[0x1010/4]=0x000c0021;mmio[0x1014/4]=0x05dc0012;mmio[0x1018/4]=0x01e00023;
+   mmio[0x1020/4]=0x03000002;mmio[0x1024/4]=0x20425355;mmio[0x1028/4]=0x10000203;mmio[0x102c/4]=0;mmio[0x1030/4]=0x00050134;
+   if(!strcmp(s,"psi-duplicate"))mmio[0x1014/4]=mmio[0x1010/4];
+   if(!strcmp(s,"psi-rate"))mmio[0x1010/4]=0x000d0021;
+   if(!strcmp(s,"psi-overlap"))mmio[0x1000/4]=0x02000402;
+   if(!strcmp(s,"psi-duplex"))mmio[0x1030/4]&=~256u;
+  }
   grant();CK(xk_enable(2,OWNER,INCARNATION)==DENIED&&!bme_writes);
-  if(!strcmp(s,"scratch-table")){qword(131072+33*8,0x20000000);CK(xk_enable(13,OWNER,INCARNATION)!=0&&!bme_writes);}
+  if(!strncmp(s,"psi-",4)&&strcmp(s,"psi-good")){CK(xk_enable(13,OWNER,INCARNATION)!=0&&!bme_writes);}
+  else if(!strcmp(s,"scratch-table")){qword(131072+33*8,0x20000000);CK(xk_enable(13,OWNER,INCARNATION)!=0&&!bme_writes);}
   else if(!strcmp(s,"scratch-dirty")){dma[dma_length-1]=1;CK(xk_enable(13,OWNER,INCARNATION)!=0&&!bme_writes);}
   else if(!strcmp(s,"scratch-last-alias")){bad_alias=1;CK(xk_enable(13,OWNER,INCARNATION)!=0&&!bme_writes&&alias_calls==dma_length/4096);}
   else if(!strcmp(s,"removed-identity")){pci[2][0]^=1U<<16;CK(xk_enable(13,OWNER,INCARNATION)==DENIED&&!bme_writes);}

@@ -15,6 +15,16 @@ pub struct Bounds {pub operational:u64,pub runtime:u64,pub doorbells:u64,pub por
 pub struct Registers {pub usbcmd:u64,pub usbsts:u64,pub dnctrl:u64,pub dcbaap:u64,pub crcr:u64,pub config:u64}
 pub struct Interrupter {pub iman:u64,pub imod:u64,pub erstsz:u64,pub erstba:u64,pub erdp:u64}
 pub struct Extension {pub offset:u64,pub header:u64,pub name:u64,pub range:u64,pub slot:u64,pub legacy_control:u64}
+// Accept only complete standard speed mappings already implemented downstream.
+pub fn psi_speed(major:u64,word:u64)u64 {
+ if word>0xffff_ffff||(word&0xfec0)!=0{return 0;}
+ let id=word&15;var rate=word>>16;var exponent=(word>>4)&3;
+ while exponent!=0{rate*=1000;exponent-=1;}
+ if major==2&&(word&256)==0 {
+  if (id==1&&rate==12000000)||(id==2&&rate==1500000)||(id==3&&rate==480000000){return (1 as u64)<<id;}
+ }else if major==3&&(word&256)!=0&&id==4&&rate==5000000000{return 16;}
+ return 0;
+}
 fn overlap(a:u64,n:u64,b:u64,m:u64)bool {return a<b+m&&b<a+n;}
 fn bound(offset:u64,bytes:u64,limit:u64)bool {return offset<=limit&&bytes<=limit-offset;}
 pub unsafe fn shape(header:*const Header,out:*Bounds)!void {unsafe {
@@ -50,9 +60,12 @@ unsafe fn extensions(header:*const Header,b:*const Bounds,items:[]const Extensio
         if kind==1 {
             bytes=8;if legacy||(e.header&0xfeff_0000)!=0||(e.header&0x0100_0000)==0||e.legacy_control!=0||e.name!=0||e.range!=0||e.slot!=0 {return error.Denied;}legacy=true;
         }else if kind==2 {
-            bytes=16;let major=e.header>>24;let first=e.range&255;let count=(e.range>>8)&255;
-            if (major!=2&&major!=3)||e.name!=0x2042_5355||(e.range&0xf000_0000)!=0||e.slot!=0||e.legacy_control!=0
+            bytes=16+4*(e.range>>28);let major=e.header>>24;let first=e.range&255;let count=(e.range>>8)&255;
+            if (major!=2&&major!=3)||e.name!=0x2042_5355||e.slot!=0
                 ||first==0||first>(*b).ports+1||count>(*b).ports+1-first {return error.Denied;}
+            let psic=e.range>>28;
+            if psic==0 {if e.legacy_control!=0{return error.Denied;}}
+            else if (major==2&&(psic!=3||e.legacy_control!=14))||(major==3&&(psic!=1||e.legacy_control!=16)){return error.Denied;}
             let mask=(((1 as u64)<<count)-1)<<(first-1);if (covered&mask)!=0 {return error.Denied;}covered|=mask;
         }else {return error.Denied;}
         if !bound(e.offset,bytes,(*header).bar_bytes)||(next!=0&&next*4<bytes) {return error.Denied;}

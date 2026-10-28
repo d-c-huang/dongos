@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T11:02:11+00:00",
+  "generated_at": "2026-10-28T12:01:22+00:00",
   "tasks": [
     {
       "id": "claude:C1",
@@ -12497,6 +12497,187 @@
       "legacy_hash": "464ab03e5fbd1afb086bebdba6763067d37c50b8a924cc01fa124768835397b6",
       "claim_from_status": "todo",
       "integration_note": "15声明文件已真实落盘主目录且与独立7项0skip/source稳定指纹一致，正常完整USB-only两boot及私有EFI真实冲突屏均通过且全停；Plan/Views/旧接口/接受条件/超时/USB-only权限不放宽。新三参数只观察原冲突字段、冲突零query/map/invalidate，normalctx88B全零。已将正常source/esp发布原SanDisk H serial4C530000010320109015/disk2/非系统USB；单MBR FAT32 offset131072 size7798652928前后不变。旧4文件完整备份r1/usb-publish/before；新EFI29696B fd7ae7302e6b212d069feb20ea9093dffd079cd130f5f33205c0a0b0d53cab03、IMG2007170B d0a88eb28a2fa599a2597d4708c7c14d98c2df48de7d89270d56fd08a62ca611、SERVICES33333248B a0466f5f43e312ea5b4727eddcae0a8ac2c5a3e92259d9c827fb99a712e755c1及说明971B均flush/fsync并H全SHA读回一致。最终原卷native readonly全FAT审计PASS：ready1 readonly0 dirty0 clusters1899872 reads53263 writes0 flushes0 bad_io0 canaries1，进程已退出，receipt.json绑定原卷日志及normal/controlled VM SHA。无格式化/分区/原始磁盘/内盘/Git。私有EFI fixture与首个观察器BootInfo索引错误失败留作历史未发布；H正常诊断候选入口仍R4，S01 error2新增DEVICE SLOT/DEV ADDRESS/UEFI TYPE/DESC BASE/PAGES/ATTR。实际Intel冲突设备与类型未知，等用户新照片后定向兼容修复，不宣告真机冲突或桌面已通过。"
+    },
+    {
+      "id": "codex:P8PSI1",
+      "number": "P8PSI1",
+      "owner": "codex",
+      "title": "Intel xHCI显式PSI标准速度表兼容修复",
+      "description": "实机CHECK0D REG8008 VALUE30111001 AUX02000802确认USB2 SupportedProtocol显式3条PSI被一律拒绝。解析并验证标准速度ID/位率对应、PSI边界/链重叠/重复和保留字段；仅接受下游已实现的标准速度映射，不把非标准ID假装默认速度，不改ABI/DMA授权。真实原生正反例和独立复验/构建；完整实机成功仍待复测。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "services/usb/xhci_controller.dg",
+        "tests/xhci_precheck_diagnostic_probe.c",
+        "tests/test_xhci_precheck_diagnostic.py",
+        "docs/hardware-xhci-precheck.md",
+        "codex-works/deliveries/P8PSI1.md"
+      ],
+      "depends_on": [
+        "codex:P8XHCIPRECHECK1"
+      ],
+      "checks": [
+        "module:tests.test_xhci_precheck_diagnostic",
+        "module:tests.test_xhci_controller",
+        "module:tests.test_xhci_scratchpad"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-28T11:16:19+00:00",
+      "updated_at": "2026-10-28T12:01:22+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8PSI1-board.md",
+      "delivery": "codex-works/deliveries/P8PSI1.md",
+      "claimed_at": "2026-10-28T11:35:20+00:00",
+      "completed_at": "2026-10-28T11:46:01+00:00",
+      "claimed_by": "codex-mcp-b0b0a56f66684e46",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_xhci_precheck_diagnostic",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 34.062
+          },
+          {
+            "spec": "module:tests.test_xhci_controller",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 42.344
+          },
+          {
+            "spec": "module:tests.test_xhci_scratchpad",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 103.375
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "services/usb/xhci_controller.dg": "456fbd5009acdec4cdd26029a83299dbfbf0cad8ea60bc56f0fd113d70b2ad93",
+          "tests/xhci_precheck_diagnostic_probe.c": "3ea24b4602ad6d43c8e3149f24a5a445b46639b802bc97eae28a5217fd290447",
+          "tests/test_xhci_precheck_diagnostic.py": "8389af5a7c1fb48e3b76c277c7aa8ca720bcb5db3c54fd273d4cef276867a729",
+          "docs/hardware-xhci-precheck.md": "ae9ae1d0c9ce710fe66c1d02f8f795cc1dc2716c46b98e2f5d4a237c7e22632e",
+          "codex-works/deliveries/P8PSI1.md": "6ff6d000389ebb30ee5efce9e823b5e8836b09ee46f553ec9b31beab172dd034"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-28T11:49:30+00:00",
+        "job": "91fd2dae18c4432fb05e7063258481a5"
+      },
+      "review_note": "独立job91fd2dae18c4432fb05e7063258481a5共6 tests/0skip/source_stable PASS；实际precheck/真实服务日志58场景及debug/release/O0/O2、旧controller和scratch回归通过。实际审查仅完整标准USB2三速/USB3单速表通过，等价指数计算无溢出，其他ID/速率/字段仍拒绝，新增CHECK11原值日志，PSIC0语义及Setup/Caps/State ABI不变。补充root native66场景检查PSI越BAR、保留位、USB2双工错及等价指数，debug/release PASS，绑定同一已复验源哈希。 两组件真实源码已共同构建，严格候选manifest e63cdf6da369a483e450fb37fca92962556fd28e792c7491476b9571bcb0553f。root8CPU正常启动至CLIENTS_READY，冻结后fatal报告0且UART无fatal，compositor永久交接/桌面截图PASS；同镜像zero-port拒绝仍08110002并保留日志99960像素PASS；虚拟介质和3内部哨兵完整哈希不变，guests全部结束。证据build/hardware/xhci-psi-20261028-r1。只验收明确PSI兼容组件：实机PSI各word尚未读回，非标准表仍不支持；完整HID/文件既有失败和真机启动结果不宣称已通过。",
+      "legacy_hash": "1da4185657037b6ca234626e3cc64fad7559bc34bb3dbe6cb5542103984fe9fb",
+      "claim_from_status": "todo",
+      "integration_note": "已完成主code目录真实源码集成，独立复验指纹全部匹配；两侧代码共同进入PSI R1完整构建及严格诊断候选，8CPU实际正常/拒绝路径验证通过。登记本组件集成；不替代用户真机复测或完整HID/文件验收。"
+    },
+    {
+      "id": "codex:P8PSIGATE1",
+      "number": "P8PSIGATE1",
+      "owner": "codex",
+      "title": "PSI内核快照与DMA授权配套适配",
+      "description": "配套P8PSI1。保留Extension48B ABI，协议项legacy_control作为可信内核逐条验证后生成的PSI速度集合，原始range保留PSIC。只支持完整标准USB2三速/USB3单速且编号/速率/双工一致，校验PSI跨度及next边界、重复，授权检查集合与数量，非标准表仍拒绝。不放宽DMA/MMIO权限。实际内核producer及authority正反例复验。",
+      "assignment_owner": "codex",
+      "status": "integrated",
+      "rev": 6,
+      "write_paths": [
+        "kernel/user/devices.dg",
+        "services/drivers/xhci_authority.dg",
+        "tests/xhci_authority_probe.c",
+        "tests/xhci_kernel_probe.c",
+        "tests/test_xhci_kernel.py",
+        "tests/test_xhci_authority.py",
+        "codex-works/deliveries/P8PSIGATE1.md"
+      ],
+      "depends_on": [
+        "codex:P8XHCIPRECHECK1"
+      ],
+      "checks": [
+        "module:tests.test_xhci_authority",
+        "module:tests.test_xhci_kernel"
+      ],
+      "auto_dispatch": false,
+      "auto_verify": false,
+      "complexity": "standard",
+      "created_at": "2026-10-28T11:35:19+00:00",
+      "updated_at": "2026-10-28T12:01:21+00:00",
+      "historical": false,
+      "document": "codex-works/tasks/P8PSIGATE1-board.md",
+      "delivery": "codex-works/deliveries/P8PSIGATE1.md",
+      "claimed_at": "2026-10-28T11:35:20+00:00",
+      "completed_at": "2026-10-28T11:46:02+00:00",
+      "claimed_by": "codex-mcp-b0b0a56f66684e46",
+      "candidate": null,
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_xhci_authority",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 35.61
+          },
+          {
+            "spec": "module:tests.test_xhci_kernel",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 409.86
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/user/devices.dg": "ed83b8c1b4d6f00b26a6a8fe4db69b7105a5eeb283ae145397d71356879a3b02",
+          "services/drivers/xhci_authority.dg": "e2a5e7f0bf22879627cee99ad4540c58ea480925ad092c0a2861838dc776241d",
+          "tests/xhci_authority_probe.c": "3974f982d6cac2b7c07c2927e3d9f922b300e6e21c6a9a0af2c8290a788c73ad",
+          "tests/xhci_kernel_probe.c": "b49b5529f84b98984dfde5517ba0f594e44be25a0c597c1c754e741d8cda13e3",
+          "tests/test_xhci_kernel.py": "4ba81b8f414382e2b8b0bffd0080a7e17db63b257743b880e03464a44b780a08",
+          "tests/test_xhci_authority.py": "8992f885519fe5200599c793b78746f427012843801bdccb951c038e8b2d8f98",
+          "codex-works/deliveries/P8PSIGATE1.md": "fc1789bb5c8e795aad258754f1d0a7a0ae2d92ef59aaf627a9816c7f65ddc09a"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-10-28T11:57:16+00:00",
+        "job": "ce1d0239cbb840f19f2164c8f2b36bc2"
+      },
+      "review_note": "独立job ce1d0239cbb840f19f2164c8f2b36bc2，authority2+kernel3 tests，0skip、source_stable PASS。实际审查kernel在BME前逐条读取PSI并校验标准ID/速率/对称/双工/重复/全跨度/next重叠；Extension48B不变，协议项legacy_control为可信内核派生mask，保留raw range/PSIC。authority重新检查mask/数量/跨度/全端口覆盖，legacy语义原封保留；用户不可提供此mask。实际kernel正反例含PSI标准表可BME、错速/重复/重叠/双工拒绝且BME0，忽略速率及缺mask的错误实现被测试捕获。 两组件真实源码已共同构建，严格候选manifest e63cdf6da369a483e450fb37fca92962556fd28e792c7491476b9571bcb0553f。root8CPU正常启动至CLIENTS_READY，冻结后fatal报告0且UART无fatal，compositor永久交接/桌面截图PASS；同镜像zero-port拒绝仍08110002并保留日志99960像素PASS；虚拟介质和3内部哨兵完整哈希不变，guests全部结束。证据build/hardware/xhci-psi-20261028-r1。只验收明确PSI兼容组件：实机PSI各word尚未读回，非标准表仍不支持；完整HID/文件既有失败和真机启动结果不宣称已通过。",
+      "legacy_hash": "ff12e8249d25d777da49f34700e1120de3bc2388512ede4143a2a269df3a9960",
+      "claim_from_status": "todo",
+      "integration_note": "已完成主code目录真实源码集成，独立复验指纹全部匹配；两侧代码共同进入PSI R1完整构建及严格诊断候选，8CPU实际正常/拒绝路径验证通过。登记本组件集成；不替代用户真机复测或完整HID/文件验收。"
     },
     {
       "id": "codex:P8RUNTIME1",

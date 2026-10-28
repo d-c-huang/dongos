@@ -77,6 +77,16 @@ unsafe fn wait(s:*State,offset:u64,mask:u32,expected:u32)!void {unsafe {
         if (try now(s))>=end {return error.Timeout;}i+=1;
     }
 }return error.Timeout;}
+// Accept only complete standard speed mappings already implemented downstream.
+fn psi_speed(major:u64,word:u64)u64 {
+ if word>0xffff_ffff||(word&0xfec0)!=0{return 0;}
+ let id=word&15;var rate=word>>16;var exponent=(word>>4)&3;
+ while exponent!=0{rate*=1000;exponent-=1;}
+ if major==2&&(word&256)==0 {
+  if (id==1&&rate==12000000)||(id==2&&rate==1500000)||(id==3&&rate==480000000){return (1 as u64)<<id;}
+ }else if major==3&&(word&256)!=0&&id==4&&rate==5000000000{return 16;}
+ return 0;
+}
 fn overlaps(a:u64,n:u64,b:u64,m:u64)bool {return a<b+m&&b<a+n;}
 unsafe fn precheck_inner(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!void {unsafe {
     if ops==null||s==null||out==null||(*s).bar==0||(*s).bar_bytes<4096||(*s).bar_bytes>0x1000_0000
@@ -122,7 +132,20 @@ unsafe fn precheck_inner(ops:*const Ops,context:u64,s:*const Setup,out:*Caps)!vo
             // Empty SupportedProtocol ranges describe no ports. Their offset may
             // be the one-past-end sentinel; they never populate protocols[].
             if start==0||start>c.ports+1||ports>c.ports+1-start||(major!=2&&major!=3)
-                ||(range&0xf000_0000)!=0||(slot&~31)!=0||(slot&31)!=0 {rejected(13,offset+8,range as u64,((slot as u64)<<32)|header as u64);return error.Unsupported;}
+                ||(slot&~31)!=0||(slot&31)!=0 {rejected(13,offset+8,range as u64,((slot as u64)<<32)|header as u64);return error.Unsupported;}
+            let psic=(range>>28) as u64;let next_bytes=(((header>>8)&255) as u64)*4;
+            if psic!=0 {
+                let bytes=16+psic*4;
+                if (major==2&&psic!=3)||(major==3&&psic!=1)||offset>(*s).bar_bytes||bytes>(*s).bar_bytes-offset
+                    ||(next_bytes!=0&&next_bytes<bytes){rejected(13,offset+8,range as u64,((slot as u64)<<32)|header as u64);return error.Unsupported;}
+                var mask:u64=0;var index:u64=0;
+                while index<psic {
+                    let at=offset+16+index*4;let raw=try read_raw(ops,context,s,at);let bit=psi_speed(major,raw as u64);
+                    if bit==0||(mask&bit)!=0{rejected(17,at,raw as u64,header as u64);return error.Unsupported;}
+                    mask|=bit;index+=1;
+                }
+                if (major==2&&mask!=14)||(major==3&&mask!=16){return error.Unsupported;}
+            }
             var i=start-1;while i<start-1+ports {if c.protocols[i as usize]!=0 {return error.Invalid;}c.protocols[i as usize]=major;i+=1;}
         }else {rejected(16,offset,header as u64,0);return error.Unsupported;}
         let next=((header>>8)&255) as u64;if next==0 {offset=0;}else {if offset>MAX-next*4 {return error.Invalid;}offset+=next*4;}count+=1;

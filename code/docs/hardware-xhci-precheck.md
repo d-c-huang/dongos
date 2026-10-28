@@ -45,3 +45,28 @@ captures. Old controller and scratchpad tests retain functional validation.
 The relevant capability and legacy ownership definitions are in Intel's
 [xHCI specification, chapter 7](https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf).
 No ownership transition is inferred from the screenshot alone.
+
+## PSI compatibility follow-up (P8PSI1 / P8PSIGATE1)
+
+Hardware R3 captured CHECK=0D, REG=8008, VALUE=30111001,
+AUX=02000802: USB2 ports 1..16 with three explicit speed entries.
+The entry values themselves have not yet been captured on that machine.
+
+The driver now reads bounded PSI entries and admits only complete standard
+USB2 IDs 1/2/3 at 12/1.5/480 Mbit/s, or USB3 ID 4 at 5 Gbit/s.
+Symmetric link type and matching half/full duplex are required. Equivalent
+exponent/mantissa representations are accepted. Incomplete sets, duplicate IDs,
+other IDs/rates/link protocols, malformed fields, overlapping next capabilities,
+and out-of-BAR spans remain rejected. This is deliberately not arbitrary speed
+ID remapping. PSIC=0 retains the original default mapping behavior.
+
+The kernel independently rereads and validates every entry before BME. The
+48-byte trusted Extension snapshot retains raw range/PSIC; for protocol entries
+only, legacy_control carries the validated speed mask (14 or 16). For legacy
+entries it retains its original meaning. The authority validator checks count,
+mask, and the full 16+4*PSIC byte span; no ABI or snapshot allocation grows.
+No user-provided mask is trusted. CHECK=11 (hex) reports an unsupported PSI word
+with REG=its offset, VALUE=the actual word, AUX=protocol header.
+
+This repairs the confirmed blanket rejection; compatibility with the actual
+unread PSI words and complete hardware startup still require a physical test.

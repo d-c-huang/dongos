@@ -1,0 +1,95 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_xhci_precheck_diagnostic",
+    "module:tests.test_xhci_controller",
+    "module:tests.test_xhci_scratchpad"
+  ],
+  "claim_from_status": "todo",
+  "claimed_at": "2026-10-28T11:35:20+00:00",
+  "claimed_by": "codex-mcp-b0b0a56f66684e46",
+  "completed_at": "2026-10-28T11:46:01+00:00",
+  "complexity": "standard",
+  "created_at": "2026-10-28T11:16:19+00:00",
+  "delivery": "codex-works/deliveries/P8PSI1.md",
+  "depends_on": [
+    "codex:P8XHCIPRECHECK1"
+  ],
+  "description": "实机CHECK0D REG8008 VALUE30111001 AUX02000802确认USB2 SupportedProtocol显式3条PSI被一律拒绝。解析并验证标准速度ID/位率对应、PSI边界/链重叠/重复和保留字段；仅接受下游已实现的标准速度映射，不把非标准ID假装默认速度，不改ABI/DMA授权。真实原生正反例和独立复验/构建；完整实机成功仍待复测。",
+  "document": "codex-works/tasks/P8PSI1-board.md",
+  "historical": false,
+  "id": "codex:P8PSI1",
+  "integration_note": "已完成主code目录真实源码集成，独立复验指纹全部匹配；两侧代码共同进入PSI R1完整构建及严格诊断候选，8CPU实际正常/拒绝路径验证通过。登记本组件集成；不替代用户真机复测或完整HID/文件验收。",
+  "legacy_hash": "1da4185657037b6ca234626e3cc64fad7559bc34bb3dbe6cb5542103984fe9fb",
+  "number": "P8PSI1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "独立job91fd2dae18c4432fb05e7063258481a5共6 tests/0skip/source_stable PASS；实际precheck/真实服务日志58场景及debug/release/O0/O2、旧controller和scratch回归通过。实际审查仅完整标准USB2三速/USB3单速表通过，等价指数计算无溢出，其他ID/速率/字段仍拒绝，新增CHECK11原值日志，PSIC0语义及Setup/Caps/State ABI不变。补充root native66场景检查PSI越BAR、保留位、USB2双工错及等价指数，debug/release PASS，绑定同一已复验源哈希。 两组件真实源码已共同构建，严格候选manifest e63cdf6da369a483e450fb37fca92962556fd28e792c7491476b9571bcb0553f。root8CPU正常启动至CLIENTS_READY，冻结后fatal报告0且UART无fatal，compositor永久交接/桌面截图PASS；同镜像zero-port拒绝仍08110002并保留日志99960像素PASS；虚拟介质和3内部哨兵完整哈希不变，guests全部结束。证据build/hardware/xhci-psi-20261028-r1。只验收明确PSI兼容组件：实机PSI各word尚未读回，非标准表仍不支持；完整HID/文件既有失败和真机启动结果不宣称已通过。",
+  "status": "integrated",
+  "title": "Intel xHCI显式PSI标准速度表兼容修复",
+  "updated_at": "2026-10-28T12:01:22+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 34.062,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_precheck_diagnostic",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 42.344,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_controller",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 103.375,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_xhci_scratchpad",
+        "tests": 3,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P8PSI1.md": "6ff6d000389ebb30ee5efce9e823b5e8836b09ee46f553ec9b31beab172dd034",
+      "docs/hardware-xhci-precheck.md": "ae9ae1d0c9ce710fe66c1d02f8f795cc1dc2716c46b98e2f5d4a237c7e22632e",
+      "services/usb/xhci_controller.dg": "456fbd5009acdec4cdd26029a83299dbfbf0cad8ea60bc56f0fd113d70b2ad93",
+      "tests/test_xhci_precheck_diagnostic.py": "8389af5a7c1fb48e3b76c277c7aa8ca720bcb5db3c54fd273d4cef276867a729",
+      "tests/xhci_precheck_diagnostic_probe.c": "3ea24b4602ad6d43c8e3149f24a5a445b46639b802bc97eae28a5217fd290447"
+    },
+    "finished_at": "2026-10-28T11:49:30+00:00",
+    "job": "91fd2dae18c4432fb05e7063258481a5",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "services/usb/xhci_controller.dg",
+    "tests/xhci_precheck_diagnostic_probe.c",
+    "tests/test_xhci_precheck_diagnostic.py",
+    "docs/hardware-xhci-precheck.md",
+    "codex-works/deliveries/P8PSI1.md"
+  ]
+}

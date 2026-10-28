@@ -41,5 +41,14 @@ static void empty_protocols(void){
  ext[0].range=0x2001;ext[1].range=33;
  CK(permit(16,2,131072,&out)==0);ext[1].range=34;denied();
 }
-int main(void){normal();empty_protocols();controls();printf("xHCI authority native checks passed %lu; poisoned_DMA_words=2048; interrupters=16; empty_protocol_boundaries=12\n",(unsigned long)checks);return 0;}
+static void psi_snapshots(void){
+ setup();U out=0;ext[0].header=0x02000802;ext[0].range|=0x30000000;ext[0].legacy_control=14;ext[1].offset=64;ext[1].range|=0x10000000;ext[1].legacy_control=16;
+ CK(permit(16,2,131072,&out)==0&&out==0x406);
+ ext[0].legacy_control=0;denied();ext[0].legacy_control=6;denied();ext[0].legacy_control=14;
+ ext[0].range=(ext[0].range&0x0fffffff)|0x20000000;denied();ext[0].range|=0x30000000;
+ ext[1].legacy_control=14;denied();ext[1].legacy_control=16;
+ ext[0].header=0x02000402;ext[1].offset=48;denied();
+ setup();ext[0].legacy_control=14;denied();
+}
+int main(void){psi_snapshots();normal();empty_protocols();controls();printf("xHCI authority native checks passed %lu; poisoned_DMA_words=2048; interrupters=16; empty_protocol_boundaries=12\n",(unsigned long)checks);return 0;}
 ABI void __dong_panic(void){fprintf(stderr,"unexpected xHCI authority Dong panic\n");exit(2);}
