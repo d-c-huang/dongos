@@ -7,6 +7,7 @@
     "module:tests.test_user_shared_flush"
   ],
   "claim_from_status": "todo",
+  "claim_token": "b02393560f00410e90efb2114af6c47c",
   "claimed_at": "2026-10-22T20:55:42+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T21:04:39+00:00",

@@ -7,6 +7,7 @@
     "discover:codex-works/tests:test_g5_host_mapping.py"
   ],
   "claim_from_status": "rework",
+  "claim_token": "90eede084163435db1804d31f7cb58fe",
   "claimed_at": "2026-10-22T15:26:24+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T15:26:25+00:00",

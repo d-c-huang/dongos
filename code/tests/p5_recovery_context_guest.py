@@ -17,6 +17,10 @@ CONTEXT_FIELDS = ('present','slot','configuration','owner','incarnation','device
                   'stop_state','stop_error','smp_retire','route_state','route_error','isolation','isolation_error',
                   'reset','reset_error','generation_after','revoke_error','held','drain')
 BINDING_FIELDS = ('version','device_token','role','configuration_id','generation','irq_mask','flags','reserved')
+CONTINUATION_TYPE = 'user.device_host.DmaContinuation'
+RETIREMENT_TYPE = 'user.memory.DmaRetirementView'
+CONTINUATION_FIELDS = ('state','incarnation','stage','error_code')
+RETIREMENT_FIELDS = ('state','root','generation','incarnation','pages','unmapped','online','before','after','error_code')
 NONE = (1 << 64) - 1
 
 
@@ -27,7 +31,8 @@ def require(value, message):
 
 def _schema(name):
     names = {CONTEXT_TYPE: CONTEXT_FIELDS, DEVICE_TYPE: DEVICE_FIELDS, LEASE_TYPE: LEASE_FIELDS,
-             'lib.device_abi.Binding': BINDING_FIELDS}[name]
+             'lib.device_abi.Binding': BINDING_FIELDS,
+             CONTINUATION_TYPE: CONTINUATION_FIELDS, RETIREMENT_TYPE: RETIREMENT_FIELDS}[name]
     offset = 0
     result = []
     for field in names:
@@ -157,6 +162,42 @@ def validate_observations(first, second, control=False):
             'retirement result regressed')
     require(first['ledger_device'] == second['ledger_device'] and first['binding'] == second['binding'],
             'stable ledger/binding changed')
+
+
+def validate_retirement(snapshot, physical_mask, control=False):
+    """Check the new receipt against the exact held lease and the stopped guest."""
+    evidence = snapshot['dma_retirement']
+    continuation, view = evidence['continuation'], evidence['view']
+    _complete(continuation, CONTINUATION_FIELDS, 'DMA continuation')
+    lease = snapshot['lease']
+    entries = evidence['user_ptes']
+    require(len(entries) == lease['pages'] and all(type(entry) is int and 0 <= entry <= NONE for entry in entries),
+            'incomplete raw DMA user PTEs')
+    require(type(evidence['prepare_attempted']) is int, 'invalid prepare latch encoding')
+    if control:
+        require(not any(continuation.values()) and evidence['prepare_attempted'] == 0 and view is None,
+                'normal control entered DMA retirement')
+        require(all(entry & 7 == 7 and entry & physical_mask == lease['physical'] + 4096 * page
+                    for page, entry in enumerate(entries)), 'normal control lost the exact DMA user mappings')
+        return
+    require(continuation['state'] == 2 and continuation['stage'] == 3 and continuation['error_code'] == 0,
+            'DMA continuation did not succeed: ' + repr(continuation))
+    require(evidence['prepare_attempted'] == 1, 'DMA prepare latch is missing')
+    _complete(view, RETIREMENT_FIELDS, 'DMA retirement view')
+    require(continuation['incarnation'] == view['incarnation'] == snapshot['context']['incarnation']
+            and view['root'] == lease['root'] and view['generation'] == lease['generation'],
+            'retirement receipt replaced the held identity')
+    require(view['state'] == 3 and view['error_code'] == 0 and view['unmapped'] == view['pages'] == lease['pages'],
+            'DMA mapping retirement did not complete: ' + repr(view))
+    require(all(not entry & 1 for entry in entries), 'old DMA user PTE remains present')
+    require(view['online'] == snapshot['online'] and len(snapshot['cpus']) == view['online'].bit_count(),
+            'retirement online CPU set changed')
+    require(0 < view['before'] and view['after'] == view['before'] + 1
+            and view['after'] <= snapshot['completed'] <= evidence['sequence'],
+            'missing fresh post-unmap sequence')
+    for cpu in snapshot['cpus']:
+        require(snapshot['completed'] <= cpu['acknowledged'] <= cpu['requested'] <= evidence['sequence']
+                and cpu['block_seen']['valid'] == 0, 'online CPU lacks the new retirement acknowledgement')
 
 
 def replay(result_path):

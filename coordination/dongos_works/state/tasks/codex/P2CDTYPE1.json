@@ -7,6 +7,7 @@
     "module:tests.test_runtime_cache"
   ],
   "claim_from_status": "todo",
+  "claim_token": "55a26b2aecf44aed9949d177fb0977dd",
   "claimed_at": "2026-10-24T11:43:45+00:00",
   "claimed_by": "codex-mcp-5f95564a50c4415d",
   "completed_at": "2026-10-24T11:55:44+00:00",

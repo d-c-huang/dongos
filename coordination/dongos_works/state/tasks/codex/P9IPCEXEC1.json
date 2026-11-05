@@ -1,0 +1,81 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p9_ipc_live_qemu",
+    "module:tests.test_service_ipc_cancellation"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "c6389d3128ba498aa201dcd98a7b9d7b",
+  "claimed_at": "2026-11-05T13:25:02+00:00",
+  "claimed_by": "codex-mcp-50488d53a0084e80",
+  "completed_at": "2026-11-05T13:37:33+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T13:25:02+00:00",
+  "delivery": "codex-works/deliveries/P9IPCEXEC1.md",
+  "depends_on": [
+    "codex:P9GUESTINT1",
+    "codex:P5P9CALLINT1"
+  ],
+  "description": "用隔离 runtime7 fixture 仅替换普通 echo app 源，保留生产内核、syscall、IPC peer、权限装配和启动清单。对真实活端点运行确定性 CALL 多字消息往返、无效句柄/坏地址与输出原子性，再触发原 ipc-peer UD2，验证 caller 获得 PeerGone、peer 终态向量6，保留进程和独立外部UART证据。从冻结构建运行临时虚盘上的实际 QEMU，由协调者执行；宿主检查不启动虚拟机。保持正常/失败构建和源变更界限，实际 guest 负控验证错回复或错结果被拒绝。范围是实时端点子集，不代表全IPC模糊或24小时门禁。",
+  "document": "codex-works/tasks/P9IPCEXEC1-board.md",
+  "historical": false,
+  "id": "codex:P9IPCEXEC1",
+  "legacy_hash": "7f15268ac960b62c0f73814d13a7a26664bb8b2174402c64024f21711d2f0d04",
+  "number": "P9IPCEXEC1",
+  "owner": "codex",
+  "rev": 4,
+  "review_note": "",
+  "status": "submitted",
+  "title": "[P9] 真实 CPL3 实时端点 IPC 与故障取消回归",
+  "updated_at": "2026-11-05T13:38:45+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.61,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p9_ipc_live_qemu",
+        "tests": 4,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 20.188,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_service_ipc_cancellation",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P9IPCEXEC1.md": "ddce9000dd424f08cee680c81ee32071bef679687fdafe3a9b20c63d4bb7142f",
+      "tests/p9_ipc_live_fixture.dg": "f6a3faf5f0e1fcf9a6711d45361099a93a48a2e9daebccfd5f4de8d0fae18783",
+      "tests/run_p9_ipc_live_qemu.py": "1c5bd904050e34c4e816c039fdfc47baa517defcf35a800cc502a0a44bb800d6",
+      "tests/test_p9_ipc_live_qemu.py": "927104c571fff02ba764781fb7f59861c7a48baea3fac6221631ec04b0415c93"
+    },
+    "finished_at": "2026-11-05T13:38:45+00:00",
+    "job": "1f1e39eb951a4ae09c49b481b23342d7",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/p9_ipc_live_fixture.dg",
+    "tests/run_p9_ipc_live_qemu.py",
+    "tests/test_p9_ipc_live_qemu.py",
+    "codex-works/deliveries/P9IPCEXEC1.md"
+  ]
+}

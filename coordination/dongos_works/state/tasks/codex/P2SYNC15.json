@@ -7,6 +7,7 @@
     "module:tests.test_user_shared_flush"
   ],
   "claim_from_status": "rework",
+  "claim_token": "1b3acf3a413545cc8f9cb3ced03147a2",
   "claimed_at": "2026-10-22T19:00:12+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T19:04:10+00:00",

@@ -9,6 +9,7 @@
     "module:tests.test_fat32_allocation"
   ],
   "claim_from_status": "todo",
+  "claim_token": "dae47ce10dc3460381fb9dbfdb75ec7b",
   "claimed_at": "2026-10-25T10:33:56+00:00",
   "claimed_by": "codex-mcp-14619bbd432c41a6",
   "completed_at": "2026-10-25T10:50:24+00:00",

@@ -7,6 +7,7 @@
     "module:tests.test_p2_wc_benchmark"
   ],
   "claim_from_status": "rework",
+  "claim_token": "ad223c079aca429cacaa168b6856610f",
   "claimed_at": "2026-10-22T19:11:48+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T19:17:15+00:00",

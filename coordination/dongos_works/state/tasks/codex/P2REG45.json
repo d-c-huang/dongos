@@ -8,6 +8,7 @@
     "module:tests.test_desktop_recreate"
   ],
   "claim_from_status": "todo",
+  "claim_token": "68fdfc82306149eeb7e1dfee1d076099",
   "claimed_at": "2026-10-24T09:05:43+00:00",
   "claimed_by": "codex-mcp-14ca67a3341042c4",
   "completed_at": "2026-10-24T09:07:37+00:00",

@@ -15,6 +15,8 @@ from tools.make_fat32_disk import create
 settings, storage, nvme = life.settings, life.storage, life.nvme
 builder, acpi = settings.builder, settings.acpi
 check=settings.check
+RESET_SCOPE='initialized-queue-context-reset-hold-only'
+RETIREMENT_SCOPE='initialized-queue-post-unmap-retirement'
 
 # Current immutable Catalog contract: GUI applications are AUTOSTART|ORDINARY.
 # Do not normalize raw evidence to the older lifecycle runner's flags=8 expectation.
@@ -83,7 +85,7 @@ def decode_catalog(raw):
                 incarnations=incarnations,configurations=configurations,events=events,
                 raw_sha256=hashlib.sha256(raw).hexdigest())
 
-def validate(s, control=False):
+def validate(s, control=False, *, dma_retirement=False):
     check(s['identity']==0x10421af4 and s['lease']['pages']==32,'wrong controller/whole lease')
     check(s['lease']['physical']>0 and s['lease']['physical']%131072==0
           and s['lease']['state']==2 and s['lease']['mapped']==32
@@ -98,6 +100,7 @@ def validate(s, control=False):
               and s['status']==15 and s['quarantined']==0 and s['command']&0x406==0x406,
               'control did not remain normally initialized and DMA enabled')
         context.validate_context(s,control=True)
+        if dma_retirement:context.validate_retirement(s,storage.MASK,control=True)
         return
     check(s['fault_rip']==s['expected_fault_rip'] and s['fault_instruction']=='0f0b','fault not at linked UD2 fixture')
     check(s['pending']['token']==0 and s['pending']['incarnation']==0 and s['pending']['event']==0 and s['pending']['affinity']==0,'deferred old owner remains')
@@ -119,12 +122,21 @@ def validate(s, control=False):
         check(cpu['block_seen']['valid']==0,'old block translation tag remains valid')
         check(cpu['acknowledged']>=s['completed'],'online CPU lacks completed barrier acknowledgement')
     context.validate_context(s,control=False)
+    if dma_retirement:context.validate_retirement(s,storage.MASK)
+
+
+def validate_pair(first, second, control, dma_retirement):
+    context.validate_observations(first,second,control)
+    if dma_retirement:
+        for field in ('continuation','view','prepare_attempted'):
+            check(first['dma_retirement'][field]==second['dma_retirement'][field],
+                  'DMA retirement receipt changed between observations: '+field)
 
 class ResetGuest(life.ProcessGuest):
     """Reuse read-only decoders, but not normal-desktop-ready constructor."""
-    def __init__(self,esp,disk,state,control=False):
+    def __init__(self,esp,disk,state,control=False,*,dma_retirement=False):
         self.esp,self.disk,self.state=esp,disk,state;state.mkdir()
-        self.control=control
+        self.control=control;self.dma_retirement=dma_retirement
         self.raw=bytearray();self.chunks=[];self.tables={};self.stopped=False
         self.process=self.qmp=self.uart=None
         self.evidence=dict(actual_qemu_executed=False,no_guest_memory_or_register_writes=True,cleanup_completed=False)
@@ -179,6 +191,20 @@ class ResetGuest(life.ProcessGuest):
         pointer=self.kval('user.services','CATALOG')
         check(pointer>=0xffff800000000000 and pointer%8==0,'Catalog is not a trusted aligned kernel pointer')
         return decode_catalog(self.virtual_kernel(pointer,life.CATALOG_BYTES,'actual kernel-owned lifecycle catalog'))
+    def continuation(self):
+        return self.complete_record(context.CONTINUATION_TYPE,self.ksym('user.device_host','DMA_CONTINUATIONS'),2)
+    def retirement_snapshot(self, lease, domain):
+        pointer=struct.unpack('<Q',self.virtual_kernel(self.ksym('user.memory','DMA_RETIREMENTS')+16,8,
+                              'block DMA retirement pointer'))[0]
+        check(not pointer or pointer>=acpi.HHDM and pointer%64==0,'untrusted DMA retirement pointer')
+        prepare=self.virtual_kernel(self.ksym('user.memory','DMA_PREPARE_ATTEMPTED')+2,1,'block DMA prepare latch')[0]
+        pages, virtual=lease['pages'],lease['virtual']
+        check(0<pages<=128 and 0<virtual and virtual%4096==0 and virtual+pages*4096<=1<<47,
+              'invalid DMA virtual span for page-table observation')
+        return dict(continuation=self.continuation(),
+                    view=self.complete_record(context.RETIREMENT_TYPE,pointer) if pointer else None,
+                    prepare_attempted=prepare,sequence=domain['sequence'],
+                    user_ptes=[self.pte(lease['root'],virtual+page*4096) for page in range(pages)])
     def snapshot(self):
         self.pause();dump_start=len(self.chunks);catalog=self.catalog()
         lease=self.global_record('user.memory','DMA_LEASES','user.memory.DmaLease',2)
@@ -244,6 +270,7 @@ class ResetGuest(life.ProcessGuest):
             snapshot=catalog['snapshots'][2],catalog_slot=catalog['slots'][2],configuration=catalog['configurations'][2],
             bridge_failed=bridge['failed'],domain_ready=domain['ready'],domain_failed=domain['failed'],completed=domain['completed'],online=domain['online'],
             queue_thread=queue_thread,domain_process=self.record('sched.user_domain.Process',domain['processes'],2),cpus=cpus)
+        if self.dma_retirement:result['dma_retirement']=self.retirement_snapshot(lease,domain)
         result['dump_range']=[dump_start,len(self.chunks)]
         return result
     def close(self):
@@ -286,6 +313,7 @@ class ReplayGuest(ResetGuest):
     """The same decoder, supplied by exact ordered read-only physical dumps."""
     def __init__(self,state,metadata,manifest,start,control):
         self.state=state;self.control=control;self.stopped=True;self.tables={};self.evidence={}
+        self.dma_retirement=metadata.get('dma_retirement',False)
         self.raw=bytearray((state/'guest/serial.log').read_bytes())
         self.layout=json.loads((state/'artifacts/dong_layout.json').read_text())
         self.types={t['full_name']:t for t in self.layout['types']}
@@ -319,13 +347,19 @@ class ReplayGuest(ResetGuest):
         return raw
 
 
-def replay_evidence(result_path):
+def replay_evidence(result_path, *, require_dma_retirement=False):
     """Validate archived bytes again; does not access the original source/ESP."""
     result_path=Path(result_path).resolve();state=result_path.parent
     result=json.loads(result_path.read_text());metadata=json.loads((state/'replay-metadata.json').read_text())
     archived=json.loads((state/'archived-inputs.json').read_text())
     check(result.get('passed') is True and result.get('control') is metadata.get('control'),'result phase/pass metadata differs')
     check(type(result['control']) is bool,'phase must be an exact boolean')
+    dma_retirement=metadata.get('dma_retirement',False)
+    check(type(dma_retirement) is bool and result.get('dma_retirement',False) is dma_retirement,
+          'DMA retirement replay mode differs')
+    check(not require_dma_retirement or dma_retirement,'archive lacks DMA retirement evidence')
+    scope=RETIREMENT_SCOPE if dma_retirement else RESET_SCOPE
+    check(result.get('scope',RESET_SCOPE)==scope,'DMA retirement archive scope differs')
     expected_artifacts={'dong_layout.json','kernel.elf','block.elf','build-inputs.json'}
     if not result['control']:expected_artifacts.add('p5-reset-fixture.json')
     for name,item in archived['artifacts'].items():
@@ -369,11 +403,11 @@ def replay_evidence(result_path):
         check(type(start) is int and type(end) is int and previous<=start<end<=len(manifest),'invalid/overlapping observation dump range')
         guest=ReplayGuest(state,metadata,manifest,start,result['control'])
         actual=guest.snapshot();check(guest.cursor==end and actual==saved,'raw offline observation differs from recorded decoded snapshot')
-        validate(actual,result['control']);decoded.append(actual);previous=end
-    context.validate_observations(*decoded,control=result['control'])
+        validate(actual,result['control'],dma_retirement=dma_retirement);decoded.append(actual);previous=end
+    validate_pair(*decoded,result['control'],dma_retirement)
     return dict(passed=True,control=result['control'],observations=decoded,
                 actual_qemu_executed=result.get('guest',{}).get('actual_qemu_executed') is True,
-                scope='initialized-queue-context-reset-hold-only',outstanding_io_proven=False,
+                scope=scope,outstanding_io_proven=False,
                 dma_drain_proven=False,dma_reuse_proven=False,restart_proven=False,
                 observation_semantics='two stable final-phase observations; no per-step timestamps')
 
@@ -383,10 +417,11 @@ def main():
     parser.add_argument('--reuse-esp',type=Path)
     parser.add_argument('--replay',type=Path,help='offline revalidate an archived result.json; never starts QEMU')
     parser.add_argument('--control',action='store_true',help='normal unmodified initialized-device control')
+    parser.add_argument('--dma-retirement',action='store_true',help='require post-unmap retirement evidence (or mapped normal control)')
     args=parser.parse_args()
     if args.replay:
         if args.reuse_esp:parser.error('--replay cannot be combined with --reuse-esp')
-        replayed=replay_evidence(args.replay);print(json.dumps(replayed,indent=2));return 0
+        replayed=replay_evidence(args.replay,require_dma_retirement=args.dma_retirement);print(json.dumps(replayed,indent=2));return 0
     if not args.reuse_esp:parser.error('--reuse-esp is required for an actual guest run')
     esp=args.reuse_esp.resolve();root=Path(__file__).resolve().parents[1]
     if not args.control:fixture.verify(root)
@@ -399,7 +434,8 @@ def main():
     disk=state/'data.img';check(not disk.exists() and not disk.is_symlink(),'disk path already exists')
     create(disk,64);before=fixture.digest(disk);guest=None
     source_before=fixture.hashes(root)
-    result=dict(passed=False,scope='initialized-queue-context-reset-hold-only',control=args.control,
+    result=dict(passed=False,scope=RETIREMENT_SCOPE if args.dma_retirement else RESET_SCOPE,control=args.control,
+                dma_retirement=args.dma_retirement,
                 outstanding_io_proven=False,dma_drain_proven=False,dma_reuse_proven=False,restart_proven=False,
                 observation_semantics='two stable final-phase observations; no per-step timestamps',
                 build_manifest_sha256=fixture.digest(esp.parent/'build-inputs.json'),
@@ -408,7 +444,9 @@ def main():
                 block_elf_sha256=fixture.digest(esp.parent/'services/block/program.elf'),
                 fixture_manifest_sha256=None if args.control else fixture.digest(root/'p5-reset-fixture.json'))
     try:
-        guest=ResetGuest(esp,disk,state/'guest',control=args.control);deadline=time.monotonic()+90;polls=[]
+        guest=ResetGuest(esp,disk,state/'guest',control=args.control,dma_retirement=args.dma_retirement)
+        deadline=time.monotonic()+90;polls=[]
+        result.update(polls=polls,snapshots=[])
         storage.write_json(state/'symbols.json',guest.symbols)
         while time.monotonic()<deadline:
             guest.pause()
@@ -429,24 +467,30 @@ def main():
                         # judging its final receipt, without polling ctx's
                         # expected values and hiding a malformed receipt.
                         ready=phase['block_state']==4 and phase['reset_state']==2 and phase['current']!=2
+                        if ready and args.dma_retirement:
+                            phase['continuation']=guest.continuation()
+                            ready=phase['continuation']['state'] not in (0,1)
             polls.append(dict(catalog_pointer=catalog_pointer,bridge_pointer=bridge_pointer,ready=ready,phase=phase))
             if ready:
                 # Once the trusted phase is reached, malformed evidence fails
                 # immediately. Never hide a real bad receipt as a poll timeout.
-                s=guest.snapshot();validate(s,args.control);break
+                s=guest.snapshot();result['snapshots'].append(s)
+                validate(s,args.control,dma_retirement=args.dma_retirement);break
             guest.resume();time.sleep(.1)
         else:raise TimeoutError('reset/context phase not reached: '+repr(polls[-3:]))
-        guest.resume();time.sleep(.2);second=guest.snapshot();validate(second,args.control)
+        guest.resume();time.sleep(.2);second=guest.snapshot();result['snapshots'].append(second)
+        validate(second,args.control,dma_retirement=args.dma_retirement)
         check(second['lease']==s['lease'] and second['root']==s['root'],'held lease changed after observation')
-        context.validate_observations(s,second,args.control)
-        result.update(snapshots=[s,second],polls=polls,passed=True)
+        validate_pair(s,second,args.control,args.dma_retirement)
+        result['passed']=True
     except Exception as error:result['error']=f'{type(error).__name__}: {error}'
     finally:
         if guest is not None:
             try:guest.close();result['guest']=guest.evidence
             except Exception as error:result.update(passed=False,cleanup_error=str(error),guest=guest.evidence)
             if hasattr(guest,'symbols'):
-                storage.write_json(state/'replay-metadata.json',dict(control=args.control,kernel_memory_layout=guest.kernel_memory_layout,
+                storage.write_json(state/'replay-metadata.json',dict(control=args.control,dma_retirement=args.dma_retirement,
+                    kernel_memory_layout=guest.kernel_memory_layout,
                     serial_sha256=fixture.digest(state/'guest/serial.log'),
                     physical_manifest_sha256=fixture.digest(state/'guest/physical-manifest.json')))
         try:

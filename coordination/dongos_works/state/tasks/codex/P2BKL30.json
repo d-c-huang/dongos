@@ -8,6 +8,7 @@
     "module:tests.test_user_domain"
   ],
   "claim_from_status": "rework",
+  "claim_token": "81f5497bdd4245c584877178d29c9819",
   "claimed_at": "2026-10-22T22:09:35+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T22:12:22+00:00",

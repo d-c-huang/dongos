@@ -1,0 +1,37 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_usb_startup_budget"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "4d7753ba410741f88e60ae7fb64a560d",
+  "claimed_at": "2026-11-05T12:19:50+00:00",
+  "claimed_by": "codex-mcp-50488d53a0084e80",
+  "completed_at": "2026-11-05T12:39:05+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T12:19:48+00:00",
+  "delivery": "codex-works/deliveries/P678USBBAS2.md",
+  "depends_on": [
+    "codex:P8BOOTLOG1",
+    "codex:P8USBAUDIT2"
+  ],
+  "description": "冻结当前源码及正常无console overlay的runtime7 USB-only镜像，在一次性QEMU虚盘和匹配固件运行已有run_usb_only_hardware_qemu，核对完整桌面、键鼠、文件持久化、内部盘哨兵。另运行runner --selftest。保留实际阶段和失败。协调者运行客体，定向check只宿主；不写物理盘，不替代P6 KVM时限、P8真机或既有P8BOOTCONSOLE1返修。只写交付。",
+  "document": "codex-works/tasks/P678USBBAS2-board.md",
+  "historical": false,
+  "id": "codex:P678USBBAS2",
+  "legacy_hash": "dd61d1c80d4d8d3ed87b3a2a9c790b16a3eb139a2efbbcc29c429663be804187",
+  "number": "P678USBBAS2",
+  "owner": "codex",
+  "rev": 5,
+  "review_note": "宿主预算复验1项零skip通过，真实四核正常USB客体在长文件写入时CPU1 BKL ACQUIRE超时并使BSP进入Held，未完成文件及第二次启动；保留失败。已发布cursor:P6BKLBRIDGE1手动候选。待新候选独立验收与迁移后用完整冻结源码重跑USB/P5回归。",
+  "status": "rework",
+  "title": "[P6/P7/P8] 当前源码正常 USB 镜像的完整客体回归",
+  "updated_at": "2026-11-05T12:42:20+00:00",
+  "verification": null,
+  "write_paths": [
+    "codex-works/deliveries/P678USBBAS2.md"
+  ]
+}

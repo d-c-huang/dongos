@@ -9,6 +9,7 @@
     "module:tests.test_image"
   ],
   "claim_from_status": "todo",
+  "claim_token": "6c0afea1ef474ef9b9d66902f60463cf",
   "claimed_at": "2026-10-25T09:23:08+00:00",
   "claimed_by": "codex-mcp-14619bbd432c41a6",
   "completed_at": "2026-10-25T09:34:23+00:00",

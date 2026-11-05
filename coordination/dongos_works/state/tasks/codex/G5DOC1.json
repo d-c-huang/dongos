@@ -7,6 +7,7 @@
     "module:lang.tests.test_g5_runner_entry"
   ],
   "claim_from_status": "todo",
+  "claim_token": "dadb6a7071864cd8937554c36a64f7b1",
   "claimed_at": "2026-10-22T17:24:18+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T17:27:16+00:00",

@@ -1,0 +1,82 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p9_corpus_qemu",
+    "module:tests.test_corpus_log"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "6e0d8b7ee0db4a74a82985b61cb0bc7c",
+  "claimed_at": "2026-11-05T12:19:16+00:00",
+  "claimed_by": "codex-mcp-50488d53a0084e80",
+  "completed_at": "2026-11-05T12:54:59+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T12:18:57+00:00",
+  "delivery": "codex-works/deliveries/P9CPL3RUN1.md",
+  "depends_on": [
+    "codex:P9GUESTINT1",
+    "cursor:P9RAWTRANSPORT1",
+    "codex:P5P9CALLINT1"
+  ],
+  "description": "利用正常runtime7和现有shell EXEC、临时FAT APP.ELF及外部UART，启动生产语料ELF在CPL3执行；只读观察进程身份、加载映射与归档ELF，核对真实退出状态、完整P9LOG1及语料逐例返回。重用严格传输验证，单独区分观察证据与已有host-only声明，原API不得将日志自称客体证明。保留实际构建/输入/串口、成功与失败证据。宿主负控覆盖缺失或伪造日志、篡改文件/身份；协调者可在冻结副本和临时虚盘运行QEMU，不触及物理盘，不加入普通启动清单。此项只做已有有界语料，不扩大IPC前置或24小时阶段。",
+  "document": "codex-works/tasks/P9CPL3RUN1-board.md",
+  "historical": false,
+  "id": "codex:P9CPL3RUN1",
+  "legacy_hash": "10f5647ea970b5c17da67fc5c8c805a8f1f6488b79ed668780edb94ecd951eef",
+  "number": "P9CPL3RUN1",
+  "owner": "codex",
+  "rev": 4,
+  "review_note": "",
+  "status": "submitted",
+  "title": "[P9] 真实 CPL3 语料执行与外部 UART 回执核验",
+  "updated_at": "2026-11-05T12:56:27+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.406,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p9_corpus_qemu",
+        "tests": 3,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 22.593,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_corpus_log",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P9CPL3RUN1.md": "1f17fdc86ed1012b51250df7cdd4928ae14a7997e8819b854b3520131ed31c0a",
+      "tests/run_p9_corpus_qemu.py": "f4688e85e1956630263e4e8bbdc65bd2321f2318ba4f7b63c54a778c9e3a4720",
+      "tests/test_p9_corpus_qemu.py": "0e43edde252e83e27d4c01359c52af16da4b47f6cf44dbf2cb516f2f97f58f5b",
+      "tools/guest_corpus/log_transport/corpus_log.py": "a600bfc351a0ee1c9aa7f66fb72be7d9196fc97c16e07bf1d2124703e53df417"
+    },
+    "finished_at": "2026-11-05T12:56:27+00:00",
+    "job": "9c33fbecebab4a1f864e50c197bde2bd",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/run_p9_corpus_qemu.py",
+    "tests/test_p9_corpus_qemu.py",
+    "tools/guest_corpus/log_transport/corpus_log.py",
+    "codex-works/deliveries/P9CPL3RUN1.md"
+  ]
+}

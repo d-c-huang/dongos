@@ -8,6 +8,7 @@
     "module:tests.test_p2_pcid"
   ],
   "claim_from_status": "todo",
+  "claim_token": "a5aacc426a4c4d149eb6a7a35be70a6f",
   "claimed_at": "2026-10-22T22:09:33+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T22:31:20+00:00",

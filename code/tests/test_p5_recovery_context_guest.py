@@ -15,6 +15,8 @@ DEVICE = ('version token next_cursor kind ecam segment bus device function vendo
           'device_id class_code header flags generation reserved').split()
 LEASE = 'physical virtual pages root generation attempted mapped state'.split()
 BINDING = 'version device_token role configuration_id generation irq_mask flags reserved'.split()
+CONTINUATION = 'state incarnation stage error_code'.split()
+RETIREMENT = 'state root generation incarnation pages unmapped online before after error_code'.split()
 CONTEXT = [('present','u64',8),('slot','u64',8),('configuration','u64',8),
            ('owner','u64',8),('incarnation','u64',8),('device_token','u64',8),
            ('device_generation','u64',8),('identity','lib.device_abi.Device',128)]
@@ -38,7 +40,9 @@ def manifest():
         # The compiler emits its canonical u64 type for source-level usize.
         record('user.memory.DmaLease',[(n,'u64',8) for n in LEASE]),
         record('user.device_host.DmaContext',CONTEXT),
-        record('lib.device_abi.Binding',[(n,'u64',8) for n in BINDING])])
+        record('lib.device_abi.Binding',[(n,'u64',8) for n in BINDING]),
+        record('user.device_host.DmaContinuation',[(n,'u64',8) for n in CONTINUATION]),
+        record('user.memory.DmaRetirementView',[(n,'u64',8) for n in RETIREMENT])])
 
 
 def original_context(control=False):
@@ -172,6 +176,53 @@ def replay_boundary_class(runner):
 
 
 class ContextGuestControls(unittest.TestCase):
+    def test_post_unmap_retirement_receipt_and_negative_controls(self):
+        from tests import run_virtio_reset_qemu as runner
+        s=observation()
+        for cpu in s['cpus']:cpu['requested']=10
+        continuation=struct.pack('<4Q',2,1,3,0)
+        retirement=struct.pack('<10Q',3,0x1000,7,1,32,32,15,9,10,0)
+        s['dma_retirement']=dict(continuation=context.decode_record(continuation,manifest(),context.CONTINUATION_TYPE),
+            view=context.decode_record(retirement,manifest(),context.RETIREMENT_TYPE),
+            prepare_attempted=1,sequence=10,user_ptes=[0]*32)
+        runner.validate(s,dma_retirement=True)
+        changes=(
+            ('view','after',9),('view','online',7),('view','incarnation',2),('view','generation',8),
+            ('view','root',0x2000),('view','unmapped',31),('view','error_code',1),
+            ('continuation','incarnation',2),('continuation','state',3),('continuation','stage',2),
+        )
+        for record,field,value in changes:
+            bad=copy.deepcopy(s);bad['dma_retirement'][record][field]=value
+            with self.subTest(record=record,field=field),self.assertRaises(ValueError):
+                runner.validate(bad,dma_retirement=True)
+        for field,value in [('prepare_attempted',0),('view',None),('sequence',9),
+                            ('user_ptes',[0]*31),('user_ptes',[0]*31+[0x21f007])]:
+            bad=copy.deepcopy(s);bad['dma_retirement'][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                runner.validate(bad,dma_retirement=True)
+        for field in ('requested','acknowledged'):
+            bad=copy.deepcopy(s);bad['cpus'][3][field]=9
+            with self.subTest(cpu_field=field),self.assertRaises(ValueError):
+                runner.validate(bad,dma_retirement=True)
+        layout=manifest();layout['types'][-1]['fields'][8]['offset']-=8
+        with self.assertRaises(ValueError):context.decode_record(retirement,layout,context.RETIREMENT_TYPE)
+        with self.assertRaises(ValueError):context.decode_record(continuation[:-1],manifest(),context.CONTINUATION_TYPE)
+
+    def test_retirement_control_requires_all_mappings_and_explicit_archive_mode(self):
+        from tests import run_virtio_reset_qemu as runner
+        s=observation(control=True)
+        s['dma_retirement']=dict(continuation=dict.fromkeys(CONTINUATION,0),view=None,
+            prepare_attempted=0,sequence=10,user_ptes=[(0x200000+4096*i)|7 for i in range(32)])
+        runner.validate(s,True,dma_retirement=True)
+        for entry in (0,0x21f003,0x220007):
+            bad=copy.deepcopy(s);bad['dma_retirement']['user_ptes'][-1]=entry
+            with self.subTest(entry=entry),self.assertRaises(ValueError):
+                runner.validate(bad,True,dma_retirement=True)
+        with tempfile.TemporaryDirectory() as temp:
+            path,*_=archive_boundary(Path(temp))
+            with self.assertRaisesRegex(ValueError,'lacks DMA retirement evidence'):
+                runner.replay_evidence(path,require_dma_retirement=True)
+
     def test_actual_production_structs_match_compiler_canonical_manifest(self):
         # Frontend-only compilation closes the gap between a hand-written
         # oracle and actual compiler metadata. No assembler, linker or VM runs.
@@ -188,10 +239,10 @@ class ContextGuestControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             base=Path(temp);(base/'user').mkdir();(base/'lib').mkdir()
             (base/'lib/device_abi.dg').write_bytes((root/'services/lib/device_abi.dg').read_bytes())
-            (base/'user/memory.dg').write_text('module user.memory;\n'+declaration(root/'kernel/user/memory.dg','DmaLease'))
-            (base/'user/device_host.dg').write_text('module user.device_host;\nimport lib.device_abi as abi;import user.memory as memory;\n'+declaration(root/'kernel/user/device_host.dg','DmaContext'))
+            (base/'user/memory.dg').write_text('module user.memory;\n'+declaration(root/'kernel/user/memory.dg','DmaLease')+'\n'+declaration(root/'kernel/user/memory.dg','DmaRetirementView'))
+            (base/'user/device_host.dg').write_text('module user.device_host;\nimport lib.device_abi as abi;import user.memory as memory;\n'+declaration(root/'kernel/user/device_host.dg','DmaContext')+'\n'+declaration(root/'kernel/user/device_host.dg','DmaContinuation'))
             entry=base/'layout_fixture.dg'
-            entry.write_text('module layout_fixture;import user.device_host as host;export("context_size") fn context_size()u64{return sizeof(host.DmaContext) as u64;}')
+            entry.write_text('module layout_fixture;import user.device_host as host;import user.memory as memory;export("context_size") fn context_size()u64{return (sizeof(host.DmaContext)+sizeof(host.DmaContinuation)+sizeof(memory.DmaRetirementView)) as u64;}')
             actual=compile_file(entry,roots=[base],mode='release').layout_manifest
             expected={t['full_name']:t for t in manifest()['types']}
             for name,oracle in expected.items():

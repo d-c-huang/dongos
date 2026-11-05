@@ -10,6 +10,7 @@
     "module:tests.test_virtio_blk"
   ],
   "claim_from_status": "todo",
+  "claim_token": "635588d89a6a4e57aedabaab1dad243c",
   "claimed_at": "2026-10-24T09:55:27+00:00",
   "claimed_by": "codex-mcp-5f95564a50c4415d",
   "completed_at": "2026-10-24T09:58:34+00:00",

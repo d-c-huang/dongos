@@ -23,6 +23,7 @@
     "discover:lmstudio-works/tests:test_p2_cache_errors.py"
   ],
   "claim_from_status": "todo",
+  "claim_token": "9b050c90012c4060a464e81b50d33310",
   "claimed_at": "2026-10-24T10:11:20+00:00",
   "claimed_by": "codex-mcp-5f95564a50c4415d",
   "completed_at": "2026-10-24T10:12:02+00:00",

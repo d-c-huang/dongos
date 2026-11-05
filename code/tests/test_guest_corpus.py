@@ -9,6 +9,7 @@ HERE=ROOT/'tools/guest_corpus'
 from tools.guest_corpus import build_guest_corpus as builder
 from tools.guest_corpus import guest_corpus_receipt as receipt
 C=r'''
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,7 +48,7 @@ int main(int argc,char **argv){
  output=fopen(argv[2],"wb");if(!output)return 52;fault=strtoull(argv[3],0,10);
  U result=corpus_main();fclose(output);
  if(result==0&&calls!=count){fputs("missing execution\n",stderr);return 42;}
- printf("host cases=%llu emits=%llu result=%llu\n",(unsigned long long)calls,(unsigned long long)emits,(unsigned long long)result);
+ printf("host cases=%" PRIu64 " emits=%" PRIu64 " result=%" PRIu64 "\n",calls,emits,result);
  return (int)result;
 }
 '''

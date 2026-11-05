@@ -11,6 +11,7 @@
     "module:tests.test_runtime_qemu_result"
   ],
   "claim_from_status": "todo",
+  "claim_token": "b86c1939b0464f51914b8de2c3d9a280",
   "claimed_at": "2026-10-25T14:22:36+00:00",
   "claimed_by": "codex-mcp-14619bbd432c41a6",
   "completed_at": "2026-10-25T14:41:42+00:00",

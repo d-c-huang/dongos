@@ -1,0 +1,40 @@
+{
+  "archive_note": "保留声明错误历史；正确入口用P678USBBAS2。",
+  "archived": true,
+  "archived_at": "2026-11-05T12:19:25+00:00",
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_usb_only_hardware"
+  ],
+  "claimed_at": null,
+  "claimed_by": null,
+  "completed_at": null,
+  "complexity": "standard",
+  "created_at": "2026-11-05T12:18:55+00:00",
+  "delivery": "codex-works/deliveries/P678USBBAS1.md",
+  "depends_on": [
+    "codex:P8BOOTLOG1",
+    "codex:P8USBAUDIT2"
+  ],
+  "description": "用冻结当前源码和正常无启动console overlay 的runtime7 USB-only镜像，在一次性QEMU虚盘和匹配固件运行现有run_usb_only_hardware_qemu的完整桌面、键鼠、文件持久化与内部盘哨兵。保留准确阶段、原始日志及失败。协调者运行客体，执行侧定向checks只宿主；不写物理盘，不替代P6 KVM时限、P8真机或既有P8BOOTCONSOLE1返修。只写交付记录。",
+  "document": "codex-works/tasks/P678USBBAS1-board.md",
+  "historical": false,
+  "id": "codex:P678USBBAS1",
+  "legacy_hash": "92566380387ba33493ef952130b20e80996ba5b72b2d9993ce1757abef771565",
+  "number": "P678USBBAS1",
+  "owner": "codex",
+  "pause_control": "confirmed",
+  "resume_status": "todo",
+  "rev": 3,
+  "review_note": "",
+  "status": "paused",
+  "title": "[P6/P7/P8] 当前源码正常 USB 镜像的完整客体回归",
+  "updated_at": "2026-11-05T12:19:25+00:00",
+  "verification": null,
+  "write_paths": [
+    "codex-works/deliveries/P678USBBAS1.md"
+  ]
+}

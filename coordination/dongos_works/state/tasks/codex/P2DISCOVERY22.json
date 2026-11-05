@@ -8,6 +8,7 @@
     "module:tests.test_device_manager"
   ],
   "claim_from_status": "todo",
+  "claim_token": "670f5a2ce727454f913cfdb1af9a0f0f",
   "claimed_at": "2026-10-22T20:30:59+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T20:42:50+00:00",

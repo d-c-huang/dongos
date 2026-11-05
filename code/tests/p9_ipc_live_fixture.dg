@@ -1,0 +1,67 @@
+// Loaded as the ordinary echo app only in an isolated runtime7 test image.
+module apps.echo;
+import lib.sys as sys;
+
+const INVALID_HANDLE:u64=0x0401_0002;
+const DENIED:u64=0x0401_0003;
+const INVALID_ADDRESS:u64=0x0406_0003;
+const PEER_GONE:u64=0x0511_0008;
+const BAD_ADDRESS:u64=0x80_0000_0000;
+const POISON:u64=0xa5a5_a5a5_a5a5_a5a5;
+const ECHO_MISMATCH:u64=0x0951_0003;
+var REQUEST:sys.Message=sys.EMPTY_MESSAGE;
+var RESPONSE:sys.Message=sys.EMPTY_MESSAGE;
+
+unsafe fn reset_response()void{unsafe{
+    var word:usize=0;
+    while word<8{RESPONSE.words[word]=POISON;word+=1;}
+}return;}
+
+fn response_untouched()bool{
+    var word:usize=0;
+    while word<8{if RESPONSE.words[word]!=POISON{return false;}word+=1;}
+    return true;
+}
+
+export("service_main") fn main()u64{unsafe{
+    let boot=sys.boot();
+    if boot==null||(*boot).version!=1||(*boot).block==0||(*boot).reserved0==0{return 0x0951_0001;}
+    let endpoint=(*boot).block;
+    let ready=sys.ready_boot(boot);if ready!=0{return ready;}
+    reset_response();
+    let response=(&RESPONSE) as u64;
+    let request=(&REQUEST) as u64;
+    if sys.svc_call(0x22,0,request,response,0,0,0)!=INVALID_HANDLE||!response_untouched()
+       ||sys.svc_call(0x23,endpoint,response,0,0,0,0)!=DENIED||!response_untouched()
+       ||sys.svc_call(0x22,endpoint,request,BAD_ADDRESS,0,0,0)!=INVALID_ADDRESS||!response_untouched()
+       ||sys.svc_call(0x22,endpoint,BAD_ADDRESS,response,0,0,0)!=INVALID_ADDRESS||!response_untouched(){
+        return 0x0951_0002;
+    }
+    if sys.log("P9IPC1 PROBES PASS\r\n")!=0{return 0x0951_0005;}
+
+    let seed=(*boot).reserved0;
+    var index:u64=0;
+    while index<32{
+        REQUEST.words[0]=index+1;
+        var word:usize=1;
+        while word<8{
+            REQUEST.words[word]=seed^(index<<32)^((word as u64)<<48)^0x51a5_1b77_e800_0000;
+            word+=1;
+        }
+        reset_response();
+        let status=sys.call(endpoint,&REQUEST,&RESPONSE);
+        if status!=0{return status;}
+        word=0;
+        while word<8{
+            if RESPONSE.words[word]!=REQUEST.words[word]{return ECHO_MISMATCH;}
+            word+=1;
+        }
+        index+=1;
+    }
+    if sys.log("P9IPC1 ECHO 32 PASS\r\n")!=0{return 0x0951_0005;}
+    REQUEST.words[0]=999;
+    reset_response();
+    if sys.call(endpoint,&REQUEST,&RESPONSE)!=PEER_GONE||!response_untouched(){return 0x0951_0004;}
+    if sys.log("P9IPC1 PEER GONE PASS\r\n")!=0{return 0x0951_0005;}
+    return 0;
+}}

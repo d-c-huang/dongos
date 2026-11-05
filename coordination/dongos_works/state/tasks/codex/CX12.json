@@ -20,14 +20,14 @@
   "historical": false,
   "id": "codex:CX12",
   "integration_note": "声明主线文件均已真实落盘，逐项匹配正式最终指纹；主线执行与独立审查证据如验收note。组件集成完成，不将其等同完整L3客体自举。",
-  "legacy_hash": "5088740602ef70add1a0612468dbbd4c2e962d5a712dfb11e987eff3c747cb40",
+  "legacy_hash": "1a5e16965b6bb105d8432b549bccdd983452ef359720d6e9372a267237b1a473",
   "number": "CX12",
   "owner": "codex",
-  "rev": 12,
+  "rev": 13,
   "review_note": "独立review_io两模式各7532独立NASM向量、576真实机器执行、6越界拒绝均通过；已核对两遍长度/RIP/SIB/低位移逻辑，生产无阻断。Windows夹具binary修正后正式f4a7复验1test0skip62.293s源码稳定，主线实际ELF执行及坏体通过。",
   "status": "integrated",
   "title": "[L3] 原生汇编器使用有界短位移编码以保持2MiB执行上限",
-  "updated_at": "2026-10-23T06:13:02+00:00",
+  "updated_at": "2026-11-05T11:48:12+00:00",
   "verification": {
     "checks": [
       {

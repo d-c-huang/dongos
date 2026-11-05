@@ -1,0 +1,37 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p2_pcid",
+    "module:tests.test_p2_pcid_build"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "8dc5a44c47b04aeca7f9a7e9cc5b676a",
+  "claimed_at": "2026-11-05T12:43:23+00:00",
+  "claimed_by": "codex-mcp-50488d53a0084e80",
+  "completed_at": "2026-11-05T12:56:39+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T12:43:23+00:00",
+  "delivery": "codex-works/deliveries/P2PCIDWHPX1.md",
+  "depends_on": [
+    "codex:P2PCID12"
+  ],
+  "description": "现有归档构建的原路径已漂移，重建当前P2 PCID专用隔离镜像，协调者用现有runner WHPX显式userspace interrupt controller路径和--require-pcid执行，不修改宿主设置，不放宽PCID、AP及原始证据门。只用临时虚盘。宿主checks不启动虚拟机。若实际后端启动或PCID能力失败，留原始状态和日志，不用TCG替代、不验收阶段。",
+  "document": "codex-works/tasks/P2PCIDWHPX1-board.md",
+  "historical": false,
+  "id": "codex:P2PCIDWHPX1",
+  "legacy_hash": "dff4e64f0d18930242dea2430db6af0367c5cd402f6643f3349dd957489c75a2",
+  "number": "P2PCIDWHPX1",
+  "owner": "codex",
+  "rev": 5,
+  "review_note": "正式宿主38+10项零skip、源稳定。两次严格WHPX均真实启动并在OVMF PlatformPei同一RIP #GP，未达到DongOS入口；保留完整日志与干净退出。待可正常启动并实际暴露PCID/INVPCID的环境按同一严格入口复测。",
+  "status": "rework",
+  "title": "[P2] 当前 Windows WHPX 的严格逐 CPU PCID 复验",
+  "updated_at": "2026-11-05T13:02:59+00:00",
+  "verification": null,
+  "write_paths": [
+    "codex-works/deliveries/P2PCIDWHPX1.md"
+  ]
+}

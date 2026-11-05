@@ -1,0 +1,82 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p5_recovery_context_guest",
+    "module:tests.test_virtio_reset_guest"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "8a72874ba64a44598b4dcbb2e324fce5",
+  "claimed_at": "2026-11-05T11:54:47+00:00",
+  "claimed_by": "codex-mcp-50488d53a0084e80",
+  "completed_at": "2026-11-05T12:05:30+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T11:54:22+00:00",
+  "delivery": "codex-works/deliveries/P5RETIREGUEST1.md",
+  "depends_on": [
+    "codex:P5CTX2",
+    "cursor:P5DMARETIRE1",
+    "codex:P5P9CALLINT1"
+  ],
+  "description": "接续现有P5CTX2真实客体runner和P5DMACALL1生产集成，不修改内核、生产固件或故障注入。新增显式退休观察模式，兼容旧P5CTX2档案。用只读QMP和冻结构建在同源runtime7现代VirtIO正常/实际UD2故障中核对精确Context/lease/PINNED、DmaContinuation、DmaRetirementView的完整ABI与终态、所有旧DMA用户PTE和撤映射后新全核确认；正常对照要求原映射仍存在。按原始转储离线重放，宿主负控需拒绝旧/缺ACK、残留PTE、替换身份/回执及损坏布局；状态3回执永久保留真实错误，不当通过。执行方仅宿主验证；如本机工具链就绪由Codex协调者在独立冻结副本用临时虚盘/匹配固件执行control和fault，保留原始命令、来源、结果与故障，不接触物理设备。正式检查与真实证据均通过才可验收。本项只证明CPU侧映射退休，不授予设备DMA排空、第三方owner排除、解PIN/回收/重用/重绑定或驱动恢复。",
+  "document": "codex-works/tasks/P5RETIREGUEST1-board.md",
+  "historical": false,
+  "id": "codex:P5RETIREGUEST1",
+  "legacy_hash": "087fe92f4b895ffd348838ec234d5a379a532e392fc0012ec4132ffdd71e2608",
+  "number": "P5RETIREGUEST1",
+  "owner": "codex",
+  "rev": 4,
+  "review_note": "",
+  "status": "submitted",
+  "title": "[P5] 同源客体故障与撤映射后的全核退休回执",
+  "updated_at": "2026-11-05T12:06:40+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 1.219,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p5_recovery_context_guest",
+        "tests": 14,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 0.406,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_virtio_reset_guest",
+        "tests": 9,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P5RETIREGUEST1.md": "b270bb1aed5dd96fb323c5d8bdb796c1c59e945357f8517e92fc94de8b469168",
+      "tests/p5_recovery_context_guest.py": "975e7eec9794ef6b96759fcba320a65109fac6263590fbc96e04d996c54d45cc",
+      "tests/run_virtio_reset_qemu.py": "00cccd5df4889eaba14d3b609f3829dfd48fd80cea8fd1a7c8d08adbfdbcbc78",
+      "tests/test_p5_recovery_context_guest.py": "fbad5744e2bb796709ef2b9f646c993afe4df1648568b4b2c817d952f9ee38fe"
+    },
+    "finished_at": "2026-11-05T12:06:40+00:00",
+    "job": "edb8676dcc894b74bfb8551571e0b83b",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/run_virtio_reset_qemu.py",
+    "tests/p5_recovery_context_guest.py",
+    "tests/test_p5_recovery_context_guest.py",
+    "codex-works/deliveries/P5RETIREGUEST1.md"
+  ]
+}

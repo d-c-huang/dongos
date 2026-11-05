@@ -7,6 +7,7 @@
     "module:lang.tests.test_l3_elf_full_matrix"
   ],
   "claim_from_status": "todo",
+  "claim_token": "5f0c22e24544476395d4cfbaf4580e56",
   "claimed_at": "2026-10-24T07:40:23+00:00",
   "claimed_by": "codex-mcp-14ca67a3341042c4",
   "completed_at": "2026-10-24T08:07:43+00:00",

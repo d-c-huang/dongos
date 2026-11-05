@@ -11,6 +11,7 @@
     "module:tests.test_compiler_stack"
   ],
   "claim_from_status": "todo",
+  "claim_token": "75d9380f869f4e22861e759f097a4f73",
   "claimed_at": "2026-10-22T18:11:16+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T18:15:50+00:00",

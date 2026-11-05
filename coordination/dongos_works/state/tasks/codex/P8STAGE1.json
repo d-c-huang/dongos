@@ -9,6 +9,7 @@
     "module:tests.test_runtime_qemu_result"
   ],
   "claim_from_status": "rework",
+  "claim_token": "7460436a000e4dc19404c2deef110294",
   "claimed_at": "2026-10-25T13:49:12+00:00",
   "claimed_by": "codex-mcp-14619bbd432c41a6",
   "completed_at": "2026-10-25T13:57:01+00:00",

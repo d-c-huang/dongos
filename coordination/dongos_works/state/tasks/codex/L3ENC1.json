@@ -7,6 +7,7 @@
     "module:lang.tests.test_l3_extended_encoding"
   ],
   "claim_from_status": "todo",
+  "claim_token": "efacf6a12d4440c9872d2dd4ecaa3c21",
   "claimed_at": "2026-10-24T06:24:52+00:00",
   "claimed_by": "codex-mcp-14ca67a3341042c4",
   "completed_at": "2026-10-24T06:35:19+00:00",

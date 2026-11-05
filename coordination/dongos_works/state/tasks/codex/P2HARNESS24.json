@@ -8,6 +8,7 @@
     "module:tests.test_user_smp_oracle"
   ],
   "claim_from_status": "todo",
+  "claim_token": "a0a9f3bce7d842bc88dfebc749833ae3",
   "claimed_at": "2026-10-22T20:50:14+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T21:04:38+00:00",

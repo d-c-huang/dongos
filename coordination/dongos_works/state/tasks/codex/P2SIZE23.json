@@ -16,6 +16,7 @@
     "module:tests.test_usb_runtime_qemu"
   ],
   "claim_from_status": "todo",
+  "claim_token": "a88d9c55df5b4c318a9ac2ad8dad31b1",
   "claimed_at": "2026-10-22T20:49:38+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T21:13:22+00:00",

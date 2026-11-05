@@ -9,6 +9,7 @@
     "module:tests.test_user_smp_barrier"
   ],
   "claim_from_status": "todo",
+  "claim_token": "9fb074de9e704ee1a81cde7928a90c34",
   "claimed_at": "2026-10-22T18:26:16+00:00",
   "claimed_by": "codex-mcp-daece153b59c4bd5",
   "completed_at": "2026-10-22T18:37:18+00:00",
