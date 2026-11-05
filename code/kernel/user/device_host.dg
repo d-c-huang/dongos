@@ -138,6 +138,34 @@ unsafe fn dma_revoked(token:u64,result:u64)void{unsafe{
  }
 }return;}
 // P5_CONTEXT_END
+// P5_DMA_HOST_BEGIN
+// Explicit kernel continuation after retire_one/revoke_owner. No syscall and
+// no automatic call from ordinary manager REVOKE. DMA remains held/unknown.
+unsafe fn dma_retire_context(slot:usize)!*DmaContext{unsafe{
+ if slot>=16||TABLE==null||(*TABLE).initialized!=1||(*TABLE).count>32{return error.abi.Invalid;}
+ let c=&DMA_CONTEXTS[slot];let token=(*c).device_token;let index=token&255;
+ if (*c).present!=1||(*c).slot!=slot as u64||(*c).configuration!=slot as u64
+  ||(*c).incarnation==0||(*c).incarnation>0x0fff_ffff||(*c).owner!=(((slot as u64+1)<<32)|(*c).incarnation)
+  ||token==0||index==0||index>(*TABLE).count as u64||(*c).device_generation!=(token>>8)
+  ||(*c).context_error!=0||(*c).snapshot_status!=2||(*c).snapshot_error!=0||(*c).acquire_done!=1||(*c).acquire_error!=0
+  ||(*c).stop_state!=1||(*c).smp_retire!=1||(*c).stop_error!=0||(*c).route_state!=1||(*c).route_error!=0
+  ||(*c).isolation!=1||(*c).isolation_error!=0||(*c).revoke_error!=0||(*c).held!=1||(*c).drain!=0
+  ||(*c).generation_after!=(*c).device_generation+1||(*c).root!=(*c).lease.root
+  ||(*c).memory_generation!=(*c).lease.generation{return error.abi.Stale;}
+ let device=(*TABLE).devices[(index-1) as usize];
+ if device.token!=token||device.generation!=(*c).generation_after||(device.flags&abi.REVOKED)==0
+  ||!ledger.same_identity(&(*c).identity,&device){return error.abi.Stale;}
+ return c;
+}}
+pub unsafe fn dma_prepare_retirement(slot:usize)!void{unsafe{
+ let c=try dma_retire_context(slot);
+ try memory.dma_prepare_retirement(slot,(*c).incarnation,&(*c).lease);
+}return;}
+pub unsafe fn dma_retire_mappings(slot:usize)!void{unsafe{
+ let c=try dma_retire_context(slot);
+ try memory.dma_retire_mappings(slot,(*c).incarnation,&(*c).lease);
+}return;}
+// P5_DMA_HOST_END
 unsafe fn hardware(ecam:u64,out:*abi.Device)!bool{unsafe{
     let identity=try devices.configuration_read(ecam);
     if (identity&65535)==0||(identity&65535)==65535{return false;}
@@ -330,3 +358,33 @@ pub unsafe fn close_pci_irq(object:u64,owner:u64)!void{unsafe{
     let closed=msi.close(&MSI,&MSI_OPS,object,owner);
     match closed{ok=>{},err(e)=>{if MSI.stage==3{PCI_FAILED=true;match devices.quarantine(2){ok=>{},err(ignored)=>{},}}return closed;},}
 }return;}
+
+// P5_DMA_CONTINUE_BEGIN
+// Trusted services continuation only. Side receipts preserve DmaContext ABI.
+// state: 0 untouched, 1 entered, 2 mappings retired, 3 permanently held error.
+// stage: 1 identity/eligibility, 2 preparation, 3 mapping retirement.
+pub struct DmaContinuation{pub state:u64,pub incarnation:u64,pub stage:u64,pub error_code:u64}
+const EMPTY_DMA_CONTINUATION:DmaContinuation=DmaContinuation{state:0,incarnation:0,stage:0,error_code:0};
+var DMA_CONTINUATIONS:[16]DmaContinuation=[EMPTY_DMA_CONTINUATION;16];
+pub unsafe fn dma_continuation(slot:usize,out:*DmaContinuation)!void{unsafe{
+ if slot>=16||out==null{return error.abi.Invalid;}
+ *out=DMA_CONTINUATIONS[slot];
+}return;}
+unsafe fn dma_continue_inner(slot:usize,incarnation:u64)!void{unsafe{
+ let c=try dma_retire_context(slot);
+ if (*c).incarnation!=incarnation||(*c).lease.state!=memory.DMA_COMPLETE||(*c).lease.physical==0
+  ||(*c).lease.pages==0||(*c).lease.mapped!=(*c).lease.pages||(*c).lease.attempted!=(*c).lease.pages{return error.abi.Denied;}
+ DMA_CONTINUATIONS[slot].stage=2;
+ try dma_prepare_retirement(slot);
+ DMA_CONTINUATIONS[slot].stage=3;
+ try dma_retire_mappings(slot);
+}return;}
+pub unsafe fn dma_retire_stopped(slot:usize,incarnation:u64)void{unsafe{
+ if slot>=16||incarnation==0||DMA_CONTINUATIONS[slot].state!=0{return;}
+ DMA_CONTINUATIONS[slot]=DmaContinuation{state:1,incarnation:incarnation,stage:1,error_code:0};
+ match dma_continue_inner(slot,incarnation){
+  ok=>{DMA_CONTINUATIONS[slot].state=2;},
+  err(e)=>{DMA_CONTINUATIONS[slot].state=3;DMA_CONTINUATIONS[slot].error_code=e;},
+ }
+}return;}
+// P5_DMA_CONTINUE_END

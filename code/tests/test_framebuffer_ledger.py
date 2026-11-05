@@ -2,6 +2,7 @@
 import hashlib,json,os,re,subprocess,unittest,uuid
 from pathlib import Path
 from lang.dongc import compile_file
+from tests.native_reachable import write_native
 from lang.tests.test_dongc import nasm_flags,tool
 from tests.test_gui_font_portal import collect,boundaries
 from tools.kernel_storage_profile import module_bytes
@@ -68,13 +69,13 @@ class LedgerTests(unittest.TestCase):
    layouts={x['full_name']:x for x in c.layout_manifest['types']}
    self.assertEqual(layouts['user.memory.FramebufferSnapshot']['size'],4128)
    (d/'layout.json').write_text(json.dumps(c.layout_manifest,indent=2))
-   asm=d/'probe.asm';asm.write_text(c.assembly)
+   asm=write_native(d,c.assembly)
    mocked={'__dong_panic','fb_allocate','user_current_root','user_pcid_flush_all','user_pcid_unbind','user_pcid_bind','runtime_invalidate','runtime_flush_root','runtime_copy_bytes','user_pcid_invalidate_root'}
    externs={m.group(1).lstrip('$') for m in re.finditer(r'^extern (\$?\w+)',c.assembly,re.M)}-mocked
    stub=d/'unused.asm';stub.write_text('bits 64\nsection .text\n'+''.join('global $'+x+'\n$'+x+': ud2\n' for x in sorted(externs)))
    objects=[]
    for label,file in [('probe',asm),('unused',stub)]:
-    obj=d/(label+'.o');objects.append(obj);r=run([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,label);self.assertEqual(r.returncode,0,r.stderr)
+    obj=d/(label+'.o');objects.append(obj);r=run([nasm,'-O0','-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,label);self.assertEqual(r.returncode,0,r.stderr)
    exe=d/('probe.exe' if os.name=='nt' else 'probe');r=run([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing',* ([] if os.name=='nt' else ['-no-pie']),inputs[4],*objects,'-o',exe],d,'link');self.assertEqual(r.returncode,0,r.stderr)
    cases=('normal','abort','hidden','partial','overflow','raw-mismatch','retire-failed','root-change','transition','hhdm-overflow') if variant=='normal' else (variants[variant][2],)
    for case in cases:

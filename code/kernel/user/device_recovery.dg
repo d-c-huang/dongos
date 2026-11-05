@@ -147,13 +147,16 @@ fn plan_ok(steps:[]Step,written:*usize,t:*const Table)bool{unsafe{
     if written==null{return false;}
     let wp=written as u64;let sp=steps.ptr as u64;let tp=t as u64;
     if (wp&7)!=0||!span(wp,8){return false;}
+    // Validate the complete declared span before multiplying, in both modes.
+    if (steps.len as u64)>MAX/STEP_BYTES{return false;}
     let sn=(steps.len as u64)*STEP_BYTES;
     if !span(sp,sn)||(sn!=0&&(sp&7)!=0){return false;}
     return !overlap(wp,8,tp,TABLE_BYTES)&&!overlap(wp,8,sp,sn)&&!overlap(sp,sn,tp,TABLE_BYTES);
 }}
 fn word_and_plan_ok(out:*u64,steps:[]Step,written:*usize,t:*const Table)bool{unsafe{
     if !word_ok(out,t)||!plan_ok(steps,written,t){return false;}
-    return !overlap(out as u64,8,steps.ptr as u64,(steps.len as u64)*STEP_BYTES);
+    return !overlap(out as u64,8,written as u64,8)
+        &&!overlap(out as u64,8,steps.ptr as u64,(steps.len as u64)*STEP_BYTES);
 }}
 fn find(t:*const Table,token:u64,generation:u64)usize{unsafe{
     var i:usize=0;

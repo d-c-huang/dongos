@@ -1,0 +1,10 @@
+{"at":"2026-11-05T06:59:45+00:00","data":{"rev":1,"status":"todo"},"kind":"created","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T06:59:57+00:00","data":{"claimed_at":"2026-11-05T06:59:57+00:00","claimed_by":"codex-mcp-20924f20ca174a06","completed_at":null,"owner":"codex","resume_status":null,"rev":2,"status":"in_progress"},"kind":"claim","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:04:39+00:00","data":{"claimed_at":"2026-11-05T06:59:57+00:00","claimed_by":"codex-mcp-20924f20ca174a06","completed_at":"2026-11-05T07:04:39+00:00","owner":"codex","resume_status":null,"rev":3,"status":"submitted"},"kind":"submit","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:04:40+00:00","data":{"job":"c4f048deda9849ccbca05ca428a286c6","kind":"verify","provider":"python"},"kind":"queued","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:04:41+00:00","data":{"job":"c4f048deda9849ccbca05ca428a286c6"},"kind":"verification_started","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:11:37+00:00","data":{"job":"c4f048deda9849ccbca05ca428a286c6","reason":"pause"},"kind":"cancel_requested","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:11:37+00:00","data":{"rev":4,"status":"submitted"},"kind":"pause_requested","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:11:45+00:00","data":{"claimed_at":"2026-11-05T06:59:57+00:00","claimed_by":null,"completed_at":"2026-11-05T07:04:39+00:00","owner":"codex","resume_status":"submitted","rev":5,"status":"paused"},"kind":"stopped","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:11:45+00:00","data":{"job":"c4f048deda9849ccbca05ca428a286c6","status":"failed"},"kind":"job_finished","task_id":"codex:P5DMAINT1"}
+{"at":"2026-11-05T07:13:35+00:00","data":{"rev":6,"status":"paused"},"kind":"archive","task_id":"codex:P5DMAINT1"}

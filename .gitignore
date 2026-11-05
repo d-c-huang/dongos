@@ -10,6 +10,9 @@ node_modules/
 # Windows caches created by local tools; not project sources.
 code/%SystemDrive%/
 coordination/.local/
+# Generated coordination exports; portable task state lives in *_works/state/.
+coordination/index.json
+coordination/*_works/index.json
 coordination/index.*.tmp
 coordination/*_works/.local/
 coordination/*_works/index.*.tmp

@@ -1,0 +1,22 @@
+// Fixed immutable input only. JSON validation belongs to the offline builder.
+module p9.corpus_guest;
+import p9.corpus_data as data;
+unsafe extern "sysv64" fn corpus_call(n:u64,a:u64,b:u64,c:u64,d:u64,e:u64,f:u64)u64;
+unsafe extern "sysv64" fn corpus_emit(p:*const u64,bytes:usize)u64;
+export("corpus_main") fn main()u64{unsafe{
+ if data.COUNT==0||data.COUNT>256{return 1;}
+ var header:[8]u64=[0x5039424547494e31,1,data.GENERATION,data.COUNT,data.BINDING[0],data.BINDING[1],data.BINDING[2],data.BINDING[3]];
+ if corpus_emit(&header[0],64)!=0{return 2;}
+ var index:usize=0;var status:u64=0;
+ while index<data.COUNT{
+  let c=data.CASES[index];
+  let actual=corpus_call(c[0],c[1],c[2],c[3],c[4],c[5],c[6]);
+  var row:[4]u64=[0x5039434153453031,data.GENERATION,index as u64,actual];
+  if corpus_emit(&row[0],32)!=0{return 2;}
+  index+=1;
+  if actual!=c[7]{status=3;break;}
+ }
+ var end:[4]u64=[0x5039454e44303031,data.GENERATION,index as u64,status];
+ if corpus_emit(&end[0],32)!=0{return 2;}
+ return status;
+}}

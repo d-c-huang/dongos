@@ -1,0 +1,26 @@
+# P5DMARETIRE1 独立审查
+
+2026-11-05，用户明确授权；非作者子代理 `/root/review_dma` 只读审查，协调器转录。初审 submitted rev5：BLOCK。
+
+- P1：memory.dg:200–206在alias预检前永久allocate。生产service_memory先reserve/NEXT_PAGE，再写kernel PTE/清零。未知4K/2M、缺失和其它pinned根alias拒绝时仍占5页，违反预检无写入。
+- P2：allocate reserve后失败未保存尝试状态，重复请求耗用5→10页，合同每slot最多一份不成立。
+
+正式eef1caa6fbbb43939cf492c70bc3d326原2 tests通过但漏检。独立执行原2 tests/89.371s/0 skip/OK，code/build/test/p5-dma-retire/run-88ba03e8d0a8，66 native记录。附加code/build/review-p5-dma-retire/precheck_alloc探针 memory4/5/7/8均正常执行到used==0断言失败exit1，allocated_pages=5；host1对照0页。allocation_failure_retry模拟真实reserve后失败边界，两次调用used5→10，断言exit1。不能以旧通过证据验收。
+
+其它检查通过：真实Context/ledger身份与代际，BSP/IF0/BKL及已停机Domain，完整森林runtime_roots.audit，真实unmap_live后新屏障序列及全部在线ACK/Seen，无释放/解pin/清零DMA/回收receipt路径。六汇编变体106保留体逐字等同full、静态数据一致、没有指向480 trap的引用。两坏体真正断言exit1，非崩溃。
+
+返修要求：独立可信prepare阶段分配前锁存一次尝试，失败sticky；退休入口零分配，未prepare拒绝；比较退休前后allocator及全部kernel页表；partial/physical0需同步host Context后再测实际资格门。
+
+初审SHA256：memory e6d5bb3726eaedb7ed9fb6e982f391a280dbdc46e265ed821045d9f2da6e36e6；host 9fcd06cdcd8f1ecd0957da777b7212d1cdfcb2b20a2ca03882cf7268b55d1b85；contract 9415ec6a56c8fa86400d319d125baab80130e12bcae61d291b38577d0a9206d9；test bf21e3c95eb885bcee2f494852595984694cce2e57a7e00c4d53a90a90be756d；fixture 3908ed7eecbf11c3af81bae89388aec9dd70296279150554c986d3f58fb4e35e；C cc7060ec917c3d08757d68b79223fd94a9009553b8f785d9a4fa47b8ab2f3bbd。
+
+未接生产services调用点。硬件边界模拟，无OS/VM、真实IPI/INVPCID、DMA drain或完整P5声明。
+
+## 返修独立复审 PASS
+
+非作者 /root/review_dma 对返修冻结候选复审PASS，原BLOCK保留。独立2 tests/97.660s/0 skip/OK，code/build/test/p5-dma-retire/run-202586baaa36，106条native记录。三类坏体两模式均真实断言exit1；附加28用例核对预检整个View不变、allocator恢复后仍不得重复prepare。八汇编变体113保留体和data逐字等同full；退休静态51函数闭包没有allocator。额外探针build/review-p5-dma-retire/recheck_precheck.c。
+
+确认prepare共用可信上下文与Domain检查，分配前永久锁存；retire不分配且验证准备绑定，alias仅写私有工作区。整体diff去掉新增标记段/import后与原基线仅尾空白差异。无新阻断，仍无生产调用点及硬件证据。
+
+复审SHA：memory e680f44af218f927c1ca3290601eb4af7943c2119bfe36915825fa9e67b6f3de；host dfc506308148e9c9b181a1a132b52d29a2bd0e450b704d540474a37bd415fe08；contract e5d6cabe761b12e5bb82d1e6fc1e6e6460e69d0941327721c9b57108b4eeb92b；test cedd385cddd05567a57ab78192d448ff6945a0176e58f60c3fd1219f55fa9686；fixture 8415f88154301bdd9495b1da6a69bdd18563787148c9e1e74b420bb677399257；C 68b879f92a313469b57ab2996560ef2e3e07bdda271032f91a49782b48f8fef9。
+
+协调器新正式作业cd92a66b3ab14bf2a2540e3335a4a1c2通过：2 tests/247.976s/0 skip，source_stable/process_stopped/execution_exited均true，六源指纹与复审相同。生产集成另外验收。

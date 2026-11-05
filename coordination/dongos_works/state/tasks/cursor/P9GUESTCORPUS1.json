@@ -1,0 +1,83 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-11-05T01:44:06+00:00",
+      "from_owner": "cursor",
+      "note": "用户明确要求接手Cursor任务。已核对本项todo、无领取者和活动作业；转派Codex，保留稳定ID、write_paths与历史。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:cursor-works/tests:test_guest_corpus.py"
+  ],
+  "claim_from_status": "rework",
+  "claim_token": "91647aa683834c87b3ee2bc89374f805",
+  "claimed_at": "2026-11-05T02:18:29+00:00",
+  "claimed_by": "codex-mcp-891e96b2a2a74c41",
+  "completed_at": "2026-11-05T02:18:30+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T01:42:03+00:00",
+  "delivery": "cursor-works/deliveries/P9GUESTCORPUS1.md",
+  "depends_on": [
+    "codex:P9CORPUSINT1"
+  ],
+  "description": "P9既有tools/syscall_corpus.py及tests/test_syscall_corpus.py已经集成，不重写生成器/解析器。补实际CPL3消费端及严格回执：读取原docs/syscall-corpus.md，复用正式解析器验证种子/index/数量/寄存器/形状oracle；有界最多256case/单批，不在内核处理不可信JSON。私有builder按已验证语料生成固定只读数据，编译真实Dong+ASM用户服务，通过既有SYSCALL ABI提交原始寄存器并记录每例返回及连续进度。只能使用明确定义前置的none或可独立核对的absent_handle_entry等子集；未实现live endpoint/映射前置的case必须显式拒绝整批或标为未执行，不能按accepted_shape伪造调用成功，也不能静默跳过后宣称完整语料覆盖。禁止调用宿主OS syscall、传shell命令或运行VM。回执绑定原语料SHA、源码/ELF/生成数据SHA、执行次数、case索引和实际返回值；离线解析拒绝缺项/重复/乱序/过期代际/超时/崩溃/丢失终态/截断记录，不能接受passed布尔替代实际逐例比较。host测试实际编译执行受控SYSCALL边界替身，核对SysV寄存器到用户SYSCALL汇编路径/计数/停止规则和真实坏ASM或坏Dong反控；替身明确标为host，不得签发guest通过。至少真实坏体漏执行一例、篡改寄存器或返回值、接受缺失结尾被精确断言拒绝。builder只写显式输出的新隔离目录，不能修改生产内核/服务或现有镜像；默认不启动任何进程型VM。后续真实内核集成/客体执行/24小时门槛、资源泄漏监视及安全启动/IOMMU/CET均由独立任务承担，本项不代表P9完成。Cursor客户端手动领取，测试由协调器运行，不提交推送、不自动启动AI CLI。",
+  "document": "cursor-works/tasks/P9GUESTCORPUS1-board.md",
+  "historical": false,
+  "id": "cursor:P9GUESTCORPUS1",
+  "integration_note": "已真实落盘code/tools/guest_corpus、tests/test_guest_corpus.py和docs/guest-corpus.md。生产迁移独立审查codex-works/reviews/P9GUESTINT1.md PASS；正式ba912837f8a04a45aa9026ac5961a583生产48项零skip/源稳定。原候选不变，新生产binding拒绝旧raw。登记工作树集成，不表示Git提交推送或真实客体/P9全阶段完成。",
+  "legacy_hash": "7d7d89f896dc6e9f6b922a95fef135fb63701421171434e04a5a718d46de2ee2",
+  "number": "P9GUESTCORPUS1",
+  "owner": "codex",
+  "rev": 10,
+  "review_note": "非作者 /root/review_corpus 实际完整源码/契约/测试/生产ABI审查PASS，记录codex-works/reviews/P5P9AUDIT1-corpus.md。正式bf205646263444d882a9b86735e894d6 2 tests/0 skip/source_stable，六源SHA一致。独立额外2 tests/64.360s/OK，真实坏体/严格前缀拒绝。仅host-boundary-only guest_verified=false；归档ELF未执行，不是CPL3/24h/P9整阶段验收。候选已验收，真实迁移与生产路径复验后另登记集成。",
+  "status": "integrated",
+  "title": "[P9] 将已验收syscall语料接入有界CPL3执行与回执",
+  "updated_at": "2026-11-05T06:59:44+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 49.624,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:cursor-works/tests:test_guest_corpus.py",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "cursor-works/deliveries/P9GUESTCORPUS1.md": "da56b7a9f72e763f1b09a77bcd6f6f65e4e91bbe82e575e90956098d1e225879",
+      "cursor-works/src/p9/guest-corpus/build_guest_corpus.py": "84c77e6f36361e247085c096b48131542f29d5086926710e97a97db13c746aa2",
+      "cursor-works/src/p9/guest-corpus/contract.md": "f90a1fffed81ac892fa78f11a47f3126b314b6a5751c021801e62941c8e4fb22",
+      "cursor-works/src/p9/guest-corpus/corpus_entry.asm": "a6b1e037ee9ca8bd1c440633411bdd0e49e71a247ec99f595879a7d74dd175e3",
+      "cursor-works/src/p9/guest-corpus/corpus_guest.dg": "77ed343869e3dcf8a2e9c8cc8f37820e1cfdfeddf28db1732d5cbea4ec769daf",
+      "cursor-works/src/p9/guest-corpus/guest_corpus_receipt.py": "b3b76c06567653f888defc7b0cf4bfd8d94d2f36ea95e182bc448047a2b90364",
+      "cursor-works/tests/test_guest_corpus.py": "20c3a68b236ef0388315e7ee155e3cef3e3a743b8b7ab8b3a3da165a1deb45ab"
+    },
+    "finished_at": "2026-11-05T02:32:57+00:00",
+    "job": "bf205646263444d882a9b86735e894d6",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "cursor-works/src/p9/guest-corpus/corpus_guest.dg",
+    "cursor-works/src/p9/guest-corpus/corpus_entry.asm",
+    "cursor-works/src/p9/guest-corpus/build_guest_corpus.py",
+    "cursor-works/src/p9/guest-corpus/guest_corpus_receipt.py",
+    "cursor-works/src/p9/guest-corpus/contract.md",
+    "cursor-works/tests/test_guest_corpus.py",
+    "cursor-works/deliveries/P9GUESTCORPUS1.md"
+  ]
+}

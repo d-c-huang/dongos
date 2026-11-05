@@ -18,6 +18,7 @@ from pathlib import Path
 import random
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -65,6 +66,7 @@ class Mem:
 
 class Native:
     def __init__(self, dll_path):
+        self.path = Path(dll_path)
         self.dll = ctypes.CDLL(str(dll_path))
         self.dll.lookup.restype = ctypes.c_void_p
         self.dll.lookup.argtypes = [ctypes.c_char_p]
@@ -740,6 +742,97 @@ def verify_pointers(lib):
     assert lib.call('dr_reclaim', t.addr, 1, 1, 1, steps.addr, 8, written.addr, steps.addr) == INVALID
 
 
+def plan_driver(lib, operation, lease=True):
+    """Reach the actual transition; invalid descriptors must not hide behind STATE."""
+    d = Driver(lib)
+    status, token = d.register(1, BLOCK if lease else PS2, 0x1234, 7, 1)
+    assert status == OK
+    if lease:
+        assert d.allocate(token, 1, 7, 1, 0x200000, 1)[0] == OK
+    if operation != 'fault':
+        assert d.fault(token, 1)[0] == OK
+    if operation in ('quiesce', 'reclaim', 'reauthorize'):
+        assert d.confirm(token, 1, 1, 1)[0] == OK
+    if operation in ('reclaim', 'reauthorize'):
+        assert d.quiesce(token, 1, 0, 0)[0] == OK
+    if operation == 'reauthorize':
+        status, _, token = d.reclaim(token, 1, 1)
+        assert status == OK and d.reset(token, 2, 1, 0x1234) == OK
+    return d, token
+
+
+def plan_call(d, operation, token, steps, capacity, written, word):
+    args = {'fault': (), 'confirm': (1, 1), 'quiesce': (0, 0), 'reclaim': (1,)}
+    if operation == 'reauthorize':
+        assert capacity == 8  # The existing ABI probe has a fixed eight-step slice.
+        return d.lib.call('dr_reauthorize', d.table.addr, token, 2, BLOCK, 8, 2, steps, written, word)
+    tail = (word,) if operation == 'reclaim' else ()
+    return d.lib.call('dr_' + operation, d.table.addr, token, 1,
+                      *args[operation], steps, capacity, written, *tail)
+
+
+def verify_plan_spans(lib):
+    for operation in ('fault', 'confirm', 'quiesce', 'reclaim'):
+        d, token = plan_driver(lib, operation)
+        steps, written, word = Mem(16, 0x4444), Mem(1, 0x5555), Mem(1, 0x6666)
+        cases = [(steps.addr, n, INVALID) for n in
+                 (MAX // 16, MAX // 16 + 1, MAX // 16 + 2, MAX)]
+        cases += [(0, 1, INVALID), (steps.addr + 4, 8, INVALID),
+                  (MAX - 7, 1, INVALID), (0, 0, CAPACITY)]
+        buffers = (d.table, steps, written, word)
+        for address, capacity, expected in cases:
+            before = [bytes(b.raw) for b in buffers]
+            result = plan_call(d, operation, token, address, capacity, written.addr, word.addr)
+            assert result == expected, ('step-span', operation, address, capacity, result, expected)
+            assert [bytes(b.raw) for b in buffers] == before, ('step-span changed output', operation)
+        # Even the unused tail belongs to the declared output span.
+        before = [bytes(b.raw) for b in buffers]
+        assert plan_call(d, operation, token, steps.addr, 8, steps.addr + 120, word.addr) == INVALID
+        assert [bytes(b.raw) for b in buffers] == before
+    # Empty/null steps are valid when the transition emits no steps (no DMA).
+    d, token = plan_driver(lib, 'quiesce', lease=False)
+    written = Mem(1, 0x5555)
+    assert plan_call(d, 'quiesce', token, 0, 0, written.addr, 0) == OK
+    assert written.get() == [0] and written.guards_ok()
+    assert d.snapshot()[3][0][5] == QUIESCED
+
+
+def verify_plan_outputs(lib):
+    for operation in ('reclaim', 'reauthorize'):
+        d, token = plan_driver(lib, operation)
+        steps, words = Mem(16, 0x4444), Mem(2, 0x5555)
+        buffers = (d.table, steps, words)
+        for written, word in ((words.addr, words.addr), (words.addr, steps.addr + 120),
+                              (steps.addr + 120, words.addr), (words.addr, d.table.addr + 560)):
+            before = [bytes(b.raw) for b in buffers]
+            result = plan_call(d, operation, token, steps.addr, 8, written, word)
+            assert result == INVALID, ('output-alias', operation, result)
+            assert [bytes(b.raw) for b in buffers] == before, ('output-alias changed output', operation)
+        # Two adjacent, non-overlapping words work in both address orders.
+        for reverse in (False, True):
+            d, token = plan_driver(lib, operation)
+            steps, words = Mem(16, 0x4444), Mem(2, 0x5555)
+            wi, oi = (1, 0) if reverse else (0, 1)
+            result = plan_call(d, operation, token, steps.addr, 8,
+                               words.addr + wi * 8, words.addr + oi * 8)
+            count = 1 if operation == 'reclaim' else 2
+            new_token = (2 if operation == 'reclaim' else 3) << 8 | 1
+            assert result == OK and words.get()[wi] == count and words.get()[oi] == new_token
+            expected = [RECLAIM, 257] if operation == 'reclaim' else [REBIND_DEVICE, BLOCK, REAUTHORIZE, new_token]
+            assert steps.get() == expected + [0x4444] * (16 - 2 * count)
+            assert all(b.guards_ok() for b in (d.table, steps, words))
+
+
+def isolated_plan_check(lib, check):
+    """A panic or native crash is a test error, never an expected refusal."""
+    script = ('import sys\nfrom tests.test_device_recovery import Native, ' + check +
+              '\ntry:\n ' + check + '(Native(sys.argv[1]))\n'
+              'except AssertionError as error:\n print("BOUNDARY_ASSERT", error); sys.exit(1)\n'
+              'print("BOUNDARY_PASS")\n')
+    return subprocess.run([sys.executable, '-c', script, str(lib.path)], cwd=ROOT,
+                          capture_output=True, text=True, timeout=30)
+
+
 def verify_fuzz(d, rounds=1600):
     rnd = random.Random(0x0513)
     seen = set()
@@ -832,6 +925,37 @@ class DeviceRecoveryTests(unittest.TestCase):
 
     def test_random_sequences_match_independent_model(self):
         self.each_mode(verify_fuzz)
+
+    def test_plan_descriptor_boundaries(self):
+        for mode, lib in self.libs.items():
+            for check in ('verify_plan_spans', 'verify_plan_outputs'):
+                with self.subTest(mode=mode, check=check):
+                    result = isolated_plan_check(lib, check)
+                    self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+                    self.assertIn('BOUNDARY_PASS', result.stdout)
+
+    def test_wrong_plan_descriptor_guards_are_rejected(self):
+        mutants = [
+            ('wrapped-step-span',
+             'if (steps.len as u64)>MAX/STEP_BYTES{return false;}\n    let sn=(steps.len as u64)*STEP_BYTES;',
+             'let sn=((steps.len as u64)&(MAX/STEP_BYTES))*STEP_BYTES;', 'verify_plan_spans'),
+            ('aliased-output-words',
+             '!overlap(out as u64,8,written as u64,8)', 'true', 'verify_plan_outputs'),
+        ]
+        for name, old, new, check in mutants:
+            root = self.dir / name
+            target = root / 'kernel/user/device_recovery.dg'
+            target.parent.mkdir(parents=True)
+            text = (ROOT / 'kernel/user/device_recovery.dg').read_text(encoding='utf-8')
+            self.assertEqual(1, text.count(old), name)
+            target.write_text(text.replace(old, new, 1), encoding='utf-8')
+            for mode in ('debug', 'release'):
+                with self.subTest(mutant=name, mode=mode):
+                    lib = build(self.dir, root, name, mode, self.cc, self.nasm)
+                    result = isolated_plan_check(lib, check)
+                    self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+                    self.assertIn('BOUNDARY_ASSERT', result.stdout)
+                    self.assertNotIn('unexpected panic', result.stderr)
 
     def test_wrong_dong_implementations_are_rejected(self):
         mutants = [

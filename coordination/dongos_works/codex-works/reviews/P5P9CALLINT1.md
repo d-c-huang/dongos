@@ -1,0 +1,75 @@
+# P5/P9 调用点与日志传输生产集成审查
+
+记录人：Codex协调器。独立审查者review_dma/review_corpus均未参与实现；以下为其实际结果汇总，不将作者自查代作独审。
+
+## 候选验收与失败历史
+
+P5初版独审BLOCK：revoke_loaded末尾新屏障失败会污染真实Domain，阻断后继依赖的smp_bridge.retire。独立poisoned_domain_cascade探针正常编译后exit1；原52native测试通过不足以支持验收。返修恢复revoke_loaded/retire_one，仅整批必要清理及依赖级联完成后按旧incarnation进行一次性续接。新增cascade-barrier全局失败副作用模型。
+非作者复审2tests/26.451s/0skip，54native，run-d04df88dcfb6；附加dependent close_table失败验证整批无prepare/retire；重建旧提前调用布局的新回归断言exit1。证据build/review-p5-dma-call/。正式3346207272bb47f5ad67b978b6064b54两项零skip、source_stable/execution_exited/process_stopped全true，候选accepted rev9。
+
+P9首轮字符串slice静态绝对重定位导致PIE链接失败，run-d816eb2d383f保留；仅将编码器常量改固定byte数组，无编译器修改。非作者独审2tests/32.531s/0skip run-c8a85e0cc958，另直接emit复调故障latch探针两模式仅写1次，latch-review-b1683213ba9c。正式7c3232fff3c940bc90f716bbdfe8e1f1两项零skip、source_stable/execution_exited/process_stopped全true，候选accepted rev6。
+
+## 真实生产迁移及独立复核
+
+P5两内核文件、DG/C夹具与候选逐字相同；Python唯一变化CAND固定ROOT/kernel/user。review_dma独立源码/文档检查及生产命令python -B -m unittest tests.test_p5_dma_call -v：2tests/28.935s/0skip PASS，run-9f97e16ab11b，54native，六次真实坏体断言exit1，源稳定。
+
+P9五份实现与候选逐字相同，放tools/guest_corpus/log_transport；__init__仅docstring，测试唯一HERE生产路径变化。review_corpus独立包导入、模块CLI及绝对文件CLI --help均成功；生产tests.test_corpus_log：2tests/36.159s/0skip PASS，run-7bce3f481825。新目录四真实构建/运行：两模式12例，release256，debug1；六个真实坏体exit0但校验拒绝；全部source快照对应生产，原builder/receipt不变。未复用候选产物；相同源/语料/代际/模式的相同BEGIN binding不等于复用。
+
+作者执行其余五生产模块：tests.test_p5_dma_retire、test_p5_recovery_context、test_guest_corpus、test_syscall_corpus、test_framebuffer_ledger，共52tests/183.893s/0skip PASS。证据：
+- build/test/p5-dma-retire/run-8571e6bd7362
+- build/test/p5-recovery-context/run-52c73d27348f（debug正常）与run-f5ac0e3d6a36（release正常）及相邻四坏体记录
+- build/test/p9-guest-corpus/run-9898e8f0ff4d
+- build/test/framebuffer-ledger/run-1833c9ef513d
+
+合计七模块56项通过（52作者关联回归+4非作者新专项）。git diff --check通过，无未解决merge条目；既有暂存/工作区迁移改动保留。实际生产迁移完成后才提交本集成任务。最终正式七组复验及验收/集成状态以协调器codex:P5P9CALLINT1当前verification和review_note为准；本冻结文件不预告未来通过。
+
+## 保留的阶段门
+
+P5永久held、PINNED、drain UNKNOWN、原租约不变；新增失败永久记录且不重试，不授予reclaim/unpin/清零/重绑定/驱动重启。宿主测试含显式硬件边界替身，完整真实生产依赖图两模式另编译，不证明真实DMA drain。
+P9 UART可丢字节仍返回0，4096环无法保存最大20704B批；必须完整外部捕获。可信外层manifest SHA/generation/实际exit/timeout由调用方提供；guest无条件拒绝，guest_verified=false。执行的是CORPUS_HOST原生体，归档客体ELF仅生成未执行。
+未运行OS/VM/AI CLI，无Git提交或推送。本项推进真实调用点/日志传输工程，不关闭P5/P9整阶段；后续真实客体采集、CPL3、硬件停止/排空及长期运行门仍开放。
+
+## 冻结生产指纹
+
+kernel/user/services.dg
+867854b0df91b6c7419c9150dbdfbceedc5f1a7af023cb18c7b7b891adb1546a
+
+kernel/user/device_host.dg
+dabb27cd1eaf2e2f4ae8e6c43e97c5791c24b39319585169a4d49d3ac7693fb7
+
+tests/test_p5_dma_call.py
+f1d8abcbfe9e9da43da1bbf2bd5240e412fb9254430135572e6dda4846be0e85
+
+tests/p5_dma_call_fixture.dg
+85e7bb9afe774194d459e67cb46e37675692718d5769f649d55dfe7fc8b57916
+
+tests/p5_dma_call_probe.c
+ebdfd0625bfd72690f0895ea5f453bc2904910f19c68e5582bca4d1ac7d761fe
+
+tests/test_corpus_log.py
+9d5f5e170bbd367a16c6995e110b6d17b1fcfc604b5b09c5d190d8601e40136c
+
+docs/p5-dma-retirement.md
+f35548ce00d53c7bd153bb52d4dcaffb1b5b0de9df2707bf775f64813eb7bd37
+
+docs/guest-corpus.md
+c61da7a74a908758a58e5b87d32b1c8fa351a664ecead0f937ba169ce72821f5
+
+tools/guest_corpus/log_transport/__init__.py
+5f32282a136cf0a7d0a5b33bb4b2b8c2029c3cd1616c2b3661d9d38c4a6cf609
+
+tools/guest_corpus/log_transport/corpus_guest.dg
+60b3bfeeb19771b0ca369ca09b437176d6c30eaae8682dea475152e8e6f862f3
+
+tools/guest_corpus/log_transport/corpus_entry.asm
+79623d1b3115b97609d723fd329f3930271b04e5a4fdcdcac1a8d6b33fdcedb5
+
+tools/guest_corpus/log_transport/corpus_log.dg
+f5510996f5adec08c9e673b542d3dc9591553b405a0e60db76c5f18034ae8afb
+
+tools/guest_corpus/log_transport/corpus_log.py
+a60be68119bfec30c578fce75844e38ea7d6443f19697cd3b8eb010ebf26e56c
+
+tools/guest_corpus/log_transport/build_log_corpus.py
+a428afa7521818eba742b43d2f3253b20f63f535acbbd0c68f422ed62c4c059f
+

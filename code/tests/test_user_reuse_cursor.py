@@ -3,14 +3,15 @@ from __future__ import annotations
 import hashlib,json,os,re,subprocess,unittest,uuid
 from pathlib import Path
 from lang.dongc import compile_file
+from tests.native_reachable import write_native
 from lang.tests.test_dongc import nasm_flags,tool
 from tests.test_service_gui_wiring import modules
 ROOT=Path(__file__).resolve().parents[1]
-STARTUP='''module boot.memory_startup;import mm.paging as paging;import mm.phys_buddy as buddy;
+STARTUP='''module boot.memory_startup;import mm.paging as paging;import mm.phys_buddy as buddy;import boot.runtime_view as runtime;
 var SPACE:paging.Space=paging.EMPTY_SPACE;var POOL:[128]paging.Table=[paging.Table{entries:[0;512]};128];var META:[128]u8=[0;128];
-var ALLOC:buddy.Allocator=buddy.EMPTY_ALLOCATOR;pub struct View{pub pool:u64}var VIEW:View=View{pool:0};
+var ALLOC:buddy.Allocator=buddy.EMPTY_ALLOCATOR;var VIEW:runtime.View=runtime.EMPTY_VIEW;
 pub fn space_pointer()*paging.Space{unsafe{return &SPACE;}}pub fn allocator_pointer()*buddy.Allocator{unsafe{return &ALLOC;}}
-pub fn runtime_pointer()*View{unsafe{return &VIEW;}}
+pub fn runtime_pointer()*runtime.View{unsafe{return &VIEW;}}
 export("cursor_kernel_setup") fn setup()u64{unsafe{SPACE=paging.EMPTY_SPACE;VIEW.pool=&POOL[0] as u64;
  match paging.init(&SPACE,POOL[..],0x10000000,META[..],48,true){ok=>{return 0;},err(e)=>{return e;},}
 }}
@@ -29,6 +30,8 @@ DEVICES='''module boot.device_memory;pub unsafe extern "sysv64" fn runtime_inval
 pub unsafe fn runtime_flush_root()void{return;}
 '''
 def copy_graph(stage,overrides):
+ from tests.dma_scheduler_boundary import absent_scheduler
+ overrides={**absent_scheduler(),**overrides}
  paths=modules();seen=set()
  def visit(name):
   if name in seen:return
@@ -67,12 +70,12 @@ class UserReuseCursorTests(unittest.TestCase):
     self.assertEqual(1,text.count('while reusable<FRAME_COUNT {'));text=text.replace('while reusable<FRAME_COUNT {','while reusable<FRAME_COUNT {TEST_SCAN_COUNT+=1;cursor_scan_event(TEST_SCAN_COUNT);')
     text=text.replace('pub const ALIASES: u64 = 0xffff_d000_0000_0000;','pub var ALIASES: u64 = 0;')+'\n'+paths[3].read_text()
     copy_graph(d/'source',{'user.memory':text,'boot.memory_startup':STARTUP,'boot.service_memory':RESOURCES,'boot.device_memory':DEVICES})
-    c=compile_file(d/'source/user/memory.dg',roots=[d/'source'],mode=mode);asm=d/'probe.asm';asm.write_text(c.assembly)
+    c=compile_file(d/'source/user/memory.dg',roots=[d/'source'],mode=mode);asm=write_native(d,c.assembly)
     mocked={'__dong_panic','user_current_root','user_pcid_flush_all','user_pcid_unbind','runtime_invalidate','runtime_copy_bytes','user_pcid_invalidate_root','cursor_scan_event'}
     externs={m.group(1).lstrip('$') for m in re.finditer(r'^extern (\$?\w+)',c.assembly,re.M)}-mocked
     stub=d/'unused.asm';stub.write_text('bits 64\nsection .text\n'+''.join('global $'+x+'\n$'+x+': ud2\n' for x in sorted(externs)));objects=[]
     for label,file in (('probe',asm),('unused',stub)):
-     obj=d/(label+'.o');objects.append(obj);r=command([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,'assemble-'+label);self.assertEqual(0,r.returncode,r.stderr)
+     obj=d/(label+'.o');objects.append(obj);r=command([nasm,'-O0','-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,'assemble-'+label);self.assertEqual(0,r.returncode,r.stderr)
     exe=d/('probe.exe' if os.name=='nt' else 'probe');r=command([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing',*(['-mno-sse'] if os.name=='nt' else ['-no-pie']),paths[4],*objects,'-o',exe],d,'link');self.assertEqual(0,r.returncode,r.stderr)
     scenarios=('linear-new','linear-reuse','stage','unshare','destroy','held') if variant=='normal' else (variants[variant][2],)
     for scenario in scenarios:

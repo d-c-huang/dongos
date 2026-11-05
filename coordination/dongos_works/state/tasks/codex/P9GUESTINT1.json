@@ -1,0 +1,91 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_guest_corpus",
+    "module:tests.test_syscall_corpus"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "a66f12c659604b848c7188fbdcd0c06d",
+  "claimed_at": "2026-11-05T06:39:21+00:00",
+  "claimed_by": "codex-mcp-20924f20ca174a06",
+  "completed_at": "2026-11-05T06:42:50+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T06:39:03+00:00",
+  "delivery": "codex-works/deliveries/P9GUESTINT1.md",
+  "depends_on": [
+    "cursor:P9GUESTCORPUS1"
+  ],
+  "description": "依据已验收cursor:P9GUESTCORPUS1与非作者P5P9AUDIT1-corpus报告，将实现真实复制到tools/guest_corpus，固定ROOT并用包导入避免缓存冲突；移测试至tests，保留候选不变。生产路径重新构建与验证，不复用候选回执。保留host-only边界，不运行VM、不接入生产服务清单、不提交推送。独立审查迁移差异与CLI/module入口后正式复验，再登记真实集成。",
+  "document": "codex-works/tasks/P9GUESTINT1-board.md",
+  "historical": false,
+  "id": "codex:P9GUESTINT1",
+  "integration_note": "已真实落盘code/tools/guest_corpus、tests/test_guest_corpus.py和docs/guest-corpus.md。生产迁移独立审查codex-works/reviews/P9GUESTINT1.md PASS；正式ba912837f8a04a45aa9026ac5961a583生产48项零skip/源稳定。原候选不变，新生产binding拒绝旧raw。登记工作树集成，不表示Git提交推送或真实客体/P9全阶段完成。",
+  "legacy_hash": "cd477034fb86d76fef4f5a129ed593ed1562ee174cb3fbbc245a6ade9aa3ddae",
+  "number": "P9GUESTINT1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "非作者review_corpus迁移独立审查PASS，报告codex-works/reviews/P9GUESTINT1.md。实际源码差异、包/CLI、新binding及旧raw拒绝已核对；正式ba912837f8a04a45aa9026ac5961a583 48 tests/零skip/source_stable/process_stopped/execution_exited。仅host，不含归档ELF运行。",
+  "status": "integrated",
+  "title": "P9 已独立验收消费端真实迁移主线并复验生产路径",
+  "updated_at": "2026-11-05T06:59:41+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 132.224,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_guest_corpus",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 18.228,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_syscall_corpus",
+        "tests": 46,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P9GUESTINT1.md": "bdd5812682bfd1e66efd5ec86b73cee7a65698b2f40e684be9ece64369d41381",
+      "codex-works/reviews/P9GUESTINT1.md": "4e00e49d2ca7d49b494507fff125fc33df1c4a7fac452eb36bc42f9c0cb17e32",
+      "docs/guest-corpus.md": "55145db08d130c73fee8f7a81c93e130109c2bfc46e6a4fb690f91dcb399cb8a",
+      "tests/test_guest_corpus.py": "d06c1f194a629ce6fa9762658f0b73dfb7c70e8f7e0f7630ee63fb89bca87c0b",
+      "tools/guest_corpus/__init__.py": "43161a763640e6428a518a0c1d7f88e17dd8081cde2ebff09c54ee8c074db120",
+      "tools/guest_corpus/build_guest_corpus.py": "adb39929671c0588f36480ad6bf3b400ff41683624fd91f4479d1a068327b5b9",
+      "tools/guest_corpus/corpus_entry.asm": "a6b1e037ee9ca8bd1c440633411bdd0e49e71a247ec99f595879a7d74dd175e3",
+      "tools/guest_corpus/corpus_guest.dg": "77ed343869e3dcf8a2e9c8cc8f37820e1cfdfeddf28db1732d5cbea4ec769daf",
+      "tools/guest_corpus/guest_corpus_receipt.py": "e4bf77409fe33cfb0aee36024e411348e5fd06c3fd37d3e1c95ba1dbb1486e33"
+    },
+    "finished_at": "2026-11-05T06:50:34+00:00",
+    "job": "ba912837f8a04a45aa9026ac5961a583",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tools/guest_corpus/__init__.py",
+    "tools/guest_corpus/corpus_guest.dg",
+    "tools/guest_corpus/corpus_entry.asm",
+    "tools/guest_corpus/build_guest_corpus.py",
+    "tools/guest_corpus/guest_corpus_receipt.py",
+    "tests/test_guest_corpus.py",
+    "docs/guest-corpus.md",
+    "codex-works/deliveries/P9GUESTINT1.md",
+    "codex-works/reviews/P9GUESTINT1.md"
+  ]
+}

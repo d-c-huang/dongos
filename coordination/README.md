@@ -1,5 +1,7 @@
 # 本地协作控制台
 
+换研发电脑请先阅读 [跨机接续说明](CROSS_MACHINE.md)。最新阶段图见 [整体任务图](dongos_works/progress-map.md)，任务实际状态以 `dongos_works/state/` 恢复后的协调器为准。
+
 本轮17份缺失任务书、CX6同号异义和CX14/CX15旧状态均已处理完成。CX14 integrated rev7，CX15 integrated rev8；CX6 integrated rev9，已恢复读取器契约，分离5条原NASM事件，耗时恢复为1轮/265秒，原始事件全部保留。协调器issues=0；核对时间2026-10-22T09:18:41+08:00。
 
 完整依据见[恢复报告](dongos_works/reviews/2026-10-22-task-recovery/README.md)与[整体任务图](dongos_works/progress-map.md)。同号事件分离使用下述证据绑定resolve-identity命令，不删除原事件或直接授予验收。
@@ -45,10 +47,9 @@ git commit -m "tasks: sync state"
 ```
 
 - 手动同步并查看结果：`python coordination/coordinate.py state-sync`（先合并再写回，输出新增/更新/写出的文件和问题）。
-- 同一任务在两台机器上各自改动，`git merge` 产生冲突标记时：保留 `rev` 更大的一方（或手工合并后把 `rev` 加 1）。带冲突标记或内容无效的文件会被**跳过且不被覆盖**，
-  服务照常启动，`validate`/`status` 的 issues 里会列出该文件，修好后下一次同步自动恢复。事件日志（union 合并）不会产生冲突。
+- 同一任务在两台机器上各自改动或出现冲突时，保留两边原始记录，由协调器核对契约、最新 rev 和事件身份后处理；不要手改 rev、删除事件或以文件覆盖授予验收。带冲突标记或内容无效的文件会被**跳过且不被覆盖**，`validate`/`status` 会报告问题。事件 union 保留双方记录，但不保证同号任务一定同义。
 - `candidate`（隔离副本的作业编号）和作业记录只在产生它们的机器上有意义；其它机器看到该任务仍是正确的状态，但不能在本机复验那个候选副本。
-- `dongos_works/index.json` 现在只是派生的汇总导出（每次状态变化仍会重写，带 `generated_at`）。它不是权威，也不参与合并；合并冲突时任选一方即可，下次导出会重写。
+- `dongos_works/index.json` 只是本机派生的汇总导出（每次导出会重写，带 `generated_at`），由 Git 忽略，不再提交或合并。跨机器同步使用上面的 `state/tasks/` 与 `state/events/`；SQLite 仍是本机运行数据，历史审计快照继续保留。此前汇总文件被 Git 跟踪，即使只改变生成时间也会阻碍拉取或在恢复 stash 时产生冲突。升级后运行 `python coordination/coordinate.py --project dongos export` 即可重新生成本机汇总；无需手改 JSON 或任务版本。
   只有旧版仅含 `index.json` 而没有 `state/` 的仓库，空库启动仍会要求按原流程 `recover-state`，不会静默重新导入。
 
 ## 同号异义历史的身份校正

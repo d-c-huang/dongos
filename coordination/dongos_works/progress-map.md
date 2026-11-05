@@ -1,5 +1,107 @@
 # DongOS 整体任务图：当前检查点
 
+更新时间：2026-11-05T16:53:02+08:00。本地协调器核对，历史远端结果未重新查询。
+
+P5 故障生命周期续接与 P9 有界日志传输已独立验收并集成本地主线工作区，生产七组56项正式复验零跳过。P9由pending更新partial；P5/P6/P7/P8及P2保留实际未关闭门。L0–L3保持既有完成结论。
+
+## 阶段总览
+
+|阶段|状态|当前剩余门|
+|---|---|---|
+|P0 工具链与构建环境|已验收|保持既有验收范围|
+|P1 UEFI 引导器|已验收|保持既有验收范围|
+|P2 CPU 与内存|部分完成|PCID12入口已集成，暖tag/同槽跨代复用与真实全读者失效仍需独立支持环境证据；TCG回退不能替代。；物理显示WC吞吐及有效内存类型的真机验收仍未提供；既有USB/启动诊断或VM结果不能替代，不再沿用旧快照的暂无真机假设。|
+|P3 中断与抢占线程|已验收|保持既有验收范围|
+|P4 用户态与 IPC|已验收|保持既有验收范围|
+|P5 基础服务|部分完成|当前新接线的真实客体/硬件故障与全核退休回执仍需同源运行；宿主边界替身和旧P5CTX2运行记录不能替代。；设备outstanding DMA可信排空/停止和第三方owner排除仍未证明；held=1、PINNED保持、drain=UNKNOWN，不得据CPU页表退休授予unpin/free/reuse。；取得硬件安全前提后再实现精确回收、重绑定及驱动恢复，并完成同boot故障与脏DMA/晚IRQ/存储持久化负控。；partial mapping、physical=0及准备/退休失败已有宿主负控；对应真实客体故障注入仍待执行。|
+|P6 多核与快速启动|部分完成|init首代跨AP依赖图并行结构证据仍未闭环；旧PR#3/KVM失败保留，不用启动完成后的AP活跃代替。；当前源码正常镜像GUI/键鼠/USB和原scheduler/init验收差集需同源复验；P8BOOTCONSOLE1仍rework，不能外推整机稳定。；合法Linux/KVM上的loader→interactive shell≤500ms原门仍待验，TCG/宿主计时不替代。|
+|P7 图形桌面|部分完成|最新源码的完整GUI/输入及桌面稳定性回归；既有P8RUNTIME1/P8BOOTLOG1旧镜像通过不能覆盖后续变更。；P8BOOTCONSOLE1候选虽曾单次启动/交接PASS，仍有runtime fatal及HID/文件失败未闭环；需排除后再验收当前连续桌面。|
+|P8 USB 与真机|部分完成|codex:P8BOOTCONSOLE1 rework rev17：保留runtime fatal及完整HID/文件失败；单次启动和实验诊断版发布不代表稳定或真机根因已修复。；Intel真机新版PSI各word与scratchpad/连续桌面/USB键鼠/文件持久化仍须实际复测；至少台式机、笔记本各一台的原阶段门保持。；USB设备、Hub及更多层级覆盖和最新镜像完整集成回归未关闭。|
+|P9 安全加固|部分完成|真实CPL3消费者启动、完整外部UART捕获与归档ELF实际执行关联尚未实现验收；4096B环不能保存20704B完整批，UART丢输出仍可返回0。；真实系统调用/IPC模糊测试、泄漏监控与原阶段24小时运行门未完成；宿主回执不提供guest attestation。；用户密钥签名与OVMF/真机安全启动，IOMMU隔离用户DMA，CET影子栈/间接跳转保护及内核基址随机化仍待完成。|
+|L0 语言规格|已验收|保持既有验收范围|
+|L1 编译器与基础库|已验收|保持既有验收范围|
+|L2 优化与源码调试|已验收|保持既有验收范围|
+|L3 Dong 编译器自举|已验收|保持既有验收范围|
+
+```mermaid
+flowchart LR
+  P0["P0 工具链 ✓"] --> P1["P1 UEFI ✓"] --> P2["P2 CPU/内存 ◐"] --> P3["P3 中断/线程 ✓"] --> P4["P4 用户态/IPC ✓"] --> P5["P5 驱动恢复 ◐"] --> P6["P6 启动性能 ◐"] --> P7["P7 图形桌面 ◐"] --> P8["P8 USB/真机 ◐"] --> P9["P9 安全加固 ◐"]
+  L0["L0 ✓"] --> L1["L1 ✓"] --> L2["L2 ✓"] --> L3["L3 自举 ✓"]
+  P5 --> DMA["已集成：边界/prepare/retire/生命周期"] --> DRAIN["待验：硬件排空/安全回收/恢复"]
+  P9 --> LOG["已集成：语料/回执/P9LOG1"] --> GUEST["待验：真实CPL3/完整采集/24h"]
+  P8 --> BOOT["P8BOOTCONSOLE1 返修"]
+  classDef done fill:#daf0df,stroke:#267349
+  classDef partial fill:#fff0c2,stroke:#936b13
+  class P0,P1,P3,P4,L0,L1,L2,L3,DMA,LOG done
+  class P2,P5,P6,P7,P8,P9,DRAIN,GUEST,BOOT partial
+```
+
+图中箭头表示研发主线和后续工作关系，不代替协调器单任务depends_on；已验收阶段不因后续运行门仍开放而重复降级。
+
+## 本批实际集成与验收证据
+
+|任务|当前状态|证据|
+|---|---|---|
+|[codex:P5RECBOUND1](codex-works/tasks/P5RECBOUND1-board.md)|integrated rev6|9项正式测试；详见原review_note|
+|[cursor:P5DMARETIRE1](cursor-works/tasks/P5DMARETIRE1-board.md)|integrated rev11|2项正式测试；详见原review_note|
+|[codex:P5DMAINT2](codex-works/tasks/P5DMAINT2-board.md)|integrated rev6|15项正式测试；详见原review_note|
+|[cursor:P5DMACALL1](cursor-works/tasks/P5DMACALL1-board.md)|integrated rev10|2项正式测试；详见原review_note|
+|[codex:P9GUESTINT1](codex-works/tasks/P9GUESTINT1-board.md)|integrated rev6|48项正式测试；详见原review_note|
+|[cursor:P9GUESTCORPUS1](cursor-works/tasks/P9GUESTCORPUS1-board.md)|integrated rev10|2项正式测试；详见原review_note|
+|[cursor:P9RAWTRANSPORT1](cursor-works/tasks/P9RAWTRANSPORT1-board.md)|integrated rev7|2项正式测试；详见原review_note|
+|[codex:P5P9CALLINT1](codex-works/tasks/P5P9CALLINT1-board.md)|integrated rev6|56项正式测试；详见原review_note|
+
+本批集成正式作业 20ec005ef2bc4c7dbc7406977c45897f：七组56项，零skip，source_stable/execution_exited/process_stopped均true。完整审查和生产指纹：[P5P9CALLINT1](codex-works/reviews/P5P9CALLINT1.md)。初审Domain污染BLOCK、字符串PIE链接失败与真实负控记录保留。没有运行新OS/VM，没有Git提交推送。
+
+## 后续推进与真实阻断
+
+1. P5：当前接线的同源客体故障/全核退休回执；设备DMA排空和第三方owner排除成立后，才推进精确回收与恢复。
+2. P9：真实CPL3启动、完整外部捕获和执行产物关联；再推进系统调用/IPC模糊测试与24小时门，同时保留安全启动/IOMMU/CET余项。
+3. P8：优先解决P8BOOTCONSOLE1的runtime fatal、HID/文件及Intel真机连续启动；PSI/诊断组件通过不代替父项。
+4. P2暖PCID实际复用、物理WC真机和P6合法KVM≤500ms保持独立门，不用TCG或宿主证据替代。
+
+## 实时任务快照（非归档）
+
+共269项：accepted 24, integrated 242, rework 1, submitted 2。该数量仅绑定上述时间；UI仍实时读取协调器。
+
+|未登记集成任务|状态|说明|
+|---|---|---|
+|[claude:C1](claude-works/tasks/C1-bigint-div.md)|accepted rev4|任意精度有符号除法和余数|
+|[claude:C2](claude-works/tasks/C2-bigint-bits.md)|accepted rev4|任意精度位运算和移位|
+|[claude:C3](claude-works/tasks/C3-constant-arithmetic.md)|accepted rev4|Dong AST 纯常量整数/布尔求值|
+|[claude:C4](claude-works/tasks/C4-type-layout.md)|accepted rev4|无分配的目标类型布局引擎|
+|[claude:C5](claude-works/tasks/C5-diagnostic-format.md)|accepted rev4|原生单行诊断格式化|
+|[claude:C6](claude-works/tasks/C6-source-position.md)|accepted rev4|原生 UTF-8 源码位置定位器|
+|[codex:G5ALIGN1](codex-works/tasks/G5ALIGN1-board.md)|accepted rev5|G5 高对齐局部对象及真实组合栈预算|
+|[codex:G5EXEC1](codex-works/tasks/G5EXEC1-board.md)|accepted rev8|G5 函数指针、硬件内建、asm 与 Win64 执行闭环|
+|[codex:G5PANIC1](codex-works/tasks/G5PANIC1-board.md)|accepted rev5|G5 panic ABI、种类/路径/行号与前端诊断对齐|
+|[codex:G5TAG1](codex-works/tasks/G5TAG1-board.md)|accepted rev5|G5 optional/result/error/enum 全流水线与差分闭环|
+|[codex:P5P9AUDIT1](codex-works/tasks/P5P9AUDIT1-board.md)|submitted rev3|P5/P9 接手候选的非作者独立审查与验收依据|
+|[codex:P8BOOTCONSOLE1](codex-works/tasks/P8BOOTCONSOLE1-board.md)|rework rev17|真机连续启动的屏幕日志与首用户态进度|
+|[cursor:L3EXTUNSAFE1](cursor-works/tasks/L3EXTUNSAFE1-board.md)|accepted rev6|L3/G5返修：无体 extern 普通函数与方法漏默认 unsafe|
+|[cursor:P5RECBOUNDREVIEW1](cursor-works/tasks/P5RECBOUNDREVIEW1-board.md)|submitted rev4|[P5] 独立审查恢复事务边界修复与原生负控|
+|[deepseek:D1](deepseek-works/deepseek-work-list.md)|accepted rev12|原始字节内存模块|
+|[deepseek:D10](deepseek-works/tasks/D10-fixed-cache.md)|accepted rev9|固定对象缓存|
+|[deepseek:D11](deepseek-works/tasks/D11-core-bitset.md)|accepted rev9|位集合|
+|[deepseek:D12](deepseek-works/tasks/D12-core-arena.md)|accepted rev4|线性arena|
+|[deepseek:D13](deepseek-works/tasks/D13-core-utf8.md)|accepted rev4|严格UTF-8|
+|[deepseek:D2](deepseek-works/deepseek-work-list.md)|accepted rev12|usize检查算术与对齐|
+|[deepseek:D3](deepseek-works/deepseek-work-list.md)|accepted rev12|字节切片辅助模块|
+|[deepseek:D4](deepseek-works/deepseek-work-list.md)|accepted rev12|原子自旋锁|
+|[deepseek:D5](deepseek-works/tasks/D5-core-fmt.md)|accepted rev4|缓冲区与回调格式化|
+|[deepseek:D6](deepseek-works/tasks/D6-arch-x86_64.md)|accepted rev4|x86-64外部汇编包装器|
+|[deepseek:D7](deepseek-works/tasks/D7-arch-ring0-probe.md)|accepted rev9|特权级硬件探针|
+|[deepseek:D8](deepseek-works/tasks/D8-physical-buddy.md)|accepted rev9|物理伙伴分配器|
+|[deepseek:D9](deepseek-works/tasks/D9-memory-map.md)|accepted rev9|内存区间归一化|
+
+24项历史accepted不自动标为integrated，也不据此推翻已完成父阶段；需按原集成回执核对。两个submitted为审查文档记录，不能误计为两个尚未实现组件。
+
+## 历史检查点（原文保留）
+
+下方所有“当前/最新”只代表各自日期，不覆盖本次总图。
+
+# DongOS 整体任务图：当前检查点
+
 更新时间：2026-10-24 22:48 +08:00。控制台图源 `roadmap.json` 已同步以下结果。
 
 | 阶段/任务 | 当前状态 | 验收范围 |

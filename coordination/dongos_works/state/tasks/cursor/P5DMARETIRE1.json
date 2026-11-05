@@ -1,0 +1,84 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-11-05T01:44:03+00:00",
+      "from_owner": "cursor",
+      "note": "用户明确要求接手Cursor任务。已核对本项todo、无领取者和活动作业；转派Codex，保留稳定ID、write_paths与历史。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:cursor-works/tests:test_p5_dma_retire.py"
+  ],
+  "claim_from_status": "rework",
+  "claim_token": "288281e38d754cb7bf5e4d03f5d6c675",
+  "claimed_at": "2026-11-05T06:30:13+00:00",
+  "claimed_by": "codex-mcp-20924f20ca174a06",
+  "completed_at": "2026-11-05T06:43:15+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T01:41:03+00:00",
+  "delivery": "cursor-works/deliveries/P5DMARETIRE1.md",
+  "depends_on": [
+    "codex:P5CTX2",
+    "codex:P2ROOT13"
+  ],
+  "description": "接续P5CTX1/2真实持有上下文，新增实际撤映射步骤而非重写离线恢复规划器。Cursor客户端手动领取执行，不自动启动AI CLI。先读取code/kernel/user/memory.dg、device_host.dg、services.retire_one/revoke_loaded、mm.paging/runtime_roots和smp翻译屏障现有契约，复制完整最新memory/device_host至本人声明副本，记录基线SHA；不直接改主线。范围：可信BSP/BKL内核入口绑定DmaContext的旧owner/incarnation、设备token/generation及memory root/generation和完整DmaLease。旧owner必须永久停机且禁止重新调度；核验整个实际地址空间森林（含preload/pinned根）及内部租约、全部声明页/舍入尾页、尝试/已映射计数，未知/错代/别名不完整不得成功。事务通过真实paging.unmap_live撤销CPU用户映射，在最后一次撤映射之后执行覆盖所有相关CPU/PCID的真实屏障并保留准确回执；不可拿已有stop/detach ACK或BSP-only失效充数。此任务始终保持PINNED和DMA物理块占用，不清零、不free/recycle、不授予drain，不重绑令牌/设备、不修改syscall ABI；设备仍可写的旧物理块不能复用。任何预检失败无写入，执行后任一步不确定则sticky hold，保留已撤映射及pending页表回执，不重试覆盖身份。复用已完成全森林和页表接口，不复制一套宽松检查器。实际Dong debug/release+独立C页表/轨迹oracle覆盖完整与partial/physical0租约、旧根/旧owner、别名、4K/2M未知映射拒绝、缺CPU ACK、旧ACK、屏障错误、逐步注入失败，证明未clear pin/未清零释放，至少2真实坏体正常编译执行后被断言拒绝。host硬件边界必须明确stub，执行者不运行OS/VM；主线接线、独立复验与真实客体验收由Codex后续完成。本项不得关闭P5；drain/回收复用/恢复发布另验，不提交推送。",
+  "document": "cursor-works/tasks/P5DMARETIRE1-board.md",
+  "historical": false,
+  "id": "cursor:P5DMARETIRE1",
+  "integration_note": "真实memory/host与候选逐字匹配，已迁入code/kernel/user；生产专项绑定主线路径。P5DMAINT2已integrated rev6，非作者迁移及58汇编变体/50负控审查PASS；正式11039ccca83a449fbc0fc3158e50949c八组15tests零skip/source_stable全部通过。原rev5两阻断已修复并复审，原失败/取消保留。仅显式prepare/retire接口集成，真实services调用由新cursor:P5DMACALL1接续，不表示DMA drain/回收或P5完整通过。",
+  "legacy_hash": "e14e3ee9bcad6a8e404c3d46c40e9d3e9891b6d71812d0b3bcba348baa949e26",
+  "number": "P5DMARETIRE1",
+  "owner": "codex",
+  "rev": 11,
+  "review_note": "原rev5独立BLOCK已返修，非作者review_dma复审PASS，报告codex-works/reviews/P5P9AUDIT1-dma.md保留前后证据。独立2tests/97.660s+28附加探针，退休闭包无allocator；正式cd92a66b3ab14bf2a2540e3335a4a1c2 2tests/247.976s/0skip且稳定退出全部true，SHA与复审一致。仅显式prepare/retire接口，未生产接线/未DMA drain。",
+  "status": "integrated",
+  "title": "[P5] 故障DMA映射撤销与撤映射后全核退休事务",
+  "updated_at": "2026-11-05T07:39:23+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 247.976,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:cursor-works/tests:test_p5_dma_retire.py",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "cursor-works/deliveries/P5DMARETIRE1.md": "4aa44a188f4910cb0e3782eab4f199d1173db2c24c46225630fcc4ca8c5c35b7",
+      "cursor-works/src/p5/dma-retire/contract.md": "e5d6cabe761b12e5bb82d1e6fc1e6e6460e69d0941327721c9b57108b4eeb92b",
+      "cursor-works/src/p5/dma-retire/user/device_host.dg": "dfc506308148e9c9b181a1a132b52d29a2bd0e450b704d540474a37bd415fe08",
+      "cursor-works/src/p5/dma-retire/user/memory.dg": "e680f44af218f927c1ca3290601eb4af7943c2119bfe36915825fa9e67b6f3de",
+      "cursor-works/tests/p5_dma_retire_fixture.dg": "8415f88154301bdd9495b1da6a69bdd18563787148c9e1e74b420bb677399257",
+      "cursor-works/tests/p5_dma_retire_probe.c": "68b879f92a313469b57ab2996560ef2e3e07bdda271032f91a49782b48f8fef9",
+      "cursor-works/tests/test_p5_dma_retire.py": "cedd385cddd05567a57ab78192d448ff6945a0176e58f60c3fd1219f55fa9686"
+    },
+    "finished_at": "2026-11-05T06:58:18+00:00",
+    "job": "cd92a66b3ab14bf2a2540e3335a4a1c2",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "cursor-works/src/p5/dma-retire/user/memory.dg",
+    "cursor-works/src/p5/dma-retire/user/device_host.dg",
+    "cursor-works/src/p5/dma-retire/contract.md",
+    "cursor-works/tests/test_p5_dma_retire.py",
+    "cursor-works/tests/p5_dma_retire_probe.c",
+    "cursor-works/tests/p5_dma_retire_fixture.dg",
+    "cursor-works/deliveries/P5DMARETIRE1.md"
+  ]
+}

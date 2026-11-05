@@ -1,0 +1,45 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-11-05T01:44:08+00:00",
+      "from_owner": "cursor",
+      "note": "用户明确要求接手Cursor任务。已核对本项todo、无领取者和活动作业；转派Codex，保留稳定ID、write_paths与历史。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_device_recovery",
+    "module:tests.test_dma_release"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "17b8b113b72c4ae58733e237a42fe7b0",
+  "claimed_at": "2026-11-05T02:04:44+00:00",
+  "claimed_by": "codex-mcp-891e96b2a2a74c41",
+  "completed_at": "2026-11-05T02:08:21+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T01:42:04+00:00",
+  "delivery": "cursor-works/deliveries/P5RECBOUNDREVIEW1.md",
+  "depends_on": [],
+  "description": "只读独立源码/契约/测试审查，不修改被审实现。被审codex:P5RECBOUND1目前submitted rev4，正式复验856e2bb666b84899b024da8f27be865c通过6+3tests/0skip/source_stable/进程退出；审查开始先MCP重读最新task与原任务书、真实源和复验指纹，若源变化则报告而不沿用旧结果。核对kernel/user/device_recovery.dg长度乘法预检、所有跨度和别名、空slice、out_token/written完全独立及拒绝原子性；完整读tests/test_device_recovery.py中6测试和新坏体是否能以数值断言拒绝，panic/崩溃/超时不能算负控通过。须检查原状态机/1600随机模型/8类既有坏体保留和新2类坏体debug/release实际证据，当前生产PINNED持有guard未改变。报告写明逐文件SHA、具体可复现问题/位置或无阻断问题依据、没有硬件drain/全核撤映射后退休/物理回收证据；不得标被审任务accept/integrate。若需要定向重跑由协调器排队，执行者不运行OS/VM、不提交推送。完成只提交审查报告，由Codex结合独立意见决定修复是否验收及登记主线文件集成。此卡不设被审任务accepted依赖以避免审查死锁，源冻结和正式复验通过是审查前置。Cursor客户端手动执行，不自动唤起CLI。",
+  "document": "cursor-works/tasks/P5RECBOUNDREVIEW1-board.md",
+  "historical": false,
+  "id": "cursor:P5RECBOUNDREVIEW1",
+  "legacy_hash": "b301ed83bf85db7d2b8c0a03a1feb0e0b3bb38a43cbb76c81411b6d9757549a5",
+  "number": "P5RECBOUNDREVIEW1",
+  "owner": "codex",
+  "rev": 4,
+  "review_note": "",
+  "status": "submitted",
+  "title": "[P5] 独立审查恢复事务边界修复与原生负控",
+  "updated_at": "2026-11-05T02:08:21+00:00",
+  "verification": null,
+  "write_paths": [
+    "cursor-works/reviews/P5RECBOUND1.md",
+    "cursor-works/deliveries/P5RECBOUNDREVIEW1.md"
+  ]
+}

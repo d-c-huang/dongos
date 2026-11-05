@@ -1,0 +1,83 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-11-05T07:47:06+00:00",
+      "from_owner": "cursor",
+      "note": "用户继续要求接手研发；已核对todo、无领取者。由Codex继续实现，保留任务编号/原范围，不启动Cursor或AI CLI。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:cursor-works/tests:test_p5_dma_call.py"
+  ],
+  "claim_from_status": "rework",
+  "claim_token": "7c7fe3d638214c079cda60266f770a7c",
+  "claimed_at": "2026-11-05T08:03:46+00:00",
+  "claimed_by": "codex-mcp-20924f20ca174a06",
+  "completed_at": "2026-11-05T08:11:22+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T07:18:51+00:00",
+  "delivery": "cursor-works/deliveries/P5DMACALL1.md",
+  "depends_on": [
+    "codex:P5DMAINT2"
+  ],
+  "description": "接续P5DMAINT2主线接口，Cursor客户端手动领取，不自动启动AI CLI。复制完整最新services/device_host到声明候选并记录基线SHA。实际审查retire_one/revoke_loaded顺序：永久停机和真实Domain退出→硬件quarantine/ledger撤权→prepare一次→retire一次。只对可信完整DMA上下文接线，UP/未知/partial/错误身份继续永久hold且不得自动发布/重启；普通manager REVOKE与preloaded无owner路径不能误调用。必须明确准备或退休失败与原IPC/cap清理/级联退役的关系，避免失败跳过原必须清理；保留原错误与停机状态，不能利用第二次prepare覆盖第一次失败。不给DMA drain/reclaim/unpin权限、不清零旧物理页。新增实际Dong debug/release真实services分支的独立C轨迹oracle，覆盖正常顺序、全部前置/错误传播/重复故障、UP/manager/preload排除、partial、旧身份及级联；至少真实坏体跳prepare/先retire后stop/吞错误被数值断言拒绝。依赖未验收不得领取。独立审查/正式复验后由Codex真实集成，客体硬件执行另验，本项不关闭P5，不运行OS/VM或提交推送。",
+  "document": "cursor-works/tasks/P5DMACALL1-board.md",
+  "historical": false,
+  "id": "cursor:P5DMACALL1",
+  "integration_note": "已通过codex:P5P9CALLINT1真实迁入生产kernel/user/services.dg/device_host.dg与测试；候选/生产实现逐字一致，非作者生产2tests/54native PASS，正式整合七组56tests零skip且源稳定。当前只单次CPU映射退休、永久DMA hold，不宣称drain/回收。",
+  "legacy_hash": "145604d8dfed8c7ef08fa5c740593051dcc874103439da7ae94324cdd06010dd",
+  "number": "P5DMACALL1",
+  "owner": "codex",
+  "rev": 10,
+  "review_note": "非作者review_dma复审PASS，初审Domain污染BLOCK闭环：独立2tests/0skip/54native及dependent清理失败、重建旧布局真实坏体。正式3346207272bb47f5ad67b978b6064b54两项零skip、源码稳定、进程退出，指纹与独审逐项一致。仅候选验收，等待生产迁移，不代表DMA drain或客体验收。",
+  "status": "integrated",
+  "title": "[P5] 将准备与映射退休接入真实故障生命周期",
+  "updated_at": "2026-11-05T08:51:13+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 182.567,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:cursor-works/tests:test_p5_dma_call.py",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "cursor-works/deliveries/P5DMACALL1.md": "26f6b9ac13a6615091cffc9135c6f167622bb0fabbd981d61964d79d959c04c2",
+      "cursor-works/src/p5/dma-call/contract.md": "c6a6c52d3e0af8f01ce712040d951fc0e146b6d29eb087cd352fe066da3ae477",
+      "cursor-works/src/p5/dma-call/user/device_host.dg": "dabb27cd1eaf2e2f4ae8e6c43e97c5791c24b39319585169a4d49d3ac7693fb7",
+      "cursor-works/src/p5/dma-call/user/services.dg": "867854b0df91b6c7419c9150dbdfbceedc5f1a7af023cb18c7b7b891adb1546a",
+      "cursor-works/tests/p5_dma_call_fixture.dg": "85e7bb9afe774194d459e67cb46e37675692718d5769f649d55dfe7fc8b57916",
+      "cursor-works/tests/p5_dma_call_probe.c": "ebdfd0625bfd72690f0895ea5f453bc2904910f19c68e5582bca4d1ac7d761fe",
+      "cursor-works/tests/test_p5_dma_call.py": "11c1b91cfa167b8279d46c836d4db31429a474a5e4a914a6ce09d568729ff8fb"
+    },
+    "finished_at": "2026-11-05T08:22:27+00:00",
+    "job": "3346207272bb47f5ad67b978b6064b54",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "cursor-works/src/p5/dma-call/user/services.dg",
+    "cursor-works/src/p5/dma-call/user/device_host.dg",
+    "cursor-works/src/p5/dma-call/contract.md",
+    "cursor-works/tests/test_p5_dma_call.py",
+    "cursor-works/tests/p5_dma_call_probe.c",
+    "cursor-works/tests/p5_dma_call_fixture.dg",
+    "cursor-works/deliveries/P5DMACALL1.md"
+  ]
+}

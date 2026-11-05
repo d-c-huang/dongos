@@ -1,0 +1,2102 @@
+{
+  "at": "2026-11-05T16:53:02+08:00",
+  "project": "dongos",
+  "source": "coordination HTTP API (MCP timed out while snapshotting)",
+  "counts": {
+    "accepted": 24,
+    "integrated": 242,
+    "submitted": 2,
+    "rework": 1
+  },
+  "total": 269,
+  "tasks": [
+    {
+      "id": "claude:C1",
+      "title": "任意精度有符号除法和余数",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C10",
+      "title": "栈帧局部槽布局组件",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C11",
+      "title": "常量分支表排序与重复值检查组件",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C12",
+      "title": "词法作用域退出清理顺序组件",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C13",
+      "title": "无分配的ULEB128/SLEB128编码",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C14",
+      "title": "线性值活跃区间保守包络",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C15",
+      "title": "确定性的有限寄存器与溢出槽规划",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C17",
+      "title": "LF源码字节行索引与有界查找",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C2",
+      "title": "任意精度位运算和移位",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C22",
+      "title": "64位NASM比较生成规范bool",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C23",
+      "title": "显式wrapping的64位整数二元发射",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C24",
+      "title": "64位加减溢出分支发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C25",
+      "title": "复用内部符号编码的直接调用发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C26",
+      "title": "64位CL可变移位发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C27",
+      "title": "64位寄存器间接调用发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C28",
+      "title": "复用谓词枚举的64位条件移动发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C29",
+      "title": "RIP相对内部符号地址发射",
+      "status": "integrated",
+      "rev": 17,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C3",
+      "title": "Dong AST 纯常量整数/布尔求值",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C30",
+      "title": "NASM缩放索引地址操作数",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C31",
+      "title": "固定寄存器除法异常门禁分支",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C32",
+      "title": "固定寄存器字节复制与清零发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C33",
+      "title": "复用消环规划的8槽GPR并行复制发射",
+      "status": "integrated",
+      "rev": 14,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C34",
+      "title": "从固定帧槽建立SysV整数调用实参",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C35",
+      "title": "复用有序 case 规划的 i64 switch 分发链",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C36",
+      "title": "复用 scope 规划的零参数清理调用序列",
+      "status": "integrated",
+      "rev": 14,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C37",
+      "title": "复用 SysV 位置规划的函数入口参数捕获",
+      "status": "integrated",
+      "rev": 16,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C38",
+      "title": "带完整 64 位重定位的静态符号指针声明",
+      "status": "integrated",
+      "rev": 14,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C39",
+      "title": "从固定帧槽发射SysV返回值及窄值扩展",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C4",
+      "title": "无分配的目标类型布局引擎",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C40",
+      "title": "将SysV调用返回值规范化保存到固定帧槽",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C41",
+      "title": "组合SysV直接调用及结果接收",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C42",
+      "title": "组合返回值装载与受保存寄存器函数尾声",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C43",
+      "title": "从帧槽读取目标的SysV间接调用组合",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C44",
+      "title": "[L3] 接续CR32：组合零保存寄存器序言与入口参数捕获",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C45",
+      "title": "[L3] 接续CR33：生成可由内核验证的静态ELF64代码与数据镜像",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C46",
+      "title": "[L3] 接续CR30：先检查完整RCX计数再执行64位可变移位",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C47",
+      "title": "[L3] 接续CR31：组合除法异常门禁与商余数内核",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C48",
+      "title": "[L3] 受限u64直线IR到完整SysV函数接线",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C49",
+      "title": "[L3] 条件比较与双分支返回的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C5",
+      "title": "原生单行诊断格式化",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C50",
+      "title": "[L3] 实参重排与真实跨函数调用的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C51",
+      "title": "[L3] 原生表达式AST降为C48的受限u64直线IR",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C52",
+      "title": "[L3] 复用C48组装多函数NASM模块及可链接导出",
+      "status": "integrated",
+      "rev": 19,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C6",
+      "title": "原生 UTF-8 源码位置定位器",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C7",
+      "title": "控制流图合法性与可达性组件",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C8",
+      "title": "SysV整数参数位置规划组件",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:C9",
+      "title": "并行复制循环消解组件",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "claude"
+    },
+    {
+      "id": "claude:P2EXEC1",
+      "title": "[P2] 动态执行别名的真实降权、同步与授权事务",
+      "status": "integrated",
+      "rev": 18,
+      "owner": "codex"
+    },
+    {
+      "id": "claude:P2WC1",
+      "title": "[P2] 图形帧缓冲的缓存类型撤映射、同步与WC重映射事务",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX1",
+      "title": "按NASM实际警告能力检测原生测试兼容参数",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX10",
+      "title": "[L3] P5服务启用既有64MiB共享帧表并保留物理验收",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX12",
+      "title": "[L3] 原生汇编器使用有界短位移编码以保持2MiB执行上限",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX13",
+      "title": "[L3] 单56MiB纯Dong自编译作业与客体入口",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX14",
+      "title": "[L3] 受限客体编译启动与持久化控制服务",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX15",
+      "title": "[L3] 修正编译作业宿主验证器的Linux布局与u64格式兼容",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX2",
+      "title": "补齐optional/result match类型与确定初始化语义",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX3",
+      "title": "按NASM实际能力允许合法64位静态指针重定位",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX4",
+      "title": "同步扩展有界EXEC镜像读取与内核暂存容量至2MiB",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX5",
+      "title": "消除NASM vendor alignb宏警告栈不兼容并保持BSS对齐",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX6",
+      "title": "[L3] 将有界源码读取器接入已有DongOS文件句柄",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX7",
+      "title": "[L3] 编译器专用64KiB受保护栈配置与装载入口",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CX8",
+      "title": "[L3] 产物提交状态机接入既有H_WRITE/H_SYNC文件授权",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:CXNASM3",
+      "title": "[P0/L3] NASM分组帮助能力探测维护（异机编号隔离）",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5ALIGN1",
+      "title": "G5 高对齐局部对象及真实组合栈预算",
+      "status": "accepted",
+      "rev": 5,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5CLOSURE1",
+      "title": "G5 最终编译器闭包在56MiB pure job预算内的回归修复",
+      "status": "integrated",
+      "rev": 21,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5DOC1",
+      "title": "G5主线集成后的后端契约与进度文档收尾",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5DOC2",
+      "title": "主线G5最终检查点与内建汇编器契约同步",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5EXEC1",
+      "title": "G5 函数指针、硬件内建、asm 与 Win64 执行闭环",
+      "status": "accepted",
+      "rev": 8,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5FULL1",
+      "title": "G5 完整语言矩阵、剩余语义差异与闭合证据候选",
+      "status": "integrated",
+      "rev": 16,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5HOST1",
+      "title": "Windows自编译宿主探针避开固定ELF地址并核验真实PE布局",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5HOST2",
+      "title": "固定ELF窗口在宿主预分配与两次装载间的真实持有",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5INT1",
+      "title": "G5完整语言候选与有界自编译闭包主线集成及永久回归",
+      "status": "integrated",
+      "rev": 24,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5METHODFIX1",
+      "title": "G5主线方法回归调用链同步完整支持契约",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5PANIC1",
+      "title": "G5 panic ABI、种类/路径/行号与前端诊断对齐",
+      "status": "accepted",
+      "rev": 5,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G5TAG1",
+      "title": "G5 optional/result/error/enum 全流水线与差分闭环",
+      "status": "accepted",
+      "rev": 5,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6DOC1",
+      "title": "新G6宿主准备的独立证据审查与进度同步",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6ENC1",
+      "title": "扩展纯ELF编码后的当前编译器固定点及G6复验",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6POOL1",
+      "title": "G6 当前静态/动态页表池独立检查适配",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6PREP1",
+      "title": "扩大G5编译器的新G6宿主准备与源码绑定复验",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6RUN2",
+      "title": "[L3] 当前主线扩大编译器的全新G6构建及同盘双启独立验收",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:G6WAIT2",
+      "title": "[L3阻塞修复] VirtIO显式有界时间等待入口与真实FLUSH验证",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3DEFER1",
+      "title": "L3/L3A defer 作用域清理整程序降级候选",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3ELFMATRIX1",
+      "title": "L3完整语言矩阵纯ELF实际执行与独立验收",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3ENC1",
+      "title": "L3A纯ELF补齐XMM原子及受限无操作数指令",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3FLOWINT1",
+      "title": "L3/L3A defer、for、bool match 主线合并与真实 ELF 组合验收",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3FOR1",
+      "title": "L3/L3A range/array/slice for 与 bool match 原生降级候选",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3HOST13",
+      "title": "[发布门禁] 修复L3A测试桥的Linux/Windows宿主对象选择",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3MAIN12",
+      "title": "[L3本地集成] 将有限G5差分runner接入主线工具入口",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3METHODINT1",
+      "title": "[L3/G5] 已验收方法前端语义主线集成",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3METHODLOW1",
+      "title": "L3/L3A 方法整程序降级、原生符号与执行差分",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3PTR7",
+      "title": "[L3A接续] 原生前端全局静态取址初始化契约",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3REG11",
+      "title": "[L3A主线回归] 将GLOBAL与.data旧拒绝项更新为原生正例",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3REG14",
+      "title": "[发布门禁] 修复旧native compiler无参数容量负例下溢",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3SYSV1",
+      "title": "[L3A/G5] 原生后端显式SysV定义、外部声明与链接别名",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3SYSVASM1",
+      "title": "[L3A] 原生汇编器接续SysV链接名的NASM符号转义",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:L3SYSVREG1",
+      "title": "[L3A] 同步SysV支持后的既有负例预期",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:NATIVECWARN1",
+      "title": "修复帧缓冲C独立oracle的误导缩进编译错误",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2ALIAS8",
+      "title": "[P2接续] 正常共享根动态EXEC与GOP WC硬件消费者",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2BKL30",
+      "title": "保留绝对期限及 ACK 轮询的 FIFO 内核锁 sidecar",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2BUILD5",
+      "title": "[P2/P0] 正式构建NASM分组警告探测接线与完整内核验收",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2CACHE20",
+      "title": "P2调度后GOP全别名WC迁移与绘屏隔离组件",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2CD1",
+      "title": "P2 C/D生产接线接手、零静态池适配与独立客体验证",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2CDBUILD1",
+      "title": "P2CD1 零静态池构建身份适配补登记",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2CDTYPE1",
+      "title": "P2CD1阻塞修复：按PAT×MTRR实际有效类型验证GOP准入",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2DISCOVERY22",
+      "title": "P2设备发现提前至AP用户域交接前避免长BKL扫描",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2ENTRY21",
+      "title": "P2精确EXEC受控异常adapter与默认关闭的CPL0入口",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2EXEC19",
+      "title": "P2调度后多根EXEC事务owner与精确硬件reader组件",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2FLUSH11",
+      "title": "P2逐CPU实际CR4失效选择与共享屏障三态原生门禁",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2GOP29",
+      "title": "为正常及 panic GOP 写入接入永久静态绘图 Gate",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2HARNESS17",
+      "title": "P2独立隔离SMP来源回归的临时目录自建修复",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2HARNESS24",
+      "title": "P2真实UART GUI收尾采集器命令契约修复",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2HARNESS28",
+      "title": "更新实际 SMP 服务回归夹具以覆盖 LARGE 接线依赖",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2LARGE16",
+      "title": "P2调度后多根WB大页事务及真实AP内核消费者",
+      "status": "integrated",
+      "rev": 68,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2LEDGER44",
+      "title": "P2帧缓冲独立授权账本及映射撤销生命周期",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2LIVE1",
+      "title": "[P2] 正常私有根上的活动大页事务与启动生命周期",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2LMTEST41",
+      "title": "P2本地模型小任务独立夹具校验与接续状态校准",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2MASK18",
+      "title": "P2根forest按真实硬件上限审计异宽用户Space",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2OBS32",
+      "title": "P2只读批量内存观测与明确epoch证据重放",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2OBS34",
+      "title": "P2暂停期切片延后落盘与原期限扰动性能修正",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2OBS36",
+      "title": "P2 显式历史 CapturedImage 与暂停外原始审计",
+      "status": "integrated",
+      "rev": 37,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2OOM4",
+      "title": "[P2] 真实碎片化order9 OOM拒绝、无发布证明与文档校准",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2PCID12",
+      "title": "P2当前源码逐CPU PCID硬件验收入口与严格回执",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2RAW38",
+      "title": "受控 EXEC 异常的永久 caller-owned 原始帧记录",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2REG45",
+      "title": "P2既有服务启动与桌面重建回归夹具接续",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2ROOT13",
+      "title": "P2调度后内核共享分支与用户私有根闭包审计",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SIZE10",
+      "title": "[P2预算接续] 正式服务镜像按既有arena分配第三用户页表池",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SIZE2",
+      "title": "[P2前置] 内核函数分节与真实链接回收释放装载余量",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SIZE23",
+      "title": "P2 runtime7内核静态池预算与严格profile全链绑定",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SIZE9",
+      "title": "[P2预算接续] 正式服务内核启用现有可选O1后端",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SMP27",
+      "title": "P2真实AP首次进入失败的精确只读诊断回执",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SMP3",
+      "title": "[P2] 共享内核根的大页同步事务与持久持有视图",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC15",
+      "title": "P2当前源码进度校准与P2后P5执行顺序登记",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC26",
+      "title": "P2本轮实际验收与运行失败证据同步",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC31",
+      "title": "同步 P2 实际锁超时、99/31项复验和后续接线状态",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC33",
+      "title": "P2 observer与负载活性返修进度同步",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC35",
+      "title": "P2 观察器实际诊断、延后落盘复验与真机不可用状态同步",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2SYNC40",
+      "title": "P2 历史采集、44项复验与真实屏障观察失败进度同步",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2VIEW6",
+      "title": "[P2EXEC/WC] 实际Space只读池视图及隐藏别名扫描前置",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P2WC14",
+      "title": "P2真实GOP UC/WC性能采集器及可复验启动镜像准备",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P5CTX2",
+      "title": "[P5] 真实客体故障下的精确DMA持有上下文核验",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P5DMAINT2",
+      "title": "P5 DMA真实集成及原生回归构建超时修复",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P5P9AUDIT1",
+      "title": "P5/P9 接手候选的非作者独立审查与验收依据",
+      "status": "submitted",
+      "rev": 3,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P5P9CALLINT1",
+      "title": "[P5/P9] 集成故障生命周期续接与有界日志传输",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P5RECBOUND1",
+      "title": "[P5] 修复设备恢复事务输出跨度与别名校验缺口",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8APCHECK1",
+      "title": "真实AP交接与队列投影后的受控停机诊断",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8BOOTCONSOLE1",
+      "title": "真机连续启动的屏幕日志与首用户态进度",
+      "status": "rework",
+      "rev": 17,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8BOOTDIAG1",
+      "title": "真机黑屏的UEFI屏幕阶段与错误诊断",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8BOOTLOG1",
+      "title": "消除串口诊断对桌面启动的阻断并保留服务失败现场",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8BSPDIAG1",
+      "title": "S19停留的显式BSP用户态隔离诊断版",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8ECAM1",
+      "title": "可信MCFG Runtime type11 ECAM兼容与S15拒绝上下文",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8ECAMTEST1",
+      "title": "ECAM相关既有只读与BAR/DMA探针适配当前依赖ABI",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8FIRSTENTRY1",
+      "title": "正常AP调度后的首次CPL3捕获与BSP首错诊断",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8GOP1",
+      "title": "真机E10的GOP分辨率回退与分支诊断",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8HIGH1",
+      "title": "高地址UEFI加载与低地址页表交接兼容修复",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8IOAPIC1",
+      "title": "真机MADT IOAPIC Runtime-MMIO定向兼容及USB发布",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8LAPIC1",
+      "title": "真机LAPIC Runtime-MMIO的定向UC映射兼容",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8MMIO1",
+      "title": "真机S01 RamConflict的设备页与原始描述符诊断",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8PSI1",
+      "title": "Intel xHCI显式PSI标准速度表兼容修复",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8PSIGATE1",
+      "title": "PSI内核快照与DMA授权配套适配",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8RUNTIME1",
+      "title": "恢复真机连续桌面启动并捕获实际运行失败",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8SCRATCH1",
+      "title": "Intel真机xHCI Scratchpad DMA布局与授权支持",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8STAGE1",
+      "title": "真机ACPI画面后停滞的有界屏幕启动阶段诊断",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8SYMBOL1",
+      "title": "启动观察器兼容合法NASM宏私有局部符号",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8THREAD1",
+      "title": "无磁盘真机中断线程诊断的完成画面",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8TIMER1",
+      "title": "统一ACPI平台Runtime MMIO并修复真机HPET拒绝",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBADAPT1",
+      "title": "USB-only构建验真与原设备测试夹具适配",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBAUDIT2",
+      "title": "USB完整FAT审计的有界独立启动预算",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBFSTEST1",
+      "title": "USB容量策略引入后的原FAT坏体夹具适配",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBINFO1",
+      "title": "S14隔离版无响应后的只读USB硬件屏幕普查",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBONLY1",
+      "title": "仅USB存储授权的真机桌面与键鼠测试版",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USBSTART1",
+      "title": "USB专用输入启动与大卷挂载缓存适配",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USERCHECK1",
+      "title": "S19后锁与服务初始化的AP发布前独立停机诊断",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USERDIAG1",
+      "title": "S14后BSP用户态准备分段及真实失败显示",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8USERTEST1",
+      "title": "用户态SMP路由测试适配已生效内核源码快照",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8XHCICAP1",
+      "title": "Intel xHCI首寄存器页能力与固件占用只读诊断",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P8XHCIPRECHECK1",
+      "title": "真机xHCI预检拒绝分支与原始寄存器证据",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P9CORPUSINT1",
+      "title": "[P9] 已验收语料工具主线接入与永久回归",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "codex:P9GUESTINT1",
+      "title": "P9 已独立验收消费端真实迁移主线并复验生产路径",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:CR1",
+      "title": "原生 NASM 字节常量编码器",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR10",
+      "title": "由分支规划生成可执行NASM条件跳转",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR11",
+      "title": "受限SysV函数栈帧序言与尾声发射",
+      "status": "integrated",
+      "rev": 22,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR12",
+      "title": "有界NASM整数内存装入",
+      "status": "integrated",
+      "rev": 14,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR13",
+      "title": "有界NASM整数内存存储",
+      "status": "integrated",
+      "rev": 19,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR14",
+      "title": "NASM整数截断与符号规范化",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR15",
+      "title": "NASM基址位移地址生成语句",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR16",
+      "title": "64位整数一元与零比较发射",
+      "status": "integrated",
+      "rev": 18,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR17",
+      "title": "64位立即数移位发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR18",
+      "title": "基础块标签与无条件跳转发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR19",
+      "title": "受控64位整数除法与余数发射",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR2",
+      "title": "复用CR1的受限NASM只读数据声明",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR20",
+      "title": "数组与切片的无符号边界门禁",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR21",
+      "title": "完整64位移位计数的宽度门禁",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR22",
+      "title": "固定寄存器64位乘法溢出门禁",
+      "status": "integrated",
+      "rev": 21,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR23",
+      "title": "signed i64一元负号溢出门禁",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR24",
+      "title": "顺序一致性32/64位原子存储发射",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR25",
+      "title": "强原子compare-exchange并返回旧值",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR26",
+      "title": "原子fetch-add返回旧值与模加法",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR27",
+      "title": "聚合赋值的overlap-safe memmove发射",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR28",
+      "title": "8/16/32位debug算术结果范围门禁",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR29",
+      "title": "允许空端点的切片lo/hi/len联合门禁",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR3",
+      "title": "无碰撞的NASM内部符号编码",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR38",
+      "title": "[L3] 接续D26：受检64位算术与错误返回的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR39",
+      "title": "[L3] 具有真实调用副作用的AND/OR短路完整SysV函数",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR4",
+      "title": "无分配的定宽整数十进制文本",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR40",
+      "title": "[L3] 作用域清理后保持双字返回值的完整SysV函数",
+      "status": "integrated",
+      "rev": 24,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR41",
+      "title": "[L3] 8/16/32位窄算术的checked与wrapping完整函数",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR42",
+      "title": "[L3] 带边界与地址溢出检查的切片视图PAIR构造",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR45",
+      "title": "[L3] 受限文件清单批量装载为原生frontend源码目录",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:CR46",
+      "title": "[L3] 将原生前端诊断按有界回调发送给既有日志接收者",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:CR47",
+      "title": "[L3] 测量并降低semantic_types递归路径实际栈峰值",
+      "status": "integrated",
+      "rev": 16,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:CR5",
+      "title": "复用十进制组件的NASM BSS声明",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR6",
+      "title": "确定性的条件分支与落空边规划",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR7",
+      "title": "SysV整数返回值的窄值扩展规划",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR8",
+      "title": "NASM基址加有符号位移操作数",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:CR9",
+      "title": "NASM定宽整数常量装入64位寄存器",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "cursor"
+    },
+    {
+      "id": "cursor:L3EXTUNSAFE1",
+      "title": "L3/G5返修：无体 extern 普通函数与方法漏默认 unsafe",
+      "status": "accepted",
+      "rev": 6,
+      "owner": "deepseek"
+    },
+    {
+      "id": "cursor:P5CTX1",
+      "title": "[P5] 接入真实DMA申请与退休路径的精确持有上下文",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:P5DMACALL1",
+      "title": "[P5] 将准备与映射退休接入真实故障生命周期",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:P5DMARETIRE1",
+      "title": "[P5] 故障DMA映射撤销与撤映射后全核退休事务",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:P5RECBOUNDREVIEW1",
+      "title": "[P5] 独立审查恢复事务边界修复与原生负控",
+      "status": "submitted",
+      "rev": 4,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:P9GUESTCORPUS1",
+      "title": "[P9] 将已验收syscall语料接入有界CPL3执行与回执",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "codex"
+    },
+    {
+      "id": "cursor:P9RAWTRANSPORT1",
+      "title": "[P9] 客体回执的有界日志封装与严格离线采集",
+      "status": "integrated",
+      "rev": 7,
+      "owner": "codex"
+    },
+    {
+      "id": "deepseek:D1",
+      "title": "原始字节内存模块",
+      "status": "accepted",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D10",
+      "title": "固定对象缓存",
+      "status": "accepted",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D11",
+      "title": "位集合",
+      "status": "accepted",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D12",
+      "title": "线性arena",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D13",
+      "title": "严格UTF-8",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D14",
+      "title": "接续C16：修正rel32向后跳转测试",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D15",
+      "title": "接续C18：修复字符串表长度预检下溢",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D16",
+      "title": "接续C21：完成对齐常量池及完整交付",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D17",
+      "title": "接续C19：修复DFS后序负控及对齐夹具",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D18",
+      "title": "接续C20：修复phi复制负控执行路径",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D19",
+      "title": "有界最短ULEB128 u64解码",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D2",
+      "title": "usize检查算术与对齐",
+      "status": "accepted",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D20",
+      "title": "有界最短SLEB128 i64解码",
+      "status": "integrated",
+      "rev": 14,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D21",
+      "title": "组合窄算术范围门禁与结果规范化",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D22",
+      "title": "组合字节装入与非零真值规范化",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D23",
+      "title": "[L3] 简单编译产物逐字节比较与首差定位",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D24",
+      "title": "[L3] 接续CR34：固定有限次数u64循环与真实回边的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D25",
+      "title": "[L3] 接续CR35：有界i64 switch及case返回关联的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D27",
+      "title": "[L3] 接续CR37：有界索引装入与存储的完整SysV函数接线",
+      "status": "integrated",
+      "rev": 6,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D3",
+      "title": "字节切片辅助模块",
+      "status": "accepted",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D4",
+      "title": "原子自旋锁",
+      "status": "accepted",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D5",
+      "title": "缓冲区与回调格式化",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D6",
+      "title": "x86-64外部汇编包装器",
+      "status": "accepted",
+      "rev": 4,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D7",
+      "title": "特权级硬件探针",
+      "status": "accepted",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D8",
+      "title": "物理伙伴分配器",
+      "status": "accepted",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:D9",
+      "title": "内存区间归一化",
+      "status": "accepted",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "deepseek:L3",
+      "title": "[L3/G5] 原生整程序语言与ABI差分执行、真实缺口回归",
+      "status": "integrated",
+      "rev": 13,
+      "owner": "codex"
+    },
+    {
+      "id": "deepseek:L3A",
+      "title": "[L3A/G5] 原生整程序可变全局量及真实产物闭环",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "codex"
+    },
+    {
+      "id": "lmstudio:LM1",
+      "title": "单函数：任务标签空白规范化",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM2",
+      "title": "简单文档：AI交付检查清单JSON",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM3",
+      "title": "简单文档：七种任务状态中文词典",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM4",
+      "title": "简单文档：七个后端组件中文导航",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM5",
+      "title": "简单数据：12条UTF-8边界测试夹具",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM6",
+      "title": "简单数据：12条LEB128已知向量",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM7",
+      "title": "简单数据：8条定宽整数十进制已知向量",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:LM8",
+      "title": "最简单固定数据：8条NASM基址位移文本",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "lmstudio"
+    },
+    {
+      "id": "lmstudio:P2ERR43",
+      "title": "P2简单数据：缓存事务八种错误码中文对照",
+      "status": "integrated",
+      "rev": 8,
+      "owner": "codex"
+    },
+    {
+      "id": "lmstudio:P2VEC42",
+      "title": "P2简单数据：12条GOP页包络边界向量",
+      "status": "integrated",
+      "rev": 15,
+      "owner": "codex"
+    },
+    {
+      "id": "pool:GUEST1",
+      "title": "[L3] 客体编译输入的相对路径与根目录边界校验",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "pool:GUEST2",
+      "title": "[L3] 通过调用者读回调装载有界源码字节",
+      "status": "integrated",
+      "rev": 9,
+      "owner": "deepseek"
+    },
+    {
+      "id": "pool:GUEST3",
+      "title": "[L3] 客体编译阶段内存预算与独占复用规划",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "claude"
+    },
+    {
+      "id": "pool:GUEST4",
+      "title": "[L3] 将现有编译器文本输出接入原生汇编器",
+      "status": "integrated",
+      "rev": 16,
+      "owner": "codex"
+    },
+    {
+      "id": "pool:GUEST5",
+      "title": "[L3] 编译产物写入与FLUSH确认的有界状态机",
+      "status": "integrated",
+      "rev": 19,
+      "owner": "codex"
+    },
+    {
+      "id": "pool:L3METHOD1",
+      "title": "[L3/G5] 原生前端方法声明及接收者调用语义",
+      "status": "integrated",
+      "rev": 10,
+      "owner": "cursor"
+    },
+    {
+      "id": "pool:MCPPOOL1",
+      "title": "MCP公共任务池适配：DeepSeek、Claude、Cursor自主领取",
+      "status": "integrated",
+      "rev": 11,
+      "owner": "cursor"
+    },
+    {
+      "id": "pool:P9CORPUS1",
+      "title": "[P9] syscall与IPC结构化fuzz的确定性语料及重放格式",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "deepseek"
+    },
+    {
+      "id": "pool:WINVERIFY1",
+      "title": "修复Windows定向复验正常退出后无法登记完成",
+      "status": "integrated",
+      "rev": 12,
+      "owner": "claude"
+    }
+  ],
+  "integration_verification": {
+    "passed": true,
+    "checks": [
+      {
+        "spec": "module:tests.test_p5_dma_call",
+        "passed": true,
+        "tests": 2,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 195.74
+      },
+      {
+        "spec": "module:tests.test_p5_dma_retire",
+        "passed": true,
+        "tests": 2,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 59.319
+      },
+      {
+        "spec": "module:tests.test_p5_recovery_context",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 27.425
+      },
+      {
+        "spec": "module:tests.test_corpus_log",
+        "passed": true,
+        "tests": 2,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 71.003
+      },
+      {
+        "spec": "module:tests.test_guest_corpus",
+        "passed": true,
+        "tests": 2,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 64.652
+      },
+      {
+        "spec": "module:tests.test_syscall_corpus",
+        "passed": true,
+        "tests": 46,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 16.226
+      },
+      {
+        "spec": "module:tests.test_framebuffer_ledger",
+        "passed": true,
+        "tests": 1,
+        "skips": 0,
+        "returncode": 0,
+        "cancelled": false,
+        "timed_out": false,
+        "process_stopped": true,
+        "execution_exited": true,
+        "elapsed_seconds": 134.896
+      }
+    ],
+    "process_stopped": true,
+    "execution_exited": true,
+    "source_stable": true,
+    "fingerprint": {
+      "kernel/user/services.dg": "867854b0df91b6c7419c9150dbdfbceedc5f1a7af023cb18c7b7b891adb1546a",
+      "kernel/user/device_host.dg": "dabb27cd1eaf2e2f4ae8e6c43e97c5791c24b39319585169a4d49d3ac7693fb7",
+      "tests/test_p5_dma_call.py": "f1d8abcbfe9e9da43da1bbf2bd5240e412fb9254430135572e6dda4846be0e85",
+      "tests/p5_dma_call_fixture.dg": "85e7bb9afe774194d459e67cb46e37675692718d5769f649d55dfe7fc8b57916",
+      "tests/p5_dma_call_probe.c": "ebdfd0625bfd72690f0895ea5f453bc2904910f19c68e5582bca4d1ac7d761fe",
+      "tools/guest_corpus/log_transport/__init__.py": "5f32282a136cf0a7d0a5b33bb4b2b8c2029c3cd1616c2b3661d9d38c4a6cf609",
+      "tools/guest_corpus/log_transport/corpus_guest.dg": "60b3bfeeb19771b0ca369ca09b437176d6c30eaae8682dea475152e8e6f862f3",
+      "tools/guest_corpus/log_transport/corpus_entry.asm": "79623d1b3115b97609d723fd329f3930271b04e5a4fdcdcac1a8d6b33fdcedb5",
+      "tools/guest_corpus/log_transport/corpus_log.dg": "f5510996f5adec08c9e673b542d3dc9591553b405a0e60db76c5f18034ae8afb",
+      "tools/guest_corpus/log_transport/corpus_log.py": "a60be68119bfec30c578fce75844e38ea7d6443f19697cd3b8eb010ebf26e56c",
+      "tools/guest_corpus/log_transport/build_log_corpus.py": "a428afa7521818eba742b43d2f3253b20f63f535acbbd0c68f422ed62c4c059f",
+      "tests/test_corpus_log.py": "9d5f5e170bbd367a16c6995e110b6d17b1fcfc604b5b09c5d190d8601e40136c",
+      "docs/p5-dma-retirement.md": "f35548ce00d53c7bd153bb52d4dcaffb1b5b0de9df2707bf775f64813eb7bd37",
+      "docs/guest-corpus.md": "c61da7a74a908758a58e5b87d32b1c8fa351a664ecead0f937ba169ce72821f5",
+      "codex-works/reviews/P5P9CALLINT1.md": "34f3886aa1fcb3598b07ac810a7ae4230d224adc9273ee5e939a96a99ee80fd3",
+      "codex-works/deliveries/P5P9CALLINT1.md": "a2ecb2fa8902fdab2b588638e6f7373beb6060de3d7afe747f6ce03c154f0851"
+    },
+    "summary": "定向复验通过，等待源码/契约审查",
+    "finished_at": "2026-11-05T08:49:41+00:00",
+    "job": "20ec005ef2bc4c7dbc7406977c45897f"
+  },
+  "before_sha256": {
+    "roadmap.json": "da5a5351f7efe105d1f9ceee36e5b4304bf4ed447156da6324b2e3d8c63a1a77",
+    "progress-map.md": "a4d4499706ca15d077f51882637ec6a07da8bac2248db4401f8b8333c7391cc6"
+  },
+  "after_sha256": {
+    "roadmap.json": "8be22d60f4432799d32e363737d9489e0bf9c040f5355264524f204e58b33a80",
+    "progress-map.md": "0d88fa9817aa5f7906453b20ea83ffd9fc258a5651690dcfb0ccfc33de309faa"
+  },
+  "stage_states": {
+    "system": {
+      "P0": "complete",
+      "P1": "complete",
+      "P2": "partial",
+      "P3": "complete",
+      "P4": "complete",
+      "P5": "partial",
+      "P6": "partial",
+      "P7": "partial",
+      "P8": "partial",
+      "P9": "partial"
+    },
+    "language": {
+      "L0": "complete",
+      "L1": "complete",
+      "L2": "complete",
+      "L3": "complete",
+      "L3A": "complete",
+      "G5": "complete",
+      "L3B": "complete",
+      "L3C": "complete"
+    },
+    "integration": {
+      "M0": "complete",
+      "M7": "complete",
+      "M10": "complete",
+      "M8": "complete",
+      "M11": "complete",
+      "M3": "pending"
+    },
+    "coordination": {
+      "C52": "complete",
+      "CXNASM3": "complete",
+      "P5CTX1": "complete",
+      "P5CTX2": "complete",
+      "P2LIVE1": "complete",
+      "P2SIZE2": "complete",
+      "P2SMP3": "complete",
+      "DS-L3A": "complete",
+      "DS-L3": "complete",
+      "CL-P2EXEC1": "complete",
+      "CL-P2WC1": "complete",
+      "P2OOM4": "complete",
+      "P2BUILD5": "complete",
+      "P2ALIAS8": "complete",
+      "L3PTR7": "complete",
+      "P2SIZE9": "complete",
+      "P2SIZE10": "complete",
+      "L3REG11": "complete",
+      "L3MAIN12": "complete",
+      "L3HOST13": "complete",
+      "L3REG14": "complete",
+      "P2CD1": "complete",
+      "P2CDTYPE1": "complete",
+      "P2CDBUILD1": "complete",
+      "P2VEC42": "complete",
+      "P2ERR43": "complete",
+      "RECOVERY22": "complete",
+      "P5RECBOUND1": "complete",
+      "P5DMAINT2": "complete",
+      "P9GUESTINT1": "complete",
+      "P5P9CALLINT1": "complete",
+      "P8PSI1": "complete",
+      "P8BOOTCONSOLE1": "partial"
+    }
+  },
+  "remote_refreshed": false,
+  "guest_executed": false,
+  "validation": {
+    "schema": true,
+    "live_http_json_equals_file": true,
+    "live_http_markdown_equals_file": true,
+    "actual_files_not_symlinks": true,
+    "existing_roadmap_suite": {
+      "tests": 10,
+      "passed": 9,
+      "skips": 1,
+      "skip_reason": "File symlinks unavailable on this Windows host",
+      "seconds": 8.143
+    },
+    "independent_review": "review_recovery read-only PASS; 3 integrated task states and 56 zero-skip checks verified; no code/status edits",
+    "review_script_sha256": "db31a944167fb40a17d1d4a4ced67ed890dea87dceae4ec1fe71c20c9439e592"
+  }
+}

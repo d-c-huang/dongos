@@ -1,0 +1,19 @@
+// ASCII transport only. Raw BEGIN/CASE/END validation stays in the verifier.
+module p9.corpus_log;
+const HEX:[16]u8=[48,49,50,51,52,53,54,55,56,57,97,98,99,100,101,102];
+const PREFIX:[7]u8=[80,57,76,79,71,49,32];
+var NEXT:u64=0;var FAILED:bool=false;
+unsafe extern "sysv64" fn corpus_log_write(p:*const u8,bytes:usize)u64;
+pub unsafe fn emit(raw:*const u64,bytes:usize)u64{unsafe{
+ if FAILED||raw==null||NEXT>=258{return 1;}
+ if (NEXT==0&&bytes!=64)||(NEXT!=0&&bytes!=32){FAILED=true;return 1;}
+ var line:[144]u8=[0;144];var i:usize=0;
+ while i<7{line[i]=PREFIX[i];i+=1;}
+ i=0;while i<4{line[7+i]=HEX[((NEXT>>((3-i)*4))&15) as usize];i+=1;}
+ line[11]=32;line[12]=HEX[(bytes>>4)&15];line[13]=HEX[bytes&15];line[14]=32;
+ let input=raw as *const u8;i=0;
+ while i<bytes{let value=*(input+i);line[15+2*i]=HEX[(value>>4) as usize];line[16+2*i]=HEX[(value&15) as usize];i+=1;}
+ let length=16+2*bytes;line[length-1]=10;
+ if corpus_log_write(&line[0],length)!=0{FAILED=true;return 1;}
+ NEXT+=1;return 0;
+}}

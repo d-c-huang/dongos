@@ -1,0 +1,11 @@
+# P9 生产迁移独立审查
+
+2026-11-05 非作者 /root/review_corpus 只读复审 PASS。DG/ASM逐字同候选；builder仅固定ROOT，receipt仅包导入，测试仅路径/包导入，文档追加生产位置。原候选六SHA未变。module CLI及从工作区根直接运行builder --help均exit0；receipt.selected is builder.selected，没有裸模块污染。
+
+主代理实际生产测试 tests.test_guest_corpus + tests.test_syscall_corpus：48 tests/116.330s/OK/0 skip。独立审查者没有重复全套测试，实际读取并重验code/build/test/p9-guest-corpus/run-e3498b403a6a全部两模式产物、回执、源SHA。正常12 calls/14 emits/exit0；四坏体exit42/41/3/0，回执均拒绝。旧候选raw交给新生产build两模式均因build/generation不同拒绝。
+
+生产SHA256：builder adb39929671c0588f36480ad6bf3b400ff41683624fd91f4479d1a068327b5b9；receipt e4bf77409fe33cfb0aee36024e411348e5fd06c3fd37d3e1c95ba1dbb1486e33；test d06c1f194a629ce6fa9762658f0b73dfb7c70e8f7e0f7630ee63fb89bca87c0b；docs 55145db08d130c73fee8f7a81c93e130109c2bfc46e6a4fb690f91dcb399cb8a；DG 77ed343869e3dcf8a2e9c8cc8f37820e1cfdfeddf28db1732d5cbea4ec769daf；ASM a6b1e037ee9ca8bd1c440633411bdd0e49e71a247ec99f595879a7d74dd175e3。
+
+debug binding dad89f25752dd1ff4d62d00cae91a983afaa7fb8d920728deb085e3a7ddca44b；release binding 88cd51ee63456b3d3a1490931f31ef767b8be2660555e3c014ee3442db81d3fe。两者为生产新构建，不复用候选通过记录。
+
+限制：执行重新编译CORPUS_HOST体；归档ELF未运行。host-boundary-only/guest_verified=false保持，不接启动清单，不宣称真实CPL3或完整P9。

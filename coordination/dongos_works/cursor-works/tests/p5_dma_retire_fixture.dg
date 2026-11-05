@@ -1,0 +1,95 @@
+// MEMORY_FIXTURE
+var DR_POOL:[32]paging.Table=[EMPTY_TABLE;32];
+var DR_OTHER:[32]paging.Table=[EMPTY_TABLE;32];
+export("dr_memory_setup") fn dr_memory_setup()u64{unsafe{
+ KERNEL_PHYSICAL=0x100000;DYNAMIC_TABLES[2]=&DR_POOL[0];DYNAMIC_PHYSICAL[2]=0x2000000;
+ match paging.init(&SPACES[2],DR_POOL[..],0x2000000,META[2][..],48,true){ok=>{},err(e)=>{return e;},}
+ var offset:usize=0;while offset<4{
+  FRAMES[offset]=Frame{physical:0x4000000+(offset as u64)*4096,virtual:ALIASES+(offset as u64)*4096,writable:1};RECYCLED[offset]=2;
+  match paging.map_live(startup.space_pointer(),FRAMES[offset].virtual,FRAMES[offset].physical,paging.WRITE){ok=>{},err(e)=>{return e;},}
+  match paging.map_live(&SPACES[2],0x60000000+(offset as u64)*4096,FRAMES[offset].physical,paging.USER|paging.WRITE){ok=>{},err(e)=>{return e;},}
+  offset+=1;
+ }
+ FRAME_COUNT=4;var view=paging.PoolView{tables:null,metadata:null,count:0,physical:0,address_mask:0,used:0,nx:false};
+ match paging.inspect(startup.space_pointer(),&view){ok=>{},err(e)=>{return e;},}
+ var slot:usize=1;while slot<512{DR_POOL[0].entries[slot]=(*view.tables).entries[slot];slot+=1;}
+ PROCESSES[2].ready=1;PROCESSES[2].root=0x2000000;PROCESSES[2].frame.cr3=0x2000000;GENERATIONS[2]=7;PINNED[2]=true;
+ DMA_LEASES[2]=DmaLease{physical:0x4000000,virtual:0x60000000,pages:4,root:0x2000000,generation:7,attempted:4,mapped:4,state:DMA_COMPLETE};return 0;
+}}
+export("dr_lease") fn dr_lease(out:*DmaLease)void{unsafe{*out=DMA_LEASES[2];}return;}
+export("dr_pool") fn dr_pool()u64{unsafe{return &DR_POOL[0] as u64;}}
+export("dr_meta") fn dr_meta()u64{unsafe{return &META[2][0] as u64;}}
+export("dr_other_pool") fn dr_other_pool()u64{unsafe{return &DR_OTHER[0] as u64;}}
+export("dr_frames") fn dr_frames()u64{unsafe{return &FRAMES[0] as u64;}}
+export("dr_recycled") fn dr_recycled()u64{unsafe{return &RECYCLED[0] as u64;}}
+export("dr_pin") fn dr_pin()u64{unsafe{if PINNED[2]{return 1;}return 0;}}
+export("dr_view") fn dr_view(out:*DmaRetirementView)u64{unsafe{match dma_retirement(2,out){ok=>{return 0;},err(e)=>{return e;},}}}
+export("dr_memory_bad") fn dr_memory_bad(kind:u64)u64{unsafe{
+ if kind==1{GENERATIONS[2]=8;return 0;}
+ if kind==2{DMA_LEASES[2].state=DMA_HELD;DMA_LEASES[2].mapped=2;return 0;}
+ if kind==3{DMA_LEASES[2].state=DMA_HELD;DMA_LEASES[2].physical=0;DMA_LEASES[2].attempted=0;DMA_LEASES[2].mapped=0;return 0;}
+ if kind==4{match paging.map_live(&SPACES[2],0x61000000,0x4000000,paging.USER|paging.WRITE){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==5{match paging.map_large_live(&SPACES[2],0x62000000,0x4000000,paging.USER|paging.WRITE){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==6{RECYCLED[3]=0;return 0;}
+ if kind==7{match paging.unmap(&SPACES[2],0x60003000){ok=>{return 0;},err(e)=>{return e;},}}
+ if kind==8{
+  DYNAMIC_TABLES[3]=&DR_OTHER[0];DYNAMIC_PHYSICAL[3]=0x3000000;POOL_LIMITS[3]=32;
+  match paging.init(&SPACES[3],DR_OTHER[..],0x3000000,META[3][..],48,true){ok=>{},err(e)=>{return e;},}
+  var n:usize=1;while n<512{DR_OTHER[0].entries[n]=DR_POOL[0].entries[n];n+=1;}
+  PROCESSES[3].ready=1;PROCESSES[3].root=0x3000000;PROCESSES[3].frame.cr3=0x3000000;GENERATIONS[3]=9;PINNED[3]=true;
+  match paging.map_live(&SPACES[3],0x63000000,0x4000000,paging.USER|paging.WRITE){ok=>{return 0;},err(e)=>{return e;},}
+ }
+ return 0;
+}}
+// HOST_FIXTURE
+var DR_TABLE:ledger.Table=ledger.EMPTY;
+export("dr_host_setup") fn dr_host_setup()void{unsafe{
+ TABLE=&DR_TABLE;DR_TABLE.initialized=1;DR_TABLE.count=1;
+ var c=EMPTY_DMA_CONTEXT;c.present=1;c.slot=2;c.configuration=2;c.owner=0x300000005;c.incarnation=5;
+ c.device_token=257;c.device_generation=1;c.identity=abi.EMPTY_DEVICE;c.identity.version=1;c.identity.token=257;
+ c.identity.kind=abi.PCI;c.identity.ecam=0xe0000000;c.identity.vendor=0x1af4;c.identity.device_id=0x1042;c.identity.generation=1;
+ DR_TABLE.devices[0]=c.identity;DR_TABLE.devices[0].flags=abi.REVOKED;DR_TABLE.devices[0].generation=2;
+ c.root=0x2000000;c.memory_generation=7;c.snapshot_status=2;c.acquire_done=1;c.stop_state=1;c.smp_retire=1;
+ c.route_state=1;c.isolation=1;c.generation_after=2;c.held=1;
+ match memory.dma_snapshot(2,&c.lease){ok=>{},err(e)=>{c.context_error=e;},}DMA_CONTEXTS[2]=c;
+}return;}
+export("dr_run") fn dr_run()u64{unsafe{match dma_retire_mappings(2){ok=>{return 0;},err(e)=>{return e;},}}}
+export("dr_prepare") fn dr_prepare()u64{unsafe{match dma_prepare_retirement(2){ok=>{return 0;},err(e)=>{return e;},}}}
+export("dr_sync_lease") fn dr_sync_lease()void{unsafe{
+ match memory.dma_snapshot(2,&DMA_CONTEXTS[2].lease){ok=>{},err(e)=>{DMA_CONTEXTS[2].context_error=e;},}
+}return;}
+export("dr_host_bad") fn dr_host_bad(kind:u64)void{unsafe{
+ if kind==1{DMA_CONTEXTS[2].owner+=1;}else if kind==2{DMA_CONTEXTS[2].stop_state=0;}
+ else if kind==3{DMA_CONTEXTS[2].generation_after=3;}else if kind==4{DR_TABLE.devices[0].device_id=1;}
+ else if kind==5{DMA_CONTEXTS[2].isolation_error=1;}else if kind==6{DMA_CONTEXTS[2].route_state=2;}
+ else if kind==7{DMA_CONTEXTS[2].root=0x3000000;}else if kind==8{DMA_CONTEXTS[2].smp_retire=0;}
+}return;}
+// BRIDGE_FIXTURE
+var DR_DOMAIN:ud.Domain=ud.Domain{ready:0,failed:0,lock:0,owner:0,online:0,sequence:0,barrier:0,expected:0,completed:0,kernel_root:0,engine:null,cpus:null,processes:null,arena:0,bytes:0};
+var DR_CPUS:[16]ud.Cpu=[ud.Cpu{mode:0,token:0,incarnation:0,slot:0,captured_token:0,captured_incarnation:0,captured:0,requested:0,acknowledged:0,capture:0,capture_xstate:0,returned:0,return_xstate:0,return_root:0,seen:null};16];
+var DR_PROCESSES:[16]ud.Process=[ud.Process{token:0,incarnation:0,root:0,frame:0,xstate:0,retiring:0,retirement:0};16];
+var DR_SEEN:[16][16]ud.Seen=[[ud.Seen{root:0,incarnation:0,valid:0};16];16];
+var DR_BRIDGE:Bridge=Bridge{ready:0,failed:0,domain:null,pending:null,headers:null,service_cpu:0,calls:0,deferred:0};
+export("dr_domain_setup") fn dr_domain_setup()void{unsafe{
+ DR_DOMAIN.ready=1;DR_DOMAIN.lock=1;DR_DOMAIN.online=15;DR_DOMAIN.sequence=10;DR_DOMAIN.completed=10;DR_DOMAIN.kernel_root=0x1000000;
+ DR_DOMAIN.cpus=&DR_CPUS[0];DR_DOMAIN.processes=&DR_PROCESSES[0];DR_PROCESSES[2].incarnation=5;
+ var n:usize=0;while n<16{DR_CPUS[n].mode=ud.IDLE;DR_CPUS[n].slot=16;DR_CPUS[n].seen=&DR_SEEN[n][0];DR_CPUS[n].acknowledged=10;DR_CPUS[n].requested=10;DR_SEEN[n][2].valid=1;n+=1;}
+ DR_CPUS[0].mode=ud.LOCKED;DR_BRIDGE.ready=1;DR_BRIDGE.domain=&DR_DOMAIN;ACTIVE=&DR_BRIDGE;
+}return;}
+export("dr_domain_bad") fn dr_domain_bad(kind:u64)void{unsafe{
+ if kind==1{DR_PROCESSES[2].token=257;DR_PROCESSES[2].root=0x2000000;}
+ else if kind==2{DR_PROCESSES[2].incarnation=6;}
+ else if kind==3{DR_DOMAIN.owner=1;}
+ else if kind==4{DR_CPUS[1].slot=2;}
+ else if kind==5{DR_DOMAIN.sequence=0xffffffffffffffff;DR_DOMAIN.completed=0xffffffffffffffff;}
+}return;}
+export("dr_finish_barrier") fn dr_finish_barrier(kind:u64)void{unsafe{
+ if kind==2{return;}
+ DR_DOMAIN.sequence+=1;DR_DOMAIN.completed=DR_DOMAIN.sequence;
+ var n:usize=0;while n<16{if (DR_DOMAIN.online&(1<<n as u64))!=0{
+  DR_CPUS[n].requested=DR_DOMAIN.sequence;
+  if !(kind==3&&n==3){DR_CPUS[n].acknowledged=DR_DOMAIN.sequence;}
+  if !(kind==4&&n==2){DR_SEEN[n][2].valid=0;}
+ }n+=1;}
+ if kind==5{DR_DOMAIN.online=7;}
+}return;}

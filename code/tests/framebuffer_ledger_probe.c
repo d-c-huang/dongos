@@ -37,7 +37,8 @@ static U leaf(U root,U va){U pa=root;for(unsigned level=0;level<4;level++){
  U *pool;U base,limit;if(pa>=0x1000000&&pa<0x1080000){pool=(U*)(uintptr_t)fb_kernel_tables();base=0x1000000;limit=128;}
  else{pool=(U*)(uintptr_t)fb_tables();base=0x2000000;limit=32;}
  CK(pa>=base&&(pa-base)/4096<limit);U e=pool[(pa-base)/8+((va>>(39-9*level))&511)];if(!(e&1))return 0;
- if(level==3)return e;CK(!(e&128));pa=e&UINT64_C(0x0000fffffffff000);
+ if(level==3){return e;}
+ CK(!(e&128));pa=e&UINT64_C(0x0000fffffffff000);
  }return 0;}
 static void contents(Snapshot *s,U count,U epoch){CK(s->count==count&&s->epoch==epoch&&s->pa==0x4000000&&s->bytes==12288);
  Alias *a=&s->aliases[0];CK(a->root==0x1000000&&a->id==UINT64_MAX&&a->generation==0&&a->va==UINT64_C(0xffff800004000000)&&a->pa==0x4000000&&a->bytes==12288&&a->flags==17&&a->leaf==4096);

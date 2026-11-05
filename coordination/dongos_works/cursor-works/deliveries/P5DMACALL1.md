@@ -1,0 +1,10 @@
+
+
+## AI交付 2026-11-05T08:03:44+00:00 · codex-mcp-20924f20ca174a06
+
+初版已落候选并本地2tests/52native通过，但非作者review_dma实际审查发现BLOCK：origin revoke_loaded尾部新barrier失败会置Domain.failed，后继级联smp_bridge.retire拒绝并跳过dependent清理。独立poisoned_domain_cascade探针正常编译exit1，origin terminated1/dependent0；原测试漏掉真实全局失败副作用。不验收，提交记录待立即返修：全部必要清理与级联结束后再执行保存旧身份的续接。未集成生产、未运行OS/VM。
+
+
+## AI交付 2026-11-05T08:11:22+00:00 · codex-mcp-20924f20ca174a06
+
+返修完成：恢复原revoke_loaded/retire_one，仅在retire整批必要清理及依赖级联完成后按保存旧incarnation续接prepare→retire；原清理失败不运行任何续接，新错误永久记录且不重试、不撤pin、不发布重启。初审Domain污染BLOCK与失败探针保留。独立非作者review_dma复审PASS，2tests/26.451s/0skip，54native，证据code/build/test/p5-dma-call/run-d04df88dcfb6；三真实坏体两模式均正常编译后断言exit1。独立附加dependent close_table失败确保整批prepare/retire=0；重建初审旧布局，新cascade/cascade-barrier回归均断言exit1。附加证据build/review-p5-dma-call/batch_cleanup_failure.c与old_placement_mutant。作者本地2tests/25.918s通过，run-c2407f48d4fe。services SHA867854b0df91b6c7419c9150dbdfbceedc5f1a7af023cb18c7b7b891adb1546a，host dabb27cd1eaf2e2f4ae8e6c43e97c5791c24b39319585169a4d49d3ac7693fb7；contract c6a6c52d3e0af8f01ce712040d951fc0e146b6d29eb087cd352fe066da3ae477；test 11c1b91cfa167b8279d46c836d4db31429a474a5e4a914a6ce09d568729ff8fb；fixture 85e7bb9afe774194d459e67cb46e37675692718d5769f649d55dfe7fc8b57916；C ebdfd0625bfd72690f0895ea5f453bc2904910f19c68e5582bca4d1ac7d761fe。候选尚未生产集成，正式复验待排队；真实memory/SMP/硬件在宿主测试使用边界替身，全图另两模式编译，本项不代表硬件DMA drain或P5完成。未运行OS/VM、未提交推送。

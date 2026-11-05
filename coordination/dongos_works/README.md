@@ -58,7 +58,7 @@
 
 - `claude-works/`、`cursor-works/`、`deepseek-works/`、`gemini-works/`、`lmstudio-works/`：各助手任务及相关文件。
 - `project.json`：项目名称与源码目录（当前 `../../code`）。
-- `index.json`：派生统一任务索引，不手改。
+- `index.json`：本机生成的统一任务汇总，Git 忽略，不手改；跨机器同步使用 `state/` 中的逐任务状态及事件。
 - `.local/`：本项目状态库、执行副本、测试回执与日志，Git忽略。
 
 源码位于根目录 `code/`。逻辑任务路径如 `cursor-works/src/...` 在主目录中映射到本目录，在隔离执行副本中与项目源码组合，以兼容现有构建与测试。任务书和交付里的历史绝对路径保留用于溯源。

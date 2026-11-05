@@ -1,0 +1,85 @@
+{
+  "assignment_history": [
+    {
+      "at": "2026-11-05T07:47:08+00:00",
+      "from_owner": "cursor",
+      "note": "用户继续要求接手研发；已核对todo、无领取者。由Codex继续实现，保留任务编号/原范围，不启动Cursor或AI CLI。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "discover:cursor-works/tests:test_corpus_log.py"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "6a429238c712454ba189bd04b4e3dd3b",
+  "claimed_at": "2026-11-05T07:47:09+00:00",
+  "claimed_by": "codex-mcp-20924f20ca174a06",
+  "completed_at": "2026-11-05T08:15:36+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T07:18:52+00:00",
+  "delivery": "cursor-works/deliveries/P9RAWTRANSPORT1.md",
+  "depends_on": [
+    "codex:P9GUESTINT1"
+  ],
+  "description": "接续已集成P9GUESTINT1，补真实客体采集前缺口，不重复语料/parser/receipt。先核对生产log syscall实际边界及串口格式；在候选为固定binary BEGIN/CASE/END设计带明确版本/长度/序列的有界ASCII日志封装，实际Dong编码与现有syscall汇编相接；Python解码器仅收合法专属行并回还原始raw交给现有严格receipt验证。每批1..256、总长度上限、截断/重复/乱序/混批/前后噪声/坏hex/额外终态/输出失败等严格拒绝，进程退出/超时不得由日志自称成功代替。保留外部可信manifest SHA及单次generation；从档案和文本无法证明归档ELF执行时仍guest_verified=false，不允许execution=guest绕过原拒绝。真实Dong/ASM宿主边界下逐字与独立Python编码oracle对照，两模式真实坏体改case/漏尾/混代被断言拒绝。完整来源快照含新封装器/解码器，生产consumer源不直接改。Cursor手动，不运行OS/VM/宿主系统调用、不写启动清单；真实内核串口采集/CPL3/24h另独立任务，不关闭P9。",
+  "document": "cursor-works/tasks/P9RAWTRANSPORT1-board.md",
+  "historical": false,
+  "id": "cursor:P9RAWTRANSPORT1",
+  "integration_note": "已通过codex:P5P9CALLINT1真实迁入tools/guest_corpus/log_transport五源与生产测试，逐字候选且独立重新构建执行，包/CLI路径检查通过。正式整合七组56tests零skip且源稳定。仍host-only，不声称客体执行/完整UART交付或P9整阶段完成。",
+  "legacy_hash": "396031c25edbb324effdbda36d67e1a15efe3344f198adc9e0221a31b44c42d6",
+  "number": "P9RAWTRANSPORT1",
+  "owner": "codex",
+  "rev": 7,
+  "review_note": "非作者review_corpus源码/契约/实际测试独审PASS，2tests/0skip run-c8a85e0cc958；附加latch-review-b1683213ba9c两模式首次失败后复调仍拒绝且host写1次。五源/contract/test指纹与正式7c3232fff3c940bc90f716bbdfe8e1f1完全一致；正式两项零skip、源码稳定、进程退出。真实case/漏END/混代坏体exit0但校验拒绝，保持guest_verified=false；仅候选验收，待生产迁移。",
+  "status": "integrated",
+  "title": "[P9] 客体回执的有界日志封装与严格离线采集",
+  "updated_at": "2026-11-05T08:51:15+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 150.441,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:cursor-works/tests:test_corpus_log.py",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "cursor-works/deliveries/P9RAWTRANSPORT1.md": "9b242af43a22a2975d65ce51713ad6705db5cd10edd89feb47bae5fc580d96b6",
+      "cursor-works/src/p9/raw-transport/build_log_corpus.py": "a428afa7521818eba742b43d2f3253b20f63f535acbbd0c68f422ed62c4c059f",
+      "cursor-works/src/p9/raw-transport/contract.md": "f27dc8df76599726396068348ef7c1c0c21852cdc9376c76452591f91afcf28f",
+      "cursor-works/src/p9/raw-transport/corpus_entry.asm": "79623d1b3115b97609d723fd329f3930271b04e5a4fdcdcac1a8d6b33fdcedb5",
+      "cursor-works/src/p9/raw-transport/corpus_guest.dg": "60b3bfeeb19771b0ca369ca09b437176d6c30eaae8682dea475152e8e6f862f3",
+      "cursor-works/src/p9/raw-transport/corpus_log.dg": "f5510996f5adec08c9e673b542d3dc9591553b405a0e60db76c5f18034ae8afb",
+      "cursor-works/src/p9/raw-transport/corpus_log.py": "a60be68119bfec30c578fce75844e38ea7d6443f19697cd3b8eb010ebf26e56c",
+      "cursor-works/tests/test_corpus_log.py": "b78a08f4745dea99e7d0a313c6efb4a7127e61c0221fb634b99b39a8b01634e2"
+    },
+    "finished_at": "2026-11-05T08:29:05+00:00",
+    "job": "7c3232fff3c940bc90f716bbdfe8e1f1",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "cursor-works/src/p9/raw-transport/corpus_guest.dg",
+    "cursor-works/src/p9/raw-transport/corpus_entry.asm",
+    "cursor-works/src/p9/raw-transport/corpus_log.dg",
+    "cursor-works/src/p9/raw-transport/corpus_log.py",
+    "cursor-works/src/p9/raw-transport/build_log_corpus.py",
+    "cursor-works/src/p9/raw-transport/contract.md",
+    "cursor-works/tests/test_corpus_log.py",
+    "cursor-works/deliveries/P9RAWTRANSPORT1.md"
+  ]
+}

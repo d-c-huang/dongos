@@ -1,0 +1,76 @@
+{
+  "restored_original_books": [
+    {
+      "path": "codex-works/tasks/CX11-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/codex-works/tasks/CX11-board.md",
+      "git_blob": "931f1ac4209b664d25b5c01a99c10d89a8915f5e",
+      "sha256": "4e262d2cbe01279bed1b459b486042bc6a879b6065461e50e91be88abcaf7066",
+      "bytes": 1429
+    },
+    {
+      "path": "codex-works/tasks/CX9-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/codex-works/tasks/CX9-board.md",
+      "git_blob": "07ada4dd48c2f57111af1113fa013eed20c3625f",
+      "sha256": "45b317e5c43025882f30c1d43fddf51df73179d0533cb556bcbe6edf98ea4a82",
+      "bytes": 1136
+    },
+    {
+      "path": "cursor-works/tasks/CR44-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/cursor-works/tasks/CR44-board.md",
+      "git_blob": "8093c3ee5dbc95f158e92d18e0140690be687a16",
+      "sha256": "53f1f1fde6bdd7cd45a6d01c18d23a0f255afa7acc9369b52369ec106100ed06",
+      "bytes": 8767
+    },
+    {
+      "path": "deepseek-works/tasks/D28-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/deepseek-works/tasks/D28-board.md",
+      "git_blob": "14cd32a439d964977b61dd383f98f59ff88527a4",
+      "sha256": "04b53b3c08f04df2652ec655579f24159f7ba1d5f0d4b14d75486a14a9f75530",
+      "bytes": 6599
+    },
+    {
+      "path": "lmstudio-works/tasks/LM9-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/lmstudio-works/tasks/LM9-board.md",
+      "git_blob": "bc4d79ad4683c17698e5648d68cf20a250dbe6e2",
+      "sha256": "699851374eb828436821d08cfbf2fcef1fe28df620e6ab47ed6e00bf87ad5fb3",
+      "bytes": 1565
+    },
+    {
+      "path": "pool-works/tasks/P2ALIAS1-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/pool-works/tasks/P2ALIAS1-board.md",
+      "git_blob": "ac354b7b0cfbe3742d6672eb821c1be1a5791461",
+      "sha256": "bc48696cf136ad5ff23e578598ce7350240365df1b7380c06f7967e2ad7a49cb",
+      "bytes": 3150
+    },
+    {
+      "path": "pool-works/tasks/P2HUGE1-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/pool-works/tasks/P2HUGE1-board.md",
+      "git_blob": "98bc40aefb9efc2a852747081fca6099fdde4818",
+      "sha256": "cb6c72f421ecffa19fbb2c5f41cbf869b376395c47ed9e2b372bfddd9409f62a",
+      "bytes": 3107
+    },
+    {
+      "path": "pool-works/tasks/P2PAT1-board.md",
+      "source_commit": "28fae186eade64aac9eec17fcc2fb30913b948f6",
+      "source_path": "coordination/dongos_works/pool-works/tasks/P2PAT1-board.md",
+      "git_blob": "b56dcb1119903b31fe58c733cdd38f68453b345a",
+      "sha256": "b87005808063deb5064f2d4c7c02af28244f2a4762bb3681e4b5e4f1619cb61c",
+      "bytes": 3069
+    }
+  ],
+  "unavailable_original_deliveries": [
+    "deepseek-works/deliveries/D1.md",
+    "deepseek-works/deliveries/D2.md",
+    "deepseek-works/deliveries/D3.md",
+    "deepseek-works/deliveries/D4.md"
+  ],
+  "search": "All local/fetched Git refs, original/root/code/coordination path layouts; no original D1-D4 per-task delivery blobs found",
+  "state_edits": false
+}

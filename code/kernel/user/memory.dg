@@ -3,6 +3,8 @@
 // No AP/IRQ may race construction or copying. Failure during initial setup is
 // fail-stop; held memory is never returned while a translation can exist.
 module user.memory;
+import sched.user_bridge as dma_bridge;
+import sched.user_domain as dma_domain;
 import boot.memory_startup as startup;
 import boot.abi as boot_abi;
 import boot.device_memory as devices;
@@ -1447,3 +1449,142 @@ unsafe fn object_abort_owner(id:usize)void{unsafe{
  while m<4{if (*OBJECT_REGISTRY).maps[id][m].state!=0{object_core.hold_map(OBJECT_REGISTRY,id,m);OBJECT_FAILED=true;return;}m+=1;}
  (*OBJECT_REGISTRY).owners[id]=0;
 }return;}
+
+// P5_DMA_RETIRE_BEGIN
+// Kernel-only, BSP/IF0/BKL, runtime7. Never frees DMA or page-table storage.
+// A complete lease has exactly its recorded supervisor and owner-user aliases.
+// Partial/failed allocation and unknown aliases stay pinned without mutation.
+pub struct DmaRetirementView{pub state:u64,pub root:u64,pub generation:u64,pub incarnation:u64,
+ pub pages:u64,pub unmapped:u64,pub online:u64,pub before:u64,pub after:u64,pub error_code:u64}
+align(64) struct DmaRetirement{view:DmaRetirementView,roots:RootSnapshot,
+ observed:[64]runtime_roots.Alias,report:runtime_roots.Report,scratch:runtime_roots.Scratch,
+ receipts:[128]paging.Retired}
+var DMA_RETIREMENTS:[16]*DmaRetirement=[null;16];
+// Attempt is latched BEFORE allocation, including reserve-before-map failures.
+var DMA_PREPARE_ATTEMPTED:[16]bool=[false;16];
+pub unsafe fn dma_retirement(id:usize,out:*DmaRetirementView)!void{unsafe{
+ if id>=LIMIT||out==null||DMA_RETIREMENTS[id]==null{return error.InvalidState;}
+ *out=(*DMA_RETIREMENTS[id]).view;
+}return;}
+fn dma_same_lease(a:*const DmaLease,b:*const DmaLease)bool{unsafe{
+ return (*a).physical==(*b).physical&&(*a).virtual==(*b).virtual&&(*a).pages==(*b).pages
+ &&(*a).root==(*b).root&&(*a).generation==(*b).generation&&(*a).attempted==(*b).attempted
+ &&(*a).mapped==(*b).mapped&&(*a).state==(*b).state;
+}}
+unsafe fn dma_stopped_domain(id:usize,incarnation:u64)!*dma_domain.Domain{unsafe{
+ let b=dma_bridge.pointer();
+ if b==null||(*b).ready!=1||(*b).failed!=0{return error.InvalidState;}
+ let d=(*b).domain;
+ if d==null||(*d).ready!=1||atomic_load(&(*d).failed)!=0||(*d).lock!=1||(*d).owner!=0
+  ||(*d).cpus==null||(*d).processes==null||(*d).online==0||((*d).online&1)==0||((*d).online&~(65535 as u64))!=0
+  ||(*d).kernel_root==0||user_current_root()!=(*d).kernel_root||(*d).barrier!=0
+  ||(*d).sequence!=(*d).completed||(*((*d).cpus)).mode!=dma_domain.LOCKED{return error.InvalidState;}
+ // A drained BSP capture is required. drain validates actual IF0/CPU0/BKL;
+ // with captured=0 its checked path returns false without changing state.
+ if (*((*d).cpus)).captured!=0{return error.InvalidState;}
+ if try dma_domain.drain(d,0){return error.InvalidState;}
+ let p=(*d).processes+id;
+ if incarnation==0||(*p).incarnation!=incarnation||(*p).token!=0||(*p).root!=0||(*p).retiring!=0{return error.InvalidState;}
+ var n:usize=0;while n<16{
+  if ((*d).online&(1<<n as u64))!=0{let c=(*d).cpus+n;
+   if (*c).seen==null||(*c).slot==id as u64{return error.InvalidState;}
+  }
+  if (*((*d).processes+n)).token!=0&&(*((*d).processes+n)).root==PROCESSES[id].root{return error.InvalidState;}
+  n+=1;
+ }
+ return d;
+}}
+unsafe fn dma_alias_precheck(id:usize,r:*DmaRetirement)!void{unsafe{
+ let lease=DMA_LEASES[id];try snapshot_roots(&(*r).roots);
+ let status=runtime_roots.audit(startup.space_pointer(),slice_from_raw_parts(&(*r).roots.roots[0],(*r).roots.count),
+  lease.physical,(lease.pages as u64)*4096,(*r).observed[..],&(*r).report,&(*r).scratch);
+ if status!=runtime_roots.OK{return error.InvalidAccess;}
+ var seen:[128]u8=[0;128];var n:usize=0;
+ while n<(*r).report.aliases as usize{
+  let a=(*r).observed[n];
+  if a.leaf_bytes!=4096||(a.physical&4095)!=0||(a.virtual&4095)!=0||(a.bytes&4095)!=0{return error.InvalidAccess;}
+  var offset:u64=0;while offset<a.bytes{
+   let physical=a.physical+offset;let page=((physical-lease.physical)/4096) as usize;
+   if page>=lease.pages{return error.InvalidAccess;}
+   let index=try frame_index(physical);let frame=*record(index);
+   if *recycled(index)!=2||frame.writable!=1||frame.virtual!=ALIASES+(index as u64)*4096{return error.NotOwned;}
+   var bit:u8=1;
+   if a.identity==runtime_roots.KERNEL_ID{
+    if a.generation!=0||a.root!=(try paging.root_physical(startup.space_pointer()))
+     ||a.flags!=paging.WRITE||a.virtual+offset!=frame.virtual{return error.InvalidAccess;}
+   }else{
+    bit=2;
+    if a.identity!=id as u64||a.generation!=lease.generation||a.root!=lease.root
+     ||a.flags!=(paging.WRITE|paging.USER)||a.virtual+offset!=lease.virtual+(page as u64)*4096{return error.InvalidAccess;}
+   }
+   if (seen[page]&bit)!=0{return error.InvalidAccess;}seen[page]|=bit;offset+=4096;
+  }n+=1;
+ }
+ n=0;while n<lease.pages{if seen[n]!=3{return error.InvalidAccess;}n+=1;}
+ try recheck_roots(&(*r).roots);
+}return;}
+unsafe fn dma_retire_apply(id:usize,incarnation:u64,d:*dma_domain.Domain,r:*DmaRetirement)!void{unsafe{
+ let lease=DMA_LEASES[id];var page:usize=0;
+ while page<lease.pages{
+  try paging.unmap_live(&SPACES[id],lease.virtual+(page as u64)*4096,&(*r).receipts[page]);
+  (*r).view.unmapped+=1;page+=1;
+ }
+ compiler_fence();
+ if user_shared_barrier()!=1{return error.InvalidState;}
+ compiler_fence();
+ if (try dma_stopped_domain(id,incarnation))!=d||(*d).online!=(*r).view.online
+  ||(*d).sequence!=(*r).view.before+1||(*d).completed!=(*d).sequence{return error.InvalidState;}
+ var cpu:usize=0;while cpu<16{
+  if ((*d).online&(1<<cpu as u64))!=0{let c=(*d).cpus+cpu;
+   if atomic_load(&(*c).requested)!=(*d).sequence||atomic_load(&(*c).acknowledged)!=(*d).sequence
+    ||(*((*c).seen+id)).valid!=0{return error.InvalidState;}
+  }cpu+=1;
+ }
+ page=0;while page<lease.pages{
+  var mapping=paging.Mapping{physical:0,flags:0};
+  match paging.query(&SPACES[id],lease.virtual+(page as u64)*4096,&mapping){
+   ok=>{return error.InvalidAccess;},err(e)=>{if e!=0x0203_0002{return error.InvalidAccess;}},
+  }page+=1;
+ }
+ (*r).view.after=(*d).completed;
+ // Pending page-table receipts and all DMA frames stay permanently held.
+ (*r).view.state=3;
+}return;}
+unsafe fn dma_retire_context(id:usize,incarnation:u64,expected:*const DmaLease)!*dma_domain.Domain{unsafe{
+ if id>=LIMIT||expected==null||!PINNED[id]||PROCESSES[id].ready!=1{return error.InvalidState;}
+ let lease=DMA_LEASES[id];
+ if !dma_same_lease(&lease,expected)||lease.state!=DMA_COMPLETE||lease.physical==0||(lease.physical&4095)!=0
+  ||lease.pages==0||lease.pages>128||(lease.pages&(lease.pages-1))!=0||lease.attempted!=lease.pages||lease.mapped!=lease.pages
+  ||lease.root!=PROCESSES[id].root||lease.generation==0||lease.generation!=GENERATIONS[id]
+  ||lease.physical>0xffff_ffff_ffff_ffff-(lease.pages as u64)*4096
+  ||lease.virtual<elf.USER_MIN||lease.virtual>=elf.USER_LIMIT||(lease.virtual&4095)!=0
+  ||(lease.pages as u64)*4096>elf.USER_LIMIT-lease.virtual{return error.InvalidState;}
+ let d=try dma_stopped_domain(id,incarnation);if (*d).sequence==0xffff_ffff_ffff_ffff{return error.InvalidState;}
+ return d;
+}}
+// Explicit resource preparation, outside the no-resource-write retirement
+// transaction. A failed attempt holds all partial allocator effects forever.
+pub unsafe fn dma_prepare_retirement(id:usize,incarnation:u64,expected:*const DmaLease)!void{unsafe{
+ let d=try dma_retire_context(id,incarnation,expected);
+ if DMA_PREPARE_ATTEMPTED[id]{return error.InvalidState;}
+ DMA_PREPARE_ATTEMPTED[id]=true;
+ var block=resources.Block{physical:0,virtual:0,pages:0};
+ try resources.allocate((sizeof(DmaRetirement)+4095)/4096,1,&block);
+ let r=block.virtual as *DmaRetirement;let lease=DMA_LEASES[id];
+ (*r).view=DmaRetirementView{state:0,root:lease.root,generation:lease.generation,incarnation:incarnation,
+  pages:lease.pages as u64,unmapped:0,online:0,before:0,after:0,error_code:0};
+ DMA_RETIREMENTS[id]=r;
+}return;}
+pub unsafe fn dma_retire_mappings(id:usize,incarnation:u64,expected:*const DmaLease)!void{unsafe{
+ let d=try dma_retire_context(id,incarnation,expected);let lease=DMA_LEASES[id];
+ let r=DMA_RETIREMENTS[id];
+ if r==null||(*r).view.state!=0||(*r).view.root!=lease.root||(*r).view.generation!=lease.generation
+  ||(*r).view.incarnation!=incarnation||(*r).view.pages!=lease.pages as u64{return error.InvalidState;}
+ try dma_alias_precheck(id,r);
+ if (try dma_stopped_domain(id,incarnation))!=d{return error.InvalidState;}
+ (*r).view=DmaRetirementView{state:1,root:lease.root,generation:lease.generation,incarnation:incarnation,
+  pages:lease.pages as u64,unmapped:0,online:(*d).online,before:(*d).sequence,after:0,error_code:0};
+ let result=dma_retire_apply(id,incarnation,d,r);
+ match result{ok=>{},err(e)=>{(*r).view.state=2;(*r).view.error_code=e;return result;},}
+}return;}
+// P5_DMA_RETIRE_END

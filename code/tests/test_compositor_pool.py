@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib,json,os,re,subprocess,unittest,uuid
 from pathlib import Path
 from lang.dongc import compile_file
+from tests.native_reachable import write_native
 from lang.tests.test_dongc import nasm_flags,tool
 from tests.test_service_ipc_cancellation import block
 from tests.test_user_reuse_cursor import copy_graph,STARTUP,DEVICES
@@ -56,12 +57,12 @@ class CompositorPoolTests(unittest.TestCase):
    text=text.replace('pub const ALIASES: u64 = 0xffff_d000_0000_0000;','pub var ALIASES: u64 = 0;')+'\n'+(ROOT/'tests/compositor_pool_fixture.dg').read_text()
    paging=(ROOT/'kernel/mm/paging.dg').read_text(encoding='utf-8')+'\npub unsafe fn cp_used(s:*const Space)u64{unsafe{return (*s).used_total as u64;}}\npub unsafe fn cp_count(s:*const Space)u64{unsafe{return (*s).pool_count as u64;}}\n'
    copy_graph(d/'source',{'user.memory':text,'boot.memory_startup':STARTUP.replace('cursor_kernel_setup','cp_kernel_setup'),'boot.service_memory':RESOURCES,'boot.device_memory':DEVICES,'mm.paging':paging})
-   c=compile_file(d/'source/user/memory.dg',roots=[d/'source'],mode=mode);asm=d/'probe.asm';asm.write_text(c.assembly)
+   c=compile_file(d/'source/user/memory.dg',roots=[d/'source'],mode=mode);asm=write_native(d,c.assembly)
    mocked={'__dong_panic','user_current_root','user_pcid_bind','user_pcid_flush_all','user_pcid_unbind','runtime_invalidate','runtime_copy_bytes','user_pcid_invalidate_root','cpp_allocate'}
    externs={m.group(1).lstrip('$') for m in re.finditer(r'^extern (\$?\w+)',c.assembly,re.M)}-mocked
    stub=d/'unused.asm';stub.write_text('bits 64\nsection .text\n'+''.join('global $'+x+'\n$'+x+': ud2\n' for x in sorted(externs)));objects=[];nasm,cc=tool('nasm','NASM'),tool('gcc','CC');self.assertTrue(nasm and cc)
    for label,file in (('probe',asm),('unused',stub)):
-    obj=d/(label+'.o');objects.append(obj);r=self.command([nasm,'-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,'assemble-'+label);self.assertEqual(0,r.returncode,r.stderr)
+    obj=d/(label+'.o');objects.append(obj);r=self.command([nasm,'-O0','-f','win64' if os.name=='nt' else 'elf64',*nasm_flags(nasm),file,'-o',obj],d,'assemble-'+label);self.assertEqual(0,r.returncode,r.stderr)
    metadata_pages=128 if 'var FRAME_BUCKETS:' in text else 109
    exe=d/('probe.exe' if os.name=='nt' else 'probe');r=self.command([cc,'-std=c11','-O2','-Wall','-Wextra','-Werror','-fno-strict-aliasing','-DDONGOS_FRAME_METADATA_PAGES='+str(metadata_pages),*(['-mno-sse'] if os.name=='nt' else ['-no-pie']),ROOT/'tests/compositor_pool_probe.c',*objects,'-o',exe],d,'link');self.assertEqual(0,r.returncode,r.stderr)
    scenarios=('legacy','budget','lifecycle','abort','allocation-failure') if variant=='normal' else (variants[variant][2],)

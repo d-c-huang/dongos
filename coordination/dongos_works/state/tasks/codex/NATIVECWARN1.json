@@ -1,0 +1,62 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_framebuffer_ledger"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "74ec4b874b48490db18c32c6bb128339",
+  "claimed_at": "2026-11-05T07:16:57+00:00",
+  "claimed_by": "codex-mcp-20924f20ca174a06",
+  "completed_at": "2026-11-05T07:20:26+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-05T07:16:56+00:00",
+  "delivery": "codex-works/deliveries/NATIVECWARN1.md",
+  "depends_on": [],
+  "description": "P5主线集成回归暴露既有framebuffer_ledger_probe.c:40单行if-return后CK触发本机GCC -Werror=misleading-indentation。仅拆行/显式花括号，不改变独立walker/断言/场景，不禁用警告。不修改DMA实现。非作者审查差异、完整帧缓冲native两模式与坏体复验稳定零skip后验收。原失败run-448b1b198215/link.json保留。无OS/VM/Git。",
+  "document": "codex-works/tasks/NATIVECWARN1-board.md",
+  "historical": false,
+  "id": "codex:NATIVECWARN1",
+  "integration_note": "已完成真实生产文件落盘，主线main工作树与正式复验指纹一致，非作者独立审查通过。正式结果及限制详见验收note和reviews/P5DMAINT2.md。登记本地主线集成；未提交或推送Git，未运行OS/VM，不宣称P5整阶段完成。",
+  "legacy_hash": "4e068d9a7330ca1bf5c8a69da3ff33c9b5bd2eadbc6d21fa8431ab7ce0d3f505",
+  "number": "NATIVECWARN1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "非作者review_recovery核对唯一if-return括号换行语义不变，-Werror完整保留，SHA与独立报告reviews/P5DMAINT2.md相同。正式1fb8fbb04cbb4f57876c04ea178aa203 1test/0skip/source_stable/process_stopped/execution_exited均true，独立30native记录20正常10数值负控。",
+  "status": "integrated",
+  "title": "修复帧缓冲C独立oracle的误导缩进编译错误",
+  "updated_at": "2026-11-05T07:39:16+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 151.034,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_framebuffer_ledger",
+        "tests": 1,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/NATIVECWARN1.md": "48ccfa1a2bfc8d3163c5e25516469f421675766df5e7043a583dce2eab9d9b58",
+      "tests/framebuffer_ledger_probe.c": "dadc0e0cf7b338e039f3c3daa2bbe4f5da1b756c235e235e9039889418a7fa7d"
+    },
+    "finished_at": "2026-11-05T07:27:19+00:00",
+    "job": "1fb8fbb04cbb4f57876c04ea178aa203",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/framebuffer_ledger_probe.c",
+    "codex-works/deliveries/NATIVECWARN1.md"
+  ]
+}

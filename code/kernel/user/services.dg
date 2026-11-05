@@ -471,7 +471,11 @@ unsafe fn discard_preloaded(id:usize)!void{unsafe{
 }return;}
 unsafe fn retire(id:usize,state:u64,status:u64)!void{unsafe{
     let origin=procs.current(CATALOG,id);if origin>=procs.CONFIGS as u64{return error.proc.Stale;}
-    try retire_one(id,state,status);
+    // Keep exact old identities local to this retirement batch. No new DMA
+    // barrier may poison the Domain before mandatory cascade cleanup ends.
+    var dma_incarnations:[COUNT]u64=[0;COUNT];
+    let dma_origin=(*CATALOG).incarnation[id];
+    try retire_one(id,state,status);dma_incarnations[id]=dma_origin;
     // Bounded kernel cascade also covers ordinary processes started manually.
     // No dependent may retain capabilities after its provider has departed.
     var affected:u64=1<<origin;
@@ -481,9 +485,18 @@ unsafe fn retire(id:usize,state:u64,status:u64)!void{unsafe{
             try discard_preloaded(slot);affected|=1<<slot as u64;changed=true;
         }else if managed(slot){let cfg=procs.current(CATALOG,slot);
             match procs.dependencies(CATALOG,cfg as usize){ok=>{},err(e)=>{
-                try retire_one(slot,proc.KILLED,e);affected|=1<<cfg;changed=true;
+                let dma_old=(*CATALOG).incarnation[slot];
+                try retire_one(slot,proc.KILLED,e);dma_incarnations[slot]=dma_old;affected|=1<<cfg;changed=true;
             },}
-        }slot+=1;}if !changed{return;}pass+=1;
+        }slot+=1;}if !changed{
+            // All necessary stop/IPC/cap cleanup succeeded. New mapping
+            // retirement failures remain held without skipping that cleanup.
+            if SMP_ENABLED{var dma_slot:usize=0;while dma_slot<COUNT{
+                if dma_incarnations[dma_slot]!=0&&memory.dma_pinned(dma_slot){
+                    device_host.dma_retire_stopped(dma_slot,dma_incarnations[dma_slot]);
+                }dma_slot+=1;
+            }}return;
+        }pass+=1;
     }
 }return;}
 unsafe fn image_name(id:usize)[]const u8{
