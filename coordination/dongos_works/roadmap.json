@@ -1,7 +1,7 @@
 {
   "version": 1,
   "title": "DongOS 整体任务图",
-  "updated_at": "2026-11-06T15:31:40+08:00",
+  "updated_at": "2026-11-06T16:28:22+08:00",
   "scope": "P0–P9、L0–L3及集成门：2026-11-06协调器与本轮真实客体/独立审查；未重跑远端CI，P10另定",
   "summary": "FIFO Bridge生产接线、Windows USB策略LF和P5源码绑定修复已独立验收集成；P5正常/故障真实四核客体及原始重放通过，CPU映射退休门关闭。USB新旧Bridge均files/settings启动超时，完整HID/文件/双启动仍未通过。P2/P5/P6/P7/P8/P9保持partial，L0–L3既有结论不变。",
   "focus": "先按P7STARTTRACE1定位USB超时前真实初始化阶段；P6VERIFYADAPT1适配旧验证工具后保留首代AP/KVM原门。P9CPL3RUN1、P9HOSTCRT1、P9IPCEXEC1已submitted待独立审查，不当作未实现或已验收。P5设备DMA排空/安全回收、P2暖PCID/物理WC、P8真机和P9长期安全门保持。",
@@ -69,12 +69,13 @@
             "P2LEDGER44 integrated9：独立raw GOP授权账本、journal/held、完整forest准入、退休后删除与重建；六组正式9tests/0skip/源稳定。C原始PTE oracle在debug/release共20正常+10真坏源检查通过。当时R1同源runtime7 release已构建且输入/产物逐项SHA一致，kernel1978768B；该历史检查点未运行客体，后续实际运行见P2CD1。",
             "P2CD1 integrated rev6：B→C→D生产接线、真实buddy/EXEC/PF与GOP账本/WC事务已完成。正式172tests/0skip、源码稳定、进程退出；最终正常和两类真实遗漏poll客体及独立回放全部通过，raw分别488/478/491份。C完成13屏障、2回执、8PF并恢复页表75；D完成5屏障、两轮8100页撤销/回收/重映射及四CPU真实动作。",
             "P2CDTYPE1与P2CDBUILD1均integrated rev6：有效PAT×MTRR类型修复独立1test/0skip；零静态池完整manifest适配独立10tests/0skip。父项与builder合计182项正式复验，1121源绑定最终客体；runtime5/6/7分别1,986,960/1,991,056/1,995,152B，原期限与2MiB限制保持。",
-            "lmstudio:P2VEC42 integrated rev15、lmstudio:P2ERR43 integrated rev8：Codex已接手并完成12条页包络向量与8种缓存错误码数据；各1项正式独立复验零skip、源码稳定且退出，真实文件移交已完成。稳定ID前缀不代表当前负责人。"
+            "lmstudio:P2VEC42 integrated rev15、lmstudio:P2ERR43 integrated rev8：Codex已接手并完成12条页包络向量与8种缓存错误码数据；各1项正式独立复验零skip、源码稳定且退出，真实文件移交已完成。稳定ID前缀不代表当前负责人。",
+            "2026-11-06修复WC采集器的runtime7零静态页表池校验，5项宿主测试零跳过并拒绝重算指纹的旧单池配置。真实四核TCG完成64KiB UC/WC各7次采样和恢复，67份原始读取成功重放。虚盘和源码指纹稳定，客体已清理。物理WC验收仍待真机。"
           ],
           "remaining": [
             "PCID12入口已集成，暖tag/同槽跨代复用与真实全读者失效仍需独立支持环境证据；TCG回退不能替代。",
-            "物理显示WC吞吐及有效内存类型的真机验收仍未提供；既有USB/启动诊断或VM结果不能替代，不再沿用旧快照的暂无真机假设。",
-            "P2PCIDWHPX1 rework5：既有两次严格WHPX在OVMF PlatformPei #GP，尚未进入DongOS；保留失败，不以TCG代替暖PCID证据。"
+            "物理显示WC吞吐及有效内存类型仍待真机采集。需记录实际固件和CPU、PAT/MTRR、GOP所有权及同窗口原始UC/WC样本。",
+            "P2PCIDWHPX1 rework8。既有两次严格四核WHPX在OVMF PlatformPei #GP。2026-11-06单核BIOS探针实际读到PCID=0、INVPCID=1，显式要求PCID也被QEMU拒绝。暖tag和跨代复用等待支持两项特性的四核执行环境。"
           ],
           "evidence": [
             "code/kernel/user/memory.dg:327",

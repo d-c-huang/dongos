@@ -1,6 +1,6 @@
 # DongOS 整体任务图：当前检查点
 
-更新时间：2026-11-06T15:31:40+08:00。当前状态来自协调器；历史远端CI未重跑。
+更新时间 2026-11-06T16:28:22+08:00。当前任务状态来自协调器。
 
 FIFO Bridge生产接线、Windows USB策略LF和P5源码绑定修复已独立验收集成；P5正常/故障真实四核客体及原始重放通过，CPU映射退休门关闭。USB新旧Bridge均files/settings启动超时，完整HID/文件/双启动仍未通过。P2/P5/P6/P7/P8/P9保持partial，L0–L3既有结论不变。
 
@@ -10,7 +10,7 @@ FIFO Bridge生产接线、Windows USB策略LF和P5源码绑定修复已独立验
 |---|---|---|
 |P0 工具链与构建环境|已验收|保持既有验收范围|
 |P1 UEFI 引导器|已验收|保持既有验收范围|
-|P2 CPU 与内存|部分完成|PCID12入口已集成，暖tag/同槽跨代复用与真实全读者失效仍需独立支持环境证据；TCG回退不能替代。；物理显示WC吞吐及有效内存类型的真机验收仍未提供；既有USB/启动诊断或VM结果不能替代，不再沿用旧快照的暂无真机假设。；P2PCIDWHPX1 rework5：既有两次严格WHPX在OVMF PlatformPei #GP，尚未进入DongOS；保留失败，不以TCG代替暖PCID证据。|
+|P2 CPU 与内存|部分完成|暖tag、同槽跨代复用及全核失效待支持PCID/INVPCID的四核环境。本机WHPX客体实测PCID=0、INVPCID=1，强制PCID的启动被QEMU拒绝。P2PCIDWHPX1 rework rev8，既有OVMF失败保留。物理显示WC吞吐和有效内存类型仍待真机测量。|
 |P3 中断与抢占线程|已验收|保持既有验收范围|
 |P4 用户态与 IPC|已验收|保持既有验收范围|
 |P5 基础服务|部分完成|设备outstanding DMA可信排空/停止和第三方owner排除仍未证明；held=1、PINNED保持、drain=UNKNOWN，不得据CPU页表退休授予unpin/free/reuse。；取得硬件安全前提后再实现精确回收、重绑定及驱动恢复，并完成同boot故障与脏DMA/晚IRQ/存储持久化负控。；partial mapping、physical=0及准备/退休失败已有宿主负控；对应真实客体故障注入仍待执行。|
@@ -96,6 +96,14 @@ P5故障32PTE全零、四核新ACK和身份一致已独立重放；PINNED1、hel
 
 [本批审查、命令、指纹及回执索引](reviews/2026-11-06-p5-p6-checkpoint.json)。原始build/虚盘/物理转储留本机，换机需另行转移或重跑，Git摘要不是原始证据。
 
+## P2 本轮直接复验
+
+旧 WC 工具在真实 runtime7 内核和 EFI 链接成功后，因仍要求一个静态页表池而拒绝构建。构建及镜像来源检查已适配当前的零静态池配置。`tests.test_p2_wc_benchmark` 共 5 项通过，零跳过，涵盖完整构建、来源复算、重新计算指纹的旧单池配置和命令篡改负控。原始构建报告 `code/build/test/p2-wc-fresh-build/run-92c06b570891/fresh-build-test.json` 的 SHA-256 为 `82de4538fa0a0be9300557ae20f9bab907a06db011c924b3b74bbbc58c5ac785`。
+
+四核 TCG 用当前镜像达到桌面并完成只读采集。相同 64 KiB 窗口各完成 7 次 UC 和 WC 采样及恢复，67 份原始读取通过重放，源码和临时虚盘哈希前后一致，客体退出 0 并清理。回执 `code/build/test/p2-wc-guest/run-4dad62b49343/result.json` 的 SHA-256 为 `9a0c047630d675fa609ae39a287e30ebc174463cc07ac12927df2932b95018ac`，`replay.json` 为 `fc736ed235290df4e7b742dd013edb04dfa2d17304e09021f7359b656191aceb`。原始文件在本机构建目录。物理吞吐与有效内存类型仍待真机验收。
+
+PCID 的 48 项宿主检查通过，零跳过。本机 WHPX 客体实测 PCID=0、INVPCID=1，显式要求 PCID 时 QEMU 退出 1。逐核暖 tag、跨代复用和错 tag 负控等待支持 PCID/INVPCID 的四核执行环境。[现有 PCID 记录](codex-works/deliveries/P2PCIDWHPX1.md)
+
 ## 下一步
 
 1. Cursor手动执行P7STARTTRACE1，定位USB启动超时前阶段；不得延长期限或伪造READY。
@@ -119,7 +127,7 @@ P5故障32PTE全零、四核新ACK和身份一致已独立重放；PINNED1、hel
 |codex:G5EXEC1|accepted rev8|G5 函数指针、硬件内建、asm 与 Win64 执行闭环|
 |codex:G5PANIC1|accepted rev5|G5 panic ABI、种类/路径/行号与前端诊断对齐|
 |codex:G5TAG1|accepted rev5|G5 optional/result/error/enum 全流水线与差分闭环|
-|codex:P2PCIDWHPX1|rework rev5|[P2] 当前 Windows WHPX 的严格逐 CPU PCID 复验|
+|codex:P2PCIDWHPX1|rework rev8|[P2] 当前 Windows WHPX 的严格逐 CPU PCID 复验|
 |codex:P5P9AUDIT1|submitted rev3|P5/P9 接手候选的非作者独立审查与验收依据|
 |codex:P678USBBAS2|rework rev11|[P6/P7/P8] 当前源码正常 USB 镜像的完整客体回归|
 |codex:P8BOOTCONSOLE1|rework rev17|真机连续启动的屏幕日志与首用户态进度|

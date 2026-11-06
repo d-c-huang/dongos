@@ -171,8 +171,8 @@ def build(output, *, source_root=ROOT):
         check(manifest['runtime_level'] == 7 and manifest['test'] is True and manifest['source_unchanged'] is True,
               'actual production build profile differs')
         check(manifest['source_sha256'] == production_sources(record['staged_sha256']), 'production compiler source graph is incomplete/different')
-        check(verify_profile(target, manifest, expected_runtime=7, source_root=output / 'source') == 1,
-              'current WC runtime7 storage profile differs')
+        check(verify_profile(target, manifest, expected_runtime=7, source_root=output / 'source') == 0,
+              'current WC runtime7 requires zero static user pools')
         for name, digest in manifest['artifacts'].items():
             path = Path(name)
             check(path.is_absolute() and path.resolve().is_relative_to(target) and sha(path) == digest, 'production artifact binding')
@@ -222,8 +222,8 @@ def identity(esp, *, source_root=ROOT):
           and manifest.get('smp_case') is None, 'actual production manifest profile differs')
     check(manifest.get('source_sha256') == production_sources(record['staged_sha256']),
           'actual production compiler input graph is incomplete/different')
-    check(verify_profile(esp.parent, manifest, expected_runtime=7, source_root=esp.parent.parent / 'source') == 1,
-          'current WC runtime7 storage profile differs')
+    check(verify_profile(esp.parent, manifest, expected_runtime=7, source_root=esp.parent.parent / 'source') == 0,
+          'current WC runtime7 requires zero static user pools')
     for name, digest in manifest['artifacts'].items():
         path = Path(name)
         check(path.is_absolute() and path.resolve().is_relative_to(esp.parent)

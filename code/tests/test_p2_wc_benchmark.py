@@ -58,17 +58,21 @@ class WcBenchmarkTests(unittest.TestCase):
             self.assertEqual(record, stage.identity(esp))
             manifest_path=esp.parent/'build-inputs.json'
             manifest_before=manifest_path.read_bytes();manifest=json.loads(manifest_before)
+            self.assertEqual(0, manifest['kernel_storage_profile']['static_user_pools'])
             profile_path=esp.parent/manifest['kernel_storage_profile']['source'];profile_before=profile_path.read_bytes()
             receipt_path=output/'wc-source.json';receipt_before=receipt_path.read_bytes()
             try:
-                old=profile_before.replace(b'POOLS:usize=1;',b'POOLS:usize=2;');self.assertNotEqual(profile_before,old)
-                profile_path.write_bytes(old);manifest['kernel_storage_profile'].update(static_user_pools=2,sha256=stage.sha(profile_path))
+                old = profile_before.replace(b'POOLS:usize=0;', b'POOLS:usize=1;')
+                old = old.replace(b'PAGES:usize=1;', b'PAGES:usize=32;')
+                self.assertNotEqual(profile_before, old)
+                profile_path.write_bytes(old)
+                manifest['kernel_storage_profile'].update(static_user_pools=1, sha256=stage.sha(profile_path))
                 manifest['artifacts'][str(profile_path.resolve())]=stage.sha(profile_path);stage.write(manifest_path,manifest)
                 changed=copy.deepcopy(record)
                 changed['artifacts_sha256'][profile_path.relative_to(esp.parent).as_posix()]=stage.sha(profile_path)
                 changed['artifacts_sha256']['build-inputs.json']=stage.sha(manifest_path);stage.write(receipt_path,changed)
                 with self.assertRaisesRegex(ValueError,'kernel storage'):stage.identity(esp)
-                evidence['rehashed_historical_two_pool_profile_rejected']=True
+                evidence['rehashed_historical_one_pool_profile_rejected']=True
             finally:
                 profile_path.write_bytes(profile_before);manifest_path.write_bytes(manifest_before);receipt_path.write_bytes(receipt_before)
             self.assertEqual(record, stage.identity(esp))
