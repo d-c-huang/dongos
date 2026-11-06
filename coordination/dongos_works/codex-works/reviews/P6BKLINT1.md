@@ -1,0 +1,9 @@
+# P6BKLINT1 迁移审查依据
+
+独立审查 /root/review_bkl：候选实现与原生测试无阻断；独立 run-7c55b9612dcc 1项0skip，18次实际编译运行（2正常、16坏体），源码/工具稳定，274.937秒。回执SHA256 e43429ca91eeaab013562a7c1a9fe2adf49cc87be76a64bb2f7457c44f7229f0。
+
+正式候选作业6a254dda76434d518f56b62d723e49f5：三个模块4项0skip，源码稳定、进程退出。验收rev6后迁移生产；候选与生产Bridge SHA完全一致e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab。测试仅改寻址/监视文档为生产目录；原生预言和坏体保持。
+
+尚待生产回归、独立迁移审查和USB/P5客体结果，不外推硬件成功。
+
+独立迁移审查 /root/review_bkl 已通过：生产Bridge与候选逐字一致；生产测试仅调整ROOT、源码和文档监视，预言/负控保持。生产测试SHA079685676f64afb5479aeb96b04ebe5b92507d21c352dce57a7957d92ce7b20d。主目录7模块30项0skip实际通过838.661秒（含entry/barrier/failure/P5 retire/call及两guest解码模块）。正式复验与实际客体结果后续由任务review_note记录，不覆盖本轮提交时状态。

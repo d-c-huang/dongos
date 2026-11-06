@@ -1,0 +1,161 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_p6_bkl_bridge",
+    "module:tests.test_user_smp_entry",
+    "module:tests.test_user_smp_barrier",
+    "module:tests.test_user_smp_failure",
+    "module:tests.test_p5_dma_retire",
+    "module:tests.test_p5_dma_call",
+    "module:tests.test_p5_recovery_context_guest",
+    "module:tests.test_virtio_reset_guest"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "341fd4debe694a6fa1eeaea230d9d77d",
+  "claimed_at": "2026-11-06T05:58:48+00:00",
+  "claimed_by": "codex-mcp-e30a159488a44d74",
+  "completed_at": "2026-11-06T06:18:15+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-06T05:58:37+00:00",
+  "delivery": "codex-works/deliveries/P6BKLINT1.md",
+  "depends_on": [
+    "cursor:P6BKLBRIDGE1"
+  ],
+  "description": "按用户继续研发/审查后集成授权，将已独立审查与正式复验的P6BKLBRIDGE1完整Bridge逐字迁移生产。迁移测试读取当前生产Bridge并保持18实际正常/坏体，保留baseline及指纹。正式复验实际entry/barrier/failure/P5调用和guest解码；独立审查迁移与范围。候选integrated只登记真实文件迁移，不代表运行门关闭。协调者在独立冻结源码、临时虚盘和匹配固件运行正常USB及P5控制/故障客体；USB用P678USBBAS2原任务记录。不延长锁期限、不改变fail-closed，不触碰物理盘。客体失败保留证据并分拆真实阻断，不伪报阶段完成。",
+  "document": "codex-works/tasks/P6BKLINT1-board.md",
+  "historical": false,
+  "id": "codex:P6BKLINT1",
+  "integration_note": "实际生产kernel/sched/user_bridge.dg已从验收候选逐字迁移，测试/doc已落地并保持正式五文件指纹；登记组件集成。USB A/B失败单列返修，未延长期限。",
+  "legacy_hash": "aecc03b77968221af4acaf10f8e2e004d78287326d09d5def32b5e0c2282053f",
+  "number": "P6BKLINT1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "候选与生产Bridge逐字一致e2a6e10d，独立迁移/契约审查通过；独立候选18次debug/release正常和真坏体运行，生产正式121af7a711c240b594945b31343000a7八组31tests/0skip，源码稳定、进程退出。FIFO单次bind、两入口acquire与两出口unlock、嵌套退休/屏障不重取ticket，原deadline/held保留。新真实四核P5正常/故障与完整raw replay通过。USB原期限新旧Bridge对照均files/settings05110007启动超时、448失败字段零，保留P678USBBAS2返修；本项仅组件迁移验收，不关闭P6/KVM/P7/P8或原长文件门。",
+  "status": "integrated",
+  "title": "[P2/P5/P6/P7/P8] 已审查FIFO Bridge生产迁移与回归",
+  "updated_at": "2026-11-06T07:28:04+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 555.946,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p6_bkl_bridge",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 171.857,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_smp_entry",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 21.493,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_smp_barrier",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 110.843,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_smp_failure",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 79.074,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p5_dma_retire",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 33.205,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p5_dma_call",
+        "tests": 2,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 2.127,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p5_recovery_context_guest",
+        "tests": 14,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 1.081,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_virtio_reset_guest",
+        "tests": 9,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P6BKLINT1.md": "9708bc3598e09618b68c0b9262240853a0c0f7c4d02cbe63ab9c186ac26d5003",
+      "codex-works/reviews/P6BKLINT1.md": "bdf3598271d202ae83792ad8640ad253b1e62bb4f3e2a0fba0049ba643d5b39b",
+      "docs/p6-bkl-bridge.md": "10c91207e3a7c10ddde790be1496f79a318f4fb64fa973e882d015ade70a8905",
+      "kernel/sched/user_bridge.dg": "e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab",
+      "tests/test_p6_bkl_bridge.py": "079685676f64afb5479aeb96b04ebe5b92507d21c352dce57a7957d92ce7b20d"
+    },
+    "finished_at": "2026-11-06T06:40:00+00:00",
+    "job": "121af7a711c240b594945b31343000a7",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "kernel/sched/user_bridge.dg",
+    "tests/test_p6_bkl_bridge.py",
+    "docs/p6-bkl-bridge.md",
+    "codex-works/deliveries/P6BKLINT1.md",
+    "codex-works/reviews/P6BKLINT1.md"
+  ]
+}

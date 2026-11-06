@@ -1,0 +1,77 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_virtio_reset_guest",
+    "module:tests.test_p5_recovery_context_guest"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "8521ddf8a6504b529052b2a8db030763",
+  "claimed_at": "2026-11-06T06:47:40+00:00",
+  "claimed_by": "codex-mcp-e30a159488a44d74",
+  "completed_at": "2026-11-06T06:50:00+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-06T06:47:15+00:00",
+  "delivery": "codex-works/deliveries/P5SOURCEBIND1.md",
+  "depends_on": [],
+  "description": "新BKL同源control/fault真实客体均通过，离线重放均正确拒绝build sources differ：旧fixture.hashes/prepare按任意层级build目录排除，漏掉真实kernel/build/storage_profile.dg。只排除源码根的输出build，保留嵌套真实build源码；prepare/哈希/符号链接检查规则一致。补真实目录副本/哈希及篡改负控，严禁放宽replay build-source匹配或补改旧失败档案。独立审查正式复验后，协调者可在同一已绑定机器码/构建输入上仅更新测试观察器，另建新control/fault运行档案并完整重放；记录观察器变更与原失败，新输入清单必须一致，不谎称旧档案通过。不修改内核或运行期限。",
+  "document": "codex-works/tasks/P5SOURCEBIND1-board.md",
+  "historical": false,
+  "id": "codex:P5SOURCEBIND1",
+  "integration_note": "生产tests两个文件已实际修改并保持正式指纹fc936636/110ab959；独立审查和真实新客体重放通过，登记实际集成。不扩大到设备DMA排空。",
+  "legacy_hash": "466481f8a1277c3139a4227b1e52a639c7011747d3fa6e7a8caeb9a34645f33d",
+  "number": "P5SOURCEBIND1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "独立审查/root/review_bkl通过：只排除根输出build，kernel/build真实源码保留；24tests/0skip和恢复旧hash/prepare/两者三负控正确拒绝。正式5b73a68c08f947ada32d5c7a1e3d1195共24tests/0skip，源稳定且进程退出。另新control/fault实际四核TCG回执独立require_dma_retirement重放通过，1282/1438物理转储逐项长度SHA正确；只更新两个测试观察器，373编译输入及7产物不变。旧两失败档案仍拒绝，未篡改。",
+  "status": "integrated",
+  "title": "[P5] 故障夹具保留kernel/build真实源码并完整绑定重放",
+  "updated_at": "2026-11-06T07:27:52+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 22.301,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_virtio_reset_guest",
+        "tests": 10,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 30.803,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_p5_recovery_context_guest",
+        "tests": 14,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/P5SOURCEBIND1.md": "db13ba42ebcf7eca69cf7a27c0b81978df4c2486ef0df67466e21052afa4c8a1",
+      "tests/p5_virtio_reset_fixture.py": "fc936636ab2c05c48b34e9e0f2091c8cf408427fe19915bf1689e5ab2ed3fc5d",
+      "tests/test_virtio_reset_guest.py": "110ab9597173802ea78127a4d9e9ff2fe5e65fe9bba16bccaff0e9b122711afa"
+    },
+    "finished_at": "2026-11-06T06:54:12+00:00",
+    "job": "5b73a68c08f947ada32d5c7a1e3d1195",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "tests/p5_virtio_reset_fixture.py",
+    "tests/test_virtio_reset_guest.py",
+    "codex-works/deliveries/P5SOURCEBIND1.md"
+  ]
+}

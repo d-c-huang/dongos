@@ -3,6 +3,7 @@
 // syscall/fault by temporarily constraining its runnable token to CPU0.
 module sched.user_bridge;
 import sched.user_domain as ud;
+import sched.user_bkl as bkl;
 import sched.user_entry_plan as ep;
 import sched.multicore as q;
 pub error Invalid=0x060b_0010;pub error Held=0x060b_0011;
@@ -121,6 +122,9 @@ pub unsafe fn initialize(arena:u64,bytes:u64,d:*ud.Domain,headers:*u64)!void{uns
  let need=16*sizeof(ud.Cpu) as u64;
  if base==d as u64&&span>=ud.required_bytes()&&span<=0xffff_ffff_ffff_ffff-base
   &&cpus!=0&&(cpus&7)==0&&cpus>=base&&cpus<=base+span-need{TRACE_DOMAIN=d;TRACE_CPUS=(*d).cpus;}
+ // Bind once while the Domain is unpublished and unlocked. Bootstrap keeps
+ // its original Domain lock; all later Bridge admissions use FIFO tickets.
+ try bkl.bind(d);
  compiler_fence();(*b).ready=1;ACTIVE=b;
 }return;}
 pub fn pointer()*Bridge{return ACTIVE;}
@@ -167,7 +171,7 @@ unsafe fn choose(d:*ud.Domain,cpu:usize)!u64{unsafe{
   if !(try ud.select(d,cpu,&frame)){
    stage(cpu,TIMER);
    if user_bridge_timer(cpu as u64,0)!=0{return error.Held;}
-   stage(cpu,UNLOCK);try ud.unlock(d,cpu);stage(cpu,PARK);try ud.park(d,cpu);return 0;
+   stage(cpu,UNLOCK);try bkl.unlock(d,cpu);stage(cpu,PARK);try ud.park(d,cpu);return 0;
   }
   let c=(*d).cpus+cpu;let slot=(*c).slot as usize;let p=(*ACTIVE).pending+slot;
   if (*p).event==0{
@@ -176,7 +180,7 @@ unsafe fn choose(d:*ud.Domain,cpu:usize)!u64{unsafe{
    let need=try q.needs_quantum((*d).engine,cpu);
    stage(cpu,TIMER);
    if user_bridge_timer(cpu as u64,need as u64)!=0{return error.Held;}
-   stage(cpu,UNLOCK);try ud.unlock(d,cpu);return frame;
+   stage(cpu,UNLOCK);try bkl.unlock(d,cpu);return frame;
   }
   if cpu!=0||(*p).token!=(*c).token||(*p).incarnation!=(*c).incarnation{return error.Held;}
   try ud.selected_kernel(d,cpu);let process=(*d).processes+slot;
@@ -216,7 +220,7 @@ unsafe fn capture(cpu:usize,frame:u64,event:u64)!u64{unsafe{
  try ud.begin_entry(d,cpu);user_bridge_copy((*c).capture,frame,200);try ud.complete_entry(d,cpu);
  let header=*((*ACTIVE).headers+cpu) as *ep.Cpu;user_bridge_restore((*header).kernel_xstate);
  stage(cpu,DEADLINE);let limit=try deadline(d,cpu);stage(cpu,POLL);let flushed=try ud.poll(d,cpu);
- stage(cpu,ACQUIRE);wait_start(cpu,limit);try ud.acquire(d,cpu,limit);wait_acquired(cpu);
+ stage(cpu,ACQUIRE);wait_start(cpu,limit);try bkl.acquire(d,cpu,limit);wait_acquired(cpu);
  stage(cpu,DRAIN);let copied=try ud.drain(d,cpu);stage(cpu,CAPTURE);
  // Retirement may have detached a delayed capture before this CPU gets BKL.
  if !copied&&(*c).token!=0{return error.Held;}
@@ -271,7 +275,7 @@ unsafe fn idle_checked(cpu:usize,vector:u64)!u64{unsafe{
  if (*c).mode!=ud.IDLE&&(*c).mode!=ud.KERNEL{return error.Held;}
  if vector!=IDLE&&vector!=0x51&&vector!=0x5c&&vector!=0x60&&user_bridge_eoi(cpu as u64,vector)!=0{return error.Held;}
  stage(cpu,DEADLINE);let limit=try deadline(d,cpu);stage(cpu,POLL);let flushed=try ud.poll(d,cpu);
- stage(cpu,ACQUIRE);wait_start(cpu,limit);try ud.acquire(d,cpu,limit);wait_acquired(cpu);
+ stage(cpu,ACQUIRE);wait_start(cpu,limit);try bkl.acquire(d,cpu,limit);wait_acquired(cpu);
  stage(cpu,DRAIN);let copied=try ud.drain(d,cpu);
  if vector==0x51||vector==0x5c||vector==0x60{if cpu!=0||user_bridge_interrupt(vector)!=0{return error.Held;}}
  if (*c).token!=0{try ud.release(d,cpu,q.READY);}

@@ -1,0 +1,5 @@
+
+
+## AI交付 2026-11-06T06:18:15+00:00 · codex-mcp-e30a159488a44d74
+
+已真实逐字迁移Bridge，SHA e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab与独立验收候选一致；生产测试只改ROOT/source/doc路径，SHA079685676f64afb5479aeb96b04ebe5b92507d21c352dce57a7957d92ce7b20d；独立迁移审查通过。实际主目录entry/barrier/failure/P5 retire/call及两guest解码共7模块30项0skip通过838.661s，原始证据run-83a585eee2bd、run-888e2828640b、run-ead58500ee32、run-cc5b867a4caa、run-e29b30fa1770。候选FIFO接线测试18执行已独立/正式通过，生产路径版将在本轮正式8模块复验。当前冻结control源码1729文件，含kernel/build/storage_profile.dg；初次USB构建因Windows CRLF默认profile被严格拒绝，已由USBLF1恢复HEAD精确LF并独立审查/7项宿主通过，保留原失败日志及新manifest。新完整USB/P5构建进行中，尚无新客体通过结论，后续真实客体结果在验收note与P678USBBAS2记录。

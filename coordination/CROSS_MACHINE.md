@@ -1,8 +1,8 @@
 # 跨研发电脑接续
 
-仓库：<https://github.com/d-c-huang/dongos>，分支 `main`。本次检查点为 2026-11-05：296 个任务，含 27 个归档任务；269 个非归档任务为 242 integrated、24 accepted、2 submitted、1 rework。296 份事件文件保留 3,878 条历史事件。后续数量以协调器实时状态为准。
+仓库：<https://github.com/d-c-huang/dongos>，分支 `main`。当前检查点为 2026-11-06：309 个任务，含 28 个归档任务；281 个非归档任务为 247 integrated、24 accepted、5 submitted、3 rework、2 todo。309 份事件文件保留 4,029 条历史事件。后续数量以协调器实时状态为准。
 
-任务书、候选源码、测试、交付、审查、阶段图，以及协调器生成的 `dongos_works/state/tasks/` 和 `state/events/` 均随仓库同步。本批已验收的 P5/P9 主线源码一起提交，避免记录与源码脱节。`accepted` 和 `integrated` 不合并解释；P8BOOTCONSOLE1 仍为 rework rev17，真实硬件/客体门见 [整体任务图](dongos_works/progress-map.md)。
+任务书、候选源码、测试、交付、审查、阶段图，以及协调器生成的 `dongos_works/state/tasks/` 和 `state/events/` 均随仓库同步。本批已验收的 FIFO Bridge、USB LF 策略和 P5 源码绑定修复与状态一起提交，避免记录与源码脱节。P5 真实客体 CPU 映射退休已验收；USB 新旧 Bridge 对照仍启动超时。`accepted` 和 `integrated` 不合并解释；P678USBBAS2 为 rework rev11、P8BOOTCONSOLE1 为 rework rev17，后续门与 P9 三项待审见 [整体任务图](dongos_works/progress-map.md)及[本批证据摘要](dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json)。
 
 ## 新电脑首次启动
 
@@ -42,9 +42,9 @@ python coordination/coordinate.py --project dongos validate
 
 `.local/` 的 SQLite、端口/锁、活动作业、隔离运行副本、原始日志，以及 `code/build/` 的镜像/原始硬件捕获不进 Git；派生 `index.json` 由本机生成，不再跟踪。任务中的历史验证摘要、指纹和审查结论会保留，但绝对日志路径可能只在原电脑存在。复验需要的原始镜像/捕获应另行归档传递，或在新机器重新运行原检查，不能声称这些原始产物已随代码上传。
 
-Git 换行策略可能改变工作文件字节；历史 SHA 仍绑定原测试输入，不应手改成新 SHA 来假装重新验收。领取需要旧 `.local/runs` 候选的任务前，应按原交付恢复候选并重新复验。API 密钥、模型服务配置和本机登录凭据由新机器单独配置。
+Git 换行策略可能改变工作文件字节；历史 SHA 仍绑定原测试输入，不应手改成新 SHA 来假装重新验收。根 `.gitattributes` 已将严格按字节校验的 `code/services/lib/hardware_profile.dg` 固定为 LF，并实际验证 Windows `core.autocrlf=true` 下的 checkout。领取需要旧 `.local/runs` 候选的任务前，应按原交付恢复候选并重新复验。API 密钥、模型服务配置和本机登录凭据由新机器单独配置。
 
-每次交接应确认 state-sync 无冲突、validate 无问题，并上传任务状态及其对应源码。本次上传前使用 Git 暂存树在独立空目录中实际恢复全部任务和事件，核验结果保存在 [跨机恢复核验](dongos_works/reviews/2026-11-05-cross-machine-sync.json)。
+每次交接应确认 state-sync 无冲突、validate 无问题，并上传任务状态及其对应源码。2026-11-05 的 Git 暂存树空目录恢复结果保存在[历史跨机恢复核验](dongos_works/reviews/2026-11-05-cross-machine-sync.json)；当前检查点的核验见[2026-11-06 恢复记录](dongos_works/reviews/2026-11-06-cross-machine-sync.json)。
 
 ## 已知历史原文缺口
 

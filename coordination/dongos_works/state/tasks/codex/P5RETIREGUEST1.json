@@ -24,19 +24,20 @@
   "document": "codex-works/tasks/P5RETIREGUEST1-board.md",
   "historical": false,
   "id": "codex:P5RETIREGUEST1",
+  "integration_note": "生产3文件已在main工作区实际落地，正式当前指纹00cccd5d/fce84915/f6e85387保持，新独立24tests与真实正常/故障重放通过，登记真实集成。旧观察器档案失败保留。",
   "legacy_hash": "087fe92f4b895ffd348838ec234d5a379a532e392fc0012ec4132ffdd71e2608",
   "number": "P5RETIREGUEST1",
   "owner": "codex",
-  "rev": 4,
-  "review_note": "",
-  "status": "submitted",
+  "rev": 7,
+  "review_note": "源码/ABI/负控及原始回执独立审查通过。新正式7d990ae48e3040b7bca6d60c3fc4b0fc于2026-11-06完成24tests/0skip/source_stable/process_stopped/execution_exited。新control a2e3ae8330432b36b4c6dccc8431d5aef92415761686a7194e65fc8f7773bc50 / fault 01ad3fac5b9ae5148aefc5e0645314ff80b2f631fbf4ccf98e59c9edeb31771a均真实TCG四核运行退出0并独立重放。正常32页映射保持；fault32PTE全零、180→181新退休序号、四核ACK192/232、旧block_seen.valid全零。两组PINNED1 held1 drain0，身份和磁盘hash稳定。仅验收CPU侧退休观察，不证明DMA drain/第三方owner排除/解PIN回收复用重启。",
+  "status": "integrated",
   "title": "[P5] 同源客体故障与撤映射后的全核退休回执",
-  "updated_at": "2026-11-05T12:06:40+00:00",
+  "updated_at": "2026-11-06T07:27:58+00:00",
   "verification": {
     "checks": [
       {
         "cancelled": false,
-        "elapsed_seconds": 1.219,
+        "elapsed_seconds": 37.25,
         "execution_exited": true,
         "passed": true,
         "process_stopped": true,
@@ -48,26 +49,26 @@
       },
       {
         "cancelled": false,
-        "elapsed_seconds": 0.406,
+        "elapsed_seconds": 15.59,
         "execution_exited": true,
         "passed": true,
         "process_stopped": true,
         "returncode": 0,
         "skips": 0,
         "spec": "module:tests.test_virtio_reset_guest",
-        "tests": 9,
+        "tests": 10,
         "timed_out": false
       }
     ],
     "execution_exited": true,
     "fingerprint": {
       "codex-works/deliveries/P5RETIREGUEST1.md": "b270bb1aed5dd96fb323c5d8bdb796c1c59e945357f8517e92fc94de8b469168",
-      "tests/p5_recovery_context_guest.py": "975e7eec9794ef6b96759fcba320a65109fac6263590fbc96e04d996c54d45cc",
+      "tests/p5_recovery_context_guest.py": "fce8491557267708a65ae45cac48dd4503c79060f2ef6f1893466ea3dcbe34e1",
       "tests/run_virtio_reset_qemu.py": "00cccd5df4889eaba14d3b609f3829dfd48fd80cea8fd1a7c8d08adbfdbcbc78",
-      "tests/test_p5_recovery_context_guest.py": "fbad5744e2bb796709ef2b9f646c993afe4df1648568b4b2c817d952f9ee38fe"
+      "tests/test_p5_recovery_context_guest.py": "f6e85387a6f920456f3b021f1c6f179fd8cea7e7d2963f5094472009147c8726"
     },
-    "finished_at": "2026-11-05T12:06:40+00:00",
-    "job": "edb8676dcc894b74bfb8551571e0b83b",
+    "finished_at": "2026-11-06T07:21:19+00:00",
+    "job": "7d990ae48e3040b7bca6d60c3fc4b0fc",
     "passed": true,
     "process_stopped": true,
     "source_stable": true,

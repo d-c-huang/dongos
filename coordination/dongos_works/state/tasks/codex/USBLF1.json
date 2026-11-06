@@ -1,0 +1,75 @@
+{
+  "assignment_owner": "codex",
+  "auto_dispatch": false,
+  "auto_verify": false,
+  "candidate": null,
+  "checks": [
+    "module:tests.test_usb_only_profile",
+    "module:tests.test_usb_profile_packaging"
+  ],
+  "claim_from_status": "todo",
+  "claim_token": "a29fac27bba54bdb94b89d6e1f70a89f",
+  "claimed_at": "2026-11-06T06:07:25+00:00",
+  "claimed_by": "codex-mcp-e30a159488a44d74",
+  "completed_at": "2026-11-06T06:09:15+00:00",
+  "complexity": "standard",
+  "created_at": "2026-11-06T06:07:01+00:00",
+  "delivery": "codex-works/deliveries/USBLF1.md",
+  "depends_on": [],
+  "description": "当前Windows core.autocrlf=true将services/lib/hardware_profile.dg检出CRLF，USB generate严格DEFAULT_BYTES检查失败。保持策略内容/构建器严格字节契约，仅将本文件还原LF，工作区维护在根.gitattributes固定此路径text eol=lf；记录真实构建失败及现有profile/packaging测试。源文件逻辑与HEAD不变，不放宽默认策略验证。",
+  "document": "codex-works/tasks/USBLF1-board.md",
+  "historical": false,
+  "id": "codex:USBLF1",
+  "integration_note": "策略文件已在生产恢复精确HEAD LF字节，根.gitattributes已实际落盘仅固定该路径。独审、真实Git检出正负对照、正式7项0skip及完整USB构建通过。该修复关闭Windows换机字节契约构建阻断，不代表USB客体或真机稳定门通过。",
+  "legacy_hash": "90c1f06147695312ae2bd44a1a4601aa4bdddff1d2d558ede581483e1d0a3487",
+  "number": "USBLF1",
+  "owner": "codex",
+  "rev": 6,
+  "review_note": "独立review_bkl确认策略文件=HEAD blob=DEFAULT_BYTES，176B/4LF/0CRLF，SHA2acfb4b3597987fcebe78f8128c860b6234276318f1ebc765cff548276a11e72。独立临时Git仓库实际autocrlf=true检出：无.gitattributes为180B CRLF并违反契约；唯一text eol=lf规则后176B正确。没有放宽验证器。正式job7f1dd402bad2484a9402510f725fe484两模块7项0skip、源稳定/进程退出通过；冻结完整正常USB usb-lf构建已实际exit0，旧失败保留。",
+  "status": "integrated",
+  "title": "[P8] Windows换机后精确硬件策略LF检出修复",
+  "updated_at": "2026-11-06T06:24:23+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 336.884,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_usb_only_profile",
+        "tests": 3,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 1.237,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_usb_profile_packaging",
+        "tests": 4,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "codex-works/deliveries/USBLF1.md": "1335da78e8aa1031b2f7e370831f48e8a31e5b44baba05fc2cd35d941c79b83b",
+      "services/lib/hardware_profile.dg": "2acfb4b3597987fcebe78f8128c860b6234276318f1ebc765cff548276a11e72"
+    },
+    "finished_at": "2026-11-06T06:18:33+00:00",
+    "job": "7f1dd402bad2484a9402510f725fe484",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
+  "write_paths": [
+    "services/lib/hardware_profile.dg",
+    "codex-works/deliveries/USBLF1.md"
+  ]
+}

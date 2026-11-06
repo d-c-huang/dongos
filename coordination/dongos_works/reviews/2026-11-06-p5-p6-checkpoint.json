@@ -1,0 +1,1842 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-06T15:31:40+08:00",
+  "base_commit": "3a6bb23",
+  "scope": "FIFO production integration, canonical USB LF, P5 source binding and genuine CPU mapping retirement; USB A/B remains failed",
+  "task_counts_nonarchived": {
+    "accepted": 24,
+    "integrated": 247,
+    "rework": 3,
+    "submitted": 5,
+    "todo": 2
+  },
+  "tasks": {
+    "cursor:P6BKLBRIDGE1": {
+      "id": "cursor:P6BKLBRIDGE1",
+      "status": "integrated",
+      "rev": 7,
+      "title": "[P2/P6/P7/P8] FIFO BKL 接入实际 Bridge 的候选",
+      "write_paths": [
+        "cursor-works/src/p6/bkl-bridge/user_bridge.dg",
+        "cursor-works/src/p6/bkl-bridge/contract.md",
+        "cursor-works/tests/test_p6_bkl_bridge.py",
+        "cursor-works/deliveries/P6BKLBRIDGE1.md"
+      ],
+      "depends_on": [
+        "codex:P2BKL30",
+        "codex:P8BOOTLOG1"
+      ],
+      "checks": [
+        "discover:cursor-works/tests:test_p6_bkl_bridge.py",
+        "module:tests.test_user_bkl",
+        "module:tests.test_user_domain"
+      ],
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "discover:cursor-works/tests:test_p6_bkl_bridge.py",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 212.219
+          },
+          {
+            "spec": "module:tests.test_user_bkl",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 78.14
+          },
+          {
+            "spec": "module:tests.test_user_domain",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 80.678
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "cursor-works/src/p6/bkl-bridge/user_bridge.dg": "e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab",
+          "cursor-works/src/p6/bkl-bridge/contract.md": "dc551c29cdb7fb9aac72800489e37f2fbf5a606273aee9523b112415c5b1ade4",
+          "cursor-works/tests/test_p6_bkl_bridge.py": "366d6be50c97ba5d6049130e69b369a8536d2745b9bb0bbc3e3c6575a4f4f8e8",
+          "cursor-works/deliveries/P6BKLBRIDGE1.md": "68078f77d949b3312c5ed7226b13c8bba0eca7dd99e7b37929078b7197c1de2b"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-11-06T05:58:01+00:00",
+        "job": "6a254dda76434d518f56b62d723e49f5"
+      },
+      "review_note": "独立只读审查 /root/review_bkl 通过，独立原生重跑run-7c55b9612dcc：1项0skip、18实际编译/执行、8坏体双模式rc1，source/tool稳定；回执SHA e43429ca91eeaab013562a7c1a9fe2adf49cc87be76a64bb2f7457c44f7229f0。已实际对比完整Bridge：唯一bind在ACTIVE发布前、两acquire两unlock；bootstrap原Domain锁与嵌套barrier/retire不排票，deadline/held/诊断不变。正式job6a254dda76434d518f56b62d723e49f5三个模块4项0skip，passed/source_stable/process_stopped/execution_exited均true。仅验收候选宿主范围，等待真实生产迁移及USB/P5客体；不宣布超时根因修复。",
+      "integration_note": "已按P6BKLINT1授权真实逐字复制到code/kernel/sched/user_bridge.dg，生产与已正式复验候选SHA均e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab；生产测试已迁移为读取当前源码。候选独审/正式4项零skip保持。这里只登记真实源码迁移，生产8模块及USB/P5运行门由P6BKLINT1/P678USBBAS2继续，不声称原超时已排除。"
+    },
+    "codex:P6BKLINT1": {
+      "id": "codex:P6BKLINT1",
+      "status": "integrated",
+      "rev": 6,
+      "title": "[P2/P5/P6/P7/P8] 已审查FIFO Bridge生产迁移与回归",
+      "write_paths": [
+        "kernel/sched/user_bridge.dg",
+        "tests/test_p6_bkl_bridge.py",
+        "docs/p6-bkl-bridge.md",
+        "codex-works/deliveries/P6BKLINT1.md",
+        "codex-works/reviews/P6BKLINT1.md"
+      ],
+      "depends_on": [
+        "cursor:P6BKLBRIDGE1"
+      ],
+      "checks": [
+        "module:tests.test_p6_bkl_bridge",
+        "module:tests.test_user_smp_entry",
+        "module:tests.test_user_smp_barrier",
+        "module:tests.test_user_smp_failure",
+        "module:tests.test_p5_dma_retire",
+        "module:tests.test_p5_dma_call",
+        "module:tests.test_p5_recovery_context_guest",
+        "module:tests.test_virtio_reset_guest"
+      ],
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_p6_bkl_bridge",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 555.946
+          },
+          {
+            "spec": "module:tests.test_user_smp_entry",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 171.857
+          },
+          {
+            "spec": "module:tests.test_user_smp_barrier",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 21.493
+          },
+          {
+            "spec": "module:tests.test_user_smp_failure",
+            "passed": true,
+            "tests": 1,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 110.843
+          },
+          {
+            "spec": "module:tests.test_p5_dma_retire",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 79.074
+          },
+          {
+            "spec": "module:tests.test_p5_dma_call",
+            "passed": true,
+            "tests": 2,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 33.205
+          },
+          {
+            "spec": "module:tests.test_p5_recovery_context_guest",
+            "passed": true,
+            "tests": 14,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 2.127
+          },
+          {
+            "spec": "module:tests.test_virtio_reset_guest",
+            "passed": true,
+            "tests": 9,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.081
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "kernel/sched/user_bridge.dg": "e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab",
+          "tests/test_p6_bkl_bridge.py": "079685676f64afb5479aeb96b04ebe5b92507d21c352dce57a7957d92ce7b20d",
+          "docs/p6-bkl-bridge.md": "10c91207e3a7c10ddde790be1496f79a318f4fb64fa973e882d015ade70a8905",
+          "codex-works/deliveries/P6BKLINT1.md": "9708bc3598e09618b68c0b9262240853a0c0f7c4d02cbe63ab9c186ac26d5003",
+          "codex-works/reviews/P6BKLINT1.md": "bdf3598271d202ae83792ad8640ad253b1e62bb4f3e2a0fba0049ba643d5b39b"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-11-06T06:40:00+00:00",
+        "job": "121af7a711c240b594945b31343000a7"
+      },
+      "review_note": "候选与生产Bridge逐字一致e2a6e10d，独立迁移/契约审查通过；独立候选18次debug/release正常和真坏体运行，生产正式121af7a711c240b594945b31343000a7八组31tests/0skip，源码稳定、进程退出。FIFO单次bind、两入口acquire与两出口unlock、嵌套退休/屏障不重取ticket，原deadline/held保留。新真实四核P5正常/故障与完整raw replay通过。USB原期限新旧Bridge对照均files/settings05110007启动超时、448失败字段零，保留P678USBBAS2返修；本项仅组件迁移验收，不关闭P6/KVM/P7/P8或原长文件门。",
+      "integration_note": "实际生产kernel/sched/user_bridge.dg已从验收候选逐字迁移，测试/doc已落地并保持正式五文件指纹；登记组件集成。USB A/B失败单列返修，未延长期限。"
+    },
+    "codex:USBLF1": {
+      "id": "codex:USBLF1",
+      "status": "integrated",
+      "rev": 6,
+      "title": "[P8] Windows换机后精确硬件策略LF检出修复",
+      "write_paths": [
+        "services/lib/hardware_profile.dg",
+        "codex-works/deliveries/USBLF1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_usb_only_profile",
+        "module:tests.test_usb_profile_packaging"
+      ],
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_usb_only_profile",
+            "passed": true,
+            "tests": 3,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 336.884
+          },
+          {
+            "spec": "module:tests.test_usb_profile_packaging",
+            "passed": true,
+            "tests": 4,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 1.237
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "services/lib/hardware_profile.dg": "2acfb4b3597987fcebe78f8128c860b6234276318f1ebc765cff548276a11e72",
+          "codex-works/deliveries/USBLF1.md": "1335da78e8aa1031b2f7e370831f48e8a31e5b44baba05fc2cd35d941c79b83b"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-11-06T06:18:33+00:00",
+        "job": "7f1dd402bad2484a9402510f725fe484"
+      },
+      "review_note": "独立review_bkl确认策略文件=HEAD blob=DEFAULT_BYTES，176B/4LF/0CRLF，SHA2acfb4b3597987fcebe78f8128c860b6234276318f1ebc765cff548276a11e72。独立临时Git仓库实际autocrlf=true检出：无.gitattributes为180B CRLF并违反契约；唯一text eol=lf规则后176B正确。没有放宽验证器。正式job7f1dd402bad2484a9402510f725fe484两模块7项0skip、源稳定/进程退出通过；冻结完整正常USB usb-lf构建已实际exit0，旧失败保留。",
+      "integration_note": "策略文件已在生产恢复精确HEAD LF字节，根.gitattributes已实际落盘仅固定该路径。独审、真实Git检出正负对照、正式7项0skip及完整USB构建通过。该修复关闭Windows换机字节契约构建阻断，不代表USB客体或真机稳定门通过。"
+    },
+    "codex:P5SOURCEBIND1": {
+      "id": "codex:P5SOURCEBIND1",
+      "status": "integrated",
+      "rev": 6,
+      "title": "[P5] 故障夹具保留kernel/build真实源码并完整绑定重放",
+      "write_paths": [
+        "tests/p5_virtio_reset_fixture.py",
+        "tests/test_virtio_reset_guest.py",
+        "codex-works/deliveries/P5SOURCEBIND1.md"
+      ],
+      "depends_on": [],
+      "checks": [
+        "module:tests.test_virtio_reset_guest",
+        "module:tests.test_p5_recovery_context_guest"
+      ],
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_virtio_reset_guest",
+            "passed": true,
+            "tests": 10,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 22.301
+          },
+          {
+            "spec": "module:tests.test_p5_recovery_context_guest",
+            "passed": true,
+            "tests": 14,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 30.803
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/p5_virtio_reset_fixture.py": "fc936636ab2c05c48b34e9e0f2091c8cf408427fe19915bf1689e5ab2ed3fc5d",
+          "tests/test_virtio_reset_guest.py": "110ab9597173802ea78127a4d9e9ff2fe5e65fe9bba16bccaff0e9b122711afa",
+          "codex-works/deliveries/P5SOURCEBIND1.md": "db13ba42ebcf7eca69cf7a27c0b81978df4c2486ef0df67466e21052afa4c8a1"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-11-06T06:54:12+00:00",
+        "job": "5b73a68c08f947ada32d5c7a1e3d1195"
+      },
+      "review_note": "独立审查/root/review_bkl通过：只排除根输出build，kernel/build真实源码保留；24tests/0skip和恢复旧hash/prepare/两者三负控正确拒绝。正式5b73a68c08f947ada32d5c7a1e3d1195共24tests/0skip，源稳定且进程退出。另新control/fault实际四核TCG回执独立require_dma_retirement重放通过，1282/1438物理转储逐项长度SHA正确；只更新两个测试观察器，373编译输入及7产物不变。旧两失败档案仍拒绝，未篡改。",
+      "integration_note": "生产tests两个文件已实际修改并保持正式指纹fc936636/110ab959；独立审查和真实新客体重放通过，登记实际集成。不扩大到设备DMA排空。"
+    },
+    "codex:P5RETIREGUEST1": {
+      "id": "codex:P5RETIREGUEST1",
+      "status": "integrated",
+      "rev": 7,
+      "title": "[P5] 同源客体故障与撤映射后的全核退休回执",
+      "write_paths": [
+        "tests/run_virtio_reset_qemu.py",
+        "tests/p5_recovery_context_guest.py",
+        "tests/test_p5_recovery_context_guest.py",
+        "codex-works/deliveries/P5RETIREGUEST1.md"
+      ],
+      "depends_on": [
+        "codex:P5CTX2",
+        "cursor:P5DMARETIRE1",
+        "codex:P5P9CALLINT1"
+      ],
+      "checks": [
+        "module:tests.test_p5_recovery_context_guest",
+        "module:tests.test_virtio_reset_guest"
+      ],
+      "verification": {
+        "passed": true,
+        "checks": [
+          {
+            "spec": "module:tests.test_p5_recovery_context_guest",
+            "passed": true,
+            "tests": 14,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 37.25
+          },
+          {
+            "spec": "module:tests.test_virtio_reset_guest",
+            "passed": true,
+            "tests": 10,
+            "skips": 0,
+            "returncode": 0,
+            "cancelled": false,
+            "timed_out": false,
+            "process_stopped": true,
+            "execution_exited": true,
+            "elapsed_seconds": 15.59
+          }
+        ],
+        "process_stopped": true,
+        "execution_exited": true,
+        "source_stable": true,
+        "fingerprint": {
+          "tests/run_virtio_reset_qemu.py": "00cccd5df4889eaba14d3b609f3829dfd48fd80cea8fd1a7c8d08adbfdbcbc78",
+          "tests/p5_recovery_context_guest.py": "fce8491557267708a65ae45cac48dd4503c79060f2ef6f1893466ea3dcbe34e1",
+          "tests/test_p5_recovery_context_guest.py": "f6e85387a6f920456f3b021f1c6f179fd8cea7e7d2963f5094472009147c8726",
+          "codex-works/deliveries/P5RETIREGUEST1.md": "b270bb1aed5dd96fb323c5d8bdb796c1c59e945357f8517e92fc94de8b469168"
+        },
+        "summary": "定向复验通过，等待源码/契约审查",
+        "finished_at": "2026-11-06T07:21:19+00:00",
+        "job": "7d990ae48e3040b7bca6d60c3fc4b0fc"
+      },
+      "review_note": "源码/ABI/负控及原始回执独立审查通过。新正式7d990ae48e3040b7bca6d60c3fc4b0fc于2026-11-06完成24tests/0skip/source_stable/process_stopped/execution_exited。新control a2e3ae8330432b36b4c6dccc8431d5aef92415761686a7194e65fc8f7773bc50 / fault 01ad3fac5b9ae5148aefc5e0645314ff80b2f631fbf4ccf98e59c9edeb31771a均真实TCG四核运行退出0并独立重放。正常32页映射保持；fault32PTE全零、180→181新退休序号、四核ACK192/232、旧block_seen.valid全零。两组PINNED1 held1 drain0，身份和磁盘hash稳定。仅验收CPU侧退休观察，不证明DMA drain/第三方owner排除/解PIN回收复用重启。",
+      "integration_note": "生产3文件已在main工作区实际落地，正式当前指纹00cccd5d/fce84915/f6e85387保持，新独立24tests与真实正常/故障重放通过，登记真实集成。旧观察器档案失败保留。"
+    },
+    "codex:P678USBBAS2": {
+      "id": "codex:P678USBBAS2",
+      "status": "rework",
+      "rev": 11,
+      "title": "[P6/P7/P8] 当前源码正常 USB 镜像的完整客体回归",
+      "write_paths": [
+        "codex-works/deliveries/P678USBBAS2.md"
+      ],
+      "depends_on": [
+        "codex:P8BOOTLOG1",
+        "codex:P8USBAUDIT2"
+      ],
+      "checks": [
+        "module:tests.test_usb_startup_budget"
+      ],
+      "verification": null,
+      "review_note": "新旧Bridge同源A/B均files/settings05110007，未进HID/文件/二次启动；独立源/原始记录/六哨兵盘校验通过但功能门失败。保留原期限，先执行P7STARTTRACE1只读阶段观察定位根因；不将FIFO组件验收外推USB/长文件通过。",
+      "integration_note": null
+    },
+    "cursor:P6VERIFYADAPT1": {
+      "id": "cursor:P6VERIFYADAPT1",
+      "status": "todo",
+      "rev": 1,
+      "title": "[P6] 旧DAG/KVM验证工具适配当前构建与页池契约",
+      "write_paths": [
+        "cursor-works/src/p6/validation/run_p6_initial_dag_qemu.py",
+        "cursor-works/src/p6/validation/run_p6_kvm_qemu.py",
+        "cursor-works/src/p6/validation/p6.yml",
+        "cursor-works/src/p6/validation/p6-current-validation.md",
+        "cursor-works/tests/test_p6_initial_dag.py",
+        "cursor-works/tests/test_p6_kvm_runner.py",
+        "cursor-works/deliveries/P6VERIFYADAPT1.md"
+      ],
+      "depends_on": [
+        "codex:P6BKLINT1"
+      ],
+      "checks": [
+        "discover:cursor-works/tests:test_p6_initial_dag.py",
+        "discover:cursor-works/tests:test_p6_kvm_runner.py"
+      ],
+      "verification": null,
+      "review_note": "",
+      "integration_note": null
+    },
+    "cursor:P7STARTTRACE1": {
+      "id": "cursor:P7STARTTRACE1",
+      "status": "todo",
+      "rev": 1,
+      "title": "[P6/P7/P8] GUI READY前文件与设置启动超时的只读分阶段捕获",
+      "write_paths": [
+        "cursor-works/src/p7/startup-capture/run_gui_startup_capture.py",
+        "cursor-works/src/p7/startup-capture/contract.md",
+        "cursor-works/tests/test_p7_startup_capture.py",
+        "cursor-works/deliveries/P7STARTTRACE1.md"
+      ],
+      "depends_on": [
+        "codex:P8BOOTLOG1"
+      ],
+      "checks": [
+        "discover:cursor-works/tests:test_p7_startup_capture.py"
+      ],
+      "verification": null,
+      "review_note": "",
+      "integration_note": null
+    }
+  },
+  "runtime_records": {
+    "control": {
+      "passed": true,
+      "scope": "initialized-queue-post-unmap-retirement",
+      "control": true,
+      "dma_retirement": true,
+      "outstanding_io_proven": false,
+      "dma_drain_proven": false,
+      "dma_reuse_proven": false,
+      "restart_proven": false,
+      "observation_semantics": "two stable final-phase observations; no per-step timestamps",
+      "build_manifest_sha256": "9bf92af24e6911a67fde2d80fb969614c16691d7f4900217226cb2ed10a777dc",
+      "layout_manifest_sha256": "084b8318515cc3db15e487755d8e3e2eace7d18225cea94f2bcc4ce682f537c5",
+      "kernel_elf_sha256": "da6f0fdb7c58b36ea6fe3e05166ffa3078074b32358a4555b461af0309973a85",
+      "block_elf_sha256": "d14b88f046634754540e36d2ebdfdbe3b1eebc61166ee02739df7d768deb6f17",
+      "fixture_manifest_sha256": null,
+      "disk_before_sha256": "e1731257f5962ba3348eaf3564f481683bdb439a17a841f9b3f44aefe6e355fe",
+      "disk_after_sha256": "e1731257f5962ba3348eaf3564f481683bdb439a17a841f9b3f44aefe6e355fe",
+      "path": "code/build/test/p6-bkl-integration/run-20261106/control/build/test/p5-reset-guest/run-4469dc9f4f6b4d5aa1cbeec691e0be84/result.json",
+      "sha256": "a2e3ae8330432b36b4c6dccc8431d5aef92415761686a7194e65fc8f7773bc50",
+      "guest": {
+        "actual_qemu_executed": true,
+        "no_guest_memory_or_register_writes": true,
+        "cleanup_completed": true,
+        "command": [
+          "D:\\projects\\projects3\\2026\\dongos\\code\\.tools\\qemu\\qemu-system-x86_64.exe",
+          "-machine",
+          "q35",
+          "-accel",
+          "tcg",
+          "-smp",
+          "4",
+          "-m",
+          "2G",
+          "-net",
+          "none",
+          "-monitor",
+          "none",
+          "-no-reboot",
+          "-drive",
+          "if=pflash,format=raw,readonly=on,file=D:/projects/projects3/2026/dongos/code/.tools/qemu/share/edk2-x86_64-code.fd",
+          "-drive",
+          "if=pflash,format=raw,file=D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/control/build/test/p5-reset-guest/run-4469dc9f4f6b4d5aa1cbeec691e0be84/guest/guest/OVMF_VARS.fd",
+          "-drive",
+          "format=raw,file=fat:rw:D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/control/build/p5-control/esp",
+          "-display",
+          "none",
+          "-serial",
+          "tcp:127.0.0.1:58305,server=on,wait=off",
+          "-cpu",
+          "max,+smep,+smap,+umip",
+          "-S",
+          "-qmp",
+          "tcp:127.0.0.1:58306,server=on,wait=off",
+          "-drive",
+          "if=none,id=data,format=raw,cache=writeback,file=D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/control/build/test/p5-reset-guest/run-4469dc9f4f6b4d5aa1cbeec691e0be84/data.img",
+          "-device",
+          "virtio-blk-pci,drive=data,disable-legacy=on",
+          "-device",
+          "virtio-tablet-pci"
+        ],
+        "trusted_kernel_page_table_pool": {
+          "physical": 4194304,
+          "pages": 128,
+          "root_physical": 4194304,
+          "runtime_view_virtual": 18446744071563722064,
+          "layout": {
+            "layout_file_sha256": "084b8318515cc3db15e487755d8e3e2eace7d18225cea94f2bcc4ce682f537c5",
+            "workspace_size": 35776,
+            "runtime_offset": 35600,
+            "view_size": 160,
+            "view_fields": {
+              "display": 0,
+              "boot_info": 48,
+              "raw_map": 56,
+              "raw_size": 64,
+              "descriptor_size": 72,
+              "rsdp": 80,
+              "rsdp_size": 88,
+              "pool": 96,
+              "pool_physical": 104,
+              "pool_pages": 112,
+              "stack_bottom": 120,
+              "stack_top": 128,
+              "stack_probe_bottom": 136,
+              "stack_probe_top": 144,
+              "root_physical": 152
+            }
+          },
+          "independently_read_from_kernel_and_matched_to_uart": true
+        },
+        "qemu_stopped": true,
+        "qemu_returncode": 0,
+        "process_alive": false
+      },
+      "source_entries": 1729,
+      "observations": [
+        {
+          "context": {
+            "present": 1,
+            "slot": 2,
+            "configuration": 2,
+            "owner": 12884901889,
+            "incarnation": 1,
+            "device_token": 259,
+            "device_generation": 1,
+            "identity": {
+              "version": 1,
+              "token": 259,
+              "next_cursor": 0,
+              "kind": 1,
+              "ecam": 3758161920,
+              "segment": 0,
+              "bus": 0,
+              "device": 2,
+              "function": 0,
+              "vendor": 6900,
+              "device_id": 4162,
+              "class_code": 65536,
+              "header": 0,
+              "flags": 3,
+              "generation": 1,
+              "reserved": 0
+            },
+            "root": 1919029248,
+            "memory_generation": 1,
+            "request_bytes": 69632,
+            "request_alignment": 4096,
+            "snapshot_status": 2,
+            "snapshot_error": 0,
+            "lease": {
+              "physical": 1947336704,
+              "virtual": 1744830464,
+              "pages": 32,
+              "root": 1919029248,
+              "generation": 1,
+              "attempted": 32,
+              "mapped": 32,
+              "state": 2
+            },
+            "acquire_done": 1,
+            "acquire_error": 0,
+            "context_error": 0,
+            "stop_state": 0,
+            "stop_error": 0,
+            "smp_retire": 0,
+            "route_state": 0,
+            "route_error": 0,
+            "isolation": 0,
+            "isolation_error": 0,
+            "reset": 0,
+            "reset_error": 0,
+            "generation_after": 0,
+            "revoke_error": 0,
+            "held": 1,
+            "drain": 0
+          },
+          "lease": {
+            "physical": 1947336704,
+            "virtual": 1744830464,
+            "pages": 32,
+            "root": 1919029248,
+            "generation": 1,
+            "attempted": 32,
+            "mapped": 32,
+            "state": 2
+          },
+          "root": 1919029248,
+          "pinned": 1,
+          "completed": 180,
+          "online": 15,
+          "cpus": [
+            {
+              "mode": 6,
+              "token": 263,
+              "incarnation": 1,
+              "slot": 6,
+              "captured_token": 261,
+              "captured_incarnation": 1,
+              "captured": 0,
+              "requested": 180,
+              "acknowledged": 180,
+              "capture": 18446695695230672832,
+              "capture_xstate": 18446695695230673088,
+              "returned": 18446695695230674112,
+              "return_xstate": 18446695695230674368,
+              "return_root": 1947037696,
+              "seen": 18446695695230672448,
+              "block_seen": {
+                "root": 1919029248,
+                "incarnation": 1,
+                "valid": 1
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 180,
+              "acknowledged": 180,
+              "capture": 18446695695230675776,
+              "capture_xstate": 18446695695230676032,
+              "returned": 18446695695230677056,
+              "return_xstate": 18446695695230677312,
+              "return_root": 0,
+              "seen": 18446695695230675392,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 180,
+              "acknowledged": 180,
+              "capture": 18446695695230678720,
+              "capture_xstate": 18446695695230678976,
+              "returned": 18446695695230680000,
+              "return_xstate": 18446695695230680256,
+              "return_root": 0,
+              "seen": 18446695695230678336,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 180,
+              "acknowledged": 180,
+              "capture": 18446695695230681664,
+              "capture_xstate": 18446695695230681920,
+              "returned": 18446695695230682944,
+              "return_xstate": 18446695695230683200,
+              "return_root": 0,
+              "seen": 18446695695230681280,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            }
+          ],
+          "dma_retirement": {
+            "continuation": {
+              "state": 0,
+              "incarnation": 0,
+              "stage": 0,
+              "error_code": 0
+            },
+            "view": null,
+            "prepare_attempted": 0,
+            "sequence": 180,
+            "user_ptes": [
+              9223372038802112615,
+              9223372038802116711,
+              9223372038802120807,
+              9223372038802124903,
+              9223372038802128999,
+              9223372038802133095,
+              9223372038802137191,
+              9223372038802141287,
+              9223372038802145383,
+              9223372038802149479,
+              9223372038802153575,
+              9223372038802157671,
+              9223372038802161767,
+              9223372038802165863,
+              9223372038802169959,
+              9223372038802174055,
+              9223372038802178151,
+              9223372038802182247,
+              9223372038802186343,
+              9223372038802190439,
+              9223372038802194535,
+              9223372038802198631,
+              9223372038802202727,
+              9223372038802206823,
+              9223372038802210919,
+              9223372038802215015,
+              9223372038802219111,
+              9223372038802223207,
+              9223372038802227303,
+              9223372038802231399,
+              9223372038802235495,
+              9223372038802239591
+            ]
+          }
+        },
+        {
+          "context": {
+            "present": 1,
+            "slot": 2,
+            "configuration": 2,
+            "owner": 12884901889,
+            "incarnation": 1,
+            "device_token": 259,
+            "device_generation": 1,
+            "identity": {
+              "version": 1,
+              "token": 259,
+              "next_cursor": 0,
+              "kind": 1,
+              "ecam": 3758161920,
+              "segment": 0,
+              "bus": 0,
+              "device": 2,
+              "function": 0,
+              "vendor": 6900,
+              "device_id": 4162,
+              "class_code": 65536,
+              "header": 0,
+              "flags": 3,
+              "generation": 1,
+              "reserved": 0
+            },
+            "root": 1919029248,
+            "memory_generation": 1,
+            "request_bytes": 69632,
+            "request_alignment": 4096,
+            "snapshot_status": 2,
+            "snapshot_error": 0,
+            "lease": {
+              "physical": 1947336704,
+              "virtual": 1744830464,
+              "pages": 32,
+              "root": 1919029248,
+              "generation": 1,
+              "attempted": 32,
+              "mapped": 32,
+              "state": 2
+            },
+            "acquire_done": 1,
+            "acquire_error": 0,
+            "context_error": 0,
+            "stop_state": 0,
+            "stop_error": 0,
+            "smp_retire": 0,
+            "route_state": 0,
+            "route_error": 0,
+            "isolation": 0,
+            "isolation_error": 0,
+            "reset": 0,
+            "reset_error": 0,
+            "generation_after": 0,
+            "revoke_error": 0,
+            "held": 1,
+            "drain": 0
+          },
+          "lease": {
+            "physical": 1947336704,
+            "virtual": 1744830464,
+            "pages": 32,
+            "root": 1919029248,
+            "generation": 1,
+            "attempted": 32,
+            "mapped": 32,
+            "state": 2
+          },
+          "root": 1919029248,
+          "pinned": 1,
+          "completed": 212,
+          "online": 15,
+          "cpus": [
+            {
+              "mode": 4,
+              "token": 259,
+              "incarnation": 1,
+              "slot": 2,
+              "captured_token": 259,
+              "captured_incarnation": 1,
+              "captured": 1,
+              "requested": 212,
+              "acknowledged": 212,
+              "capture": 18446695695230672832,
+              "capture_xstate": 18446695695230673088,
+              "returned": 18446695695230674112,
+              "return_xstate": 18446695695230674368,
+              "return_root": 1919029248,
+              "seen": 18446695695230672448,
+              "block_seen": {
+                "root": 1919029248,
+                "incarnation": 1,
+                "valid": 1
+              }
+            },
+            {
+              "mode": 5,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 212,
+              "acknowledged": 212,
+              "capture": 18446695695230675776,
+              "capture_xstate": 18446695695230676032,
+              "returned": 18446695695230677056,
+              "return_xstate": 18446695695230677312,
+              "return_root": 0,
+              "seen": 18446695695230675392,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 212,
+              "acknowledged": 212,
+              "capture": 18446695695230678720,
+              "capture_xstate": 18446695695230678976,
+              "returned": 18446695695230680000,
+              "return_xstate": 18446695695230680256,
+              "return_root": 0,
+              "seen": 18446695695230678336,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 212,
+              "acknowledged": 212,
+              "capture": 18446695695230681664,
+              "capture_xstate": 18446695695230681920,
+              "returned": 18446695695230682944,
+              "return_xstate": 18446695695230683200,
+              "return_root": 0,
+              "seen": 18446695695230681280,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            }
+          ],
+          "dma_retirement": {
+            "continuation": {
+              "state": 0,
+              "incarnation": 0,
+              "stage": 0,
+              "error_code": 0
+            },
+            "view": null,
+            "prepare_attempted": 0,
+            "sequence": 212,
+            "user_ptes": [
+              9223372038802112615,
+              9223372038802116711,
+              9223372038802120807,
+              9223372038802124903,
+              9223372038802128999,
+              9223372038802133095,
+              9223372038802137191,
+              9223372038802141287,
+              9223372038802145383,
+              9223372038802149479,
+              9223372038802153575,
+              9223372038802157671,
+              9223372038802161767,
+              9223372038802165863,
+              9223372038802169959,
+              9223372038802174055,
+              9223372038802178151,
+              9223372038802182247,
+              9223372038802186343,
+              9223372038802190439,
+              9223372038802194535,
+              9223372038802198631,
+              9223372038802202727,
+              9223372038802206823,
+              9223372038802210919,
+              9223372038802215015,
+              9223372038802219111,
+              9223372038802223207,
+              9223372038802227303,
+              9223372038802231399,
+              9223372038802235495,
+              9223372038802239591
+            ]
+          }
+        }
+      ],
+      "independent_raw_audit": {
+        "reviewer": "/root/review_bkl",
+        "passed": true,
+        "require_dma_retirement": true,
+        "dump_length_and_sha_checks": 1282
+      }
+    },
+    "fault": {
+      "passed": true,
+      "scope": "initialized-queue-post-unmap-retirement",
+      "control": false,
+      "dma_retirement": true,
+      "outstanding_io_proven": false,
+      "dma_drain_proven": false,
+      "dma_reuse_proven": false,
+      "restart_proven": false,
+      "observation_semantics": "two stable final-phase observations; no per-step timestamps",
+      "build_manifest_sha256": "6bef1d948c0102f651c336dd3ef9b047b943684be093889958cf57fc89931b79",
+      "layout_manifest_sha256": "084b8318515cc3db15e487755d8e3e2eace7d18225cea94f2bcc4ce682f537c5",
+      "kernel_elf_sha256": "38b9bf8d28d6ec044f2c9e4d8d1a95bcf2b709f898e74ff31fbe90b1ea25e87a",
+      "block_elf_sha256": "25c05ca260864e4df6efa5ef5cda002b097838baa1f3921cf261ab1b584ecb67",
+      "fixture_manifest_sha256": "1b00bb965802cff479a8d535d04a015d217a5a91a884d66991899462b38d2bd9",
+      "disk_before_sha256": "e1731257f5962ba3348eaf3564f481683bdb439a17a841f9b3f44aefe6e355fe",
+      "disk_after_sha256": "e1731257f5962ba3348eaf3564f481683bdb439a17a841f9b3f44aefe6e355fe",
+      "path": "code/build/test/p6-bkl-integration/run-20261106/fault/build/test/p5-reset-guest/run-e6b30d5bcd3242078e99092243e4e79b/result.json",
+      "sha256": "01ad3fac5b9ae5148aefc5e0645314ff80b2f631fbf4ccf98e59c9edeb31771a",
+      "guest": {
+        "actual_qemu_executed": true,
+        "no_guest_memory_or_register_writes": true,
+        "cleanup_completed": true,
+        "command": [
+          "D:\\projects\\projects3\\2026\\dongos\\code\\.tools\\qemu\\qemu-system-x86_64.exe",
+          "-machine",
+          "q35",
+          "-accel",
+          "tcg",
+          "-smp",
+          "4",
+          "-m",
+          "2G",
+          "-net",
+          "none",
+          "-monitor",
+          "none",
+          "-no-reboot",
+          "-drive",
+          "if=pflash,format=raw,readonly=on,file=D:/projects/projects3/2026/dongos/code/.tools/qemu/share/edk2-x86_64-code.fd",
+          "-drive",
+          "if=pflash,format=raw,file=D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/fault/build/test/p5-reset-guest/run-e6b30d5bcd3242078e99092243e4e79b/guest/guest/OVMF_VARS.fd",
+          "-drive",
+          "format=raw,file=fat:rw:D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/fault/build/p5-fault/esp",
+          "-display",
+          "none",
+          "-serial",
+          "tcp:127.0.0.1:63051,server=on,wait=off",
+          "-cpu",
+          "max,+smep,+smap,+umip",
+          "-S",
+          "-qmp",
+          "tcp:127.0.0.1:63052,server=on,wait=off",
+          "-drive",
+          "if=none,id=data,format=raw,cache=writeback,file=D:/projects/projects3/2026/dongos/code/build/test/p6-bkl-integration/run-20261106/fault/build/test/p5-reset-guest/run-e6b30d5bcd3242078e99092243e4e79b/data.img",
+          "-device",
+          "virtio-blk-pci,drive=data,disable-legacy=on",
+          "-device",
+          "virtio-tablet-pci"
+        ],
+        "trusted_kernel_page_table_pool": {
+          "physical": 4194304,
+          "pages": 128,
+          "root_physical": 4194304,
+          "runtime_view_virtual": 18446744071563722064,
+          "layout": {
+            "layout_file_sha256": "084b8318515cc3db15e487755d8e3e2eace7d18225cea94f2bcc4ce682f537c5",
+            "workspace_size": 35776,
+            "runtime_offset": 35600,
+            "view_size": 160,
+            "view_fields": {
+              "display": 0,
+              "boot_info": 48,
+              "raw_map": 56,
+              "raw_size": 64,
+              "descriptor_size": 72,
+              "rsdp": 80,
+              "rsdp_size": 88,
+              "pool": 96,
+              "pool_physical": 104,
+              "pool_pages": 112,
+              "stack_bottom": 120,
+              "stack_top": 128,
+              "stack_probe_bottom": 136,
+              "stack_probe_top": 144,
+              "root_physical": 152
+            }
+          },
+          "independently_read_from_kernel_and_matched_to_uart": true
+        },
+        "qemu_stopped": true,
+        "qemu_returncode": 0,
+        "process_alive": false
+      },
+      "source_entries": 1730,
+      "observations": [
+        {
+          "context": {
+            "present": 1,
+            "slot": 2,
+            "configuration": 2,
+            "owner": 12884901889,
+            "incarnation": 1,
+            "device_token": 259,
+            "device_generation": 1,
+            "identity": {
+              "version": 1,
+              "token": 259,
+              "next_cursor": 0,
+              "kind": 1,
+              "ecam": 3758161920,
+              "segment": 0,
+              "bus": 0,
+              "device": 2,
+              "function": 0,
+              "vendor": 6900,
+              "device_id": 4162,
+              "class_code": 65536,
+              "header": 0,
+              "flags": 3,
+              "generation": 1,
+              "reserved": 0
+            },
+            "root": 1919029248,
+            "memory_generation": 1,
+            "request_bytes": 69632,
+            "request_alignment": 4096,
+            "snapshot_status": 2,
+            "snapshot_error": 0,
+            "lease": {
+              "physical": 1947336704,
+              "virtual": 1744830464,
+              "pages": 32,
+              "root": 1919029248,
+              "generation": 1,
+              "attempted": 32,
+              "mapped": 32,
+              "state": 2
+            },
+            "acquire_done": 1,
+            "acquire_error": 0,
+            "context_error": 0,
+            "stop_state": 1,
+            "stop_error": 0,
+            "smp_retire": 1,
+            "route_state": 1,
+            "route_error": 0,
+            "isolation": 1,
+            "isolation_error": 0,
+            "reset": 2,
+            "reset_error": 0,
+            "generation_after": 2,
+            "revoke_error": 0,
+            "held": 1,
+            "drain": 0
+          },
+          "lease": {
+            "physical": 1947336704,
+            "virtual": 1744830464,
+            "pages": 32,
+            "root": 1919029248,
+            "generation": 1,
+            "attempted": 32,
+            "mapped": 32,
+            "state": 2
+          },
+          "root": 1919029248,
+          "pinned": 1,
+          "completed": 192,
+          "online": 15,
+          "cpus": [
+            {
+              "mode": 2,
+              "token": 261,
+              "incarnation": 1,
+              "slot": 4,
+              "captured_token": 263,
+              "captured_incarnation": 1,
+              "captured": 0,
+              "requested": 192,
+              "acknowledged": 192,
+              "capture": 18446695695230672832,
+              "capture_xstate": 18446695695230673088,
+              "returned": 18446695695230674112,
+              "return_xstate": 18446695695230674368,
+              "return_root": 1920450560,
+              "seen": 18446695695230672448,
+              "block_seen": {
+                "root": 1919029248,
+                "incarnation": 1,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 192,
+              "acknowledged": 192,
+              "capture": 18446695695230675776,
+              "capture_xstate": 18446695695230676032,
+              "returned": 18446695695230677056,
+              "return_xstate": 18446695695230677312,
+              "return_root": 0,
+              "seen": 18446695695230675392,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 192,
+              "acknowledged": 192,
+              "capture": 18446695695230678720,
+              "capture_xstate": 18446695695230678976,
+              "returned": 18446695695230680000,
+              "return_xstate": 18446695695230680256,
+              "return_root": 0,
+              "seen": 18446695695230678336,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 192,
+              "acknowledged": 192,
+              "capture": 18446695695230681664,
+              "capture_xstate": 18446695695230681920,
+              "returned": 18446695695230682944,
+              "return_xstate": 18446695695230683200,
+              "return_root": 0,
+              "seen": 18446695695230681280,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            }
+          ],
+          "dma_retirement": {
+            "continuation": {
+              "state": 2,
+              "incarnation": 1,
+              "stage": 3,
+              "error_code": 0
+            },
+            "view": {
+              "state": 3,
+              "root": 1919029248,
+              "generation": 1,
+              "incarnation": 1,
+              "pages": 32,
+              "unmapped": 32,
+              "online": 15,
+              "before": 180,
+              "after": 181,
+              "error_code": 0
+            },
+            "prepare_attempted": 1,
+            "sequence": 192,
+            "user_ptes": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "context": {
+            "present": 1,
+            "slot": 2,
+            "configuration": 2,
+            "owner": 12884901889,
+            "incarnation": 1,
+            "device_token": 259,
+            "device_generation": 1,
+            "identity": {
+              "version": 1,
+              "token": 259,
+              "next_cursor": 0,
+              "kind": 1,
+              "ecam": 3758161920,
+              "segment": 0,
+              "bus": 0,
+              "device": 2,
+              "function": 0,
+              "vendor": 6900,
+              "device_id": 4162,
+              "class_code": 65536,
+              "header": 0,
+              "flags": 3,
+              "generation": 1,
+              "reserved": 0
+            },
+            "root": 1919029248,
+            "memory_generation": 1,
+            "request_bytes": 69632,
+            "request_alignment": 4096,
+            "snapshot_status": 2,
+            "snapshot_error": 0,
+            "lease": {
+              "physical": 1947336704,
+              "virtual": 1744830464,
+              "pages": 32,
+              "root": 1919029248,
+              "generation": 1,
+              "attempted": 32,
+              "mapped": 32,
+              "state": 2
+            },
+            "acquire_done": 1,
+            "acquire_error": 0,
+            "context_error": 0,
+            "stop_state": 1,
+            "stop_error": 0,
+            "smp_retire": 1,
+            "route_state": 1,
+            "route_error": 0,
+            "isolation": 1,
+            "isolation_error": 0,
+            "reset": 2,
+            "reset_error": 0,
+            "generation_after": 2,
+            "revoke_error": 0,
+            "held": 1,
+            "drain": 0
+          },
+          "lease": {
+            "physical": 1947336704,
+            "virtual": 1744830464,
+            "pages": 32,
+            "root": 1919029248,
+            "generation": 1,
+            "attempted": 32,
+            "mapped": 32,
+            "state": 2
+          },
+          "root": 1919029248,
+          "pinned": 1,
+          "completed": 232,
+          "online": 15,
+          "cpus": [
+            {
+              "mode": 4,
+              "token": 261,
+              "incarnation": 1,
+              "slot": 4,
+              "captured_token": 261,
+              "captured_incarnation": 1,
+              "captured": 1,
+              "requested": 232,
+              "acknowledged": 232,
+              "capture": 18446695695230672832,
+              "capture_xstate": 18446695695230673088,
+              "returned": 18446695695230674112,
+              "return_xstate": 18446695695230674368,
+              "return_root": 1920450560,
+              "seen": 18446695695230672448,
+              "block_seen": {
+                "root": 1919029248,
+                "incarnation": 1,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 5,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 232,
+              "acknowledged": 232,
+              "capture": 18446695695230675776,
+              "capture_xstate": 18446695695230676032,
+              "returned": 18446695695230677056,
+              "return_xstate": 18446695695230677312,
+              "return_root": 0,
+              "seen": 18446695695230675392,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 232,
+              "acknowledged": 232,
+              "capture": 18446695695230678720,
+              "capture_xstate": 18446695695230678976,
+              "returned": 18446695695230680000,
+              "return_xstate": 18446695695230680256,
+              "return_root": 0,
+              "seen": 18446695695230678336,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            },
+            {
+              "mode": 1,
+              "token": 0,
+              "incarnation": 0,
+              "slot": 16,
+              "captured_token": 0,
+              "captured_incarnation": 0,
+              "captured": 0,
+              "requested": 232,
+              "acknowledged": 232,
+              "capture": 18446695695230681664,
+              "capture_xstate": 18446695695230681920,
+              "returned": 18446695695230682944,
+              "return_xstate": 18446695695230683200,
+              "return_root": 0,
+              "seen": 18446695695230681280,
+              "block_seen": {
+                "root": 0,
+                "incarnation": 0,
+                "valid": 0
+              }
+            }
+          ],
+          "dma_retirement": {
+            "continuation": {
+              "state": 2,
+              "incarnation": 1,
+              "stage": 3,
+              "error_code": 0
+            },
+            "view": {
+              "state": 3,
+              "root": 1919029248,
+              "generation": 1,
+              "incarnation": 1,
+              "pages": 32,
+              "unmapped": 32,
+              "online": 15,
+              "before": 180,
+              "after": 181,
+              "error_code": 0
+            },
+            "prepare_attempted": 1,
+            "sequence": 232,
+            "user_ptes": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "independent_raw_audit": {
+        "reviewer": "/root/review_bkl",
+        "passed": true,
+        "require_dma_retirement": true,
+        "dump_length_and_sha_checks": 1438
+      }
+    },
+    "usb-guest": {
+      "passed": false,
+      "actual_qemu_boots": 1,
+      "build_manifest_sha256": "e5e8039b3cc052f134ae7f4180a1bdb6183d720484c47e457c6163e75805b1a4",
+      "error": "ValueError: missing actual USB marker b'DONGOS_P7_CLIENTS_READY\\r\\n'",
+      "all_started_guests_stopped": true,
+      "runner_inputs_unchanged": true,
+      "internal_disks_initial_sha256": {
+        "nvmeguard": "da07f06b5cc34eda92aac693ec227059503f7b4a9a9d137bb9f86a523a80647b",
+        "sataguard": "861ac7d7867248bdf71782c1359fe154be78730cc57956f9c668eb9784934f00",
+        "virtioguard": "226f6d56004f266fd675c6c45945b735fa446fa869915e5b9afd7457503c28e7"
+      },
+      "internal_disks_final_sha256": {
+        "nvmeguard": "da07f06b5cc34eda92aac693ec227059503f7b4a9a9d137bb9f86a523a80647b",
+        "sataguard": "861ac7d7867248bdf71782c1359fe154be78730cc57956f9c668eb9784934f00",
+        "virtioguard": "226f6d56004f266fd675c6c45945b735fa446fa869915e5b9afd7457503c28e7"
+      },
+      "complete_internal_disks_unchanged": true,
+      "path": "code/build/test/p6-bkl-integration/run-20261106/usb-guest/result.json",
+      "sha256": "79ca34b4af6b6f39bc98251033ed9b7f4a6844c66386b8a2abf174160570fe5b",
+      "startup": "cfg14/16 READY; cfg15/17 Timeout 0x05110007; no P7_CLIENTS_READY",
+      "bridge_failure_fields": 448,
+      "bridge_failure_fields_all_zero": true
+    },
+    "usb-baseline-guest": {
+      "passed": false,
+      "actual_qemu_boots": 1,
+      "build_manifest_sha256": "c0e9b961ef3fa487ed2a11c070b7f7f635208c8dfa7fb31a8b67a806c0690d9f",
+      "error": "ValueError: missing actual USB marker b'DONGOS_P7_CLIENTS_READY\\r\\n'",
+      "all_started_guests_stopped": true,
+      "runner_inputs_unchanged": true,
+      "internal_disks_initial_sha256": {
+        "nvmeguard": "da07f06b5cc34eda92aac693ec227059503f7b4a9a9d137bb9f86a523a80647b",
+        "sataguard": "861ac7d7867248bdf71782c1359fe154be78730cc57956f9c668eb9784934f00",
+        "virtioguard": "226f6d56004f266fd675c6c45945b735fa446fa869915e5b9afd7457503c28e7"
+      },
+      "internal_disks_final_sha256": {
+        "nvmeguard": "da07f06b5cc34eda92aac693ec227059503f7b4a9a9d137bb9f86a523a80647b",
+        "sataguard": "861ac7d7867248bdf71782c1359fe154be78730cc57956f9c668eb9784934f00",
+        "virtioguard": "226f6d56004f266fd675c6c45945b735fa446fa869915e5b9afd7457503c28e7"
+      },
+      "complete_internal_disks_unchanged": true,
+      "path": "code/build/test/p6-bkl-integration/run-20261106/usb-baseline-guest/result.json",
+      "sha256": "70985e539d76dc5ef40699a9bc35bd59bded60d80c15695ceee98ed0c2c2af50",
+      "startup": "cfg14/16 READY; cfg15/17 Timeout 0x05110007; no P7_CLIENTS_READY",
+      "bridge_failure_fields": 448,
+      "bridge_failure_fields_all_zero": true
+    }
+  },
+  "commands": {
+    "p5-control-build.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;from tools.build import build;print(build(runtime_level=7,usb_only=False,output=Path(\"build/p5-control\")))"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0
+    },
+    "p5-control-guest-v2.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control\\build\\p5-control\\esp",
+        "--dma-retirement",
+        "--control"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0
+    },
+    "p5-control-guest.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control\\build\\p5-control\\esp",
+        "--dma-retirement",
+        "--control"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0,
+      "elapsed": 58.82215905189514
+    },
+    "p5-control-replay-v2.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--dma-retirement",
+        "--replay",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control\\build\\test\\p5-reset-guest\\run-4469dc9f4f6b4d5aa1cbeec691e0be84\\result.json"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0
+    },
+    "p5-control-replay.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--dma-retirement",
+        "--replay",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control\\build\\test\\p5-reset-guest\\run-a60acf2ee4384a72b301ae90e7a15915\\result.json"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 1,
+      "elapsed": 1.8317248821258545
+    },
+    "p5-fault-build.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;from tools.build import build;print(build(runtime_level=7,output=Path(\"build/p5-fault\")))"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault",
+      "returncode": 0,
+      "elapsed": 223.86475014686584
+    },
+    "p5-fault-guest-v2.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault\\build\\p5-fault\\esp",
+        "--dma-retirement"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault",
+      "returncode": 0
+    },
+    "p5-fault-guest.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault\\build\\p5-fault\\esp",
+        "--dma-retirement"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault",
+      "returncode": 0,
+      "elapsed": 63.57396984100342
+    },
+    "p5-fault-replay-v2.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--dma-retirement",
+        "--replay",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault\\build\\test\\p5-reset-guest\\run-e6b30d5bcd3242078e99092243e4e79b\\result.json"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault",
+      "returncode": 0
+    },
+    "p5-fault-replay.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_virtio_reset_qemu",
+        "--dma-retirement",
+        "--replay",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault\\build\\test\\p5-reset-guest\\run-3a98b311ccbe4e3f99d733b1bd63f344\\result.json"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\fault",
+      "returncode": 1,
+      "elapsed": 1.8174388408660889
+    },
+    "usb-baseline-build.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;from tools.build import build;print(build(runtime_level=7,usb_only=True,output=Path(\"build/usb\")))"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\usb-baseline",
+      "returncode": 0
+    },
+    "usb-baseline-guest.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_usb_only_hardware_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\usb-baseline\\build\\usb\\esp",
+        "--output",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\usb-baseline-guest",
+        "--accel",
+        "tcg"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\usb-baseline",
+      "returncode": 1
+    },
+    "usb-build.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;from tools.build import build;print(build(runtime_level=7,usb_only=True,output=Path(\"build/usb\")))"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 1
+    },
+    "usb-guest.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_usb_only_hardware_qemu",
+        "--reuse-esp",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control\\build\\usb-lf\\esp",
+        "--output",
+        "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\usb-guest",
+        "--accel",
+        "tcg"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 1,
+      "elapsed": 282.36054015159607
+    },
+    "usb-lf-build.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;from tools.build import build;print(build(runtime_level=7,usb_only=True,output=Path(\"build/usb-lf\")))"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0
+    },
+    "usb-selftest.json": {
+      "argv": [
+        "C:\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "tests.run_usb_only_hardware_qemu",
+        "--selftest"
+      ],
+      "cwd": "D:\\projects\\projects3\\2026\\dongos\\code\\build\\test\\p6-bkl-integration\\run-20261106\\control",
+      "returncode": 0,
+      "elapsed": 3.3180434703826904
+    }
+  },
+  "local_archive": "code/build/test/p6-bkl-integration/run-20261106",
+  "raw_archive_in_git": false,
+  "source_manifest_sha256": {
+    "source-manifest.json": "1fd052ff6d26a89214a718784784c2f23515f42996c49b06b276c8005fc38879",
+    "source-manifest-lf.json": "bc0c8a847dec3fe9569ae9d6900a6144944aab9ad7a54f0e81cd98c17300021e",
+    "source-manifest-observer.json": "aae41bb43d7fe6fc17e53a7ff4c4bd16a240b4bf4913528bbf6d3ba7eee4afc0",
+    "fault-source-binding.json": "24b96ef8b71081d2e83182dbe2500b75a7ae53cd93b26e889fc168d4d6bb6ad6",
+    "usb-baseline-source.json": "466a57dd518f1425f226fa41757fb68bda6fc5c9991f36bcddf2171ffc027c5d",
+    "tools.json": "2faa64e44e95d22928f7d87f426db6f33631553667b8210526629e798ec3e09e"
+  },
+  "independent_review": {
+    "reviewer": "/root/review_bkl",
+    "readonly": true,
+    "candidate_native_executions": 18,
+    "production_migration_passed": true,
+    "lf_git_autocrlf_positive_and_negative_passed": true,
+    "source_binding_old_hash_prepare_mutants_rejected": 3,
+    "old_failed_p5_archives_still_rejected": true,
+    "all_six_usb_sentinel_disks_actual_hashes_unchanged": true
+  },
+  "limitations": [
+    "No hardware DMA drain/third-party owner exclusion/unpin/free/reuse/rebind/restart proof",
+    "USB A/B did not reach HID, long-file or second-boot checks; old Bridge failure does not prove FIFO has no timing effect",
+    "No Linux KVM <=500ms, warm PCID or physical desktop/laptop acceptance",
+    "Raw dumps, VM disks and binaries remain local; portable records are references and hashes, not substitute raw evidence"
+  ],
+  "branch_decision": {
+    "branch": "origin/codex/p6-input-irq-kvm-validation",
+    "tip": "288d65c",
+    "merge": false,
+    "reasons": [
+      "old manifest requires 5 artifacts vs current 7",
+      "InitialGuest lacks uses_static_pool and uses old pid<4 assumptions",
+      "workflow hardcodes old repository/PR3 authorization and can skip KVM gate",
+      "IRQ fix already in main; old input_service would lose current USB-only behavior"
+    ],
+    "followup": "cursor:P6VERIFYADAPT1"
+  }
+}

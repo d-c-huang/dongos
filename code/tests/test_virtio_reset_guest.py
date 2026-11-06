@@ -89,6 +89,29 @@ class ResetGuestControls(unittest.TestCase):
             with self.assertRaises(ValueError):fixture.prepare(src,dst)
             (dst/'kernel/keep.dg').write_text('changed')
             with self.assertRaises(ValueError):fixture.verify(dst)
+    def test_nested_build_profile_is_copied_bound_and_tamper_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base=Path(temp);src=base/'source';target=src/fixture.TARGET;target.parent.mkdir(parents=True)
+            target.write_text('module drivers.block_service;\n'+fixture.ANCHOR+'\n')
+            name='kernel/build/storage_profile.dg';profile=src/name;profile.parent.mkdir(parents=True)
+            profile.write_bytes(b'module build.storage_profile;\npub const STATIC_USER_POOLS:usize=3;\n')
+            (src/'build').mkdir();(src/'build/not-source.bin').write_bytes(b'generated output')
+            dst=base/'fixture';record=fixture.prepare(src,dst);fixture.verify(dst)
+            self.assertEqual(profile.read_bytes(),(dst/name).read_bytes())
+            self.assertEqual(fixture.digest(profile),record['production_sha256'][name])
+            self.assertEqual(record['production_sha256'][name],record['fixture_sha256'][name])
+            self.assertFalse((dst/'build').exists())
+            self.assertNotIn('build/not-source.bin',record['production_sha256'])
+            (src/'build/not-source.bin').write_bytes(b'output changed');fixture.verify(dst)
+            original=profile.read_bytes()
+            for changed in (src/name,dst/name):
+                with self.subTest(path=changed):
+                    changed.write_bytes(original+b'// tampered\n')
+                    with self.assertRaises(ValueError):fixture.verify(dst)
+                    changed.write_bytes(original)
+            (dst/name).unlink()
+            with self.assertRaises(ValueError):fixture.verify(dst)
+
     def test_reject_symlinks_and_nested_output(self):
         with tempfile.TemporaryDirectory() as temp:
             base=Path(temp);src=base/'source';target=src/fixture.TARGET;target.parent.mkdir(parents=True)

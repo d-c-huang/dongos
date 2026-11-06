@@ -6,11 +6,11 @@
   "checks": [
     "module:tests.test_usb_startup_budget"
   ],
-  "claim_from_status": "todo",
-  "claim_token": "4d7753ba410741f88e60ae7fb64a560d",
-  "claimed_at": "2026-11-05T12:19:50+00:00",
-  "claimed_by": "codex-mcp-50488d53a0084e80",
-  "completed_at": "2026-11-05T12:39:05+00:00",
+  "claim_from_status": "rework",
+  "claim_token": "6e41a30414f94eff88b2bd788a852ea5",
+  "claimed_at": "2026-11-06T07:28:16+00:00",
+  "claimed_by": "codex-mcp-e30a159488a44d74",
+  "completed_at": "2026-11-06T07:28:55+00:00",
   "complexity": "standard",
   "created_at": "2026-11-05T12:19:48+00:00",
   "delivery": "codex-works/deliveries/P678USBBAS2.md",
@@ -25,11 +25,11 @@
   "legacy_hash": "dd61d1c80d4d8d3ed87b3a2a9c790b16a3eb139a2efbbcc29c429663be804187",
   "number": "P678USBBAS2",
   "owner": "codex",
-  "rev": 5,
-  "review_note": "宿主预算复验1项零skip通过，真实四核正常USB客体在长文件写入时CPU1 BKL ACQUIRE超时并使BSP进入Held，未完成文件及第二次启动；保留失败。已发布cursor:P6BKLBRIDGE1手动候选。待新候选独立验收与迁移后用完整冻结源码重跑USB/P5回归。",
+  "rev": 11,
+  "review_note": "新旧Bridge同源A/B均files/settings05110007，未进HID/文件/二次启动；独立源/原始记录/六哨兵盘校验通过但功能门失败。保留原期限，先执行P7STARTTRACE1只读阶段观察定位根因；不将FIFO组件验收外推USB/长文件通过。",
   "status": "rework",
   "title": "[P6/P7/P8] 当前源码正常 USB 镜像的完整客体回归",
-  "updated_at": "2026-11-05T12:42:20+00:00",
+  "updated_at": "2026-11-06T07:28:56+00:00",
   "verification": null,
   "write_paths": [
     "codex-works/deliveries/P678USBBAS2.md"

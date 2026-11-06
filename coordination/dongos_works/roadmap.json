@@ -1,10 +1,10 @@
 {
   "version": 1,
   "title": "DongOS 整体任务图",
-  "updated_at": "2026-11-05T16:53:02+08:00",
-  "scope": "P0–P9、L0–L3及集成门：本地协调器当前状态与已归档证据；本轮未刷新远端CI，P10另定",
-  "summary": "P5 故障生命周期续接与 P9 有界日志传输已独立验收并集成本地主线工作区，生产七组56项正式复验零跳过。P9由pending更新partial；P5/P6/P7/P8及P2保留实际未关闭门。L0–L3保持既有完成结论。",
-  "focus": "本批P5P9CALLINT1完成；下一步P5真实故障/全核退休证据与设备DMA排空、P9完整客体日志捕获/CPL3/长期运行。另保留P8BOOTCONSOLE1 rework rev17：不能以诊断组件或旧VM成功关闭连续启动、HID/文件和真机门。P2暖PCID与物理WC仍待验。工作区未提交/推送，本轮未运行OS/VM。",
+  "updated_at": "2026-11-06T15:31:40+08:00",
+  "scope": "P0–P9、L0–L3及集成门：2026-11-06协调器与本轮真实客体/独立审查；未重跑远端CI，P10另定",
+  "summary": "FIFO Bridge生产接线、Windows USB策略LF和P5源码绑定修复已独立验收集成；P5正常/故障真实四核客体及原始重放通过，CPU映射退休门关闭。USB新旧Bridge均files/settings启动超时，完整HID/文件/双启动仍未通过。P2/P5/P6/P7/P8/P9保持partial，L0–L3既有结论不变。",
+  "focus": "先按P7STARTTRACE1定位USB超时前真实初始化阶段；P6VERIFYADAPT1适配旧验证工具后保留首代AP/KVM原门。P9CPL3RUN1、P9HOSTCRT1、P9IPCEXEC1已submitted待独立审查，不当作未实现或已验收。P5设备DMA排空/安全回收、P2暖PCID/物理WC、P8真机和P9长期安全门保持。",
   "tracks": [
     {
       "id": "system",
@@ -73,7 +73,8 @@
           ],
           "remaining": [
             "PCID12入口已集成，暖tag/同槽跨代复用与真实全读者失效仍需独立支持环境证据；TCG回退不能替代。",
-            "物理显示WC吞吐及有效内存类型的真机验收仍未提供；既有USB/启动诊断或VM结果不能替代，不再沿用旧快照的暂无真机假设。"
+            "物理显示WC吞吐及有效内存类型的真机验收仍未提供；既有USB/启动诊断或VM结果不能替代，不再沿用旧快照的暂无真机假设。",
+            "P2PCIDWHPX1 rework5：既有两次严格WHPX在OVMF PlatformPei #GP，尚未进入DongOS；保留失败，不以TCG代替暖PCID证据。"
           ],
           "evidence": [
             "code/kernel/user/memory.dg:327",
@@ -124,7 +125,8 @@
             "coordination/dongos_works/codex-works/tasks/P2CD1-board.md",
             "coordination/dongos_works/codex-works/tasks/P2CDTYPE1-board.md",
             "coordination/dongos_works/codex-works/tasks/P2CDBUILD1-board.md",
-            "coordination/dongos_works/codex-works/reviews/2026-10-24-P2CD1.json"
+            "coordination/dongos_works/codex-works/reviews/2026-10-24-P2CD1.json",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ],
           "scope_notes": [
             "本节点旧内核大小、预算、Git SHA及客体结果均绑定各自历史检查点；本轮未重新构建/运行这些镜像，不将其写为当前源码验证。"
@@ -172,10 +174,10 @@
             "P5CTX2本地integrated rev6：真实4核TCG正常/UD2故障两组各两次稳定观察，完整424B DmaContext与Device/DmaLease/Binding对照真实Catalog、账本、ECAM硬件；21项正式host零skip及独立raw/portable replay通过，P5CTX1生产源码保持不变；原租约held=1、drain=UNKNOWN",
             "2026-11-05 P5RECBOUND1 integrated：输出跨度溢出与别名校验修复，经非作者审查及正式复验；原作者自审记录不充当独审。",
             "P5DMARETIRE1 / P5DMAINT2 integrated：独立准备接口与完整DMA映射退休事务已迁入生产；准备尝试永久锁存，退休不分配、实际全森林别名审计、撤页后新全核ACK；失败永久持有。",
-            "P5DMACALL1 / P5P9CALLINT1 integrated：真实retire整批必要清理与依赖级联完成后才按旧incarnation续接prepare→retire；初审发现Domain污染会跳过后继清理，已真实返修并通过重建旧布局负控。生产54 native，两模式真实坏体；本批正式七组56项零skip、源稳定、进程退出。"
+            "P5DMACALL1 / P5P9CALLINT1 integrated：真实retire整批必要清理与依赖级联完成后才按旧incarnation续接prepare→retire；初审发现Domain污染会跳过后继清理，已真实返修并通过重建旧布局负控。生产54 native，两模式真实坏体；本批正式七组56项零skip、源稳定、进程退出。",
+            "2026-11-06 P5RETIREGUEST1 integrated rev7、P5SOURCEBIND1 integrated rev6：两份真实TCG四核同源normal/UD2故障回执和独立严格重放通过；1282/1438物理转储长度SHA正确。正常32页保留；故障32PTE全零、新退休序号180→181、四CPU ACK192/232，PINNED1/held1/drain0。两任务各24项正式零skip/源稳定。仅CPU映射退休，非DMA安全回收。"
           ],
           "remaining": [
-            "当前新接线的真实客体/硬件故障与全核退休回执仍需同源运行；宿主边界替身和旧P5CTX2运行记录不能替代。",
             "设备outstanding DMA可信排空/停止和第三方owner排除仍未证明；held=1、PINNED保持、drain=UNKNOWN，不得据CPU页表退休授予unpin/free/reuse。",
             "取得硬件安全前提后再实现精确回收、重绑定及驱动恢复，并完成同boot故障与脏DMA/晚IRQ/存储持久化负控。",
             "partial mapping、physical=0及准备/退休失败已有宿主负控；对应真实客体故障注入仍待执行。"
@@ -207,7 +209,8 @@
             "code/docs/p5-dma-retirement.md",
             "coordination/dongos_works/codex-works/reviews/P5P9CALLINT1.md",
             "coordination/dongos_works/codex-works/reviews/P5P9AUDIT1-dma.md",
-            "coordination/dongos_works/codex-works/deliveries/P5RECBOUND1.md"
+            "coordination/dongos_works/codex-works/deliveries/P5RECBOUND1.md",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ]
         },
         {
@@ -219,12 +222,14 @@
             "init Kahn依赖图、ready_mask、普通AUTOSTART应用与首代归属已接线；不再列为待开发DAG",
             "输入IRQ丢边沿修正已合入，专项与完整CI通过记录已在最新交接恢复",
             "首次DAG观察器、严格KVM runner及负控已经在实验分支开发；失败记录也已保存",
-            "2026-10-27/28既有P8RUNTIME1/P8BOOTLOG1：归档8CPU连续双启动、GUI/HID/USB文件与同盘持久性通过，包含恒忙UART负例；这些属于当时镜像，不是2026-11-05新源码的客体复验。"
+            "2026-10-27/28既有P8RUNTIME1/P8BOOTLOG1：归档8CPU连续双启动、GUI/HID/USB文件与同盘持久性通过，包含恒忙UART负例；这些属于当时镜像，不是2026-11-05新源码的客体复验。",
+            "2026-11-06 P6BKLBRIDGE1 integrated7/P6BKLINT1 integrated6：生产Bridge精确接FIFO bind/acquire/unlock，嵌套退休/屏障保持外层ticket，原期限不变；独立18次正常/真坏体与正式31tests/0skip通过，真实四核P5正常/故障回归通过。"
           ],
           "remaining": [
             "init首代跨AP依赖图并行结构证据仍未闭环；旧PR#3/KVM失败保留，不用启动完成后的AP活跃代替。",
-            "当前源码正常镜像GUI/键鼠/USB和原scheduler/init验收差集需同源复验；P8BOOTCONSOLE1仍rework，不能外推整机稳定。",
-            "合法Linux/KVM上的loader→interactive shell≤500ms原门仍待验，TCG/宿主计时不替代。"
+            "2026-11-06完整USB回归新旧Bridge均files/settings启动Timeout05110007，尚未进入HID/文件/第二启动；P678USBBAS2 rework11，P8BOOTCONSOLE1 rework17，原长文件问题未关闭。",
+            "合法Linux/KVM上的loader→interactive shell≤500ms原门仍待验，TCG/宿主计时不替代。",
+            "P6VERIFYADAPT1 todo1：修正旧分支7产物/零静态池/当前仓库CI准入适配；旧分支不整支合并。"
           ],
           "evidence": [
             "code/kernel/sched/multicore.dg:191",
@@ -238,7 +243,8 @@
             "https://github.com/EDarcyWong/dongos/actions/runs/39425166102",
             "coordination/dongos_works/reviews/2026-10-20-roadmap-github-checkpoint.json",
             "code/docs/hardware-user-runtime.md",
-            "coordination/dongos_works/codex-works/deliveries/P8BOOTLOG1.md"
+            "coordination/dongos_works/codex-works/deliveries/P8BOOTLOG1.md",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ]
         },
         {
@@ -251,6 +257,7 @@
             "2026-10-27/28既有P8RUNTIME1/P8BOOTLOG1：归档8CPU连续双启动、GUI/HID/USB文件与同盘持久性通过，包含恒忙UART负例；这些属于当时镜像，不是2026-11-05新源码的客体复验。"
           ],
           "remaining": [
+            "P7STARTTRACE1 todo1：以只读、绑定源码的超时前观察区分files/settings的window/font/FS/块设备阶段；LIST重复扫描只是源码线索，尚未证明为本次超时根因。",
             "最新源码的完整GUI/输入及桌面稳定性回归；既有P8RUNTIME1/P8BOOTLOG1旧镜像通过不能覆盖后续变更。",
             "P8BOOTCONSOLE1候选虽曾单次启动/交接PASS，仍有runtime fatal及HID/文件失败未闭环；需排除后再验收当前连续桌面。"
           ],
@@ -261,7 +268,8 @@
             "code/docs/language-l2-l3.md:180",
             "code/docs/p5-p6-engineering-handoff.md:96",
             "code/docs/hardware-user-runtime.md",
-            "coordination/dongos_works/codex-works/deliveries/P8BOOTLOG1.md"
+            "coordination/dongos_works/codex-works/deliveries/P8BOOTLOG1.md",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ]
         },
         {
@@ -274,9 +282,11 @@
             "2026-10-27/28既有P8RUNTIME1/P8BOOTLOG1：归档8CPU连续双启动、GUI/HID/USB文件与同盘持久性通过，包含恒忙UART负例；这些属于当时镜像，不是2026-11-05新源码的客体复验。",
             "10月25–28日多个兼容/诊断组件已integrated：高地址UEFI/GOP回退、Runtime MMIO的LAPIC/IOAPIC/HPET/ECAM、USB-only授权及AP/首CPL3诊断；不等于真机整机通过。",
             "P8SCRATCH1 integrated rev9：共享有界scratchpad布局、最多64页与128页DMA租约及完整owned alias校验；34/64及超限真实宿主负控，QEMU零scratch不能替代Intel34页实测。",
-            "P8PSI1/P8PSIGATE1 integrated rev6：标准USB2/USB3显式PSI速度表兼容和内核/authority独立验证；保留非标准表拒绝。P8XHCIPRECHECK1已集成，原值诊断组件与连续启动父项分开验收。"
+            "P8PSI1/P8PSIGATE1 integrated rev6：标准USB2/USB3显式PSI速度表兼容和内核/authority独立验证；保留非标准表拒绝。P8XHCIPRECHECK1已集成，原值诊断组件与连续启动父项分开验收。",
+            "2026-11-06 USBLF1 integrated6：根.gitattributes固定hardware_profile.dg LF，实际autocrlf=true正反checkout与正式7tests/0skip通过，完整USB构建恢复；未放宽严格字节策略。"
           ],
           "remaining": [
+            "P678USBBAS2 rework11：正常runtime7 USB-only新旧Bridge A/B均files/settings启动超时；六个64MiB内部保护虚盘实际完整hash未变且客体均清理。失败未到HID/文件/双启动，不能替代原长文件回归。",
             "codex:P8BOOTCONSOLE1 rework rev17：保留runtime fatal及完整HID/文件失败；单次启动和实验诊断版发布不代表稳定或真机根因已修复。",
             "Intel真机新版PSI各word与scratchpad/连续桌面/USB键鼠/文件持久化仍须实际复测；至少台式机、笔记本各一台的原阶段门保持。",
             "USB设备、Hub及更多层级覆盖和最新镜像完整集成回归未关闭。"
@@ -292,7 +302,8 @@
             "code/docs/hardware-xhci-precheck.md",
             "code/docs/hardware-startup-console.md",
             "coordination/dongos_works/codex-works/deliveries/P8PSI1.md",
-            "coordination/dongos_works/codex-works/tasks/P8BOOTCONSOLE1-board.md"
+            "coordination/dongos_works/codex-works/tasks/P8BOOTCONSOLE1-board.md",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ]
         },
         {
@@ -305,7 +316,7 @@
             "非作者两模式真实错case/漏END/混generation坏体拒绝、逐字wire oracle及1/256例运行通过；故障后直接复调只写一次。生产专项及本批七组56项正式零skip通过，结果固定guest_verified=false。"
           ],
           "remaining": [
-            "真实CPL3消费者启动、完整外部UART捕获与归档ELF实际执行关联尚未实现验收；4096B环不能保存20704B完整批，UART丢输出仍可返回0。",
+            "P9CPL3RUN1、P9HOSTCRT1、P9IPCEXEC1均submitted rev4且宿主正式复验通过；真实CPL3完整UART/ELF身份与IPC活端点候选仍待独立源码及原始证据审查，未登记验收。原4096B环/完整20704B批与UART丢输出风险需由完整外部捕获证据覆盖。",
             "真实系统调用/IPC模糊测试、泄漏监控与原阶段24小时运行门未完成；宿主回执不提供guest attestation。",
             "用户密钥签名与OVMF/真机安全启动，IOMMU隔离用户DMA，CET影子栈/间接跳转保护及内核基址随机化仍待完成。"
           ],
@@ -315,7 +326,8 @@
             "code/docs/syscall-corpus.md",
             "code/docs/guest-corpus.md",
             "code/tools/guest_corpus/log_transport/corpus_log.py",
-            "coordination/dongos_works/codex-works/reviews/P5P9CALLINT1.md"
+            "coordination/dongos_works/codex-works/reviews/P5P9CALLINT1.md",
+            "coordination/dongos_works/reviews/2026-11-06-p5-p6-checkpoint.json"
           ]
         }
       ]
@@ -1303,16 +1315,18 @@
     }
   ],
   "notes": [
-    "2026-11-05T16:53:02+08:00 本地协调器非归档任务269项：accepted=24, integrated=242, rework=1, submitted=2。accepted与integrated分开；历史24项accepted不自动改状态，两个审查记录submitted不充当未实现组件。所有历史数量仅属各自日期。",
-    "本轮只更新展示图源/Markdown和审计快照，不直接改数据库/index.json。远端PR/CI结论沿用原日期；新主线集成为本地工作区，未提交推送。",
-    "2026-10-24 22:48 +08:00整体图实物同步：P2CD1/TYPE/BUILD及P2VEC42/P2ERR43均已集成；正式复验作业分别8cf746e3518145219278173a593dafbc、82cf626668fe437c803de857b41405c0、ebf434eb7c83402fa6ddf6e51632b4df、94b5d018570144e08c2d8eb8bd279120、9868d94f74e745a38c6bb924ee380ae3。P2仍partial；暖PCID和物理WC未验收，P5既有状态保持。下列旧日期条目只代表各自历史检查点。",
-    "2026-10-24 L3完成：L3ELFMATRIX1 已独立验收并集成本地主线 main 工作树（integrated rev6）。正式作业 ed37c79515f94c87a488e538ea6ba20d：51项/27组全部通过、零skip，963.657秒，source_stable及进程停止/退出均确认。148份目标ELF、166次实际观察运行和六类错误源码通过独立产物审计；157主目录源码与复验一致，G6的456源仍逐字绑定已验收的2,062,984字节编译器。因此L3/L3A剩余纯ELF矩阵门关闭，整体状态更新为complete。",
-    "本轮17份缺失任务书、CX6同号异义和CX14/CX15旧状态均已处理完成。CX14 integrated rev7，CX15 integrated rev8；CX6 integrated rev9，已恢复读取器契约，分离5条原NASM事件，耗时恢复为1轮/265秒，原始事件全部保留。协调器issues=0；核对时间2026-10-22T09:18:41+08:00。",
-    "历史（2026-10-22）当前MCP快照共164项活动任务：19 accepted、140 integrated、3 submitted、1 in_progress、1 rework。本轮同时观测到其它客户端新增5项并行任务，其状态按实时MCP继续变化，本轮没有接管或改动它们。",
-    "原文按固定Git blob恢复，旧任务书中的待领取是原发布快照，实时状态以协调器为准；没有手改DB/index或用自述代替验收。",
-    "CX6同号历史通过规范契约、两支原文归档和精确事件SHA校正；原事件均保留，get_task.timing.identity_resolution保存分离依据。",
-    "本轮实际执行CX14三项、CX15一项正式隔离复验及11项身份关联测试，均零skip；G6真实VM结果沿用原准确head的已审回执，不声称本轮新机重跑。",
-    "新机缺ignored build/raw产物不等于源码缺失；原验收指纹保持原字节含义，LF/CRLF等价另标，真实后继修改不冒作原源码。",
-    "本轮仅处理迁移记录、身份分离和旧状态收尾；协调器已在无活动作业时安全重载，自动化保持关闭，未提交、推送或关机。"
+    "2026-11-06T15:31:40+08:00 非归档任务281项：accepted=24, integrated=247, rework=3, submitted=5, todo=2。accepted/integrated分开；旧24项accepted和待审任务不自动变更。",
+    "本次已真实运行冻结副本TCG客体并保留成功与失败；任务状态经协调器登记，图源只作展示。代码和任务状态作为同一跨机检查点同步；远端CI结论不冒作本次测试。",
+    "历史条目（按原日期与当时范围）：2026-11-05T16:53:02+08:00 本地协调器非归档任务269项：accepted=24, integrated=242, rework=1, submitted=2。accepted与integrated分开；历史24项accepted不自动改状态，两个审查记录submitted不充当未实现组件。所有历史数量仅属各自日期。",
+    "历史条目（按原日期与当时范围）：本轮只更新展示图源/Markdown和审计快照，不直接改数据库/index.json。远端PR/CI结论沿用原日期；新主线集成为本地工作区，未提交推送。",
+    "历史条目（按原日期与当时范围）：2026-10-24 22:48 +08:00整体图实物同步：P2CD1/TYPE/BUILD及P2VEC42/P2ERR43均已集成；正式复验作业分别8cf746e3518145219278173a593dafbc、82cf626668fe437c803de857b41405c0、ebf434eb7c83402fa6ddf6e51632b4df、94b5d018570144e08c2d8eb8bd279120、9868d94f74e745a38c6bb924ee380ae3。P2仍partial；暖PCID和物理WC未验收，P5既有状态保持。下列旧日期条目只代表各自历史检查点。",
+    "历史条目（按原日期与当时范围）：2026-10-24 L3完成：L3ELFMATRIX1 已独立验收并集成本地主线 main 工作树（integrated rev6）。正式作业 ed37c79515f94c87a488e538ea6ba20d：51项/27组全部通过、零skip，963.657秒，source_stable及进程停止/退出均确认。148份目标ELF、166次实际观察运行和六类错误源码通过独立产物审计；157主目录源码与复验一致，G6的456源仍逐字绑定已验收的2,062,984字节编译器。因此L3/L3A剩余纯ELF矩阵门关闭，整体状态更新为complete。",
+    "历史条目（按原日期与当时范围）：本轮17份缺失任务书、CX6同号异义和CX14/CX15旧状态均已处理完成。CX14 integrated rev7，CX15 integrated rev8；CX6 integrated rev9，已恢复读取器契约，分离5条原NASM事件，耗时恢复为1轮/265秒，原始事件全部保留。协调器issues=0；核对时间2026-10-22T09:18:41+08:00。",
+    "历史条目（按原日期与当时范围）：历史（2026-10-22）当前MCP快照共164项活动任务：19 accepted、140 integrated、3 submitted、1 in_progress、1 rework。本轮同时观测到其它客户端新增5项并行任务，其状态按实时MCP继续变化，本轮没有接管或改动它们。",
+    "历史条目（按原日期与当时范围）：原文按固定Git blob恢复，旧任务书中的待领取是原发布快照，实时状态以协调器为准；没有手改DB/index或用自述代替验收。",
+    "历史条目（按原日期与当时范围）：CX6同号历史通过规范契约、两支原文归档和精确事件SHA校正；原事件均保留，get_task.timing.identity_resolution保存分离依据。",
+    "历史条目（按原日期与当时范围）：本轮实际执行CX14三项、CX15一项正式隔离复验及11项身份关联测试，均零skip；G6真实VM结果沿用原准确head的已审回执，不声称本轮新机重跑。",
+    "历史条目（按原日期与当时范围）：新机缺ignored build/raw产物不等于源码缺失；原验收指纹保持原字节含义，LF/CRLF等价另标，真实后继修改不冒作原源码。",
+    "历史条目（按原日期与当时范围）：本轮仅处理迁移记录、身份分离和旧状态收尾；协调器已在无活动作业时安全重载，自动化保持关闭，未提交、推送或关机。"
   ]
 }

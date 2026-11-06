@@ -1,0 +1,2 @@
+# USB policy is validated byte-for-byte; preserve its canonical LF on Windows.
+code/services/lib/hardware_profile.dg text eol=lf

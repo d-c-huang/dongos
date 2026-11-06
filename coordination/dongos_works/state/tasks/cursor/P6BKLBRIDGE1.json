@@ -1,5 +1,14 @@
 {
-  "assignment_owner": "cursor",
+  "assignment_history": [
+    {
+      "at": "2026-11-06T05:42:13+00:00",
+      "from_owner": "cursor",
+      "note": "按用户既有接手Cursor任务与继续剩余阶段授权，接手当前无人领取的Bridge FIFO候选；保持原文件范围和独立审查/复验门槛。",
+      "previous_claimed_by": null,
+      "to_owner": "codex"
+    }
+  ],
+  "assignment_owner": "codex",
   "auto_dispatch": false,
   "auto_verify": false,
   "candidate": null,
@@ -8,9 +17,11 @@
     "module:tests.test_user_bkl",
     "module:tests.test_user_domain"
   ],
-  "claimed_at": null,
-  "claimed_by": null,
-  "completed_at": null,
+  "claim_from_status": "todo",
+  "claim_token": "344d8ebbfc6445baa4b2dc973dcc7b07",
+  "claimed_at": "2026-11-06T05:42:20+00:00",
+  "claimed_by": "codex-mcp-e30a159488a44d74",
+  "completed_at": "2026-11-06T05:47:04+00:00",
   "complexity": "standard",
   "created_at": "2026-11-05T12:36:52+00:00",
   "delivery": "cursor-works/deliveries/P6BKLBRIDGE1.md",
@@ -22,15 +33,68 @@
   "document": "cursor-works/tasks/P6BKLBRIDGE1-board.md",
   "historical": false,
   "id": "cursor:P6BKLBRIDGE1",
+  "integration_note": "已按P6BKLINT1授权真实逐字复制到code/kernel/sched/user_bridge.dg，生产与已正式复验候选SHA均e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab；生产测试已迁移为读取当前源码。候选独审/正式4项零skip保持。这里只登记真实源码迁移，生产8模块及USB/P5运行门由P6BKLINT1/P678USBBAS2继续，不声称原超时已排除。",
   "legacy_hash": "293ace45b34309c70ff6f534b912eb60a0728d53953f8ea05512aed09f7d8d9d",
   "number": "P6BKLBRIDGE1",
-  "owner": "cursor",
-  "rev": 1,
-  "review_note": "",
-  "status": "todo",
+  "owner": "codex",
+  "rev": 7,
+  "review_note": "独立只读审查 /root/review_bkl 通过，独立原生重跑run-7c55b9612dcc：1项0skip、18实际编译/执行、8坏体双模式rc1，source/tool稳定；回执SHA e43429ca91eeaab013562a7c1a9fe2adf49cc87be76a64bb2f7457c44f7229f0。已实际对比完整Bridge：唯一bind在ACTIVE发布前、两acquire两unlock；bootstrap原Domain锁与嵌套barrier/retire不排票，deadline/held/诊断不变。正式job6a254dda76434d518f56b62d723e49f5三个模块4项0skip，passed/source_stable/process_stopped/execution_exited均true。仅验收候选宿主范围，等待真实生产迁移及USB/P5客体；不宣布超时根因修复。",
+  "status": "integrated",
   "title": "[P2/P6/P7/P8] FIFO BKL 接入实际 Bridge 的候选",
-  "updated_at": "2026-11-05T12:36:52+00:00",
-  "verification": null,
+  "updated_at": "2026-11-06T05:59:24+00:00",
+  "verification": {
+    "checks": [
+      {
+        "cancelled": false,
+        "elapsed_seconds": 212.219,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "discover:cursor-works/tests:test_p6_bkl_bridge.py",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 78.14,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_bkl",
+        "tests": 1,
+        "timed_out": false
+      },
+      {
+        "cancelled": false,
+        "elapsed_seconds": 80.678,
+        "execution_exited": true,
+        "passed": true,
+        "process_stopped": true,
+        "returncode": 0,
+        "skips": 0,
+        "spec": "module:tests.test_user_domain",
+        "tests": 2,
+        "timed_out": false
+      }
+    ],
+    "execution_exited": true,
+    "fingerprint": {
+      "cursor-works/deliveries/P6BKLBRIDGE1.md": "68078f77d949b3312c5ed7226b13c8bba0eca7dd99e7b37929078b7197c1de2b",
+      "cursor-works/src/p6/bkl-bridge/contract.md": "dc551c29cdb7fb9aac72800489e37f2fbf5a606273aee9523b112415c5b1ade4",
+      "cursor-works/src/p6/bkl-bridge/user_bridge.dg": "e2a6e10d693f526166295fa589c5a3477b30d1108a4533714393d9aa407ed2ab",
+      "cursor-works/tests/test_p6_bkl_bridge.py": "366d6be50c97ba5d6049130e69b369a8536d2745b9bb0bbc3e3c6575a4f4f8e8"
+    },
+    "finished_at": "2026-11-06T05:58:01+00:00",
+    "job": "6a254dda76434d518f56b62d723e49f5",
+    "passed": true,
+    "process_stopped": true,
+    "source_stable": true,
+    "summary": "定向复验通过，等待源码/契约审查"
+  },
   "write_paths": [
     "cursor-works/src/p6/bkl-bridge/user_bridge.dg",
     "cursor-works/src/p6/bkl-bridge/contract.md",

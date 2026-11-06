@@ -17,7 +17,8 @@ def inject(source):
 
 def hashes(root):
     return {p.relative_to(root).as_posix(): digest(p) for p in sorted(root.rglob('*'))
-            if p.is_file() and not any(x in ('build', '__pycache__', '.git') for x in p.relative_to(root).parts)
+            if p.is_file() and p.relative_to(root).parts[0] != 'build'
+            and not any(x in ('__pycache__', '.git') for x in p.relative_to(root).parts)
             and p.suffix != '.pyc'}
 
 def prepare(source, destination):
@@ -28,10 +29,17 @@ def prepare(source, destination):
         if parent.is_symlink(): raise ValueError('symlink destination ancestor')
     if not (source / TARGET).is_file(): raise ValueError('source must be code root')
     for p in source.rglob('*'):
-        if 'build' not in p.relative_to(source).parts and p.is_symlink():
+        if p.relative_to(source).parts[0] != 'build' and p.is_symlink():
             raise ValueError('source symlink is not allowed: ' + str(p))
     before = hashes(source)
-    shutil.copytree(source, destination, ignore=shutil.ignore_patterns('build', '.git', '__pycache__', '*.pyc'))
+    # Only source_root/build is generated output. kernel/build contains real
+    # profile inputs which must be copied, hashed and checked during replay.
+    def ignored(directory, names):
+        excluded = set(shutil.ignore_patterns('.git', '__pycache__', '*.pyc')(directory, names))
+        if Path(directory) == source:
+            excluded.add('build')
+        return excluded
+    shutil.copytree(source, destination, ignore=ignored)
     target = destination / TARGET
     target.write_text(inject(target.read_text()))
     after = hashes(destination)
